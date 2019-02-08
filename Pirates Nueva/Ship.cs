@@ -47,8 +47,8 @@ namespace Pirates_Nueva
             catch(ArgumentOutOfRangeException) {
                 throw;
             }
-
-            return this.blocks[x, y];
+            
+            return UnsafeGetBlock(x, y);
         }
         /// <summary>
         /// Place a block of type /id/ at position (/x/, /y/).
@@ -64,13 +64,28 @@ namespace Pirates_Nueva
             catch(ArgumentOutOfRangeException) {
                 throw;
             }
-
-            if(GetBlock(x, y) == null)
+            
+            if(UnsafeGetBlock(x, y) == null)
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
             else
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
+        }
+
+        /// <summary>
+        /// Whether or not there is a block at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool HasBlock(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(HasBlock)}", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+            
+            return UnsafeGetBlock(x, y) != null;
         }
 
         /// <summary>
@@ -86,7 +101,7 @@ namespace Pirates_Nueva
                 throw;
             }
             
-            if(this.blocks[x, y] is Block b) {
+            if(UnsafeGetBlock(x, y) is Block b) {
                 this.blocks[x, y] = null;
                 return b;
             }
@@ -96,6 +111,9 @@ namespace Pirates_Nueva
                     );
             }
         }
+
+        /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
+        private Block UnsafeGetBlock(int x, int y) => this.blocks[x, y];
 
         /// <summary> Throw an exception if either index is out of range. </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
