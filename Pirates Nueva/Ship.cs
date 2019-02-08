@@ -87,7 +87,7 @@ namespace Pirates_Nueva
         }
 
         public void Update(Master master) {
-            if(master.MouseLeftDown) {
+            if(master.Input.MouseLeft.IsDown) {
                 var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                 var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
 

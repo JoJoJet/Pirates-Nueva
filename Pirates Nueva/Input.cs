@@ -13,6 +13,7 @@ namespace Pirates_Nueva
         public Master Master { get; }
 
         public Point MousePosition { get; private set; }
+        public Button MouseLeft { get; private set; } = new Button();
 
         internal Input(Master master) {
             Master = master;
@@ -22,6 +23,16 @@ namespace Pirates_Nueva
             var mouse = Mouse.GetState();
 
             MousePosition = mouse.Position;
+            
+            MouseLeft = updateButton(MouseLeft, mouse.LeftButton == ButtonState.Pressed);
+
+            Button updateButton(Button old, bool isPressed) {
+                var newb = new Button();
+
+                (newb as IContract).SetOldIsPressed(old.IsPressed);
+                (newb as IContract).SetIsPressed(isPressed);
+
+                return newb;
             }
         }
 
