@@ -9,6 +9,9 @@ namespace Pirates_Nueva
 {
     public class Block : IDrawable
     {
+        /// <summary>
+        /// The number of pixels in a <see cref="Block"/> (square).
+        /// </summary>
         internal const int Pixels = 32;
 
         public Ship Ship { get; }
@@ -36,7 +39,7 @@ namespace Pirates_Nueva
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
             var (x, y) = Ship.Sea.SeaPointToScreen(X, Y);
-            master.SpriteBatch.Draw(tex, new Rectangle(x, y, Pixels, Pixels), Color.White);
+            master.SpriteBatch.Draw(tex, new Rectangle(x, y-Pixels, Pixels, Pixels), Color.White);
         }
     }
 }
