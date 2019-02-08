@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Point = Microsoft.Xna.Framework.Point;
+using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
 {
@@ -30,6 +29,9 @@ namespace Pirates_Nueva
             foreach(Ship ship in this.ships) {
                 ship.Draw(master);
             }
+            
+            var (mouseX, mouseY) = ScreenPointToSea(master.Mouse.Position);
+            master.SpriteBatch.DrawString(master.Font, $"{mouseX:.00}, {mouseY:.00}", Vector2.Zero, Color.Black);
         }
 
         #region Space Transformation

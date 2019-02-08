@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
 {
@@ -55,6 +54,7 @@ namespace Pirates_Nueva
         /// Place a block of type /id/ at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
         /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public Block PlaceBlock(string id, int x, int y) {
@@ -65,7 +65,10 @@ namespace Pirates_Nueva
                 throw;
             }
 
-            return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
+            if(GetBlock(x, y) == null)
+                return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
+            else
+                throw new InvalidOperationException($"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a block at position ({x}, {y})!");
         }
 
         /// <summary> Throw an exception if either index is out of range. </summary>
@@ -103,9 +106,6 @@ namespace Pirates_Nueva
                     }
                 }
             }
-            
-            var (seaX, seaY) = Sea.ScreenPointToSea(master.Mouse.Position);
-            master.SpriteBatch.DrawString(master.Font, $"{seaX:.00}, {seaY:.00}", Vector2.Zero, Color.Black);
         }
     }
 }
