@@ -36,6 +36,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
+        #region Block Accessor Methods
         /// <summary>
         /// Get the block at position (/x/, /y/).
         /// </summary>
@@ -129,6 +130,7 @@ namespace Pirates_Nueva
                     $@"{methodName}: Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
         }
+        #endregion
 
         public void Update(Master master) {
             // If the user clicks either mouse button.
@@ -140,10 +142,10 @@ namespace Pirates_Nueva
                 // If the place the user clicked was within the bounds of the ship.
                 if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
                     // If the left mouse button was clicked, place a block.
-                    if(master.Input.MouseLeft.IsDown)
+                    if(master.Input.MouseLeft.IsDown && HasBlock(shipX, shipY) == false)
                         PlaceBlock("wood", shipX, shipY);
                     // If the right mouse button was clicked, remove a block.
-                    else if(master.Input.MouseRight.IsDown)
+                    else if(master.Input.MouseRight.IsDown && HasBlock(shipX, shipY))
                         RemoveBlock(shipX, shipY);
                 }
             }
