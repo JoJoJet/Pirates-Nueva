@@ -9,7 +9,7 @@ namespace Pirates_Nueva
 {
     public class Block : IDrawable
     {
-        internal const int Size = 32;
+        internal const int Pixels = 32;
 
         public BlockDef Def { get; private set; }
 
@@ -38,7 +38,7 @@ namespace Pirates_Nueva
 
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
-            master.SpriteBatch.Draw(tex, new Rectangle(X * Size, Y * Size, Size, Size), Color.White);
+            master.SpriteBatch.Draw(tex, new Rectangle(X * Pixels, Y * Pixels, Pixels, Pixels), Color.White);
         }
     }
 }
