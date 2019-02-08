@@ -26,7 +26,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// Controls Rendering and calls the Update() functions for every type in the game.
     /// </summary>
-    public class Master : Game
+    public sealed class Master : Game
     {
         static Master _instance;
 
@@ -41,6 +41,7 @@ namespace Pirates_Nueva
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
+        public Point MousePosition { get; private set; }
 
         #region Initialization
         public Master() {
@@ -104,6 +105,9 @@ namespace Pirates_Nueva
             FrameTime = gameTime;
 
             // TODO: Add your update logic here
+            var mouse = Mouse.GetState();
+            MousePosition = new Point(mouse.X, mouse.Y);
+
             this.sea.Update(this);
 
             base.Update(gameTime);
