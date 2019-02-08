@@ -32,12 +32,6 @@ namespace Pirates_Nueva
             X = x;
             Y = y;
         }
-        /// <summary>
-        /// Create a <see cref="Block"/> with position (/x/, /y/), with a <see cref="BlockDef"/> identified by /defId/.
-        /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /defId/.</exception>
-        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identifed by /defId/ is not a <see cref="BlockDef"/>.</exception>
-        public Block(Ship parent, string defId, int x, int y) : this(parent, BlockDef.Get(defId), x, y) {  }
 
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);

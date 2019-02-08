@@ -53,6 +53,8 @@ namespace Pirates_Nueva
         /// Place a block of type /id/ at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
+        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public Block PlaceBlock(string id, int x, int y) {
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(PlaceBlock)}()", x, y);
@@ -61,7 +63,7 @@ namespace Pirates_Nueva
                 throw;
             }
 
-            return this.blocks[x, y] = new Block(this, id, x, y);
+            return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
         }
 
         /// <summary> Throw an exception if either index is out of range. </summary>
