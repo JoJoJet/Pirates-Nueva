@@ -26,7 +26,14 @@ namespace Pirates_Nueva
 
             this.blocks = new Block[width, height];
 
-            PlaceBlock("root", Width/2, Height/2);
+            // Place the root block.
+            // It should be in the exact middle of the Ship.
+            var (rootX, rootY) = (Width/2, Height/2);
+            if(Width % 2 == 1)
+                rootX++;
+            if(Height % 2 == 1)
+                rootY++;
+            PlaceBlock("root", rootX, rootY);
         }
 
         /// <summary>

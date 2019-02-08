@@ -35,7 +35,8 @@ namespace Pirates_Nueva
 
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
-            master.SpriteBatch.Draw(tex, new Rectangle(X * Pixels, Y * Pixels, Pixels, Pixels), Color.White);
+            var (x, y) = Parent.Parent.SeaPointToScreen(X, Y);
+            master.SpriteBatch.Draw(tex, new Rectangle(x, y, Pixels, Pixels), Color.White);
         }
     }
 }
