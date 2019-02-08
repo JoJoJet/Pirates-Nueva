@@ -30,7 +30,7 @@ namespace Pirates_Nueva
                 ship.Draw(master);
             }
             
-            var (mouseX, mouseY) = ScreenPointToSea(master.Mouse.Position);
+            var (mouseX, mouseY) = ScreenPointToSea(master.MousePosition);
             master.SpriteBatch.DrawString(master.Font, $"{mouseX:.00}, {mouseY:.00}", Vector2.Zero, Color.Black);
         }
 
