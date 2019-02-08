@@ -88,7 +88,7 @@ namespace Pirates_Nueva
 
         public void Update(Master master) {
             if(master.MouseLeftDown) {
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.MousePosition);
+                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                 var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
 
                 PlaceBlock("wood", shipX, shipY);

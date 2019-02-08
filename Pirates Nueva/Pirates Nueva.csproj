@@ -48,6 +48,7 @@
     <Compile Include="Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
+    <Compile Include="Input.cs" />
     <Compile Include="Master.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

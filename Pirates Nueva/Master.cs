@@ -41,10 +41,10 @@ namespace Pirates_Nueva
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
-        public Point MousePosition { get; private set; }
         public bool MouseLeft { get; private set; }
         public bool MouseLeftDown { get; private set; }
         public bool MouseLeftUp { get; private set; }
+        public Input Input { get; }
 
         #region Initialization
         public Master() {
@@ -54,6 +54,7 @@ namespace Pirates_Nueva
             Content.RootDirectory = "Content";
 
             Resources = new Resources(this);
+            Input = new Input(this);
         }
 
         /// <summary>
@@ -111,12 +112,11 @@ namespace Pirates_Nueva
             
             var mouse = Mouse.GetState();
 
-            MousePosition = mouse.Position;
-
             bool mouseLeftOld = MouseLeft;
             MouseLeft = mouse.LeftButton == ButtonState.Pressed;
             MouseLeftDown = !mouseLeftOld && MouseLeft;
             MouseLeftUp = mouseLeftOld && !MouseLeft;
+            (Input as IUpdatable).Update(this);
 
             this.sea.Update(this);
 
