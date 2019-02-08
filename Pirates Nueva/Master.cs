@@ -51,9 +51,6 @@ namespace Pirates_Nueva
             Content.RootDirectory = "Content";
 
             Resources = new Resources(this);
-
-            // Initialize the Def class.
-            Def.Initialize(this);
         }
 
         /// <summary>
@@ -68,6 +65,9 @@ namespace Pirates_Nueva
         protected override void Initialize() {
             // TODO: Add your initialization logic here
             this.sea = new Sea();
+
+            // Initialize the Def class.
+            Def.Initialize(this);
 
             base.Initialize();
         }
