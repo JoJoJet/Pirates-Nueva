@@ -37,7 +37,8 @@ namespace Pirates_Nueva
         public Block(string defId, int x, int y) : this(BlockDef.Get(defId), x, y) {  }
 
         public void Draw(Master master) {
-            master.SpriteBatch.Draw(Def.Texture, new Rectangle(X * Size, Y * Size, Size, Size), Color.White);
+            var tex = master.Resources.LoadTexture(Def.TextureID);
+            master.SpriteBatch.Draw(tex, new Rectangle(X * Size, Y * Size, Size, Size), Color.White);
         }
     }
 }

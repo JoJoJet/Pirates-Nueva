@@ -33,6 +33,7 @@ namespace Pirates_Nueva
         GraphicsDeviceManager graphics;
         Sea sea;
 
+        /// <summary> Prolly don't use this. Will likely be removed later. </summary>
         public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
         public SpriteBatch SpriteBatch { get; private set; }
