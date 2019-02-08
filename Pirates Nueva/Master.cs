@@ -41,7 +41,7 @@ namespace Pirates_Nueva
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
-        public Point MousePosition { get; private set; }
+        public MouseState Mouse { get; private set; }
 
         #region Initialization
         public Master() {
@@ -106,9 +106,7 @@ namespace Pirates_Nueva
 
             FrameTime = gameTime;
 
-            // TODO: Add your update logic here
-            var mouse = Mouse.GetState();
-            MousePosition = new Point(mouse.X, mouse.Y);
+            Mouse = Microsoft.Xna.Framework.Input.Mouse.GetState();
 
             this.sea.Update(this);
 

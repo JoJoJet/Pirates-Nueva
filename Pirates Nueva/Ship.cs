@@ -104,7 +104,7 @@ namespace Pirates_Nueva
                 }
             }
             
-            var (seaX, seaY) = Parent.ScreenPointToSea(master.MousePosition);
+            var (seaX, seaY) = Sea.ScreenPointToSea(master.Mouse.Position);
             master.SpriteBatch.DrawString(master.Font, $"{seaX:.00}, {seaY:.00}", Vector2.Zero, Color.Black);
         }
     }
