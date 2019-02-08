@@ -49,6 +49,9 @@ namespace Pirates_Nueva
             Content.RootDirectory = "Content";
 
             Resources = new Resources(this);
+
+            // Initialize the Def class.
+            Def.Initialize(this);
         }
 
         /// <summary>
