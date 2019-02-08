@@ -65,6 +65,8 @@ namespace Pirates_Nueva
         protected override void Initialize() {
             // TODO: Add your initialization logic here
             this.sea = new Sea();
+            // Make the mouse cursor visible onscreen.
+            IsMouseVisible = true;
 
             // Initialize the Def class.
             Def.Initialize(this);
