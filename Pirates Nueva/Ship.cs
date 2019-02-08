@@ -61,7 +61,7 @@ namespace Pirates_Nueva
                 throw;
             }
 
-            return this.blocks[x, y] = new Block(id, x, y);
+            return this.blocks[x, y] = new Block(this, id, x, y);
         }
 
         /// <summary> Throw an exception if either index is out of range. </summary>
