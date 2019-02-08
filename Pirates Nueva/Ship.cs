@@ -68,7 +68,33 @@ namespace Pirates_Nueva
             if(GetBlock(x, y) == null)
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
             else
-                throw new InvalidOperationException($"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a block at position ({x}, {y})!");
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
+                    );
+        }
+
+        /// <summary>
+        /// Remove the block at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
+        public Block RemoveBlock(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(RemoveBlock)}()", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+            
+            if(this.blocks[x, y] is Block b) {
+                this.blocks[x, y] = null;
+                return b;
+            }
+            else {
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
+                    );
+            }
         }
 
         /// <summary> Throw an exception if either index is out of range. </summary>
@@ -87,11 +113,21 @@ namespace Pirates_Nueva
         }
 
         public void Update(Master master) {
-            if(master.Input.MouseLeft.IsDown) {
+            // If the user clicks either mouse button.
+            if(master.Input.MouseLeft.IsDown || master.Input.MouseRight.IsDown) {
+                // Find the index of the location that the user clicked.
                 var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                 var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
 
-                PlaceBlock("wood", shipX, shipY);
+                // If the place the user clicked was within the bounds of the ship.
+                if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
+                    // If the left mouse button was clicked, place a block.
+                    if(master.Input.MouseLeft.IsDown)
+                        PlaceBlock("wood", shipX, shipY);
+                    // If the right mouse button was clicked, remove a block.
+                    else if(master.Input.MouseRight.IsDown)
+                        RemoveBlock(shipX, shipY);
+                }
             }
         }
 

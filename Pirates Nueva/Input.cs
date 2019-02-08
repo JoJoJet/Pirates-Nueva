@@ -14,6 +14,7 @@ namespace Pirates_Nueva
 
         public Point MousePosition { get; private set; }
         public Button MouseLeft { get; private set; } = new Button();
+        public Button MouseRight { get; private set; } = new Button();
 
         internal Input(Master master) {
             Master = master;
@@ -25,6 +26,7 @@ namespace Pirates_Nueva
             MousePosition = mouse.Position;
             
             MouseLeft = updateButton(MouseLeft, mouse.LeftButton == ButtonState.Pressed);
+            MouseRight = updateButton(MouseRight, mouse.RightButton == ButtonState.Pressed);
 
             Button updateButton(Button old, bool isPressed) {
                 var newb = new Button();
