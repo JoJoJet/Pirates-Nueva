@@ -6,7 +6,4 @@
 	<BlockDef ID="wood">
 		<TextureID>woodBlock</TextureID>
 	</BlockDef>
-	<BlockDef ID="steel">
-		<TextureID>steelBlock</TextureID>
-	</BlockDef>
 </Defs>
