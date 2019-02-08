@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Sea : IUpdatable, IDrawable
+    public sealed class Sea : IUpdatable, IDrawable
     {
         private readonly List<Ship> ships = new List<Ship>();
 
         public Sea() {
-            this.ships.Add(new Ship(10, 5));
+            this.ships.Add(new Ship(this, 10, 5));
         }
 
         public void Update(Master master) {

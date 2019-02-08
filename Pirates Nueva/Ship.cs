@@ -11,6 +11,8 @@ namespace Pirates_Nueva
     {
         private readonly Block[,] blocks;
 
+        public Sea Parent { get; }
+
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
         public int Width => this.blocks.GetLength(0);
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
@@ -19,7 +21,9 @@ namespace Pirates_Nueva
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
-        public Ship(int width, int height) {
+        public Ship(Sea parent, int width, int height) {
+            Parent = parent;
+
             this.blocks = new Block[width, height];
 
             PlaceBlock("root", Width/2, Height/2);
@@ -39,7 +43,7 @@ namespace Pirates_Nueva
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(GetBlock)}()", x, y);
             }
-            catch {
+            catch(ArgumentOutOfRangeException) {
                 throw;
             }
 
@@ -53,7 +57,7 @@ namespace Pirates_Nueva
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(PlaceBlock)}()", x, y);
             }
-            catch {
+            catch(ArgumentOutOfRangeException) {
                 throw;
             }
 
