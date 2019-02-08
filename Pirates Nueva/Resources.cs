@@ -1,0 +1,49 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Pirates_Nueva
+{
+    internal class Resources
+    {
+        private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates Nueva\Pirates Nueva\Resources\";
+
+        private readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
+
+        public Master Master { get; }
+
+        private Microsoft.Xna.Framework.Content.ContentManager Content => Master.Content;
+
+        public Resources(Master master) {
+            Master = master;
+        }
+
+        public XmlReader GetXmlReader(string file) => XmlReader.Create(Load(file + ".xml"), new XmlReaderSettings() { CloseInput = true });
+
+        /// <summary>
+        /// Get the <see cref="Texture2D"/> with name /name/.
+        /// </summary>
+        public Texture2D LoadTexture(string name) {
+            // Get the texture named /name/ out of this instance's dictionary.
+            // If there is no texture with that name, load the texture with that name from file.
+            if(this._textures.TryGetValue(name, out Texture2D tex) == false) {
+                tex = Content.Load<Texture2D>(name);
+                this._textures[name] = tex;
+            }
+
+            return tex;
+        }
+
+        public FileReader Load(string file) => new FileReader(IndependentResourcesRoot + file);
+    }
+
+    internal class FileReader : StreamReader {
+        public FileReader(string path) : base(path) {  }
+    }
+}

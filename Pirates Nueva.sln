@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pirates Nueva", "Pirates Nueva\Pirates Nueva.csproj", "{ACFD8D5F-2E05-441E-8D72-663CB18421A2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ACFD8D5F-2E05-441E-8D72-663CB18421A2}.Debug|x86.ActiveCfg = Debug|x86
+		{ACFD8D5F-2E05-441E-8D72-663CB18421A2}.Debug|x86.Build.0 = Debug|x86
+		{ACFD8D5F-2E05-441E-8D72-663CB18421A2}.Release|x86.ActiveCfg = Release|x86
+		{ACFD8D5F-2E05-441E-8D72-663CB18421A2}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A76AB140-F8CD-40DE-B090-7F80C9869837}
+	EndGlobalSection
+EndGlobal
