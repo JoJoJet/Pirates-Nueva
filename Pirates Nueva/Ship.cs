@@ -22,8 +22,7 @@ namespace Pirates_Nueva
         public Ship(int width, int height) {
             this.blocks = new Block[width, height];
 
-            PlaceBlock("wood", Width/2, Height/2);
-            PlaceBlock("steel", Width/2+1, Height/2);
+            PlaceBlock("root", Width/2, Height/2);
         }
 
         /// <summary>
