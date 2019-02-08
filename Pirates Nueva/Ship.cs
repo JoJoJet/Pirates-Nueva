@@ -28,12 +28,7 @@ namespace Pirates_Nueva
 
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            var (rootX, rootY) = (Width/2, Height/2);
-            if(Width % 2 == 1)
-                rootX++;
-            if(Height % 2 == 1)
-                rootY++;
-            PlaceBlock("root", rootX, rootY);
+            PlaceBlock("root", Width/2, Height/2);
         }
 
         /// <summary>
@@ -89,7 +84,12 @@ namespace Pirates_Nueva
         }
 
         public void Update(Master master) {
+            if(master.Mouse.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed) {
+                var (seaX, seaY) = Sea.ScreenPointToSea(master.Mouse.Position);
+                var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
 
+                PlaceBlock("wood", shipX, shipY);
+            }
         }
 
         /// <summary>
