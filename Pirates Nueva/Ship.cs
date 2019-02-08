@@ -11,7 +11,7 @@ namespace Pirates_Nueva
     {
         private readonly Block[,] blocks;
 
-        public Sea Parent { get; }
+        public Sea Sea { get; }
 
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
         public int Width => this.blocks.GetLength(0);
@@ -22,7 +22,7 @@ namespace Pirates_Nueva
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
         public Ship(Sea parent, int width, int height) {
-            Parent = parent;
+            Sea = parent;
 
             this.blocks = new Block[width, height];
 
