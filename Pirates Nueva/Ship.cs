@@ -36,6 +36,8 @@ namespace Pirates_Nueva
         /// </summary>
         public Angle Angle { get; private set; }
 
+        public PointF Right => PointF.Rotate((1, 0), Angle);
+
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
@@ -72,9 +74,12 @@ namespace Pirates_Nueva
             
             // Slowly rotate the ship to point at the input axes.
             if(inputAxes.SqrMagnitude > 0) {
-                Angle inputAngle = PointF.Angle((1, 0), inputAxes);
+                float deltaTime = master.FrameTime.DeltaSeconds();
 
-                this.Angle = Angle.MoveTowards(this.Angle, inputAngle, master.FrameTime.DeltaSeconds());
+                Angle inputAngle = PointF.Angle((1, 0), inputAxes);
+                this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
+
+                Center += Right * deltaTime;
             }
 
             // If the user left clicks, place a block.
