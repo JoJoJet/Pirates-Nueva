@@ -43,7 +43,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
         /// </summary>
-        private PointI RootIndex => new PointI(RootX, RootY);
+        private PointI RootIndex => (RootX, RootY);
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
