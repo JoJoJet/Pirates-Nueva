@@ -52,6 +52,16 @@ namespace Pirates_Nueva
         public float X { get; set; }
         public float Y { get; set; }
 
+        /// <summary>
+        /// Returns the magnitude (distance from the origin) of this <see cref="PointF"/>.
+        /// </summary>
+        public float Magnitude => (float)Math.Sqrt(X*X + Y*Y);
+
+        /// <summary>
+        /// Returns this <see cref="PointF"/>, with a <see cref="Magnitude"/> of zero. Does not modify this instance.
+        /// </summary>
+        public PointF Normalized => Magnitude > 0 ? this / Magnitude : Zero;
+
         public PointF(float value) : this(value, value) {  }
         public PointF(float x, float y) {
             X = x;
