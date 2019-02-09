@@ -39,10 +39,7 @@ namespace Pirates_Nueva
         /// Transform the input <see cref="PointI"/> from screen space to a <see cref="PointF"/> within this <see cref="Sea"/>.
         /// </summary>
         /// <param name="screenPoint">A pair of coordinates in screen space.</param>
-        public PointF ScreenPointToSea(PointI screenPoint) {
-            var (x, y) = ScreenPointToSea(screenPoint.X, screenPoint.Y);
-            return new PointF(x, y);
-        }
+        public PointF ScreenPointToSea(PointI screenPoint) => ScreenPointToSea(screenPoint.X, screenPoint.Y);
         /// <summary>
         /// Transform the input coordinates from screen space to a pair of coordinates within this <see cref="Sea"/>.
         /// </summary>
@@ -57,10 +54,7 @@ namespace Pirates_Nueva
         /// Transform the input <see cref="PointF"/> from this <see cref="Sea"/> to <see cref="PointI"/> local to the screen.
         /// </summary>
         /// <param name="seaPoint">A pair of coordinates within this <see cref="Sea"/>.</param>
-        public PointI SeaPointToScreen(PointF seaPoint) {
-            var (x, y) = SeaPointToScreen(seaPoint.X, seaPoint.Y);
-            return new PointI(x, y);
-        }
+        public PointI SeaPointToScreen(PointF seaPoint) => SeaPointToScreen(seaPoint.X, seaPoint.Y);
         /// <summary>
         /// Transform the input coordinates from this <see cref="Sea"/> to the screen.
         /// </summary>
