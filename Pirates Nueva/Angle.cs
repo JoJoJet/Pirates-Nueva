@@ -4,6 +4,8 @@ namespace Pirates_Nueva
 {
     /// <summary>
     /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps.
+    /// <para />
+    /// Range: [0, 2π) radians, [0, 360°)
     /// </summary>
     public struct Angle
     {
@@ -18,7 +20,7 @@ namespace Pirates_Nueva
 
         private float _radians;
 
-        /// <summary> The value of this <see cref="Angle"/>, in radians. </summary>
+        /// <summary> The value of this <see cref="Angle"/>, in radians. Range: [0, 2π) </summary>
         public float Radians {
             get => _radians;
             private set {
@@ -28,7 +30,7 @@ namespace Pirates_Nueva
                     this._radians += FullTurn;
             }
         }
-        /// <summary> The value of this <see cref="Angle"/>, in degrees. </summary>
+        /// <summary> The value of this <see cref="Angle"/>, in degrees. Range: [0, 360°) </summary>
         public float Degrees => Radians * Rad2Deg;
 
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
