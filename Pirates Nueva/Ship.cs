@@ -72,8 +72,7 @@ namespace Pirates_Nueva
         /// Transform the input <see cref="PointF"/> from <see cref="Pirates_Nueva.Sea"/> space
         /// to a <see cref="PointI"/> representing indices within this <see cref="Ship"/>.
         /// </summary>
-        /// <param name="seaPoint"></param>
-        /// <returns></returns>
+        /// <param name="seaPoint">A pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/></param>
         public PointI SeaPointToShip(PointF seaPoint) => SeaPointToShip(seaPoint.X, seaPoint.Y);
         /// <summary>
         /// Transform the input coordinates from <see cref="Pirates_Nueva.Sea"/>
@@ -82,6 +81,26 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x), (int)Math.Floor(y));
+
+        /// <summary>
+        /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
+        /// into a <see cref="PointF"/> local to the <see cref="Pirates_Nueva.Sea"/>.
+        /// <para />
+        /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
+        /// has an element of rounding.
+        /// </summary>
+        /// <param name="shipPoint">A pair of indices within this <see cref="Ship"/>.</param>
+        public PointF ShipPointToSea(PointI shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
+        /// <summary>
+        /// Transform the input coordinates from indices local to this <see cref="Ship"/> into
+        /// a pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/>.
+        /// <para />
+        /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
+        /// has an element of rounding.
+        /// </summary>
+        /// <param name="x">The x index within this <see cref="Ship"/>.</param>
+        /// <param name="y">The y index within this <see cref="Ship"/>.</param>
+        internal (float x, float y) ShipPointToSea(int x, int y) => (x + 0.5f, y + 0.5f);
 
         #region Block Accessor Methods
         /// <summary>
