@@ -18,6 +18,11 @@ namespace Pirates_Nueva
         public Button MouseLeft { get; private set; } = new Button();
         public Button MouseRight { get; private set; } = new Button();
 
+        /// <summary> The Horizontal input axis. </summary>
+        public float Horizontal => (AKey.IsPressed || LeftKey.IsPressed ? 1 : 0) + (DKey.IsPressed || RightKey.IsPressed ? 1 : 0);
+        /// <summary> The Vertical input axis. </summary>
+        public float Vertical => (WKey.IsPressed || UpKey.IsPressed ? 1 : 0) + (SKey.IsPressed || DownKey.IsPressed ? 1 : 0);
+
         public Button WKey => GetKey(Keys.W);
         public Button AKey => GetKey(Keys.A);
         public Button SKey => GetKey(Keys.S);
