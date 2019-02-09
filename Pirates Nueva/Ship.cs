@@ -81,7 +81,7 @@ namespace Pirates_Nueva
                 this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
 
                 // Slowly move the ship in the direction of its right edge.
-                Center += Right * deltaTime;
+                Center += Right * deltaTime * 3;
             }
 
             // If the user left clicks, place a block.
