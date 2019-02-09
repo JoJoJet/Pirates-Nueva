@@ -65,7 +65,7 @@ namespace Pirates_Nueva
             float sine = (float)Math.Sin(theta);
             float cosine = (float)Math.Cos(theta);
 
-            return new PointF(p.X * cosine - p.Y * sine, p.X * sine - p.Y * cosine);
+            return new PointF(p.X * cosine - p.Y * sine, p.X * sine + p.Y * cosine);
         }
 
         public void Deconstruct(out float x, out float y) {
