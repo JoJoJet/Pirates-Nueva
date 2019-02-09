@@ -40,6 +40,9 @@ namespace Pirates_Nueva
         public static PointI operator +(PointI a, PointI b) => new PointI(a.X + b.X, a.Y + b.Y);
         public static PointI operator -(PointI a, PointI b) => new PointI(a.X - b.X, a.Y - b.Y);
         public static PointI operator -(PointI p) => new PointI(-p.X, -p.Y);
+
+        /// <summary> The dot product of two <see cref="PointI"/>s. </summary>
+        public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
     }
 
     /// <summary>
@@ -95,6 +98,10 @@ namespace Pirates_Nueva
         public static PointF operator +(PointF a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
         public static PointF operator -(PointF a, PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
         public static PointF operator -(PointF p) => new PointF(-p.X, -p.Y);
+
+        /// <summary> The dot product of two <see cref="PointF"/>s. </summary>
+        public static float operator *(PointF a, PointF b) => a.X * b.X + a.Y * b.Y;
+
         public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
         public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
     }
