@@ -58,6 +58,16 @@ namespace Pirates_Nueva
             Y = y;
         }
 
+        /// <summary>
+        /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/ (in radians).
+        /// </summary>
+        public static PointF Rotate(PointF p, float theta) {
+            float sine = (float)Math.Sin(theta);
+            float cosine = (float)Math.Cos(theta);
+
+            return new PointF(p.X * cosine - p.Y * sine, p.X * sine - p.Y * cosine);
+        }
+
         public void Deconstruct(out float x, out float y) {
             x = X;
             y = Y;
