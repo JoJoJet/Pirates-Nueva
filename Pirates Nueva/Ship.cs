@@ -177,7 +177,7 @@ namespace Pirates_Nueva
         internal (float x, float y) ShipPointToSea(int x, int y) {
             // Indices within the ship.
             var (indX, indY) = (x, y);
-
+            
             // Flat coordinates local to the ship's root.
             var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input indices to be centered around the root block.
 
