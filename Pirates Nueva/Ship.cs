@@ -128,7 +128,7 @@ namespace Pirates_Nueva
                 throw;
             }
             
-            return UnsafeGetBlock(x, y);
+            return unsafeGetBlock(x, y);
         }
         /// <summary>
         /// Place a block of type /id/ at position (/x/, /y/).
@@ -145,7 +145,7 @@ namespace Pirates_Nueva
                 throw;
             }
             
-            if(UnsafeGetBlock(x, y) == null)
+            if(unsafeGetBlock(x, y) == null)
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
             else
                 throw new InvalidOperationException(
@@ -165,7 +165,7 @@ namespace Pirates_Nueva
                 throw;
             }
             
-            return UnsafeGetBlock(x, y) != null;
+            return unsafeGetBlock(x, y) != null;
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Pirates_Nueva
                 throw;
             }
             
-            if(UnsafeGetBlock(x, y) is Block b) {
+            if(unsafeGetBlock(x, y) is Block b) {
                 this.blocks[x, y] = null;
                 return b;
             }
@@ -193,7 +193,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
-        private Block UnsafeGetBlock(int x, int y) => this.blocks[x, y];
+        private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
 
         /// <summary> Throw an exception if either index is out of range. </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
