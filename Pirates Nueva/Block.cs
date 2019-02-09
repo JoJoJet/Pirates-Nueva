@@ -44,7 +44,7 @@ namespace Pirates_Nueva
             // SpriteBatch.Draw() draws the texture from the top left, while our indices are positioned on the bottom left.
             // We need to bump this position upwards by one block length.
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY+1);
-            master.SpriteBatch.Draw(tex, new Rectangle(screenX, screenY, Pixels, Pixels), Color.White);
+            master.SpriteBatch.DrawRotated(tex, new Rectangle(screenX, screenY, Pixels, Pixels), -Ship.Angle, Vector2.Zero);
         }
     }
 }
