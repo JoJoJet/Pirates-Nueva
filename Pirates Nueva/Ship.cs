@@ -68,6 +68,7 @@ namespace Pirates_Nueva
             }
         }
 
+        #region Space Transformation
         /// <summary>
         /// Transform the input <see cref="PointF"/> from <see cref="Pirates_Nueva.Sea"/> space
         /// to a <see cref="PointI"/> representing indices within this <see cref="Ship"/>.
@@ -101,6 +102,7 @@ namespace Pirates_Nueva
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
         internal (float x, float y) ShipPointToSea(int x, int y) => (x + 0.5f, y + 0.5f);
+        #endregion
 
         #region Block Accessor Methods
         /// <summary>
