@@ -130,7 +130,9 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x - LeftX), (int)Math.Floor(y - BottomY));
+        internal (int x, int y) SeaPointToShip(float x, float y) {
+            return ((int)Math.Floor(x - LeftX), (int)Math.Floor(y - BottomY));
+        }
 
         /// <summary>
         /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
@@ -154,7 +156,9 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) => (x + LeftX, y + BottomY);
+        internal (float x, float y) ShipPointToSea(int x, int y) {
+            return (LeftX + x, BottomY + y);
+        }
         #endregion
 
         #region Block Accessor Methods
