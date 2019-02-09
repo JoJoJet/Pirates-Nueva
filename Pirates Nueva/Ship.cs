@@ -67,18 +67,20 @@ namespace Pirates_Nueva
                 }
             }
         }
-        
+
         /// <summary>
-        /// Transform the input coordinates from <see cref="Sea"/> space to a pair of indices within to this <see cref="Ship"/>
+        /// Transform the input <see cref="PointF"/> from <see cref="Pirates_Nueva.Sea"/> space
+        /// to a <see cref="PointI"/> representing indices within this <see cref="Ship"/>.
         /// </summary>
-        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
-        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip((float x, float y) seaPoint) => SeaPointToShip(seaPoint.x, seaPoint.y);
+        /// <param name="seaPoint"></param>
+        /// <returns></returns>
+        public PointI SeaPointToShip(PointF seaPoint) => SeaPointToShip(seaPoint.X, seaPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from <see cref="Sea"/> space to a pair of indices within to this <see cref="Ship"/>
+        /// Transform the input coordinates from <see cref="Pirates_Nueva.Sea"/>
+        /// space to a pair of indices within to this <see cref="Ship"/>
         /// </summary>
-        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
-        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
+        /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
+        /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x), (int)Math.Floor(y));
 
         #region Block Accessor Methods
