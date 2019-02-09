@@ -172,7 +172,7 @@ namespace Pirates_Nueva
         /// Remove the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/, or if that block is the root.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
         public Block RemoveBlock(int x, int y) {
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(RemoveBlock)}()", x, y);
@@ -182,13 +182,8 @@ namespace Pirates_Nueva
             }
             
             if(UnsafeGetBlock(x, y) is Block b) {
-                if(b.ID != RootID) {
-                    this.blocks[x, y] = null;
-                    return b;
-                }
-                else {
-                    throw new InvalidOperationException($"{nameof(Ship)}.{nameof(RemoveBlock)}(): You can't remove the Root block! at ({x}, {y})");
-                }
+                this.blocks[x, y] = null;
+                return b;
             }
             else {
                 throw new InvalidOperationException(
