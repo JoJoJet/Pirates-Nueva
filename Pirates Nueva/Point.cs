@@ -63,5 +63,11 @@ namespace Pirates_Nueva
         public static implicit operator PointF(Vector2 v) => new PointF(v.X, v.Y);
 
         public static implicit operator PointF((float, float) tup) => new PointF(tup.Item1, tup.Item2);
+
+        public static PointF operator +(PointF a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator -(PointF a, PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
+        public static PointF operator -(PointF p) => new PointF(-p.X, -p.Y);
+        public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
+        public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
     }
 }
