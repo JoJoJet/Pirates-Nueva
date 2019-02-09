@@ -76,9 +76,9 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/ (in radians).
+        /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
-        public static PointF Rotate(PointF p, float theta) {
+        public static PointF Rotate(PointF p, Angle theta) {
             float sine = (float)Math.Sin(theta);
             float cosine = (float)Math.Cos(theta);
 
