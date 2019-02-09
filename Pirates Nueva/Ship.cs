@@ -19,10 +19,12 @@ namespace Pirates_Nueva
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => this.blocks.GetLength(1);
         
+        /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
         public float CenterX { get; private set; }
+        /// <summary> The Y coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
         public float CenterY { get; private set; }
         /// <summary>
-        /// The center of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
+        /// The <see cref="Pirates_Nueva.Sea"/>-space center of this <see cref="Ship"/>.
         /// </summary>
         public PointF Center {
             get => (CenterX, CenterY);
@@ -67,7 +69,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Get the block at position (/x/, /y/).
+        /// Get the block at index (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
