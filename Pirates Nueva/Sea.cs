@@ -31,7 +31,7 @@ namespace Pirates_Nueva
             }
             
             var (mouseX, mouseY) = ScreenPointToSea(master.Input.MousePosition);
-            master.SpriteBatch.DrawString(master.Font, $"{mouseX:.00}, {mouseY:.00}", PointF.Zero, Color.Black);
+            master.SpriteBatch.DrawString(master.Font, $"Mouse: {mouseX:.00}, {mouseY:.00}", PointF.Zero, Color.Black);
         }
 
         #region Space Transformation

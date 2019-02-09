@@ -8,7 +8,7 @@ using System.Xml;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// An immutable object that contains properties that define a type of object.
+    /// An immutable object that contains properties that defines a type of object.
     /// </summary>
     public abstract class Def
     {
