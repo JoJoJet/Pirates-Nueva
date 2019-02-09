@@ -36,6 +36,10 @@ namespace Pirates_Nueva
         public static implicit operator PointI(Microsoft.Xna.Framework.Point p) => new PointI(p.X, p.Y);
         
         public static implicit operator PointI((int, int) tup) => new PointI(tup.Item1, tup.Item2);
+
+        public static PointI operator +(PointI a, PointI b) => new PointI(a.X + b.X, a.Y + b.Y);
+        public static PointI operator -(PointI a, PointI b) => new PointI(a.X - b.X, a.Y - b.Y);
+        public static PointI operator -(PointI p) => new PointI(-p.X, -p.Y);
     }
 
     /// <summary>
