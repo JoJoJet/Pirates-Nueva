@@ -28,7 +28,7 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF Center {
             get => (CenterX, CenterY);
-            set => (CenterX, CenterY) = value;
+            private set => (CenterX, CenterY) = value;
         }
 
         /// <summary>
