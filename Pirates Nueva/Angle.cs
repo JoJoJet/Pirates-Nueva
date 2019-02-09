@@ -59,5 +59,7 @@ namespace Pirates_Nueva
 
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
+
+        public static Angle operator -(Angle ang) => FromRadians(-ang.Radians);
     }
 }
