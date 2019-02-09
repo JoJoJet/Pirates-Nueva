@@ -56,6 +56,10 @@ namespace Pirates_Nueva
         public float Y { get; set; }
 
         /// <summary>
+        /// The squared magnitude of this point. Faster than <see cref="Magnitude"/>.
+        /// </summary>
+        public float SqrMagnitude => X*X + Y*Y;
+        /// <summary>
         /// Returns the magnitude (distance from the origin) of this <see cref="PointF"/>.
         /// </summary>
         public float Magnitude => (float)Math.Sqrt(X*X + Y*Y);
@@ -80,6 +84,11 @@ namespace Pirates_Nueva
 
             return new PointF(p.X * cosine - p.Y * sine, p.X * sine + p.Y * cosine);
         }
+
+        /// <summary>
+        /// Get the angle between the input <see cref="PointF"/>s, assuming they are vectors.
+        /// </summary>
+        public static Angle Angle(PointF a, PointF b) => (Angle)((float)Math.Atan2(b.Y, b.X) - (float)Math.Atan2(a.Y, a.X));
 
         public void Deconstruct(out float x, out float y) {
             x = X;
