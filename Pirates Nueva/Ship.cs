@@ -137,11 +137,16 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         internal (int x, int y) SeaPointToShip(float x, float y) {
-            // Subtract the Sea-space coords of the ship's center from the input coords.
-            var (aroundX, aroundY) = (x - CenterX, y - CenterY);
-            // The current coords are centered around the Root block; translate them to be centered on
-            // the bottom left of the ship, and floor them into indices.
-            return ((int)Math.Floor(aroundX + RootX), (int)Math.Floor(aroundY + RootY));
+            // Coordinates in Sea-space.
+            var (seaX, seaY) = (x, y);
+
+            // Coordinates local to the ship's root
+            var (shipX, shipY) = (x - CenterX, y - CenterY); // Translate the sea coords to be centered around the root block.
+
+            // Indices within the ship
+            var (indX, indY) = (shipX + RootX, shipY + RootY); // Translate ship coords into indices centered on ship's bottom left corner.
+
+            return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
         }
 
         /// <summary>
@@ -167,8 +172,16 @@ namespace Pirates_Nueva
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
         internal (float x, float y) ShipPointToSea(int x, int y) {
-            var (aroundX, aroundY) = (x - RootX, y - RootY);    // Translate the input indices to be centered around the Root block.
-            return (CenterX + aroundX, CenterY + aroundY);      // Add the Sea-space coords of the ship's center to the indices.
+            // Indices within the ship.
+            var (indX, indY) = (x, y);
+
+            // Coordinates local to the ship's root.
+            var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input indices to be centered around the root block.
+
+            // Coordinates in Sea-space.
+            var (seaX, seaY) = (CenterX + shipX, CenterY + shipY); // Add the sea-space coords of the ship's center to the local coords.
+
+            return (seaX, seaY); // Return the Sea-space coordinates.
         }
         #endregion
 
