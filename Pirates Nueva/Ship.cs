@@ -18,26 +18,38 @@ namespace Pirates_Nueva
         public int Width => this.blocks.GetLength(0);
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => this.blocks.GetLength(1);
+        
+        public float CenterX { get; private set; }
+        public float CenterY { get; private set; }
+        /// <summary>
+        /// The center of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
+        /// </summary>
+        public PointF Center {
+            get => (CenterX, CenterY);
+            set => (CenterX, CenterY) = value;
+        }
 
         /// <summary>
-        /// The x coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
-        /// <para />
-        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// The <see cref="Pirates_Nueva.Sea"/>-space left edge of this <see cref="Ship"/>.
         /// </summary>
-        public float X { get; private set; }
+        public float LeftX => CenterX - LocalCenter.X;
         /// <summary>
-        /// The y coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
-        /// <para />
-        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// The <see cref="Pirates_Nueva.Sea"/>-space bottom edge of this <see cref="Ship"/>.
         /// </summary>
-        public float Y { get; private set; }
+        public float BottomY => CenterY - LocalCenter.Y;
+        /// <summary>
+        /// The <see cref="Pirates_Nueva.Sea"/>-space bottom-left corner of this <see cref="Ship"/>.
+        /// </summary>
+        public PointF BottomLeft => new PointF(LeftX, BottomY);
 
+        /// <summary> The X index of this <see cref="Ship"/>'s center. </summary>
+        private int LocalX => Width/2;
+        /// <summary> The Y index of this <see cref="Ship"/>'s center. </summary>
+        private int LocalY => Height/2;
         /// <summary>
-        /// The position of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
-        /// <para />
-        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// The local indices of this <see cref="Ship"/>'s center.
         /// </summary>
-        public PointF Position => new PointF(X, Y);
+        private PointI LocalCenter => new PointI(LocalX, LocalY);
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
@@ -47,9 +59,11 @@ namespace Pirates_Nueva
 
             this.blocks = new Block[width, height];
 
+            Center = (PointF)LocalCenter;
+
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock(RootID, Width/2, Height/2);
+            PlaceBlock(RootID, LocalX, LocalY);
         }
 
         /// <summary>
@@ -60,8 +74,7 @@ namespace Pirates_Nueva
 
         public void Update(Master master) {
             // Move the ship horizontally depending on the Horizontal input axis.
-            X += master.Input.Horizontal * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
-            Y += master.Input.Vertical * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
+            CenterX += master.Input.Horizontal * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
 
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
@@ -115,7 +128,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x - this.X), (int)Math.Floor(y - this.Y));
+        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x - LeftX), (int)Math.Floor(y - BottomY));
 
         /// <summary>
         /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
@@ -139,7 +152,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) => (x + this.X, y + this.Y);
+        internal (float x, float y) ShipPointToSea(int x, int y) => (x + LeftX, y + BottomY);
         #endregion
 
         #region Block Accessor Methods
