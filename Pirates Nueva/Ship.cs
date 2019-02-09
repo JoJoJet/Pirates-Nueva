@@ -83,6 +83,7 @@ namespace Pirates_Nueva
             // Get a PointF containing the direction of the user's arrow keys or WASD.
             PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
             
+            // Slowly rotate the ship to point at the input axes.
             if(inputAxes.SqrMagnitude > 0) {
                 Angle inputAngle = PointF.Angle((1, 0), inputAxes);
 
