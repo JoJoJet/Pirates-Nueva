@@ -12,6 +12,8 @@ namespace Pirates_Nueva
     /// </summary>
     public struct PointI
     {
+        public static PointI Zero => new PointI(0);
+
         public int X { get; set; }
         public int Y { get; set; }
 
@@ -37,6 +39,8 @@ namespace Pirates_Nueva
     /// </summary>
     public struct PointF
     {
+        public static PointF Zero => new PointF(0);
+
         public float X { get; set; }
         public float Y { get; set; }
 

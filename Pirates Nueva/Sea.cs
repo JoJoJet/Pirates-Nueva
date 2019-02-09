@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Pirates_Nueva
 {
@@ -31,17 +31,17 @@ namespace Pirates_Nueva
             }
             
             var (mouseX, mouseY) = ScreenPointToSea(master.Input.MousePosition);
-            master.SpriteBatch.DrawString(master.Font, $"{mouseX:.00}, {mouseY:.00}", Vector2.Zero, Color.Black);
+            master.SpriteBatch.DrawString(master.Font, $"{mouseX:.00}, {mouseY:.00}", PointF.Zero, Color.Black);
         }
 
         #region Space Transformation
         /// <summary>
-        /// Transform the input <see cref="Point"/> from screen space to a pair of coordinates within this <see cref="Sea"/>.
+        /// Transform the input <see cref="PointI"/> from screen space to a <see cref="PointF"/> within this <see cref="Sea"/>.
         /// </summary>
-        /// <param name="screenPoint">A <see cref="Point"/> in screen space.</param>
-        public Vector2 ScreenPointToSea(Point screenPoint) {
+        /// <param name="screenPoint">A pair of coordinates in screen space.</param>
+        public PointF ScreenPointToSea(PointI screenPoint) {
             var (x, y) = ScreenPointToSea(screenPoint.X, screenPoint.Y);
-            return new Vector2(x, y);
+            return new PointF(x, y);
         }
         /// <summary>
         /// Transform the input coordinates from screen space to a pair of coordinates within this <see cref="Sea"/>.
@@ -59,12 +59,12 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Transform the input <see cref="Vector2"/> from this <see cref="Sea"/> to <see cref="Point"/> local to the screen.
+        /// Transform the input <see cref="PointF"/> from this <see cref="Sea"/> to <see cref="PointI"/> local to the screen.
         /// </summary>
         /// <param name="seaPoint">A pair of coordinates within this <see cref="Sea"/>.</param>
-        public Point SeaPointToScreen(Vector2 seaPoint) {
+        public PointI SeaPointToScreen(PointF seaPoint) {
             var (x, y) = SeaPointToScreen(seaPoint.X, seaPoint.Y);
-            return new Point(x, y);
+            return new PointI(x, y);
         }
         /// <summary>
         /// Transform the input coordinates from this <see cref="See"/> to the screen.
