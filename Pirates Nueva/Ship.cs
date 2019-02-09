@@ -36,6 +36,38 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
+        public void Update(Master master) {
+            // If the user clicks either mouse button.
+            if(master.Input.MouseLeft.IsDown || master.Input.MouseRight.IsDown) {
+                // Find the index of the location that the user clicked.
+                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
+
+                // If the place the user clicked was within the bounds of the ship.
+                if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
+                    // If the left mouse button was clicked, place a block.
+                    if(master.Input.MouseLeft.IsDown && HasBlock(shipX, shipY) == false)
+                        PlaceBlock("wood", shipX, shipY);
+                    // If the right mouse button was clicked, remove a block.
+                    else if(master.Input.MouseRight.IsDown && HasBlock(shipX, shipY))
+                        RemoveBlock(shipX, shipY);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw this <see cref="Ship"/> onscreen.
+        /// </summary>
+        public void Draw(Master master) {
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(this.blocks[x, y] != null) {
+                        this[x, y].Draw(master);
+                    }
+                }
+            }
+        }
+
         #region Block Accessor Methods
         /// <summary>
         /// Get the block at position (/x/, /y/).
@@ -131,37 +163,5 @@ namespace Pirates_Nueva
                     );
         }
         #endregion
-
-        public void Update(Master master) {
-            // If the user clicks either mouse button.
-            if(master.Input.MouseLeft.IsDown || master.Input.MouseRight.IsDown) {
-                // Find the index of the location that the user clicked.
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
-
-                // If the place the user clicked was within the bounds of the ship.
-                if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
-                    // If the left mouse button was clicked, place a block.
-                    if(master.Input.MouseLeft.IsDown && HasBlock(shipX, shipY) == false)
-                        PlaceBlock("wood", shipX, shipY);
-                    // If the right mouse button was clicked, remove a block.
-                    else if(master.Input.MouseRight.IsDown && HasBlock(shipX, shipY))
-                        RemoveBlock(shipX, shipY);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Draw this <see cref="Ship"/> onscreen.
-        /// </summary>
-        public void Draw(Master master) {
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
-                    if(this.blocks[x, y] != null) {
-                        this[x, y].Draw(master);
-                    }
-                }
-            }
-        }
     }
 }
