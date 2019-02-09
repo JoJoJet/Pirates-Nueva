@@ -132,7 +132,7 @@ namespace Pirates_Nueva
         }
     }
 
-    public static class SpriteBatchExt
+    public static class MasterExt
     {
         /// <summary>
         /// Submit a rotated sprite for drawing in the current batch.
@@ -142,5 +142,10 @@ namespace Pirates_Nueva
             ) {
             spriteBatch.Draw(texture, destinationRectangle, null, Color.White, angle, origin, SpriteEffects.None, 0f);
         }
+
+        /// <summary>
+        /// Gets the time, in seconds, since last frame.
+        /// </summary>
+        public static float DeltaSeconds(this GameTime gameTime) => (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 }
