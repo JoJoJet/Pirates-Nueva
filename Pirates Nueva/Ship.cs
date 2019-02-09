@@ -32,26 +32,31 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
+        /// This <see cref="Ship"/>'s rotation, in radians. 0 is pointing directly rightwards, rotation is counter-clockwise.
+        /// </summary>
+        public float Angle { get; private set; }
+
+        /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space left edge of this <see cref="Ship"/>.
         /// </summary>
-        public float LeftX => CenterX - LocalCenter.X;
+        public float LeftX => CenterX - RootIndex.X;
         /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space bottom edge of this <see cref="Ship"/>.
         /// </summary>
-        public float BottomY => CenterY - LocalCenter.Y;
+        public float BottomY => CenterY - RootIndex.Y;
         /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space bottom-left corner of this <see cref="Ship"/>.
         /// </summary>
         public PointF BottomLeft => new PointF(LeftX, BottomY);
 
-        /// <summary> The X index of this <see cref="Ship"/>'s center. </summary>
-        private int LocalX => Width/2;
-        /// <summary> The Y index of this <see cref="Ship"/>'s center. </summary>
-        private int LocalY => Height/2;
+        /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        private int RootX => Width/2;
+        /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        private int RootY => Height/2;
         /// <summary>
-        /// The local indices of this <see cref="Ship"/>'s center.
+        /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
         /// </summary>
-        private PointI LocalCenter => new PointI(LocalX, LocalY);
+        private PointI RootIndex => new PointI(RootX, RootY);
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
@@ -61,11 +66,11 @@ namespace Pirates_Nueva
 
             this.blocks = new Block[width, height];
 
-            Center = (PointF)LocalCenter;
+            Center = (PointF)RootIndex;
 
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock(RootID, LocalX, LocalY);
+            PlaceBlock(RootID, RootX, RootY);
         }
 
         /// <summary>
@@ -77,6 +82,7 @@ namespace Pirates_Nueva
         public void Update(Master master) {
             // Move the ship horizontally depending on the Horizontal input axis.
             CenterX += master.Input.Horizontal * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
+            Angle += master.Input.Vertical * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
 
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
@@ -131,8 +137,11 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         internal (int x, int y) SeaPointToShip(float x, float y) {
+            // Subtract the Sea-space coords of the ship's center from the input coords.
             var (aroundX, aroundY) = (x - CenterX, y - CenterY);
-            return ((int)Math.Floor(aroundX + LocalX), (int)Math.Floor(aroundY + LocalY));
+            // The current coords are centered around the Root block; translate them to be centered on
+            // the bottom left of the ship, and floor them into indices.
+            return ((int)Math.Floor(aroundX + RootX), (int)Math.Floor(aroundY + RootY));
         }
 
         /// <summary>
@@ -158,8 +167,8 @@ namespace Pirates_Nueva
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
         internal (float x, float y) ShipPointToSea(int x, int y) {
-            var (aroundX, aroundY) = (x - LocalX, y - LocalY);
-            return (CenterX + aroundX, CenterY + aroundY);
+            var (aroundX, aroundY) = (x - RootX, y - RootY);    // Translate the input indices to be centered around the Root block.
+            return (CenterX + aroundX, CenterY + aroundY);      // Add the Sea-space coords of the ship's center to the indices.
         }
         #endregion
 
