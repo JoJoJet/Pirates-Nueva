@@ -140,8 +140,11 @@ namespace Pirates_Nueva
             // Coordinates in Sea-space.
             var (seaX, seaY) = (x, y);
 
-            // Coordinates local to the ship's root
-            var (shipX, shipY) = (x - CenterX, y - CenterY); // Translate the sea coords to be centered around the root block.
+            // Rotated coordinates local to the ship's root
+            var (rotX, rotY) = (x - CenterX, y - CenterY); // Translate the sea coords to be centered around the root block.
+            
+            // Flat coordinates local to the ship's root.
+            var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
 
             // Indices within the ship
             var (indX, indY) = (shipX + RootX, shipY + RootY); // Translate ship coords into indices centered on ship's bottom left corner.
@@ -175,11 +178,14 @@ namespace Pirates_Nueva
             // Indices within the ship.
             var (indX, indY) = (x, y);
 
-            // Coordinates local to the ship's root.
+            // Flat coordinates local to the ship's root.
             var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input indices to be centered around the root block.
 
+            // Rotated coordinate's local to the ship's root.
+            var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
+
             // Coordinates in Sea-space.
-            var (seaX, seaY) = (CenterX + shipX, CenterY + shipY); // Add the sea-space coords of the ship's center to the local coords.
+            var (seaX, seaY) = (CenterX + rotX, CenterY + rotY); // Add the sea-space coords of the ship's center to the local coords.
 
             return (seaX, seaY); // Return the Sea-space coordinates.
         }
