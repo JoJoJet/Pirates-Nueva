@@ -19,12 +19,24 @@ namespace Pirates_Nueva
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => this.blocks.GetLength(1);
 
-        /// <summary> The x coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>. </summary>
+        /// <summary>
+        /// The x coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
+        /// <para />
+        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// </summary>
         public float X { get; private set; }
-        /// <summary> The y coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>. </summary>
+        /// <summary>
+        /// The y coordinate of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
+        /// <para />
+        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// </summary>
         public float Y { get; private set; }
 
-        /// <summary> The position of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>. </summary>
+        /// <summary>
+        /// The position of this <see cref="Ship"/> within the <see cref="Pirates_Nueva.Sea"/>.
+        /// <para />
+        /// Centered on the bottom left of this <see cref="Ship"/>.
+        /// </summary>
         public PointF Position => new PointF(X, Y);
 
         /// <summary>
