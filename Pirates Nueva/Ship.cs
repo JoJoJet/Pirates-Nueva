@@ -32,9 +32,9 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// This <see cref="Ship"/>'s rotation, in radians. 0 is pointing directly rightwards, rotation is counter-clockwise.
+        /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
         /// </summary>
-        public float Angle { get; private set; }
+        public Angle Angle { get; private set; }
 
         /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space left edge of this <see cref="Ship"/>.
@@ -80,9 +80,14 @@ namespace Pirates_Nueva
         public Block this[int x, int y] => GetBlock(x, y);
 
         public void Update(Master master) {
-            // Move the ship horizontally depending on the Horizontal input axis.
-            CenterX += master.Input.Horizontal * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
-            Angle += master.Input.Vertical * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
+            // Get a PointF containing the direction of the user's arrow keys or WASD.
+            PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
+            
+            if(inputAxes.SqrMagnitude > 0) {
+                Angle inputAngle = PointF.Angle((1, 0), inputAxes);
+
+                this.Angle = Angle.MoveTowards(this.Angle, inputAngle, master.FrameTime.DeltaSeconds());
+            }
 
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
