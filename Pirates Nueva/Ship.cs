@@ -167,7 +167,7 @@ namespace Pirates_Nueva
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
         /// has an element of rounding:
         /// <para />
-        /// output always be positioned on the bottom left corner of that index's block.
+        /// output will always be positioned on the bottom left corner of that index's block.
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
