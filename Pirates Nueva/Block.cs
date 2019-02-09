@@ -19,13 +19,13 @@ namespace Pirates_Nueva
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
 
-        /// <summary> The X coordinate of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int X { get; private set; }
-        /// <summary> The Y coordinate of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int Y { get; private set; }
 
-        /// <summary> A <see cref="ValueTuple"/> containing the position of this <see cref="Block"/>. </summary>
-        internal (int x, int y) Position => (X, Y);
+        /// <summary> A <see cref="PointI"/> containing the index of this <see cref="Block"/> within its ship. </summary>
+        public PointI Index => new PointI(X, Y);
 
         /// <summary>
         /// Create a <see cref="Block"/> with position (/x/. /y/), defined by the <see cref="BlockDef"/> /def/.
