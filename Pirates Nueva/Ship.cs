@@ -72,13 +72,15 @@ namespace Pirates_Nueva
             // Get a PointF containing the direction of the user's arrow keys or WASD.
             PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
             
-            // Slowly rotate the ship to point at the input axes.
+            // Do ship movement if arrow keys or WASD are held.
             if(inputAxes.SqrMagnitude > 0) {
                 float deltaTime = master.FrameTime.DeltaSeconds();
 
+                // Slowly rotate the ship to point at the input axes.
                 Angle inputAngle = PointF.Angle((1, 0), inputAxes);
                 this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
 
+                // Slowly move the ship in the direction of its right edge.
                 Center += Right * deltaTime;
             }
 
