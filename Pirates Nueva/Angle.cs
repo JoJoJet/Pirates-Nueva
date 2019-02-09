@@ -3,7 +3,7 @@
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps.
+    /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps. Immutable.
     /// <para />
     /// Range: [0, 2π) radians, [0, 360°)
     /// </summary>
