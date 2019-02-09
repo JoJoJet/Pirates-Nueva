@@ -47,6 +47,10 @@ namespace Pirates_Nueva
         public Block this[int x, int y] => GetBlock(x, y);
 
         public void Update(Master master) {
+            // Move the ship horizontally depending on the Horizontal input axis.
+            X += master.Input.Horizontal * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
+            Y += master.Input.Vertical * (float)master.FrameTime.ElapsedGameTime.TotalSeconds;
+
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
                 var (shipX, shipY) = mouseToShip();
@@ -99,7 +103,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x), (int)Math.Floor(y));
+        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x - this.X), (int)Math.Floor(y - this.Y));
 
         /// <summary>
         /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
@@ -123,7 +127,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) => (x, y);
+        internal (float x, float y) ShipPointToSea(int x, int y) => (x + this.X, y + this.Y);
         #endregion
 
         #region Block Accessor Methods
