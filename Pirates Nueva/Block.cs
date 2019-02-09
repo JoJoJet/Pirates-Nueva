@@ -17,6 +17,7 @@ namespace Pirates_Nueva
         public Ship Ship { get; }
 
         public BlockDef Def { get; private set; }
+        public string ID => Def.ID;
 
         /// <summary> The X coordinate of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int X { get; private set; }

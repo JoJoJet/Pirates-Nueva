@@ -8,6 +8,8 @@ namespace Pirates_Nueva
 {
     public class Ship : IUpdatable, IDrawable
     {
+        protected const string RootID = "root";
+
         private readonly Block[,] blocks;
 
         public Sea Sea { get; }
@@ -27,7 +29,7 @@ namespace Pirates_Nueva
 
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock("root", Width/2, Height/2);
+            PlaceBlock(RootID, Width/2, Height/2);
         }
 
         /// <summary>
@@ -48,8 +50,8 @@ namespace Pirates_Nueva
                     // If the left mouse button was clicked, place a block.
                     if(master.Input.MouseLeft.IsDown && HasBlock(shipX, shipY) == false)
                         PlaceBlock("wood", shipX, shipY);
-                    // If the right mouse button was clicked, remove a block.
-                    else if(master.Input.MouseRight.IsDown && HasBlock(shipX, shipY))
+                    // If the right mouse button was clicked, remove a block, unless it is the root block.
+                    else if(master.Input.MouseRight.IsDown && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
                         RemoveBlock(shipX, shipY);
                 }
             }
@@ -161,7 +163,7 @@ namespace Pirates_Nueva
         /// Remove the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/, or if that block is the root.</exception>
         public Block RemoveBlock(int x, int y) {
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(RemoveBlock)}()", x, y);
@@ -171,8 +173,13 @@ namespace Pirates_Nueva
             }
             
             if(UnsafeGetBlock(x, y) is Block b) {
-                this.blocks[x, y] = null;
-                return b;
+                if(b.ID != RootID) {
+                    this.blocks[x, y] = null;
+                    return b;
+                }
+                else {
+                    throw new InvalidOperationException($"{nameof(Ship)}.{nameof(RemoveBlock)}(): You can't remove the Root block! at ({x}, {y})");
+                }
             }
             else {
                 throw new InvalidOperationException(
