@@ -23,7 +23,7 @@ namespace Pirates_Nueva
             get => _radians;
             private set {
                 this._radians = value;
-                this._radians %= HalfTurn;
+                this._radians %= FullTurn;
                 if(this._radians < 0)
                     this._radians += FullTurn;
             }
