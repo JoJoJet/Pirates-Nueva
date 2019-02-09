@@ -46,11 +46,6 @@ namespace Pirates_Nueva
         /// <summary>
         /// Transform the input coordinates from screen space to a pair of coordinates within this <see cref="Sea"/>.
         /// </summary>
-        /// <param name="screenPoint">Coordinates local to the screen.</param>
-        internal (float x, float y) ScreenPointToSea((int x, int y) screenPoint) => ScreenPointToSea(screenPoint.x, screenPoint.y);
-        /// <summary>
-        /// Transform the input coordinates from screen space to a pair of coordinates within this <see cref="Sea"/>.
-        /// </summary>
         /// <param name="x">The x coordinate local to the screen.</param>
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
@@ -66,11 +61,6 @@ namespace Pirates_Nueva
             var (x, y) = SeaPointToScreen(seaPoint.X, seaPoint.Y);
             return new PointI(x, y);
         }
-        /// <summary>
-        /// Transform the input coordinates from this <see cref="See"/> to the screen.
-        /// </summary>
-        /// <param name="seaPoint">Coordinates local to this <see cref="Sea"/>.</param>
-        internal (int x, int y) SeaPointToScreen((float x, float y) seaPoint) => SeaPointToScreen(seaPoint.x, seaPoint.y);
         /// <summary>
         /// Transform the input coordinates from this <see cref="Sea"/> to the screen.
         /// </summary>

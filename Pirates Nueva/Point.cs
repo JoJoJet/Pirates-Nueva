@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// A point in 2D space, composed of 2 <see cref="int"/>s.
+    /// A point in 2D space, composed of 2 <see cref="int"/>s. Implicitly converts to and from MonoGame.Point.
     /// </summary>
     public struct PointI
     {
@@ -32,10 +32,12 @@ namespace Pirates_Nueva
 
         public static implicit operator Microsoft.Xna.Framework.Point(PointI p) => new Point(p.X, p.Y);
         public static implicit operator PointI(Microsoft.Xna.Framework.Point p) => new PointI(p.X, p.Y);
+        
+        public static implicit operator PointI((int, int) tup) => new PointI(tup.Item1, tup.Item2);
     }
 
     /// <summary>
-    /// A point in 2D space, composed of 2 <see cref="float"/>s.
+    /// A point in 2D space, composed of 2 <see cref="float"/>s. Implicitly converts to and from MonoGame.Vector2.
     /// </summary>
     public struct PointF
     {
@@ -59,5 +61,7 @@ namespace Pirates_Nueva
 
         public static implicit operator Vector2(PointF p) => new Vector2(p.X, p.Y);
         public static implicit operator PointF(Vector2 v) => new PointF(v.X, v.Y);
+
+        public static implicit operator PointF((float, float) tup) => new PointF(tup.Item1, tup.Item2);
     }
 }
