@@ -72,9 +72,8 @@ namespace Pirates_Nueva
         public void Draw(Master master) {
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(this.blocks[x, y] != null) {
-                        this[x, y].Draw(master);
-                    }
+                    if(GetBlock(x, y) is Block b)
+                        b.Draw(master);
                 }
             }
         }
