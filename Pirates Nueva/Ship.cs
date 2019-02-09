@@ -106,7 +106,9 @@ namespace Pirates_Nueva
         /// into a <see cref="PointF"/> local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
-        /// has an element of rounding.
+        /// has an element of rounding:
+        /// <para />
+        /// output will always be positioned on the bottom left corner of that index's block.
         /// </summary>
         /// <param name="shipPoint">A pair of indices within this <see cref="Ship"/>.</param>
         public PointF ShipPointToSea(PointI shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
@@ -115,11 +117,13 @@ namespace Pirates_Nueva
         /// a pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
-        /// has an element of rounding.
+        /// has an element of rounding:
+        /// <para />
+        /// output always be positioned on the bottom left corner of that index's block.
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) => (x + 0.5f, y + 0.5f);
+        internal (float x, float y) ShipPointToSea(int x, int y) => (x, y);
         #endregion
 
         #region Block Accessor Methods
