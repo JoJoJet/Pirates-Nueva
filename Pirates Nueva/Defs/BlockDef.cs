@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Pirates_Nueva
 {
@@ -13,12 +12,10 @@ namespace Pirates_Nueva
     /// </summary>
     public class BlockDef : Def
     {
-        private string _textureId;
-
         /// <summary>
-        /// The <see cref="Texture2D"/> to display onscreen for a <see cref="Block"/> with this <see cref="Def"/>.
+        /// The name of the Texture to display onscreen for a <see cref="Block"/> with this <see cref="BlockDef"/>.
         /// </summary>
-        public Texture2D Texture => Master.Instance.Resources.LoadTexture(this._textureId);
+        public string TextureID { get; protected set; }
 
         /// <summary>
         /// Get the <see cref="BlockDef"/> with identifier /id/.
@@ -30,7 +27,7 @@ namespace Pirates_Nueva
         protected override void ReadXml(XmlReader parentReader) {
             using(XmlReader reader = parentReader.ReadSubtree()) {
                 reader.ReadToDescendant("TextureID");
-                this._textureId = reader.ReadElementContentAsString();
+                TextureID = reader.ReadElementContentAsString();
             }
         }
     }

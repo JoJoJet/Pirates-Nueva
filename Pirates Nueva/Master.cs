@@ -26,13 +26,14 @@ namespace Pirates_Nueva
     /// <summary>
     /// Controls Rendering and calls the Update() functions for every type in the game.
     /// </summary>
-    public class Master : Game
+    public sealed class Master : Game
     {
         static Master _instance;
 
         GraphicsDeviceManager graphics;
         Sea sea;
 
+        /// <summary> Prolly don't use this. Will likely be removed later. </summary>
         public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
         public SpriteBatch SpriteBatch { get; private set; }
@@ -40,6 +41,7 @@ namespace Pirates_Nueva
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
+        public Input Input { get; }
 
         #region Initialization
         public Master() {
@@ -49,6 +51,7 @@ namespace Pirates_Nueva
             Content.RootDirectory = "Content";
 
             Resources = new Resources(this);
+            Input = new Input(this);
         }
 
         /// <summary>
@@ -61,8 +64,13 @@ namespace Pirates_Nueva
         /// and initialize them as well.
         /// </summary>
         protected override void Initialize() {
-            // TODO: Add your initialization logic here
-            this.sea = new Sea();
+            // Make the mouse cursor visible onscreen.
+            IsMouseVisible = true;
+
+            // Initialize the Def class.
+            Def.Initialize(this);
+            
+            this.sea = new Sea(this);
 
             base.Initialize();
         }
@@ -99,7 +107,8 @@ namespace Pirates_Nueva
 
             FrameTime = gameTime;
 
-            // TODO: Add your update logic here
+            (Input as IUpdatable).Update(this);
+
             this.sea.Update(this);
 
             base.Update(gameTime);

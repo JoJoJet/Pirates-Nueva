@@ -8,31 +8,48 @@ using System.Xml;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// An immutable object that contains properties for different types of objects.
+    /// An immutable object that contains properties that defines a type of object.
     /// </summary>
     public abstract class Def
     {
+        // An object to lock onto when initializing this class.
+        private static readonly object padlock = new object();
+
         private static readonly Dictionary<string, Def> _defs = new Dictionary<string, Def>();
+        private static bool isInitialized = false;
 
         /// <summary>
         /// The unique identifier of this <see cref="Def"/>. 
         /// </summary>
         public string ID { get; private set; }
+        
+        /// <summary>
+        /// Initialize the <see cref="Def"/> class. Can only be called once.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if this method is called more than once per program instance.</exception>
+        internal static void Initialize(Master master) {
+            lock(padlock) {
+                // Throw an exception if this method has been called before.
+                if(isInitialized)
+                    throw new InvalidOperationException($"{nameof(Def)}.{nameof(Initialize)}(): {nameof(Def)} has already been initialized!");
 
-        static Def() {
-            // Get an XmlReader to load the Defs with.
-            using(XmlReader reader = Master.Instance.Resources.GetXmlReader("defs")) {
-                while(reader.Read()) {
-                    switch(reader.Name) {
-                        /*
-                         * Reading a BlockDef.
-                         */
-                        case "BlockDef": {
-                            readDef<BlockDef>(reader);
-                            break;
+                // Get an XmlReader to load the Defs with.
+                using(XmlReader reader = Master.Instance.Resources.GetXmlReader("defs")) {
+                    while(reader.Read()) {
+                        switch(reader.Name) {
+                            /*
+                             * Reading a BlockDef.
+                             */
+                            case "BlockDef": {
+                                readDef<BlockDef>(reader);
+                                break;
+                            }
                         }
                     }
                 }
+
+                // Mark this class as having been Initialized.
+                isInitialized = true;
             }
 
             /*
