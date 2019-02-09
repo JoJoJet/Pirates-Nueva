@@ -36,19 +36,6 @@ namespace Pirates_Nueva
         /// </summary>
         public Angle Angle { get; private set; }
 
-        /// <summary>
-        /// The <see cref="Pirates_Nueva.Sea"/>-space left edge of this <see cref="Ship"/>.
-        /// </summary>
-        public float LeftX => CenterX - RootIndex.X;
-        /// <summary>
-        /// The <see cref="Pirates_Nueva.Sea"/>-space bottom edge of this <see cref="Ship"/>.
-        /// </summary>
-        public float BottomY => CenterY - RootIndex.Y;
-        /// <summary>
-        /// The <see cref="Pirates_Nueva.Sea"/>-space bottom-left corner of this <see cref="Ship"/>.
-        /// </summary>
-        public PointF BottomLeft => new PointF(LeftX, BottomY);
-
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
