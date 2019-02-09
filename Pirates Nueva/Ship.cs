@@ -41,7 +41,7 @@ namespace Pirates_Nueva
             if(master.Input.MouseLeft.IsDown || master.Input.MouseRight.IsDown) {
                 // Find the index of the location that the user clicked.
                 var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                var (shipX, shipY) = ((int)Math.Floor(seaX), (int)Math.Floor(seaY));
+                var (shipX, shipY) = SeaPointToShip(seaX, seaY);
 
                 // If the place the user clicked was within the bounds of the ship.
                 if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
@@ -67,6 +67,19 @@ namespace Pirates_Nueva
                 }
             }
         }
+        
+        /// <summary>
+        /// Transform the input coordinates from <see cref="Sea"/> space to a pair of indices within to this <see cref="Ship"/>
+        /// </summary>
+        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
+        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
+        internal (int x, int y) SeaPointToShip((float x, float y) seaPoint) => SeaPointToShip(seaPoint.x, seaPoint.y);
+        /// <summary>
+        /// Transform the input coordinates from <see cref="Sea"/> space to a pair of indices within to this <see cref="Ship"/>
+        /// </summary>
+        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
+        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
+        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x), (int)Math.Floor(y));
 
         #region Block Accessor Methods
         /// <summary>
