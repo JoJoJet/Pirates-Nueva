@@ -24,7 +24,7 @@ namespace Pirates_Nueva
         /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int Y { get; private set; }
 
-        /// <summary> A <see cref="PointI"/> containing the index of this <see cref="Block"/> within its ship. </summary>
+        /// <summary> The x and y indices of this <see cref="Block"/> within its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public PointI Index => new PointI(X, Y);
 
         /// <summary>
