@@ -55,6 +55,7 @@ namespace Pirates_Nueva
 
         public override string ToString() => Radians != 0 ? $"{Radians/Math.PI:0.##}π" : "0";
 
+        public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
     }
 }
