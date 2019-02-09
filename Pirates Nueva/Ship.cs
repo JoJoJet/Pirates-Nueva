@@ -39,22 +39,31 @@ namespace Pirates_Nueva
         public Block this[int x, int y] => GetBlock(x, y);
 
         public void Update(Master master) {
-            // If the user clicks either mouse button.
-            if(master.Input.MouseLeft.IsDown || master.Input.MouseRight.IsDown) {
-                // Find the index of the location that the user clicked.
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                var (shipX, shipY) = SeaPointToShip(seaX, seaY);
+            // If the user left clicks, place a block.
+            if(master.Input.MouseLeft.IsDown) {
+                var (shipX, shipY) = mouseToShip();
 
-                // If the place the user clicked was within the bounds of the ship.
-                if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) {
-                    // If the left mouse button was clicked, place a block.
-                    if(master.Input.MouseLeft.IsDown && HasBlock(shipX, shipY) == false)
-                        PlaceBlock("wood", shipX, shipY);
-                    // If the right mouse button was clicked, remove a block, unless it is the root block.
-                    else if(master.Input.MouseRight.IsDown && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
-                        RemoveBlock(shipX, shipY);
-                }
+                // If the place that the user clicked is within this ship, and that spot is not occupied.
+                if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
+                    PlaceBlock("wood", shipX, shipY);
             }
+            // If the user right clicks, remove a block.
+            else if(master.Input.MouseRight.IsDown) {
+                var (shipX, shipY) = mouseToShip();
+
+                // If the place that the user clicked is within this ship, that spot has a block, and that block is not the Root.
+                if(isValidIndex(shipX, shipY) && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
+                    RemoveBlock(shipX, shipY);
+            }
+            
+            // Get the mouse cursor's positioned, tranformed to an index within this Ship.
+            (int, int) mouseToShip() {
+                var (x, y) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                return SeaPointToShip(x, y);
+            }
+
+            // Check if the input indices are within the bounds of this ship.
+            bool isValidIndex(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
         }
 
         /// <summary>
