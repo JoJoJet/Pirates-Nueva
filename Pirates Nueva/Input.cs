@@ -33,6 +33,8 @@ namespace Pirates_Nueva
         public Button DownKey => GetKey(Keys.Down);
         public Button RightKey => GetKey(Keys.Right);
 
+        public Button LShift => GetKey(Keys.LeftShift);
+
         internal Input(Master master) {
             Master = master;
         }
