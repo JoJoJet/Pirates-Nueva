@@ -254,14 +254,14 @@ namespace Pirates_Nueva
             try {
                 ValidateIndices($"{nameof(Ship)}.{nameof(PlaceFurniture)}()", x, y);
             }
-            catch(ArgumentOutOfRangeException ex) {
+            catch(ArgumentOutOfRangeException) {
                 throw;
             }
 
-            if(unsafeGetBlock(x, y) is Block bl) {
-                if(bl.Furniture == null)
+            if(unsafeGetBlock(x, y) is Block b) {
+                if(b.Furniture == null)
                     // If there is an empty Block to place it on, place a Furniture and return it.
-                    return SetBlockFurniture(bl, new Furniture(def, bl));
+                    return SetBlockFurniture(b, new Furniture(def, b));
                 else
                     // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
                     throw new InvalidOperationException(
