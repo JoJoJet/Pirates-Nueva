@@ -40,10 +40,12 @@ namespace Pirates_Nueva
                             /*
                              * Reading a BlockDef.
                              */
-                            case "BlockDef": {
+                            case "BlockDef":
                                 readDef<BlockDef>(reader);
                                 break;
-                            }
+                            case "FurnitureDef":
+                                readDef<FurnitureDef>(reader);
+                                break;
                         }
                     }
                 }

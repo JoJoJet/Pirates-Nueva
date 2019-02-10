@@ -43,6 +43,8 @@ namespace Pirates_Nueva
 
         /// <summary> The dot product of two <see cref="PointI"/>s. </summary>
         public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
+
+        public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
     }
 
     /// <summary>
@@ -108,10 +110,32 @@ namespace Pirates_Nueva
         public static PointF operator -(PointF a, PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
         public static PointF operator -(PointF p) => new PointF(-p.X, -p.Y);
 
+        public static PointF operator +(PointF a, PointI b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator +(PointI a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
+
         /// <summary> The dot product of two <see cref="PointF"/>s. </summary>
         public static float operator *(PointF a, PointF b) => a.X * b.X + a.Y * b.Y;
 
         public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
         public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
+    }
+
+    public static class PointExt
+    {
+        public static PointI ReadPointI(this System.Xml.XmlReader reader) {
+            var fields = GetFields(reader);
+
+            return (int.Parse(fields[0].Trim()), int.Parse(fields[1].Trim()));
+        }
+
+        public static PointF ReadPointF(this System.Xml.XmlReader reader) {
+            var fields = GetFields(reader);
+
+            return (float.Parse(fields[0].Trim()), float.Parse(fields[1].Trim()));
+        }
+
+        static string[] GetFields(System.Xml.XmlReader reader) {
+            return reader.ReadElementContentAsString().Split(new char[] { ',' }, 2, StringSplitOptions.RemoveEmptyEntries);
+        }
     }
 }

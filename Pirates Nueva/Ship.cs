@@ -12,6 +12,11 @@ namespace Pirates_Nueva
 
         private readonly Block[,] blocks;
 
+        /// <summary>
+        /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
+        /// </summary>
+        internal static Func<Block, Furniture, Furniture> SetBlockFurniture { private protected get; set; }
+
         public Sea Sea { get; }
 
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
@@ -62,7 +67,7 @@ namespace Pirates_Nueva
 
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock(RootID, RootX, RootY);
+            Block root = PlaceBlock(RootID, RootX, RootY);
         }
 
         /// <summary>
@@ -77,10 +82,19 @@ namespace Pirates_Nueva
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         public virtual void Draw(Master master) {
+            // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlock(x, y) is Block b)
                         b.Draw(master);
+                }
+            }
+
+            // Draw each Furniture.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlock(x, y) is Block b && b.Furniture is Furniture f)
+                        f.Draw(master);
                 }
             }
         }
@@ -109,7 +123,7 @@ namespace Pirates_Nueva
             var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
 
             // Indices within the ship
-            var (indX, indY) = (shipX + RootX + 0.5f, shipY + RootY + 0.5f); // Translate ship coords into indices centered on ship's bottom left corner.
+            var (indX, indY) = (shipX + RootX, shipY + RootY); // Translate ship coords into indices centered on ship's bottom left corner.
 
             return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
         }
@@ -119,29 +133,25 @@ namespace Pirates_Nueva
         /// into a <see cref="PointF"/> local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
-        /// has an element of rounding:
-        /// <para />
-        /// output will always be positioned on the bottom left corner of that index's block.
+        /// has an element of rounding.
         /// </summary>
-        /// <param name="shipPoint">A pair of indices within this <see cref="Ship"/>.</param>
-        public PointF ShipPointToSea(PointI shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
+        /// <param name="shipPoint">A pair of coordinates within this <see cref="Ship"/>.</param>
+        public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from indices local to this <see cref="Ship"/> into
+        /// Transform the input coordinates from coords local to this <see cref="Ship"/> into
         /// a pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
-        /// has an element of rounding:
-        /// <para />
-        /// output will always be positioned on the bottom left corner of that index's block.
+        /// has an element of rounding.
         /// </summary>
-        /// <param name="x">The x index within this <see cref="Ship"/>.</param>
-        /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) {
-            // Indices within the ship.
+        /// <param name="x">The x coordinate within this <see cref="Ship"/>.</param>
+        /// <param name="y">The y coordinate within this <see cref="Ship"/>.</param>
+        internal (float x, float y) ShipPointToSea(float x, float y) {
+            // Coordinates within the ship.
             var (indX, indY) = (x, y);
             
             // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input indices to be centered around the root block.
+            var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input coords to be centered around the root block.
 
             // Rotated coordinate's local to the ship's root.
             var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
@@ -155,12 +165,12 @@ namespace Pirates_Nueva
 
         #region Block Accessor Methods
         /// <summary>
-        /// Get the block at position (/x/, /y/).
+        /// Get the <see cref="Block"/> at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block GetBlock(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(GetBlock)}()", x, y);
+                ValidateIndices(nameof(GetBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -169,7 +179,22 @@ namespace Pirates_Nueva
             return unsafeGetBlock(x, y);
         }
         /// <summary>
-        /// Place a block of type /id/ at position (/x/, /y/).
+        /// Whether or not there is a <see cref="Block"/> at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool HasBlock(int x, int y) {
+            try {
+                ValidateIndices(nameof(HasBlock), x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y) != null;
+        }
+
+        /// <summary>
+        /// Place a <see cref="Block"/> of type /id/ at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
@@ -177,33 +202,20 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public Block PlaceBlock(string id, int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(PlaceBlock)}()", x, y);
+                ValidateIndices(nameof(PlaceBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
             }
             
+            // If /x/, /y/ is empty, place a new Block there, and then return it.
             if(unsafeGetBlock(x, y) == null)
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
+            // Throw an InvalidOperationException if there is already a Block at /x/, /y/.
             else
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
-        }
-
-        /// <summary>
-        /// Whether or not there is a block at position (/x/, /y/).
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasBlock(int x, int y) {
-            try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(HasBlock)}", x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
-            
-            return unsafeGetBlock(x, y) != null;
         }
 
         /// <summary>
@@ -213,23 +225,113 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
         public Block RemoveBlock(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(RemoveBlock)}()", x, y);
+                ValidateIndices(nameof(RemoveBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
             }
-            
+
+            // If there is a Block at /x/, /y/, remove it, and then return it.
             if(unsafeGetBlock(x, y) is Block b) {
                 this.blocks[x, y] = null;
                 return b;
             }
+            // Throw an InvalidOperationException if there is no Block to remove at /x/, /y/.
             else {
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
             }
         }
+        #endregion
 
+        #region Furniture Accessor Methods
+        /// <summary>
+        /// Get the <see cref="Furniture"/> at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public Furniture GetFurniture(int x, int y) {
+            try {
+                ValidateIndices(nameof(GetFurniture), x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y)?.Furniture;
+        }
+        /// <summary>
+        /// Whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool HasFurniture(int x, int y) {
+            try {
+                ValidateIndices(nameof(HasFurniture), x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y)?.Furniture != null;
+        }
+
+        /// <summary>
+        /// Place a <see cref="Furniture"/>, with <see cref="Def"/> /def/, at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
+        /// </exception>
+        public Furniture PlaceFurniture(FurnitureDef def, int x, int y) {
+            try {
+                ValidateIndices(nameof(PlaceFurniture), x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            // If there is a Block at /x/, /y/.
+            if(unsafeGetBlock(x, y) is Block b) {
+                // If there is an empty Block to place it on, place a Furniture and return it.
+                if(b.Furniture == null)
+                    return SetBlockFurniture(b, new Furniture(def, b));
+                // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
+                else
+                    throw new InvalidOperationException(
+                        $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
+                        );
+            }
+            // Throw an InvalidOperationException if there is no Block at /x/, /y/.
+            else {
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
+                    );
+            }
+        }
+
+        public Furniture RemoveFurniture(int x, int y) {
+            try {
+                ValidateIndices(nameof(RemoveFurniture), x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            // If there is a Furniture at /x/, /y/, remove it, and then return it.
+            if(unsafeGetBlock(x, y)?.Furniture is Furniture f) {
+                SetBlockFurniture(f.Floor, null);
+                return f;
+            }
+            // Throw an InvalidOperationException if there is no Furniture to remove at /x/, /y/.
+            else {
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(RemoveFurniture)}(): There is no {nameof(Furniture)} at index ({x}, {y})!"
+                    );
+            }
+        }
+        #endregion
+
+        #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
 
@@ -239,12 +341,12 @@ namespace Pirates_Nueva
             if(x < 0 || x >= Width)
                 throw new ArgumentOutOfRangeException(
                     nameof(x),
-                    $@"{methodName}: Argument must be on the interval [0, {Width}). Its value is ""{x}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Width}). Its value is ""{x}""!"
                     );
             if(y < 0 || y >= Height)
                 throw new ArgumentOutOfRangeException(
                     nameof(y),
-                    $@"{methodName}: Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
         }
         #endregion

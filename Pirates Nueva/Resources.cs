@@ -10,6 +10,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Pirates_Nueva
 {
+    /// <summary>
+    /// An exception thrown by resource loading in <see cref="Pirates_Nueva"/>.
+    /// </summary>
+    public class ResourceException : Exception
+    {
+        public ResourceException(string message) : base(message) {  }
+    }
+
     internal class Resources
     {
         private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates Nueva\Pirates Nueva\Resources\";
@@ -29,15 +37,21 @@ namespace Pirates_Nueva
         /// <summary>
         /// Get the <see cref="Texture2D"/> with name /name/.
         /// </summary>
+        /// <exception cref="ResourceException">Thrown if there is no texture with name /name/.</exception>
         public Texture2D LoadTexture(string name) {
-            // Get the texture named /name/ out of this instance's dictionary.
-            // If there is no texture with that name, load the texture with that name from file.
-            if(this._textures.TryGetValue(name, out Texture2D tex) == false) {
-                tex = Content.Load<Texture2D>(name);
-                this._textures[name] = tex;
-            }
+            try {
+                // Get the texture named /name/ out of this instance's dictionary.
+                // If there is no texture with that name, load the texture with that name from file.
+                if(this._textures.TryGetValue(name, out Texture2D tex) == false) {
+                    tex = Content.Load<Texture2D>(name);
+                    this._textures[name] = tex;
+                }
 
-            return tex;
+                return tex;
+            }
+            catch(Microsoft.Xna.Framework.Content.ContentLoadException) {
+                throw new ResourceException($"{nameof(Resources)}.{nameof(LoadTexture)}(): There is no texture named \"{name}\"!");
+            }
         }
 
         public FileReader Load(string file) => new FileReader(IndependentResourcesRoot + file);

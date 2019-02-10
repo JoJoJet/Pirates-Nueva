@@ -11,9 +11,9 @@ namespace Pirates_Nueva
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         public override void Update(Master master) {
-            UpdateMovement(master);
-
             UpdateEditing(master);
+
+            UpdateMovement(master);
         }
 
         /// <summary>
@@ -40,31 +40,46 @@ namespace Pirates_Nueva
         /// Allows the user to place and remove blocks in this <see cref="PlayerShip"/>.
         /// </summary>
         void UpdateEditing(Master master) {
-            // If the user left clicks, place a block.
-            if(master.Input.MouseLeft.IsDown) {
-                var (shipX, shipY) = mouseToShip();
+            // If the user left clicks, place a Block or Furniture.
+            if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
-                // If the place that the user clicked is within this ship, and that spot is not occupied.
-                if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
-                    PlaceBlock("wood", shipX, shipY);
+                // If the user is holding left shift, try to place a furniture.
+                if(master.Input.LShift.IsPressed) {
+                    // If the place the user clicked has a Block but no Furniture.
+                    if(HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
+                        PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
+                }
+                // If the user is not holding left shift, try to place a block.
+                else {
+                    // If the place that the user clicked is not occupied.
+                    if(HasBlock(shipX, shipY) == false)
+                        PlaceBlock("wood", shipX, shipY);
+                }
             }
-            // If the user right clicks, remove a block.
-            else if(master.Input.MouseRight.IsDown) {
-                var (shipX, shipY) = mouseToShip();
+            // If the user right clicks, remove a Block or Furniture.
+            if(master.Input.MouseRight.IsDown && isMouseValid(out shipX, out shipY)) {
 
-                // If the place that the user clicked is within this ship, that spot has a block, and that block is not the Root.
-                if(isValidIndex(shipX, shipY) && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
-                    RemoveBlock(shipX, shipY);
+                // If the user is holding left shift, try to remove a Furniture.
+                if(master.Input.LShift.IsPressed) {
+                    if(HasFurniture(shipX, shipY))
+                        RemoveFurniture(shipX, shipY);
+                }
+                // If the user is not holding left shift, try to remove a Block.
+                else {
+                    // If the place that the user clicked has a block, and that block is not the Root.
+                    if(GetBlock(shipX, shipY) is Block b && b.ID != RootID)
+                        RemoveBlock(shipX, shipY);
+                }
             }
+            
+            // Return whether or not the user clicked within the ship, and give
+            // the position (local to the ship) as out paremters /x/ and /y/.
+            bool isMouseValid(out int x, out int y) {
+                var(seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                (x, y) = SeaPointToShip(seaX, seaY);
 
-            // Get the mouse cursor's positioned, tranformed to an index within this Ship.
-            (int, int) mouseToShip() {
-                var (x, y) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                return SeaPointToShip(x, y);
+                return x >= 0 && x < Width && y >= 0 && y < Height;
             }
-
-            // Check if the input indices are within the bounds of this ship.
-            bool isValidIndex(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
         }
     }
 }

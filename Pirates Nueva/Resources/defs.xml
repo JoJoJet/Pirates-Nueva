@@ -6,4 +6,11 @@
 	<BlockDef ID="wood">
 		<TextureID>woodBlock</TextureID>
 	</BlockDef>
+	<FurnitureDef ID="cannon">
+		<TextureID>cannon</TextureID>
+		<!-- Counted in number of blocks it takes up -->
+		<TextureSize>1, 2</TextureSize>
+		<!-- The point on the texture (from 0 to 1) from which the texture will be drawn. You can think of it as (1 - offset) -->
+		<TextureOrigin>0.5, 0.25</TextureOrigin>
+	</FurnitureDef>
 </Defs>
