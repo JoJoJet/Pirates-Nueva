@@ -210,8 +210,10 @@ namespace Pirates_Nueva
             }
             
             if(unsafeGetBlock(x, y) == null)
+                // If /x/, /y/ is empty, place a new Block there, and then return it.
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
             else
+                // Throw an InvalidOperationException if there is already a Block at /x/, /y/.
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
@@ -231,10 +233,12 @@ namespace Pirates_Nueva
             }
             
             if(unsafeGetBlock(x, y) is Block b) {
+                // If there is a Block at /x/, /y/, remove it, and then return it.
                 this.blocks[x, y] = null;
                 return b;
             }
             else {
+                // Throw an InvalidOperationException if there is no Block to remove at /x/, /y/.
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
