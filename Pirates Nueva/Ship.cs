@@ -128,29 +128,25 @@ namespace Pirates_Nueva
         /// into a <see cref="PointF"/> local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
-        /// has an element of rounding:
-        /// <para />
-        /// output will always be positioned on the bottom left corner of that index's block.
+        /// has an element of rounding.
         /// </summary>
-        /// <param name="shipPoint">A pair of indices within this <see cref="Ship"/>.</param>
-        public PointF ShipPointToSea(PointI shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
+        /// <param name="shipPoint">A pair of coordinates within this <see cref="Ship"/>.</param>
+        public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from indices local to this <see cref="Ship"/> into
+        /// Transform the input coordinates from coords local to this <see cref="Ship"/> into
         /// a pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
-        /// has an element of rounding:
-        /// <para />
-        /// output will always be positioned on the bottom left corner of that index's block.
+        /// has an element of rounding.
         /// </summary>
-        /// <param name="x">The x index within this <see cref="Ship"/>.</param>
-        /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) {
-            // Indices within the ship.
+        /// <param name="x">The x coordinate within this <see cref="Ship"/>.</param>
+        /// <param name="y">The y coordinate within this <see cref="Ship"/>.</param>
+        internal (float x, float y) ShipPointToSea(float x, float y) {
+            // Coordinates within the ship.
             var (indX, indY) = (x, y);
             
             // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input indices to be centered around the root block.
+            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input coords to be centered around the root block.
 
             // Rotated coordinate's local to the ship's root.
             var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
