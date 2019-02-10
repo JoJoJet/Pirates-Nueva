@@ -68,7 +68,6 @@ namespace Pirates_Nueva
             // Place the root block.
             // It should be in the exact middle of the Ship.
             Block root = PlaceBlock(RootID, RootX, RootY);
-            SetBlockFurniture(root, new Furniture(FurnitureDef.Get("cannon"), root));
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace Pirates_Nueva
                 // If the user is holding left shift, try to place a furniture.
                 if(master.Input.LShift.IsPressed) {
                     // If the place the user clicked is within this ship, and that spot has a Block but no Furniture.
-                    if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
+                    if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
                         PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
                 }
                 // If the user is not holding left shift, try to place a block.
