@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
 {
@@ -40,7 +39,7 @@ namespace Pirates_Nueva
 
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.SpriteBatch.DrawRotated(tex, new Rectangle(screenX, screenY, Block.Pixels, Block.Pixels), -Ship.Angle, (0, 0));
+            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Block.Pixels, Block.Pixels, -Ship.Angle, (0, 0));
         }
     }
 }
