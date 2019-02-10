@@ -20,21 +20,21 @@ namespace Pirates_Nueva
         public int Height => this.blocks.GetLength(1);
         
         /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterX { get; private set; }
+        public float CenterX { get; protected set; }
         /// <summary> The Y coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterY { get; private set; }
+        public float CenterY { get; protected set; }
         /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space center of this <see cref="Ship"/>.
         /// </summary>
         public PointF Center {
             get => (CenterX, CenterY);
-            private set => (CenterX, CenterY) = value;
+            protected set => (CenterX, CenterY) = value;
         }
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
         /// </summary>
-        public Angle Angle { get; private set; }
+        public Angle Angle { get; protected set; }
 
         public PointF Right => PointF.Rotate((1, 0), Angle);
 
