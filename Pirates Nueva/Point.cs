@@ -110,6 +110,9 @@ namespace Pirates_Nueva
         public static PointF operator -(PointF a, PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
         public static PointF operator -(PointF p) => new PointF(-p.X, -p.Y);
 
+        public static PointF operator +(PointF a, PointI b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator +(PointI a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
+
         /// <summary> The dot product of two <see cref="PointF"/>s. </summary>
         public static float operator *(PointF a, PointF b) => a.X * b.X + a.Y * b.Y;
 
