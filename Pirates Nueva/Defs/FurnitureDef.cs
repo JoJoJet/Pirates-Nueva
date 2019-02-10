@@ -20,6 +20,9 @@ namespace Pirates_Nueva
         /// The number of blocks that the Texture of a <see cref="Furniture"/> with this <see cref="Def"/> takes up.
         /// </summary>
         public PointI TextureSize { get; protected set; }
+        /// <summary>
+        /// Where the Texture is being drawn from, local to the texture itself. Range: [0, 1].
+        /// </summary>
         public PointF TextureOrigin { get; protected set; }
 
         /// <summary>
