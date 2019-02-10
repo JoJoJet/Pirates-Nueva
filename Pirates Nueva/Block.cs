@@ -19,13 +19,13 @@ namespace Pirates_Nueva
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
 
-        /// <summary> The X coordinate of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int X { get; private set; }
-        /// <summary> The Y coordinate of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public int Y { get; private set; }
 
-        /// <summary> A <see cref="ValueTuple"/> containing the position of this <see cref="Block"/>. </summary>
-        internal (int x, int y) Position => (X, Y);
+        /// <summary> The x and y indices of this <see cref="Block"/> within its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        public PointI Index => new PointI(X, Y);
 
         /// <summary>
         /// Create a <see cref="Block"/> with position (/x/. /y/), defined by the <see cref="BlockDef"/> /def/.
@@ -39,8 +39,12 @@ namespace Pirates_Nueva
 
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
-            var (x, y) = Ship.Sea.SeaPointToScreen(X, Y);
-            master.SpriteBatch.Draw(tex, new Rectangle(x, y-Pixels, Pixels, Pixels), Color.White);
+
+            // SpriteBatch.Draw() draws the texture from the top left, while our indices are positioned on the bottom left.
+            // We need to bump this position upwards (local to the ship) by one block length.
+            (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
+            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
+            master.SpriteBatch.DrawRotated(tex, new Rectangle(screenX, screenY, Pixels, Pixels), -Ship.Angle, Vector2.Zero);
         }
     }
 }

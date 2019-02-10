@@ -18,6 +18,34 @@ namespace Pirates_Nueva
         public int Width => this.blocks.GetLength(0);
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => this.blocks.GetLength(1);
+        
+        /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
+        public float CenterX { get; private set; }
+        /// <summary> The Y coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
+        public float CenterY { get; private set; }
+        /// <summary>
+        /// The <see cref="Pirates_Nueva.Sea"/>-space center of this <see cref="Ship"/>.
+        /// </summary>
+        public PointF Center {
+            get => (CenterX, CenterY);
+            private set => (CenterX, CenterY) = value;
+        }
+
+        /// <summary>
+        /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
+        /// </summary>
+        public Angle Angle { get; private set; }
+
+        public PointF Right => PointF.Rotate((1, 0), Angle);
+
+        /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        private int RootX => Width/2;
+        /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        private int RootY => Height/2;
+        /// <summary>
+        /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
+        /// </summary>
+        private PointI RootIndex => (RootX, RootY);
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
@@ -27,18 +55,35 @@ namespace Pirates_Nueva
 
             this.blocks = new Block[width, height];
 
+            Center = (PointF)RootIndex;
+
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock(RootID, Width/2, Height/2);
+            PlaceBlock(RootID, RootX, RootY);
         }
 
         /// <summary>
-        /// Get the block at position (/x/, /y/).
+        /// Get the block at index (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
         public void Update(Master master) {
+            // Get a PointF containing the direction of the user's arrow keys or WASD.
+            PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
+            
+            // Do ship movement if arrow keys or WASD are held.
+            if(inputAxes.SqrMagnitude > 0) {
+                float deltaTime = master.FrameTime.DeltaSeconds();
+
+                // Slowly rotate the ship to point at the input axes.
+                Angle inputAngle = PointF.Angle((1, 0), inputAxes);
+                this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
+
+                // Slowly move the ship in the direction of its right edge.
+                Center += Right * deltaTime * 3;
+            }
+
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
                 var (shipX, shipY) = mouseToShip();
@@ -91,14 +136,30 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="x">The x coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
         /// <param name="y">The y coordinate local to the <see cref="Pirates_Nueva.Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip(float x, float y) => ((int)Math.Floor(x), (int)Math.Floor(y));
+        internal (int x, int y) SeaPointToShip(float x, float y) {
+            // Coordinates in Sea-space.
+            var (seaX, seaY) = (x, y);
+
+            // Rotated coordinates local to the ship's root
+            var (rotX, rotY) = (x - CenterX, y - CenterY); // Translate the sea coords to be centered around the root block.
+            
+            // Flat coordinates local to the ship's root.
+            var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
+
+            // Indices within the ship
+            var (indX, indY) = (shipX + RootX + 0.5f, shipY + RootY + 0.5f); // Translate ship coords into indices centered on ship's bottom left corner.
+
+            return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
+        }
 
         /// <summary>
         /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
         /// into a <see cref="PointF"/> local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
-        /// has an element of rounding.
+        /// has an element of rounding:
+        /// <para />
+        /// output will always be positioned on the bottom left corner of that index's block.
         /// </summary>
         /// <param name="shipPoint">A pair of indices within this <see cref="Ship"/>.</param>
         public PointF ShipPointToSea(PointI shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
@@ -107,11 +168,27 @@ namespace Pirates_Nueva
         /// a pair of coordinates local to the <see cref="Pirates_Nueva.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
-        /// has an element of rounding.
+        /// has an element of rounding:
+        /// <para />
+        /// output will always be positioned on the bottom left corner of that index's block.
         /// </summary>
         /// <param name="x">The x index within this <see cref="Ship"/>.</param>
         /// <param name="y">The y index within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(int x, int y) => (x + 0.5f, y + 0.5f);
+        internal (float x, float y) ShipPointToSea(int x, int y) {
+            // Indices within the ship.
+            var (indX, indY) = (x, y);
+            
+            // Flat coordinates local to the ship's root.
+            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input indices to be centered around the root block.
+
+            // Rotated coordinate's local to the ship's root.
+            var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
+
+            // Coordinates in Sea-space.
+            var (seaX, seaY) = (CenterX + rotX, CenterY + rotY); // Add the sea-space coords of the ship's center to the local coords.
+
+            return (seaX, seaY); // Return the Sea-space coordinates.
+        }
         #endregion
 
         #region Block Accessor Methods
