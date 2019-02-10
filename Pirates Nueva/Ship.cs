@@ -83,13 +83,20 @@ namespace Pirates_Nueva
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         public virtual void Draw(Master master) {
+            // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlock(x, y) is Block b) {
                         b.Draw(master);
-                        if(b.Furniture is Furniture f)
-                            f.Draw(master);
                     }
+                }
+            }
+
+            // Draw each Furniture.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlock(x, y) is Block b && b.Furniture is Furniture f)
+                        f.Draw(master);
                 }
             }
         }
