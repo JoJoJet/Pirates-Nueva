@@ -36,6 +36,9 @@ namespace Pirates_Nueva
         /// </summary>
         public Angle Angle { get; protected set; }
 
+        /// <summary>
+        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Pirates_Nueva.Sea"/>-space.
+        /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
