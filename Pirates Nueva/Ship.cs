@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Ship : IUpdatable, IDrawable
+    public abstract class Ship : IUpdatable, IDrawable
     {
         protected const string RootID = "root";
 
@@ -20,22 +20,25 @@ namespace Pirates_Nueva
         public int Height => this.blocks.GetLength(1);
         
         /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterX { get; private set; }
+        public float CenterX { get; protected set; }
         /// <summary> The Y coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterY { get; private set; }
+        public float CenterY { get; protected set; }
         /// <summary>
         /// The <see cref="Pirates_Nueva.Sea"/>-space center of this <see cref="Ship"/>.
         /// </summary>
         public PointF Center {
             get => (CenterX, CenterY);
-            private set => (CenterX, CenterY) = value;
+            protected set => (CenterX, CenterY) = value;
         }
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
         /// </summary>
-        public Angle Angle { get; private set; }
+        public Angle Angle { get; protected set; }
 
+        /// <summary>
+        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Pirates_Nueva.Sea"/>-space.
+        /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
@@ -68,53 +71,12 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
-        public void Update(Master master) {
-            // Get a PointF containing the direction of the user's arrow keys or WASD.
-            PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
-            
-            // Do ship movement if arrow keys or WASD are held.
-            if(inputAxes.SqrMagnitude > 0) {
-                float deltaTime = master.FrameTime.DeltaSeconds();
-
-                // Slowly rotate the ship to point at the input axes.
-                Angle inputAngle = PointF.Angle((1, 0), inputAxes);
-                this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
-
-                // Slowly move the ship in the direction of its right edge.
-                Center += Right * deltaTime * 3;
-            }
-
-            // If the user left clicks, place a block.
-            if(master.Input.MouseLeft.IsDown) {
-                var (shipX, shipY) = mouseToShip();
-
-                // If the place that the user clicked is within this ship, and that spot is not occupied.
-                if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
-                    PlaceBlock("wood", shipX, shipY);
-            }
-            // If the user right clicks, remove a block.
-            else if(master.Input.MouseRight.IsDown) {
-                var (shipX, shipY) = mouseToShip();
-
-                // If the place that the user clicked is within this ship, that spot has a block, and that block is not the Root.
-                if(isValidIndex(shipX, shipY) && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
-                    RemoveBlock(shipX, shipY);
-            }
-            
-            // Get the mouse cursor's positioned, tranformed to an index within this Ship.
-            (int, int) mouseToShip() {
-                var (x, y) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                return SeaPointToShip(x, y);
-            }
-
-            // Check if the input indices are within the bounds of this ship.
-            bool isValidIndex(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
-        }
+        public abstract void Update(Master master);
 
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        public void Draw(Master master) {
+        public virtual void Draw(Master master) {
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlock(x, y) is Block b)
