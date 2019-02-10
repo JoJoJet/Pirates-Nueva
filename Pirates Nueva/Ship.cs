@@ -81,7 +81,7 @@ namespace Pirates_Nueva
                 this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
 
                 // Slowly move the ship in the direction of its right edge.
-                Center += Right * deltaTime * 3;
+                //Center += Right * deltaTime * 3;
             }
 
             // If the user left clicks, place a block.
@@ -147,7 +147,7 @@ namespace Pirates_Nueva
             var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
 
             // Indices within the ship
-            var (indX, indY) = (shipX + RootX, shipY + RootY); // Translate ship coords into indices centered on ship's bottom left corner.
+            var (indX, indY) = (shipX + RootX + 0.5f, shipY + RootY + 0.5f); // Translate ship coords into indices centered on ship's bottom left corner.
 
             return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
         }
@@ -179,7 +179,7 @@ namespace Pirates_Nueva
             var (indX, indY) = (x, y);
             
             // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input indices to be centered around the root block.
+            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input indices to be centered around the root block.
 
             // Rotated coordinate's local to the ship's root.
             var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
