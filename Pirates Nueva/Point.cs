@@ -114,4 +114,23 @@ namespace Pirates_Nueva
         public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
         public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
     }
+
+    public static class PointExt
+    {
+        public static PointI ReadPointI(this System.Xml.XmlReader reader) {
+            var fields = GetFields(reader);
+
+            return (int.Parse(fields[0].Trim()), int.Parse(fields[1].Trim());
+        }
+
+        public static PointF ReadPointF(this System.Xml.XmlReader reader) {
+            var fields = GetFields(reader);
+
+            return (float.Parse(fields[0].Trim()), float.Parse(fields[1].Trim()));
+        }
+
+        static string[] GetFields(System.Xml.XmlReader reader) {
+            return reader.ReadElementContentAsString().Split(new char[] { ',' }, 2, StringSplitOptions.RemoveEmptyEntries);
+        }
+    }
 }
