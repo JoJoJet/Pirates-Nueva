@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Ship : IUpdatable, IDrawable
+    public abstract class Ship : IUpdatable, IDrawable
     {
         protected const string RootID = "root";
 
