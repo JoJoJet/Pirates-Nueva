@@ -16,6 +16,7 @@ namespace Pirates_Nueva
         /// The name of the Texture to display onscreen for a <see cref="Furniture"/> with this <see cref="Def"/>.
         /// </summary>
         public string TextureID { get; protected set; }
+        public PointF TextureOrigin { get; protected set; }
 
         /// <summary>
         /// Get the <see cref="FurnitureDef"/> with identifier /id/.
@@ -28,6 +29,9 @@ namespace Pirates_Nueva
             using(XmlReader reader = parentReader.ReadSubtree()) {
                 reader.ReadToDescendant("TextureID");
                 TextureID = reader.ReadElementContentAsString();
+
+                reader.ReadToNextSibling("TextureOrigin");
+                TextureOrigin = reader.ReadPointF();
             } 
         }
     }
