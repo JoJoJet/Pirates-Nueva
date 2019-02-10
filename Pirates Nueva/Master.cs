@@ -42,6 +42,7 @@ namespace Pirates_Nueva
 
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
+        public GUI GUI { get; }
 
         #region Initialization
         public Master() {
@@ -52,6 +53,7 @@ namespace Pirates_Nueva
 
             Resources = new Resources(this);
             Input = new Input(this);
+            GUI = new GUI(this);
         }
 
         /// <summary>
@@ -108,6 +110,7 @@ namespace Pirates_Nueva
             FrameTime = gameTime;
 
             (Input as IUpdatable).Update(this);
+            (GUI as IUpdatable).Update(this);
 
             this.sea.Update(this);
 
