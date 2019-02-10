@@ -36,10 +36,11 @@ namespace Pirates_Nueva
 
         public void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.ID);
+            var texSize = Def.TextureSize * Block.Pixels;
 
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Block.Pixels, Block.Pixels, -Ship.Angle, (0, 0));
+            master.SpriteBatch.DrawRotated(tex, screenX, screenY, texSize.X, texSize.Y, -Ship.Angle, (0, 0));
         }
     }
 }

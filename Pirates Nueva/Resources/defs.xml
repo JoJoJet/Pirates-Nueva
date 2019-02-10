@@ -8,6 +8,8 @@
 	</BlockDef>
 	<FurnitureDef ID="cannon">
 		<TextureID>cannon</TextureID>
+		<!-- Counted in number of blocks it takes up -->
+		<TextureSize>1, 2</TextureSize>
 		<TextureOrigin>0.5, 0.5</TextureOrigin>
 	</FurnitureDef>
 </Defs>
