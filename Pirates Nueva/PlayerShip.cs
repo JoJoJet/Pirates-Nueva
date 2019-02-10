@@ -57,13 +57,21 @@ namespace Pirates_Nueva
                         PlaceBlock("wood", shipX, shipY);
                 }
             }
-            // If the user right clicks, remove a block.
+            // If the user right clicks, remove a Block or Furniture.
             else if(master.Input.MouseRight.IsDown) {
                 var (shipX, shipY) = mouseToShip();
 
-                // If the place that the user clicked is within this ship, that spot has a block, and that block is not the Root.
-                if(isValidIndex(shipX, shipY) && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
-                    RemoveBlock(shipX, shipY);
+                // If the user is holding left shift, try to remove a Furniture.
+                if(master.Input.LShift.IsPressed) {
+                    if(isValidIndex(shipX, shipY) && HasFurniture(shipX, shipY))
+                        RemoveFurniture(shipX, shipY);
+                }
+                // If the user is not holding left shift, try to remove a Block.
+                else {
+                    // If the place that the user clicked is within this ship, that spot has a block, and that block is not the Root.
+                    if(isValidIndex(shipX, shipY) && GetBlock(shipX, shipY) is Block b && b.ID != RootID)
+                        RemoveBlock(shipX, shipY);
+                }
             }
 
             // Get the mouse cursor's positioned, tranformed to an index within this Ship.
