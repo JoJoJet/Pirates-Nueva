@@ -6,4 +6,7 @@
 	<BlockDef ID="wood">
 		<TextureID>woodBlock</TextureID>
 	</BlockDef>
+	<FurnitureDef ID="cannon">
+		<TextureID>cannon</TextureID>
+	</FurnitureDef>
 </Defs>
