@@ -307,6 +307,27 @@ namespace Pirates_Nueva
                     );
             }
         }
+
+        public Furniture RemoveFurniture(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(RemoveFurniture)}()", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            // If there is a Furniture at /x/, /y/, remove it, and then return it.
+            if(unsafeGetBlock(x, y)?.Furniture is Furniture f) {
+                SetBlockFurniture(f.Floor, null);
+                return f;
+            }
+            // Throw an InvalidOperationException if there is no Furniture to remove at /x/, /y/.
+            else {
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(RemoveFurniture)}(): There is no {nameof(Furniture)} at index ({x}, {y})!"
+                    );
+            }
+        }
         #endregion
 
         #region Private Methods
