@@ -11,9 +11,9 @@ namespace Pirates_Nueva
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         public override void Update(Master master) {
-            UpdateMovement(master);
-
             UpdateEditing(master);
+
+            UpdateMovement(master);
         }
 
         /// <summary>
