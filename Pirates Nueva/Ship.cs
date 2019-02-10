@@ -15,7 +15,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
-        internal static Action<Block, Furniture> SetBlockFurniture { private protected get; set; }
+        internal static Func<Block, Furniture, Furniture> SetBlockFurniture { private protected get; set; }
 
         public Sea Sea { get; }
 
@@ -181,6 +181,21 @@ namespace Pirates_Nueva
             return unsafeGetBlock(x, y);
         }
         /// <summary>
+        /// Whether or not there is a block at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool HasBlock(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(HasBlock)}", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y) != null;
+        }
+
+        /// <summary>
         /// Place a block of type /id/ at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
@@ -201,21 +216,6 @@ namespace Pirates_Nueva
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
-        }
-
-        /// <summary>
-        /// Whether or not there is a block at position (/x/, /y/).
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasBlock(int x, int y) {
-            try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(HasBlock)}", x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
-            
-            return unsafeGetBlock(x, y) != null;
         }
 
         /// <summary>
@@ -241,7 +241,44 @@ namespace Pirates_Nueva
                     );
             }
         }
+        #endregion
 
+        #region Furniture Accessor Methods
+        /// <summary>
+        /// Place a <see cref="Furniture"/>, with <see cref="Def"/> /def/, at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
+        /// </exception>
+        public Furniture PlaceFurniture(FurnitureDef def, int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(PlaceFurniture)}()", x, y);
+            }
+            catch(ArgumentOutOfRangeException ex) {
+                throw;
+            }
+
+            if(unsafeGetBlock(x, y) is Block bl) {
+                if(bl.Furniture == null)
+                    // If there is an empty Block to place it on, place a Furniture and return it.
+                    return SetBlockFurniture(bl, new Furniture(def, bl));
+                else
+                    // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
+                    throw new InvalidOperationException(
+                        $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
+                        );
+            }
+            // Throw an InvalidOperationException if there is no Block at /x/, /y/.
+            else {
+                throw new InvalidOperationException(
+                    $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
+                    );
+            }
+        }
+        #endregion
+
+        #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
 
