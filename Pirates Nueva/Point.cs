@@ -43,6 +43,8 @@ namespace Pirates_Nueva
 
         /// <summary> The dot product of two <see cref="PointI"/>s. </summary>
         public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
+
+        public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
     }
 
     /// <summary>
