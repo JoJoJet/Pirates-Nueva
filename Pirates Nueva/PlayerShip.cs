@@ -40,9 +40,10 @@ namespace Pirates_Nueva
         /// Allows the user to place and remove blocks in this <see cref="PlayerShip"/>.
         /// </summary>
         void UpdateEditing(Master master) {
-            // If the user left clicks, place a block.
+            // If the user left clicks, place a Block or Furniture.
             if(master.Input.MouseLeft.IsDown) {
                 var (shipX, shipY) = mouseToShip();
+
 
                 // If the place that the user clicked is within this ship, and that spot is not occupied.
                 if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
