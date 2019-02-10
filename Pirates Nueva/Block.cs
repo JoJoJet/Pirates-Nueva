@@ -28,6 +28,22 @@ namespace Pirates_Nueva
         public PointI Index => new PointI(X, Y);
 
         /// <summary>
+        /// The <see cref="Pirates_Nueva.Furniture"/> placed on this block. Might be null.
+        /// </summary>
+        public Furniture Furniture { get; private set; }
+
+        /// <summary>
+        /// Static constructor. Is called the first time that this class is mentioned.
+        /// </summary>
+        static Block() {
+            /*
+             * Give 'Ship' class a delegate that allows it
+             * to assign the 'Furniture' property of this class.
+             */
+            Ship.SetBlockFurniture = (block, furn) => block.Furniture = furn;
+        }
+
+        /// <summary>
         /// Create a <see cref="Block"/> with position (/x/. /y/), defined by the <see cref="BlockDef"/> /def/.
         /// </summary>
         public Block(Ship parent, BlockDef def, int x, int y) {
