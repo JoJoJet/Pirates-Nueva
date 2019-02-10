@@ -16,7 +16,7 @@ namespace Pirates_Nueva
         public Sea(Master master) {
             Master = master;
 
-            this.ships.Add(new Ship(this, 10, 5));
+            this.ships.Add(new PlayerShip(this, 10, 5));
         }
 
         public void Update(Master master) {

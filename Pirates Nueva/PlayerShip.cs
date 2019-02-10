@@ -11,6 +11,15 @@ namespace Pirates_Nueva
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         public override void Update(Master master) {
+            UpdateMovement(master);
+
+            UpdateEditing(master);
+        }
+
+        /// <summary>
+        /// Allows the user to control movement of this <see cref="PlayerShip"/>.
+        /// </summary>
+        void UpdateMovement(Master master) {
             // Get a PointF containing the direction of the user's arrow keys or WASD.
             PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
 
@@ -25,7 +34,12 @@ namespace Pirates_Nueva
                 // Slowly move the ship in the direction of its right edge.
                 Center += Right * deltaTime * 3;
             }
+        }
 
+        /// <summary>
+        /// Allows the user to place and remove blocks in this <see cref="PlayerShip"/>.
+        /// </summary>
+        void UpdateEditing(Master master) {
             // If the user left clicks, place a block.
             if(master.Input.MouseLeft.IsDown) {
                 var (shipX, shipY) = mouseToShip();

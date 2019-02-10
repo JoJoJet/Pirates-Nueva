@@ -68,7 +68,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
-        public virtual void Update(Master master) {  }
+        public abstract void Update(Master master);
 
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
