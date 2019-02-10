@@ -170,7 +170,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block GetBlock(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(GetBlock)}()", x, y);
+                ValidateIndices(nameof(GetBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -184,7 +184,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasBlock(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(HasBlock)}", x, y);
+                ValidateIndices(nameof(HasBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -202,7 +202,7 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public Block PlaceBlock(string id, int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(PlaceBlock)}()", x, y);
+                ValidateIndices(nameof(PlaceBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -225,7 +225,7 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
         public Block RemoveBlock(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(RemoveBlock)}()", x, y);
+                ValidateIndices(nameof(RemoveBlock), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -252,7 +252,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Furniture GetFurniture(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(GetFurniture)}()", x, y);
+                ValidateIndices(nameof(GetFurniture), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -266,7 +266,7 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasFurniture(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(HasFurniture)}()", x, y);
+                ValidateIndices(nameof(HasFurniture), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -284,7 +284,7 @@ namespace Pirates_Nueva
         /// </exception>
         public Furniture PlaceFurniture(FurnitureDef def, int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(PlaceFurniture)}()", x, y);
+                ValidateIndices(nameof(PlaceFurniture), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -310,7 +310,7 @@ namespace Pirates_Nueva
 
         public Furniture RemoveFurniture(int x, int y) {
             try {
-                ValidateIndices($"{nameof(Ship)}.{nameof(RemoveFurniture)}()", x, y);
+                ValidateIndices(nameof(RemoveFurniture), x, y);
             }
             catch(ArgumentOutOfRangeException) {
                 throw;
@@ -340,12 +340,12 @@ namespace Pirates_Nueva
             if(x < 0 || x >= Width)
                 throw new ArgumentOutOfRangeException(
                     nameof(x),
-                    $@"{methodName}: Argument must be on the interval [0, {Width}). Its value is ""{x}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Width}). Its value is ""{x}""!"
                     );
             if(y < 0 || y >= Height)
                 throw new ArgumentOutOfRangeException(
                     nameof(y),
-                    $@"{methodName}: Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
         }
         #endregion
