@@ -138,7 +138,7 @@ namespace Pirates_Nueva
         /// Submit a rotated sprite for drawing in the current batch.
         /// </summary>
         public static void DrawRotated(
-            this SpriteBatch spriteBatch, Texture2D texture, Rectangle destinationRectangle, float angle, Vector2 origin
+            this SpriteBatch spriteBatch, Texture2D texture, Rectangle destinationRectangle, float angle, PointF origin
             ) {
             spriteBatch.Draw(texture, destinationRectangle, null, Color.White, angle, origin, SpriteEffects.None, 0f);
         }

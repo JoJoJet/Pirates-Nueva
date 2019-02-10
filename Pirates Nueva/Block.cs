@@ -60,7 +60,7 @@ namespace Pirates_Nueva
             // We need to bump this position upwards (local to the ship) by one block length.
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.SpriteBatch.DrawRotated(tex, new Rectangle(screenX, screenY, Pixels, Pixels), -Ship.Angle, Vector2.Zero);
+            master.SpriteBatch.DrawRotated(tex, new Rectangle(screenX, screenY, Pixels, Pixels), -Ship.Angle, (0, 0));
         }
     }
 }
