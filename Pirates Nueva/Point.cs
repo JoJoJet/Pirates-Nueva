@@ -67,7 +67,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns this <see cref="PointF"/>, with a <see cref="Magnitude"/> of zero. Does not modify this instance.
         /// </summary>
-        public PointF Normalized => Magnitude > 0 ? this / Magnitude : Zero;
+        public PointF Normalized => SqrMagnitude > 0 ? this / Magnitude : Zero;
 
         public PointF(float value) : this(value, value) {  }
         public PointF(float x, float y) {
