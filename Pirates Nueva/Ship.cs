@@ -67,7 +67,8 @@ namespace Pirates_Nueva
 
             // Place the root block.
             // It should be in the exact middle of the Ship.
-            PlaceBlock(RootID, RootX, RootY);
+            Block root = PlaceBlock(RootID, RootX, RootY);
+            SetBlockFurniture(root, new Furniture(FurnitureDef.Get("cannon"), root));
         }
 
         /// <summary>
@@ -84,8 +85,11 @@ namespace Pirates_Nueva
         public virtual void Draw(Master master) {
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
+                    if(GetBlock(x, y) is Block b) {
                         b.Draw(master);
+                        if(b.Furniture is Furniture f)
+                            f.Draw(master);
+                    }
                 }
             }
         }
