@@ -73,7 +73,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        public void Draw(Master master) {
+        public virtual void Draw(Master master) {
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlock(x, y) is Block b)
