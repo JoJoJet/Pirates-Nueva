@@ -10,12 +10,12 @@ namespace Pirates_Nueva
     {
         protected const string RootID = "root";
 
+        private readonly Block[,] blocks;
+
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
         internal static Action<Block, Furniture> SetBlockFurniture { private protected get; set; }
-
-        private readonly Block[,] blocks;
 
         public Sea Sea { get; }
 
