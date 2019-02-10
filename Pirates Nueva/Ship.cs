@@ -86,9 +86,8 @@ namespace Pirates_Nueva
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b) {
+                    if(GetBlock(x, y) is Block b)
                         b.Draw(master);
-                    }
                 }
             }
 
