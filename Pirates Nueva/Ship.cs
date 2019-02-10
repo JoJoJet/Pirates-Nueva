@@ -166,7 +166,7 @@ namespace Pirates_Nueva
 
         #region Block Accessor Methods
         /// <summary>
-        /// Get the block at position (/x/, /y/).
+        /// Get the <see cref="Block"/> at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block GetBlock(int x, int y) {
@@ -180,7 +180,7 @@ namespace Pirates_Nueva
             return unsafeGetBlock(x, y);
         }
         /// <summary>
-        /// Whether or not there is a block at position (/x/, /y/).
+        /// Whether or not there is a <see cref="Block"/> at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasBlock(int x, int y) {
@@ -195,7 +195,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Place a block of type /id/ at position (/x/, /y/).
+        /// Place a <see cref="Block"/> of type /id/ at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
@@ -247,6 +247,35 @@ namespace Pirates_Nueva
         #endregion
 
         #region Furniture Accessor Methods
+        /// <summary>
+        /// Get the <see cref="Furniture"/> at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public Furniture GetFurniture(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(GetFurniture)}()", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y)?.Furniture;
+        }
+        /// <summary>
+        /// Whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool HasFurniture(int x, int y) {
+            try {
+                ValidateIndices($"{nameof(Ship)}.{nameof(HasFurniture)}()", x, y);
+            }
+            catch(ArgumentOutOfRangeException) {
+                throw;
+            }
+
+            return unsafeGetBlock(x, y)?.Furniture != null;
+        }
+
         /// <summary>
         /// Place a <see cref="Furniture"/>, with <see cref="Def"/> /def/, at index /x/, /y/.
         /// </summary>

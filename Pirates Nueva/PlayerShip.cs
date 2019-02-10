@@ -44,10 +44,18 @@ namespace Pirates_Nueva
             if(master.Input.MouseLeft.IsDown) {
                 var (shipX, shipY) = mouseToShip();
 
-
-                // If the place that the user clicked is within this ship, and that spot is not occupied.
-                if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
-                    PlaceBlock("wood", shipX, shipY);
+                // If the user is holding left shift, try to place a furniture.
+                if(master.Input.LShift.IsPressed) {
+                    // If the place the user clicked is within this ship, and that spot has a Block but no Furniture.
+                    if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
+                        PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
+                }
+                // If the user is not holding left shift, try to place a block.
+                else {
+                    // If the place that the user clicked is within this ship, and that spot is not occupied.
+                    if(isValidIndex(shipX, shipY) && HasBlock(shipX, shipY) == false)
+                        PlaceBlock("wood", shipX, shipY);
+                }
             }
             // If the user right clicks, remove a block.
             else if(master.Input.MouseRight.IsDown) {
