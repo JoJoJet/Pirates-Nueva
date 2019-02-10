@@ -208,11 +208,11 @@ namespace Pirates_Nueva
                 throw;
             }
             
+            // If /x/, /y/ is empty, place a new Block there, and then return it.
             if(unsafeGetBlock(x, y) == null)
-                // If /x/, /y/ is empty, place a new Block there, and then return it.
                 return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
+            // Throw an InvalidOperationException if there is already a Block at /x/, /y/.
             else
-                // Throw an InvalidOperationException if there is already a Block at /x/, /y/.
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
@@ -230,14 +230,14 @@ namespace Pirates_Nueva
             catch(ArgumentOutOfRangeException) {
                 throw;
             }
-            
+
+            // If there is a Block at /x/, /y/, remove it, and then return it.
             if(unsafeGetBlock(x, y) is Block b) {
-                // If there is a Block at /x/, /y/, remove it, and then return it.
                 this.blocks[x, y] = null;
                 return b;
             }
+            // Throw an InvalidOperationException if there is no Block to remove at /x/, /y/.
             else {
-                // Throw an InvalidOperationException if there is no Block to remove at /x/, /y/.
                 throw new InvalidOperationException(
                     $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
@@ -290,12 +290,13 @@ namespace Pirates_Nueva
                 throw;
             }
 
+            // If there is a Block at /x/, /y/.
             if(unsafeGetBlock(x, y) is Block b) {
+                // If there is an empty Block to place it on, place a Furniture and return it.
                 if(b.Furniture == null)
-                    // If there is an empty Block to place it on, place a Furniture and return it.
                     return SetBlockFurniture(b, new Furniture(def, b));
+                // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
                 else
-                    // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
                     throw new InvalidOperationException(
                         $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
                         );
