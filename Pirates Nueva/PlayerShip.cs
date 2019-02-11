@@ -23,9 +23,9 @@ namespace Pirates_Nueva
 
             // If there is no floating menu for the ship onscreen, put one up.
             if(master.GUI.HasEdge(noneKey) == false) {
-                master.GUI.AddEdge(noneKey, new EdgeButton("None", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddEdge(editKey, new EdgeButton("Edit", master.Font, () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddEdge(moveKey, new EdgeButton("Move", master.Font, () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddEdge(noneKey, new UI.EdgeButton("None", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddEdge(editKey, new UI.EdgeButton("Edit", master.Font, () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddEdge(moveKey, new UI.EdgeButton("Move", master.Font, () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
             }
             
             if(mode == ShipMode.Editing) {

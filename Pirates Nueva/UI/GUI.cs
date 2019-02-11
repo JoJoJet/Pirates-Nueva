@@ -342,6 +342,10 @@ namespace Pirates_Nueva
 
             void IMenuContract.Draw(Master master) => Draw(master);
             protected abstract void Draw(Master master);
+
+            protected void DrawElement(Master master, MenuElement element, int left, int top) {
+                (element as IElementDrawable).Draw(master, left, top);
+            }
         }
 
         private interface IMenuToElementContract
@@ -389,54 +393,6 @@ namespace Pirates_Nueva
 
             void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
             bool IElementDrawable.IsMouseOver(PointI mouse, int left, int top) => IsMouseOver(mouse, left, top);
-        }
-
-        /// <summary>
-        /// A pair of potentially moving coordinates, in screen space.
-        /// </summary>
-        public interface IScreenSpaceTarget
-        {
-            int X { get; }
-            int Y { get; }
-        }
-
-        public enum Corner { TopLeft, TopRight, BottomRight, BottomLeft };
-        /// <summary>
-        /// A floating menu that follows a <see cref="IScreenSpaceTarget"/>
-        /// </summary>
-        public class FloatingMenu : Menu
-        {
-            /// <summary> The point that this <see cref="FloatingMenu"/> should follow. </summary>
-            public IScreenSpaceTarget Target { get; }
-            /// <summary> Which corner of the menu will be aligned with <see cref="Target"/>. </summary>
-            public Corner Corner { get; }
-
-            public FloatingMenu(IScreenSpaceTarget target, Corner corner, params MenuElement[] elements) : base(elements) {
-                Target = target;
-                Corner = corner;
-            }
-
-            protected override void Draw(Master master) {
-                // Find the extents of the menu.
-                var (rightBound, bottomBound) = (0, 0);
-                foreach(MenuElement el in Elements) {
-                    rightBound  = Math.Max(rightBound, el.Left + el.WidthPixels  + Padding);
-                    bottomBound = Math.Max(bottomBound, el.Top + el.HeightPixels + Padding);
-                }
-
-                var offset = (Target.X, Target.Y);
-                if(Corner == Corner.TopRight)
-                    offset = (Target.X - rightBound, Target.Y);
-                else if(Corner == Corner.BottomRight)
-                    offset = (Target.X - rightBound, Target.Y - bottomBound);
-                else if(Corner == Corner.BottomLeft)
-                    offset = (Target.X, Target.Y - bottomBound);
-
-                foreach(MenuElement el in Elements) {
-                    var local = (el.Left, el.Top);
-                    (el as IElementDrawable).Draw(master, local.Left + offset.X, local.Top + offset.Y);
-                }
-            }
         }
     }
 }

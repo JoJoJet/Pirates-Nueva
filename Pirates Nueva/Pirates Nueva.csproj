@@ -52,6 +52,7 @@
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Furniture.cs" />
     <Compile Include="UI\EdgeElements.cs" />
+    <Compile Include="UI\FloatingMenu.cs" />
     <Compile Include="UI\Font.cs" />
     <Compile Include="UI\GUI.cs" />
     <Compile Include="Input.cs" />
