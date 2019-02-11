@@ -219,6 +219,9 @@ namespace Pirates_Nueva
         }
 
         public delegate void OnClick();
+        /// <summary>
+        /// A button that floats along the edge of a screen, not tied to any menu.
+        /// </summary>
         public class FloatingButton : IFloating, IFloatingContract
         {
             const int Padding = 4;
@@ -252,6 +255,9 @@ namespace Pirates_Nueva
 
             }
         }
+        /// <summary>
+        /// A bit of text that floats along the edge of a screen, not tied to any menu.
+        /// </summary>
         public class FloatingText : IFloating, IFloatingContract
         {
             private string _text;
