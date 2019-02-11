@@ -18,7 +18,7 @@ namespace Pirates_Nueva
 
             this.ships.Add(new PlayerShip(this, 10, 5));
 
-            master.GUI.AddEdge("debug_mouse", new GUI.EdgeText("mouse position", GUI.Edge.Top, GUI.Direction.Right));
+            master.GUI.AddEdge("debug_mouse", new EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master) {
@@ -26,7 +26,7 @@ namespace Pirates_Nueva
                 ship.Update(master);
             }
 
-            if(master.GUI.TryGetEdge<GUI.EdgeText>("debug_mouse", out var tex)) {
+            if(master.GUI.TryGetEdge<EdgeText>("debug_mouse", out var tex)) {
                 tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }

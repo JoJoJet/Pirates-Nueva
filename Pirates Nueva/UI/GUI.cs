@@ -288,95 +288,23 @@ namespace Pirates_Nueva
 
             void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
             bool IElementDrawable.IsMouseOver(PointI mouse, int left, int top) => IsMouseOver(mouse, left, top);
+
+            /// <summary> Call this when a property is changed after initialization. </summary>
+            protected void PropertyChanged() => GUI.ArangeEdges();
         }
 
-        /// <summary>
-        /// A bit of text that hugs an edge of the screen, not tied to any menu.
-        /// </summary>
-        public class EdgeText : EdgeElement
-        {
-            private string _text;
-
-            /// <summary> The string of this <see cref="EdgeText"/>. </summary>
-            public string Text {
-                get => this._text;
-                set {
-                    string old = this._text; // Store the old value of Text.
-                    this._text = value;      // Set the new value of Text.
-                    
-                    if(old != value && GUI != null) // If the value of Text has changed,
-                        GUI.ArangeEdges();          // update the arrangement of floating elements in GUI.
-                }
-            }
-            
-            /// <summary> The width of this <see cref="EdgeText"/>, in pixels. </summary>
-            public override int WidthPixels => (int)Font.MeasureString(Text).X;
-            /// <summary> The height of this <see cref="EdgeText"/>, in pixels. </summary>
-            public override int HeightPixels => (int)Font.MeasureString(Text).Y;
-            
-            public EdgeText(string text, Edge edge, Direction direction) : base(edge, direction) {
-                this._text = text;
-            }
-
-            protected override void Draw(Master master, int left, int top) {
-                var pos = new Vector2(left, top);
-                master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
-            }
-
-            protected override bool IsMouseOver(PointI mouse, int left, int top) {
-                // Whether or not /mouse/ is within the bounding box.
-                return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
-            }
-        }
         /// <summary>
         /// Action to invoke when a Button is clicked.
         /// </summary>
         public delegate void OnClick();
 
         /// <summary>
-        /// Allows us to make some properties or methods of public nested functions accessible only within <see cref="GUI"/>.
+        /// Makes the OnClick property of a Button accessible only through this internal interface.
         /// </summary>
-        private interface IButtonContract
+        internal interface IButtonContract
         {
             /// <summary> Action to invoke when this button is clicked. </summary>
             OnClick OnClick { get; }
-        }
-
-        /// <summary>
-        /// A button that hugs an edge of the screen, not tied to any menu.
-        /// </summary>
-        public class EdgeButton : EdgeElement, IButtonContract
-        {
-            const int Padding = 3;
-
-            /// <summary> Text to display on this <see cref="EdgeButton"/>. </summary>
-            public string Text { get; }
-
-            /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
-            public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
-            /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
-            public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
-            
-            private OnClick OnClick { get; set; }
-            #region Hidden Properties
-            OnClick IButtonContract.OnClick => OnClick;
-            #endregion
-
-            public EdgeButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
-                Text = text;
-                OnClick = onClick;
-            }
-
-            protected override void Draw(Master master, int left, int top) {
-                var pos = new Vector2(left, top);
-                pos += new Vector2(Padding, Padding);
-
-                master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
-            }
-            
-            protected override bool IsMouseOver(PointI mouse, int left, int top) {
-                return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
-            }
         }
 
 
