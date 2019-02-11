@@ -43,8 +43,8 @@ namespace Pirates_Nueva
             
             void updateEditing() {
                 if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_block", new EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
                 }
 
                 // If the user left clicks, place a Block or Furniture.
