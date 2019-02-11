@@ -51,6 +51,7 @@
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Furniture.cs" />
+    <Compile Include="GUI.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Master.cs" />
     <Compile Include="PlayerShip.cs" />
