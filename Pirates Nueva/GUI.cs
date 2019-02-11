@@ -414,5 +414,17 @@ namespace Pirates_Nueva
                 Pos = (x, y);
             }
         }
+
+        public class MenuText : MenuElement
+        {
+            public string Text { get; }
+
+            public override int WidthPixels => (int)Font.MeasureString(Text).X;
+            public override int HeightPixels => (int)Font.MeasureString(Text).Y;
+
+            public MenuText(string text) {
+                Text = text;
+            }
+        }
     }
 }
