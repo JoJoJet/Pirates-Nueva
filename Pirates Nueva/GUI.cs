@@ -99,7 +99,7 @@ namespace Pirates_Nueva
         /// Update the arrangement of Floating elements.
         /// </summary>
         void ArrangeFloating() {
-            const int Padding = 3;
+            const int Padding = 5;
 
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
