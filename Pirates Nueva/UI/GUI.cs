@@ -385,9 +385,15 @@ namespace Pirates_Nueva
             Menu IMenuToElementContract.Menu { get => Menu; set => Menu = value; }
             #endregion
 
+            /// <summary>
+            /// Create a new <see cref="MenuElement"/>, and allow its <see cref="Menu"/> to choose a position for it.
+            /// </summary>
             public MenuElement() {  }
-            public MenuElement(int x, int y) {
-                Pos = (x, y);
+            /// <summary>
+            /// Create a new <see cref="MenuElement"/>, with the specified position.
+            /// </summary>
+            public MenuElement(int left, int top) {
+                Pos = (left, top);
             }
 
             /// <summary> Draw this <see cref="MenuElement"/> onscreen. </summary>
