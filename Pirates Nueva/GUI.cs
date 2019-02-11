@@ -15,18 +15,16 @@ namespace Pirates_Nueva
     public class GUI : IUpdatable, IDrawable
     {
         private Dictionary<string, IFloating> _floatingElements = new Dictionary<string, IFloating>();
-        
-        static SpriteFont Font { get; set; }
 
-        public Master Master { get; }
+        public static Master Master { get; private set; }
+
+        static SpriteFont Font => Master.Font;
 
         public int ScreenWidth => Master.GraphicsDevice.Viewport.Width;
         public int ScreenHeight => Master.GraphicsDevice.Viewport.Height;
 
         internal GUI(Master master) {
             Master = master;
-
-            Font = master.Font;
         }
         
         #region Floating Accessors
