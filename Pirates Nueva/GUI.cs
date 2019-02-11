@@ -96,7 +96,7 @@ namespace Pirates_Nueva
         #endregion
 
         /// <summary>
-        /// Update the arrangement of Floating elements.
+        /// Update the arrangement of edge elements.
         /// </summary>
         void ArangeEdges() {
             const int Padding = 5;
@@ -157,7 +157,7 @@ namespace Pirates_Nueva
                 return;
 
             var (mouseX, mouseY) = master.Input.MousePosition;
-            foreach(EdgeElement edge in this._edgeElements.Values) {            // For every floating element:
+            foreach(EdgeElement edge in this._edgeElements.Values) {            // For every edge element:
                 if(edge is IButtonContract b && b.IsMouseOver(mouseX, mouseY))  // If the element is a button and the mouse is over it,
                     b.OnClick();                                                // invoke its action.
             }
