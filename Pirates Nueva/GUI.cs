@@ -152,7 +152,15 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
+            // Exit the method if the mouse wasn't clicked this frame.
+            if(!master.Input.MouseLeft.IsDown)
+                return;
 
+            var (mouseX, mouseY) = master.Input.MousePosition;
+            foreach(Floating floating in this._floatingElements.Values) {            // For every floating element:
+                if(floating is IButtonContract b && b.IsMouseOver(mouseX, mouseY))   // If the element is a button and the mouse is over it,
+                    b.OnClick();                                                     // invoke its action.
+            }
         }
 
         void IDrawable.Draw(Master master) {
@@ -249,18 +257,28 @@ namespace Pirates_Nueva
         /// Action to invoke when a Button is clicked.
         /// </summary>
         public delegate void OnClick();
+
+        /// <summary>
+        /// Allows us to make some properties or methods of public nested functions accessible only within <see cref="GUI"/>.
+        /// </summary>
+        private interface IButtonContract
+        {
+            /// <summary> Action to invoke when this button is clicked. </summary>
+            OnClick OnClick { get; }
+
+            /// <summary> Whether or not the input coordinates are hovering over this button. </summary>
+            bool IsMouseOver(int mouseX, int mouseY);
+        }
+
         /// <summary>
         /// A button that floats along the edge of a screen, not tied to any menu.
         /// </summary>
-        public class FloatingButton : Floating, IFloatingContract
+        public class FloatingButton : Floating, IFloatingContract, IButtonContract
         {
             const int Padding = 3;
 
             /// <summary> Text to display on this <see cref="FloatingButton"/>. </summary>
             public string Text { get; }
-
-            /// <summary> Action to invoke when this <see cref="FloatingButton"/> is clicked. </summary>
-            public OnClick OnClick { get; }
 
             /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
             public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
@@ -274,11 +292,14 @@ namespace Pirates_Nueva
 
             int IFloatingContract.Left { get; set; }
             int IFloatingContract.Top { get; set; }
+
+            private OnClick _onClick;
+            OnClick IButtonContract.OnClick => this._onClick;
             #endregion
 
             public FloatingButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
                 Text = text;
-                OnClick = onClick;
+                this._onClick = onClick;
             }
 
             void IFloatingContract.Draw(Master master) {
@@ -286,6 +307,11 @@ namespace Pirates_Nueva
                 pos += new Vector2(Padding, Padding);
 
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
+            }
+
+            bool IButtonContract.IsMouseOver(int mouseX, int mouseY) {
+                IFloatingContract f = this as IFloatingContract;
+                return new Rectangle(f.Left, f.Top, WidthPixels, HeightPixels).Contains(mouseX, mouseY);
             }
         }
     }
