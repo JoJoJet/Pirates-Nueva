@@ -104,7 +104,7 @@ namespace Pirates_Nueva
                 this._menus[id] = menu;
             else
                 throw new InvalidOperationException(
-                    $"{nameof(GUI)}.{nameof(AddMenu)}(): There is already a {nameof(Menu)} identified by string \"{id}\"!""
+                    $"{nameof(GUI)}.{nameof(AddMenu)}(): There is already a {nameof(Menu)} identified by string \"{id}\"!"
                     );
         }
 
