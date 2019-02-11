@@ -96,100 +96,53 @@ namespace Pirates_Nueva
         void ArrangeFloating() {
             const int Padding = 3;
 
-            int topRight    =                Padding; // Top left corner,     ->
-            int topLeft     = ScreenWidth  - Padding; // Top right corner,    <-
-            int bottomRight =                Padding; // Bottom left corner,  ->
-            int bottomLeft  = ScreenWidth  - Padding; // Bottom right corner, <-
-            int rightUp     = ScreenHeight - Padding; // Bottom right corner, ↑
-            int rightDown   =                Padding; // Top right corner,    ↓
-            int leftUp      = ScreenHeight - Padding; // Bottom left corner,  ↑
-            int leftDown    =                Padding; // Top left corner,     ↓
+            Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
             foreach(IFloating floating in this._floatingElements.Values) {
                 if(!(floating is IFloatingContract con))
                     continue;
 
-                switch(floating.Edge) {
-                    case Edge.Top:
-                        switch(floating.StackDirection) {
-                            // Top left corner, stacking to the RIGHT.
-                            case Direction.Right: {
-                                con.Top = Padding;
-                                con.Left = topRight;
+                // Copy over some commonly used properties of /floating/.
+                var (e, d, width, height) = (floating.Edge, floating.StackDirection, floating.WidthPixels, floating.HeightPixels);
 
-                                topRight += floating.WidthPixels + Padding;
-                            } break;
+                if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /floating/ is unassigned,
+                    stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
 
-                            // Top right corner, stacking to the LEFT.
-                            case Direction.Left: {
-                                topLeft -= floating.WidthPixels + Padding;
-
-                                con.Top = Padding;
-                                con.Left = topLeft;
-                            } break;
-                        }
-                    break;
-
-                    case Edge.Bottom:
-                        switch(floating.StackDirection) {
-                            // Bottom left corner, stacking to the RIGHT.
-                            case Direction.Right: {
-                                con.Top = ScreenHeight - floating.HeightPixels - Padding;
-                                con.Left = bottomRight;
-
-                                bottomRight += floating.WidthPixels + Padding;
-                            } break;
-
-                            // Bottom right corner, stacking to the LEFT.
-                            case Direction.Left: {
-                                bottomLeft -= floating.WidthPixels + Padding;
-
-                                con.Top = ScreenHeight - floating.HeightPixels - Padding;
-                                con.Left = bottomLeft;
-                            } break;
-                        }
-                    break;
-
-                    case Edge.Right:
-                        switch(floating.StackDirection) {
-                            // Bottom right corner, stacking UPwards.
-                            case Direction.Up: {
-                                rightUp -= floating.HeightPixels + Padding;
-
-                                con.Top = rightUp;
-                                con.Left = ScreenWidth - floating.WidthPixels - Padding;
-                            } break;
-
-                            // Top right corner, stacking DOWNwards.
-                            case Direction.Down: {
-                                con.Top = rightDown;
-                                con.Left = ScreenWidth - floating.WidthPixels - Padding;
-
-                                rightDown += floating.HeightPixels + Padding;
-                            } break;
-                        }
-                    break;
-
-                    case Edge.Left:
-                        switch(floating.StackDirection) {
-                            // Bottom left corner, stacking UPwards.
-                            case Direction.Up: {
-                                leftUp -= floating.HeightPixels + Padding;
-
-                                con.Top = leftUp;
-                                con.Left = Padding;
-                            } break;
-
-                            // Top left corner, stacking DOWNwards.
-                            case Direction.Down: {
-                                con.Top = leftDown;
-                                con.Left = Padding;
-
-                                leftDown += floating.HeightPixels + Padding;
-                            } break;
-                        }
-                    break;
+                
+                if(d == Direction.Left || d == Direction.Up) { // If the stack direction is leftwards or upwards,
+                    incr();                                    // increment the stack,
+                    arrange();                                 // THEN arrange /floating/.
                 }
+                else {         // If the stack direction if rightwards or downwards,
+                    arrange(); // increment the stack,
+                    incr();    // THEN arrange /floating/.
+                }
+
+                // Arrange /floating/ into its stack.
+                void arrange() {
+                    // Position it based on the edge it's hugging.
+                    if(e == Edge.Top)         // Hugging the top
+                        con.Top = Padding;
+                    else if(e == Edge.Bottom) // Hugging the bottom
+                        con.Top = ScreenHeight - height - Padding;
+                    else if(e == Edge.Right)  // Hugging the right
+                        con.Left = ScreenWidth - width - Padding;
+                    else if(e == Edge.Left)   // Hugging the Left
+                        con.Left = Padding;
+
+                    // Position it based on its stack direction
+                    if(d == Direction.Up)         // Stacking upwards
+                        con.Top = ScreenHeight - stackLengths[(e, d)];
+                    else if(d == Direction.Down)  // Stacking downwards
+                        con.Top = stackLengths[(e, d)];
+                    else if(d == Direction.Right) // Stacking rightwards
+                        con.Left = stackLengths[(e, d)];
+                    else if(d == Direction.Left)  // Stacking leftwards
+                        con.Left = ScreenWidth - stackLengths[(e, d)];
+                }
+
+                // Increment the stack length that /floating/ is aligned in.
+                void incr() => stackLengths[(e, d)] += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
             }
         }
 
