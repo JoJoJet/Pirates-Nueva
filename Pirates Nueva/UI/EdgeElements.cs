@@ -60,7 +60,7 @@ namespace Pirates_Nueva.UI
         /// <summary> Text to display on this <see cref="EdgeButton"/>. </summary>
         public string Text { get; }
 
-        public SpriteFont Font { get; }
+        public Font Font { get; }
 
         /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
         public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
@@ -72,7 +72,7 @@ namespace Pirates_Nueva.UI
         GUI.OnClick GUI.IButtonContract.OnClick => OnClick;
         #endregion
 
-        public EdgeButton(string text, SpriteFont font, GUI.OnClick onClick, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
+        public EdgeButton(string text, Font font, GUI.OnClick onClick, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
             Text = text;
             Font = font;
             OnClick = onClick;
