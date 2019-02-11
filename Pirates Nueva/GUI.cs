@@ -14,7 +14,7 @@ namespace Pirates_Nueva
     /// </summary>
     public class GUI : IUpdatable, IDrawable
     {
-        private Dictionary<string, Floating> _floatingElements = new Dictionary<string, Floating>();
+        private Dictionary<string, EdgeElement> _edgeElements = new Dictionary<string, EdgeElement>();
 
         public static Master Master { get; private set; }
 
@@ -29,67 +29,67 @@ namespace Pirates_Nueva
         
         #region Floating Accessors
         /// <summary>
-        /// Add the indicated floating element to the GUI.
+        /// Add the indicated edge element to the GUI.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if there is already a floating element identified by /id/.</exception>
-        public void AddFloating(string id, Floating floating) {
-            if(_floatingElements.ContainsKey(id) == false) {
-                (floating as IFloatingContract).GUI = this; // Set the /GUI/ property of /floating/ to be this GUI object.
-                _floatingElements[id] = floating;           // Add /floating/ to the dictionary of floating elements.
-                ArrangeFloating(); // Update the arrangement of floating elements after it has been added.
+        public void AddEdge(string id, EdgeElement floating) {
+            if(_edgeElements.ContainsKey(id) == false) {
+                (floating as IEdgeContract).GUI = this; // Set the /GUI/ property of /floating/ to be this GUI object.
+                _edgeElements[id] = floating;           // Add /floating/ to the dictionary of floating elements.
+                ArangeEdges(); // Update the arrangement of floating elements after it has been added.
             }
             // If there is already a floating element identified by /id/, throw an InvalidOperationException.
             else {
                 throw new InvalidOperationException(
-                    $"{nameof(GUI)}.{nameof(AddFloating)}(): There is already a floating element named \"{id}\"!"
+                    $"{nameof(GUI)}.{nameof(AddEdge)}(): There is already a floating element named \"{id}\"!"
                     );
             }
         }
 
         /// <summary>
-        /// Tries to get the floating element identified by /id/, and returns whether or not it was successful.
-        /// If it was successful, stuffs that value into /floating/.
+        /// Tries to get the edge element identified by /id/, and returns whether or not it was successful.
+        /// If it was successful, stuffs that value into /edge/.
         /// </summary>
-        public bool TryGetFloating(string id, out Floating floating) => this._floatingElements.TryGetValue(id, out floating);
+        public bool TryGetEdge(string id, out EdgeElement edge) => this._edgeElements.TryGetValue(id, out edge);
 
         /// <summary>
-        /// Tries to get the floating element identified by /id/, and returns whether or not it was successful.
-        /// If it was successful, stuffs that value into /floating/.
+        /// Tries to get the edge element identified by /id/, and returns whether or not it was successful.
+        /// If it was successful, stuffs that value into /edge/.
         /// </summary>
-        public bool TryGetFloating<T>(string id, out T floating) where T : Floating {
+        public bool TryGetEdge<T>(string id, out T edge) where T : EdgeElement {
             // If there is a floating element identified by /id/, and it is of type /T/,
             // set out parameter /floating/ to be that element, and return true.
-            if(TryGetFloating(id, out Floating med) && med is T last) {
-                floating = last;
+            if(TryGetEdge(id, out EdgeElement med) && med is T last) {
+                edge = last;
                 return true;
             }
             // If there is no floating element of type /T/ and identified by /id/, return false;
             else {
-                floating = default;
+                edge = default;
                 return false;
             }
         }
 
         /// <summary>
-        /// Whether or not there is a floating element identified by /id/.
+        /// Whether or not there is a edge element identified by /id/.
         /// </summary>
-        public bool HasFloating(string id) => this._floatingElements.ContainsKey(id);
+        public bool HasEdge(string id) => this._edgeElements.ContainsKey(id);
 
         /// <summary>
-        /// Remove the floating element identifed by /id/, and then return it.
+        /// Remove the edge element identifed by /id/, and then return it.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="Floating"/> to remove.</exception>
-        public Floating RemoveFloating(string id) {
-            // If there is a floating element identified by /id/, remove it and then return it.
-            if(this._floatingElements.ContainsKey(id)) {
-                var floating = this._floatingElements[id]; // Store the current element identifed by /id/.
-                this._floatingElements.Remove(id);         // Remove that element from the dictionary.
-                return floating;                           // Return the stored element.
+        /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="EdgeElement"/> to remove.</exception>
+        public EdgeElement RemoveEdge(string id) {
+            // If there is a edge element identified by /id/, remove it and then return it.
+            if(this._edgeElements.ContainsKey(id)) {
+                var edge = this._edgeElements[id]; // Store the current element identifed by /id/.
+                this._edgeElements.Remove(id);     // Remove that element from the dictionary.
+                return edge;                       // Return the stored element.
             }
-            // If there is no floating element identified by /id/, throw a KeyNotFoundException.
+            // If there is no edge element identified by /id/, throw a KeyNotFoundException.
             else {
                 throw new KeyNotFoundException(
-                    $"{nameof(GUI)}.{nameof(RemoveFloating)}(): There is no {nameof(Floating)} named \"{id}\" to remove!"
+                    $"{nameof(GUI)}.{nameof(RemoveEdge)}(): There is no {nameof(EdgeElement)} named \"{id}\" to remove!"
                     );
             }
         }
@@ -98,13 +98,13 @@ namespace Pirates_Nueva
         /// <summary>
         /// Update the arrangement of Floating elements.
         /// </summary>
-        void ArrangeFloating() {
+        void ArangeEdges() {
             const int Padding = 5;
 
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
-            foreach(Floating floating in this._floatingElements.Values) {
-                if(!(floating is IFloatingContract con))
+            foreach(EdgeElement floating in this._edgeElements.Values) {
+                if(!(floating is IEdgeContract con))
                     continue;
 
                 // Copy over some commonly used properties of /floating/.
@@ -157,34 +157,34 @@ namespace Pirates_Nueva
                 return;
 
             var (mouseX, mouseY) = master.Input.MousePosition;
-            foreach(Floating floating in this._floatingElements.Values) {            // For every floating element:
-                if(floating is IButtonContract b && b.IsMouseOver(mouseX, mouseY))   // If the element is a button and the mouse is over it,
-                    b.OnClick();                                                     // invoke its action.
+            foreach(EdgeElement edge in this._edgeElements.Values) {            // For every floating element:
+                if(edge is IButtonContract b && b.IsMouseOver(mouseX, mouseY))  // If the element is a button and the mouse is over it,
+                    b.OnClick();                                                // invoke its action.
             }
         }
 
         void IDrawable.Draw(Master master) {
             // Draw every drawable floating element.
-            foreach(Floating floating in this._floatingElements.Values) {
-                if(floating is IFloatingContract drawable) // If /floating/ implements IFloatingContract,
-                    drawable.Draw(master);                 // Call its Draw() method.
+            foreach(EdgeElement edge in this._edgeElements.Values) {
+                if(edge is IEdgeContract drawable) // If /edge/ implements IEdgeContract,
+                    drawable.Draw(master);         // Call its Draw() method.
             }
         }
 
         /// <summary>
         /// Allows us to make some properties or methods of public nested functions accessible only within <see cref="GUI"/>.
         /// </summary>
-        private interface IFloatingContract
+        private interface IEdgeContract
         {
             /// <summary> The position of this element's left edge. </summary>
             int Left { get; set; }
             /// <summary> The position of this element's top edge. </summary>
             int Top { get; set; }
 
-            /// <summary> Sets the floating element's reference to the GUI object. </summary>
+            /// <summary> Sets the edge element's reference to the GUI object. </summary>
             GUI GUI { set; }
 
-            /// <summary> Draws this floating element onscreen. </summary>
+            /// <summary> Draws this edge element onscreen. </summary>
             void Draw(Master master);
         }
 
@@ -192,33 +192,33 @@ namespace Pirates_Nueva
         public enum Direction { Up, Right, Down, Left };
 
         /// <summary>
-        /// A GUI element floating against an edge of the screen, not part of any menu.
+        /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class Floating {
-            /// <summary>  The edge of the screen that this floating element will hug. </summary>
+        public abstract class EdgeElement {
+            /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
-            /// <summary> The direction that this floating element will stack towards. </summary>
+            /// <summary> The direction that this edge element will stack towards. </summary>
             public virtual Direction StackDirection { get; }
 
-            /// <summary> The width of this floating element, in pixels. </summary>
+            /// <summary> The width of this edge element, in pixels. </summary>
             public abstract int WidthPixels { get; }
-            /// <summary> The height of this floating element, in pixels. </summary>
+            /// <summary> The height of this edge element, in pixels. </summary>
             public abstract int HeightPixels { get; }
 
-            public Floating(Edge edge, Direction stackDirection) {
+            public EdgeElement(Edge edge, Direction stackDirection) {
                 Edge = edge;
                 StackDirection = stackDirection;
             }
         }
 
         /// <summary>
-        /// A bit of text that floats along the edge of a screen, not tied to any menu.
+        /// A bit of text that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class FloatingText : Floating, IFloatingContract
+        public class EdgeText : EdgeElement, IEdgeContract
         {
             private string _text;
 
-            /// <summary> The string of this <see cref="FloatingText"/>. </summary>
+            /// <summary> The string of this <see cref="EdgeText"/>. </summary>
             public string Text {
                 get => this._text;
                 set {
@@ -226,30 +226,30 @@ namespace Pirates_Nueva
                     this._text = value;      // Set the new value of Text.
                     
                     if(old != value && GUI != null) // If the value of Text has changed,
-                        GUI.ArrangeFloating();      // update the arrangement of floating elements in GUI.
+                        GUI.ArangeEdges();          // update the arrangement of floating elements in GUI.
                 }
             }
             
-            /// <summary> The width of this <see cref="FloatingText"/>, in pixels. </summary>
+            /// <summary> The width of this <see cref="EdgeText"/>, in pixels. </summary>
             public override int WidthPixels => (int)Font.MeasureString(Text).X;
-            /// <summary> The height of this <see cref="FloatingText"/>, in pixels. </summary>
+            /// <summary> The height of this <see cref="EdgeText"/>, in pixels. </summary>
             public override int HeightPixels => (int)Font.MeasureString(Text).Y;
 
-            /// <summary> The <see cref="Pirates_Nueva.GUI"/> object that contains this <see cref="FloatingText"/>. </summary>
+            /// <summary> The <see cref="Pirates_Nueva.GUI"/> object that contains this <see cref="EdgeText"/>. </summary>
             public GUI GUI { get; private set; }
             #region Hidden properties
-            GUI IFloatingContract.GUI { set => this.GUI = value; }
+            GUI IEdgeContract.GUI { set => this.GUI = value; }
 
-            int IFloatingContract.Left { get; set; }
-            int IFloatingContract.Top { get; set; }
+            int IEdgeContract.Left { get; set; }
+            int IEdgeContract.Top { get; set; }
             #endregion
 
-            public FloatingText(string text, Edge edge, Direction direction) : base(edge, direction) {
+            public EdgeText(string text, Edge edge, Direction direction) : base(edge, direction) {
                 this._text = text;
             }
 
-            void IFloatingContract.Draw(Master master) {
-                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
+            void IEdgeContract.Draw(Master master) {
+                var pos = new Vector2((this as IEdgeContract).Left, (this as IEdgeContract).Top);
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
             }
         }
@@ -271,46 +271,46 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// A button that floats along the edge of a screen, not tied to any menu.
+        /// A button that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class FloatingButton : Floating, IFloatingContract, IButtonContract
+        public class EdgeButton : EdgeElement, IEdgeContract, IButtonContract
         {
             const int Padding = 3;
 
-            /// <summary> Text to display on this <see cref="FloatingButton"/>. </summary>
+            /// <summary> Text to display on this <see cref="EdgeButton"/>. </summary>
             public string Text { get; }
 
-            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
+            /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
             public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
-            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
+            /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
             public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
 
-            /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="FloatingButton"/>. </summary>
+            /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="EdgeButton"/>. </summary>
             public GUI GUI { get; private set; }
             #region Hidden Properties
-            GUI IFloatingContract.GUI { set => this.GUI = value; }
+            GUI IEdgeContract.GUI { set => this.GUI = value; }
 
-            int IFloatingContract.Left { get; set; }
-            int IFloatingContract.Top { get; set; }
+            int IEdgeContract.Left { get; set; }
+            int IEdgeContract.Top { get; set; }
 
             private OnClick _onClick;
             OnClick IButtonContract.OnClick => this._onClick;
             #endregion
 
-            public FloatingButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
+            public EdgeButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
                 Text = text;
                 this._onClick = onClick;
             }
 
-            void IFloatingContract.Draw(Master master) {
-                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
+            void IEdgeContract.Draw(Master master) {
+                var pos = new Vector2((this as IEdgeContract).Left, (this as IEdgeContract).Top);
                 pos += new Vector2(Padding, Padding);
 
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
             }
 
             bool IButtonContract.IsMouseOver(int mouseX, int mouseY) {
-                IFloatingContract f = this as IFloatingContract;
+                IEdgeContract f = this as IEdgeContract;
                 return new Rectangle(f.Left, f.Top, WidthPixels, HeightPixels).Contains(mouseX, mouseY);
             }
         }

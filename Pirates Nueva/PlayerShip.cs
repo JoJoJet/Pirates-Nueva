@@ -22,19 +22,19 @@ namespace Pirates_Nueva
             const string moveKey = "playershipmode_move";
 
             // If there is no floating menu for the ship onscreen, put one up.
-            if(master.GUI.HasFloating(noneKey) == false) {
-                master.GUI.AddFloating(noneKey, new GUI.FloatingButton("None", () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddFloating(editKey, new GUI.FloatingButton("Edit", () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddFloating(moveKey, new GUI.FloatingButton("Move", () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
+            if(master.GUI.HasEdge(noneKey) == false) {
+                master.GUI.AddEdge(noneKey, new GUI.EdgeButton("None", () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddEdge(editKey, new GUI.EdgeButton("Edit", () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddEdge(moveKey, new GUI.EdgeButton("Move", () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
             }
             
             if(mode == ShipMode.Editing) {
                 updateEditing();
             }
             // If the mode is not 'Editing', remove the associated menu.
-            else if(master.GUI.HasFloating("shipediting_block")) {
-                master.GUI.RemoveFloating("shipediting_block");
-                master.GUI.RemoveFloating("shipediting_furniture");
+            else if(master.GUI.HasEdge("shipediting_block")) {
+                master.GUI.RemoveEdge("shipediting_block");
+                master.GUI.RemoveEdge("shipediting_furniture");
             }
 
             if(mode == ShipMode.Movement) {
@@ -42,9 +42,9 @@ namespace Pirates_Nueva
             }
             
             void updateEditing() {
-                if(master.GUI.HasFloating("shipediting_block") == false) {
-                    master.GUI.AddFloating("shipediting_block", new GUI.FloatingButton("Block", () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddFloating("shipediting_furniture", new GUI.FloatingButton("Furniture", () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                if(master.GUI.HasEdge("shipediting_block") == false) {
+                    master.GUI.AddEdge("shipediting_block", new GUI.EdgeButton("Block", () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new GUI.EdgeButton("Furniture", () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
                 }
 
                 // If the user left clicks, place a Block or Furniture.
