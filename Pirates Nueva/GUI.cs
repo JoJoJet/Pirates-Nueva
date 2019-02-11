@@ -181,16 +181,21 @@ namespace Pirates_Nueva
         /// <summary>
         /// A GUI element floating against an edge of the screen, not part of any menu.
         /// </summary>
-        public interface IFloating {
+        public abstract class IFloating {
             /// <summary>  The edge of the screen that this floating element will hug. </summary>
-            Edge Edge { get; }
+            public virtual Edge Edge { get; }
             /// <summary> The direction that this floating element will stack towards. </summary>
-            Direction StackDirection { get; }
+            public virtual Direction StackDirection { get; }
 
             /// <summary> The width of this floating element, in pixels. </summary>
-            int WidthPixels { get; }
+            public abstract int WidthPixels { get; }
             /// <summary> The height of this floating element, in pixels. </summary>
-            int HeightPixels { get; }
+            public abstract int HeightPixels { get; }
+
+            public IFloating(Edge edge, Direction stackDirection) {
+                Edge = edge;
+                StackDirection = stackDirection;
+            }
         }
 
         /// <summary>
@@ -210,15 +215,10 @@ namespace Pirates_Nueva
             /// <summary> Action to invoke when this <see cref="FloatingButton"/> is clicked. </summary>
             public OnClick OnClick { get; }
 
-            /// <summary> The edge of the screen that this <see cref="FloatingButton"/> will hug. </summary>
-            public Edge Edge { get; }
-            /// <summary> The direction that this <see cref="FloatingButton"/> will stack towards. </summary>
-            public Direction StackDirection { get; }
-
             /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
-            public int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
+            public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
             /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
-            public int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
+            public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
             
             /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="FloatingButton"/>. </summary>
             public GUI GUI { get; private set; }
@@ -229,11 +229,9 @@ namespace Pirates_Nueva
             int IFloatingContract.Top { get; set; }
             #endregion
 
-            public FloatingButton(string text, OnClick onClick, Edge edge, Direction stackDirection) {
+            public FloatingButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
                 Text = text;
                 OnClick = onClick;
-                Edge = edge;
-                StackDirection = stackDirection;
             }
 
             void IFloatingContract.Draw(Master master) {
@@ -258,16 +256,11 @@ namespace Pirates_Nueva
                         GUI.ArrangeFloating();      // update the arrangement of floating elements in GUI.
                 }
             }
-
-            /// <summary> The edge of the screen that this <see cref="FloatingText"/> will hug. </summary>
-            public Edge Edge { get; }
-            /// <summary> The direction that this <see cref="FloatingText"/> will stack towards. </summary>
-            public Direction StackDirection { get; }
             
             /// <summary> The width of this <see cref="FloatingText"/>, in pixels. </summary>
-            public int WidthPixels => (int)Font.MeasureString(Text).X;
+            public override int WidthPixels => (int)Font.MeasureString(Text).X;
             /// <summary> The height of this <see cref="FloatingText"/>, in pixels. </summary>
-            public int HeightPixels => (int)Font.MeasureString(Text).Y;
+            public override int HeightPixels => (int)Font.MeasureString(Text).Y;
 
             /// <summary> The <see cref="Pirates_Nueva.GUI"/> object that contains this <see cref="FloatingText"/>. </summary>
             public GUI GUI { get; private set; }
@@ -278,10 +271,8 @@ namespace Pirates_Nueva
             int IFloatingContract.Top { get; set; }
             #endregion
 
-            public FloatingText(string text, Edge edge, Direction stackDirection) {
+            public FloatingText(string text, Edge edge, Direction direction) : base(edge, direction) {
                 this._text = text;
-                Edge = edge;
-                StackDirection = stackDirection;
             }
 
             void IFloatingContract.Draw(Master master) {
