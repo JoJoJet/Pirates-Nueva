@@ -244,7 +244,8 @@ namespace Pirates_Nueva
         /// <summary>
         /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class EdgeElement : IEdgeContract {
+        public abstract class EdgeElement : IEdgeContract, IElementDrawable
+        {
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this edge element will stack towards. </summary>
@@ -268,12 +269,18 @@ namespace Pirates_Nueva
                 Edge = edge;
                 StackDirection = stackDirection;
             }
+
+            void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
+            /// <summary>
+            /// Draws this <see cref="EdgeElement"/> onscreen, from the specified top left corner.
+            /// </summary>
+            protected abstract void Draw(Master master, int left, int top);
         }
 
         /// <summary>
         /// A bit of text that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeText : EdgeElement, IElementDrawable
+        public class EdgeText : EdgeElement
         {
             private string _text;
 
@@ -298,7 +305,7 @@ namespace Pirates_Nueva
                 this._text = text;
             }
 
-            void IElementDrawable.Draw(Master master, int left, int top) {
+            protected override void Draw(Master master, int left, int top) {
                 var pos = new Vector2(left, top);
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
             }
@@ -323,7 +330,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A button that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeButton : EdgeElement, IElementDrawable, IButtonContract
+        public class EdgeButton : EdgeElement, IButtonContract
         {
             const int Padding = 3;
 
@@ -345,7 +352,7 @@ namespace Pirates_Nueva
                 OnClick = onClick;
             }
 
-            void IElementDrawable.Draw(Master master, int left, int top) {
+            protected override void Draw(Master master, int left, int top) {
                 var pos = new Vector2(left, top);
                 pos += new Vector2(Padding, Padding);
 
