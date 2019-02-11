@@ -14,7 +14,7 @@ namespace Pirates_Nueva
     /// </summary>
     public class GUI : IUpdatable, IDrawable
     {
-        private Dictionary<string, IFloating> _floatingElements = new Dictionary<string, IFloating>();
+        private Dictionary<string, Floating> _floatingElements = new Dictionary<string, Floating>();
 
         public static Master Master { get; private set; }
 
@@ -32,7 +32,7 @@ namespace Pirates_Nueva
         /// Add the indicated floating element to the GUI.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if there is already a floating element identified by /id/.</exception>
-        public void AddFloating(string id, IFloating floating) {
+        public void AddFloating(string id, Floating floating) {
             if(_floatingElements.ContainsKey(id) == false) {
                 (floating as IFloatingContract).GUI = this; // Set the /GUI/ property of /floating/ to be this GUI object.
                 _floatingElements[id] = floating;           // Add /floating/ to the dictionary of floating elements.
@@ -50,16 +50,16 @@ namespace Pirates_Nueva
         /// Tries to get the floating element identified by /id/, and returns whether or not it was successful.
         /// If it was successful, stuffs that value into /floating/.
         /// </summary>
-        public bool TryGetFloating(string id, out IFloating floating) => this._floatingElements.TryGetValue(id, out floating);
+        public bool TryGetFloating(string id, out Floating floating) => this._floatingElements.TryGetValue(id, out floating);
 
         /// <summary>
         /// Tries to get the floating element identified by /id/, and returns whether or not it was successful.
         /// If it was successful, stuffs that value into /floating/.
         /// </summary>
-        public bool TryGetFloating<T>(string id, out T floating) where T : IFloating {
+        public bool TryGetFloating<T>(string id, out T floating) where T : Floating {
             // If there is a floating element identified by /id/, and it is of type /T/,
             // set out parameter /floating/ to be that element, and return true.
-            if(TryGetFloating(id, out IFloating med) && med is T last) {
+            if(TryGetFloating(id, out Floating med) && med is T last) {
                 floating = last;
                 return true;
             }
@@ -73,8 +73,8 @@ namespace Pirates_Nueva
         /// <summary>
         /// Remove the floating element identifed by /id/, and then return it.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="IFloating"/> to remove.</exception>
-        public IFloating RemoveFloating(string id) {
+        /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="Floating"/> to remove.</exception>
+        public Floating RemoveFloating(string id) {
             // If there is a floating element identified by /id/, remove it and then return it.
             if(this._floatingElements.ContainsKey(id)) {
                 var floating = this._floatingElements[id]; // Store the current element identifed by /id/.
@@ -84,7 +84,7 @@ namespace Pirates_Nueva
             // If there is no floating element identified by /id/, throw a KeyNotFoundException.
             else {
                 throw new KeyNotFoundException(
-                    $"{nameof(GUI)}.{nameof(RemoveFloating)}(): There is no {nameof(IFloating)} named \"{id}\" to remove!"
+                    $"{nameof(GUI)}.{nameof(RemoveFloating)}(): There is no {nameof(Floating)} named \"{id}\" to remove!"
                     );
             }
         }
@@ -98,7 +98,7 @@ namespace Pirates_Nueva
 
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
-            foreach(IFloating floating in this._floatingElements.Values) {
+            foreach(Floating floating in this._floatingElements.Values) {
                 if(!(floating is IFloatingContract con))
                     continue;
 
@@ -152,7 +152,7 @@ namespace Pirates_Nueva
 
         void IDrawable.Draw(Master master) {
             // Draw every drawable floating element.
-            foreach(IFloating floating in this._floatingElements.Values) {
+            foreach(Floating floating in this._floatingElements.Values) {
                 if(floating is IFloatingContract drawable) // If /floating/ implements IFloatingContract,
                     drawable.Draw(master);                 // Call its Draw() method.
             }
@@ -181,7 +181,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A GUI element floating against an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class IFloating {
+        public abstract class Floating {
             /// <summary>  The edge of the screen that this floating element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this floating element will stack towards. </summary>
@@ -192,7 +192,7 @@ namespace Pirates_Nueva
             /// <summary> The height of this floating element, in pixels. </summary>
             public abstract int HeightPixels { get; }
 
-            public IFloating(Edge edge, Direction stackDirection) {
+            public Floating(Edge edge, Direction stackDirection) {
                 Edge = edge;
                 StackDirection = stackDirection;
             }
@@ -205,7 +205,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A button that floats along the edge of a screen, not tied to any menu.
         /// </summary>
-        public class FloatingButton : IFloating, IFloatingContract
+        public class FloatingButton : Floating, IFloatingContract
         {
             const int Padding = 4;
 
@@ -241,7 +241,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A bit of text that floats along the edge of a screen, not tied to any menu.
         /// </summary>
-        public class FloatingText : IFloating, IFloatingContract
+        public class FloatingText : Floating, IFloatingContract
         {
             private string _text;
 
