@@ -182,13 +182,19 @@ namespace Pirates_Nueva
         }
 
         void IDrawable.Draw(Master master) {
-
+            // Draw every drawable floating element.
+            foreach(IFloating floating in this._floatingElements.Values) {
+                if(floating is IFloatingContract drawable)
+                    drawable.Draw(master);
+            }
         }
 
         private interface IFloatingContract
         {
             int Left { get; set; }
             int Top { get; set; }
+
+            void Draw(Master master);
         }
 
         public enum Edge { Top, Right, Bottom, Left };
@@ -229,10 +235,14 @@ namespace Pirates_Nueva
                 Edge = edge;
                 StackDirection = stackDirection;
             }
+
+            void IFloatingContract.Draw(Master master) {
+
+            }
         }
         public class FloatingText : IFloating, IFloatingContract
         {
-            public string Text { get; }
+            public string Text { get; set; }
 
             public Edge Edge { get; }
             public Direction StackDirection { get; }
@@ -247,6 +257,10 @@ namespace Pirates_Nueva
                 Text = text;
                 Edge = edge;
                 StackDirection = stackDirection;
+            }
+
+            void IFloatingContract.Draw(Master master) {
+
             }
         }
     }

@@ -128,6 +128,7 @@ namespace Pirates_Nueva
 
             // TODO: Add your drawing code here
             this.sea.Draw(this);
+            (GUI as IDrawable).Draw(this);
 
             SpriteBatch.End();
 
