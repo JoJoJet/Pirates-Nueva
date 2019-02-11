@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva
 {
@@ -37,7 +38,7 @@ namespace Pirates_Nueva
         public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
         public SpriteBatch SpriteBatch { get; private set; }
-        public SpriteFont Font { get; private set; }
+        public Font Font { get; private set; }
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }

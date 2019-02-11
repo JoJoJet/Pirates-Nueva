@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.UI
 {
     /// <summary>
     /// A bit of text that hugs an edge of the screen, not tied to any menu.
@@ -27,14 +27,14 @@ namespace Pirates_Nueva
             }
         }
 
-        public SpriteFont Font { get; }
+        public Font Font { get; }
 
         /// <summary> The width of this <see cref="EdgeText"/>, in pixels. </summary>
         public override int WidthPixels => (int)Font.MeasureString(Text).X;
         /// <summary> The height of this <see cref="EdgeText"/>, in pixels. </summary>
         public override int HeightPixels => (int)Font.MeasureString(Text).Y;
 
-        public EdgeText(string text, SpriteFont font, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
+        public EdgeText(string text, Font font, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
             this._text = text;
             Font = font;
         }
