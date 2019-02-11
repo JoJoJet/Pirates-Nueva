@@ -84,6 +84,8 @@ namespace Pirates_Nueva
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             Font = Content.Load<SpriteFont>("font");
+
+            AfterContentLoad();
         }
 
         /// <summary>
