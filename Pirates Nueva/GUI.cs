@@ -314,5 +314,60 @@ namespace Pirates_Nueva
                 return new Rectangle(f.Left, f.Top, WidthPixels, HeightPixels).Contains(mouseX, mouseY);
             }
         }
+
+        /// <summary>
+        /// A base class for different types of menus.
+        /// </summary>
+        public abstract class Menu
+        {
+            protected MenuElement[] Elements { get; set; }
+
+            public Menu(MenuElement[] elements) {
+                const int Padding = 3;
+                
+                int elementsLeft = Padding;
+                foreach(MenuElement el in elements) {
+                    var con = el as IMenuToElementContract;
+                    if(con.NullablePosition == null) {
+                        con.NullablePosition = (elementsLeft, Padding);
+
+                        elementsLeft += el.WidthPixels + Padding;
+                    }
+                }
+            }
+        }
+
+        private interface IMenuToElementContract
+        {
+            (int Left, int Top)? NullablePosition { get; set; }
+        }
+        /// <summary>
+        /// An element (text, button, slider, etc.) in a menu.
+        /// </summary>
+        public abstract class MenuElement : IMenuToElementContract
+        {
+            /// <summary> The position of the left edge of this element local to its menu. </summary>
+            public int Left => Pos.Left;
+            /// <summary> The position of the top edge of this element local to its menu. </summary>
+            public int Top => Pos.Top;
+
+            /// <summary> The width of this element, in pixels. </summary>
+            public abstract int WidthPixels { get; }
+            /// <summary> The height of this element, in pixels. </summary>
+            public abstract int HeightPixels { get; }
+
+            #region Hidden Properties
+            private (int Left, int Top) Pos {
+                get => (this as IMenuToElementContract).NullablePosition.Value;
+                set => (this as IMenuToElementContract).NullablePosition = value;
+            }
+            (int Left, int Top)? IMenuToElementContract.NullablePosition { get; set; }
+            #endregion
+
+            public MenuElement() {  }
+            public MenuElement(int x, int y) {
+                Pos = (x, y);
+            }
+        }
     }
 }
