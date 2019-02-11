@@ -83,5 +83,46 @@ namespace Pirates_Nueva
             int WidthPixels { get; }
             int HeightPixels { get; }
         }
+
+        public delegate void OnClick();
+        public class FloatingButton : IFloating
+        {
+            public string Text { get; }
+
+            public OnClick OnClick { get; }
+
+            public Edge Edge { get; }
+            public Direction StackDirection { get; }
+
+            public int WidthPixels { get; }
+            public int HeightPixels { get; }
+
+            public FloatingButton(string text, OnClick onClick, Edge edge, Direction stackDirection, int width, int height) {
+                Text = text;
+                OnClick = onClick;
+                Edge = edge;
+                StackDirection = stackDirection;
+                WidthPixels = width;
+                HeightPixels = height;
+            }
+        }
+        public class FloatingText : IFloating
+        {
+            public string Text { get; }
+
+            public Edge Edge { get; }
+            public Direction StackDirection { get; }
+
+            public int WidthPixels { get; }
+            public int HeightPixels { get; }
+
+            public FloatingText(string text, Edge edge, Direction stackDirection, int width, int height) {
+                Text = text;
+                Edge = edge;
+                StackDirection = stackDirection;
+                WidthPixels = width;
+                HeightPixels = height;
+            }
+        }
     }
 }
