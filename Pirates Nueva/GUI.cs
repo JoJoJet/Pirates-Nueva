@@ -260,7 +260,8 @@ namespace Pirates_Nueva
             }
 
             void IFloatingContract.Draw(Master master) {
-
+                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
+                master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
             }
         }
     }
