@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva
 {
@@ -388,25 +389,6 @@ namespace Pirates_Nueva
 
             void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
             bool IElementDrawable.IsMouseOver(PointI mouse, int left, int top) => IsMouseOver(mouse, left, top);
-        }
-
-        public class MenuText : MenuElement
-        {
-            public string Text { get; }
-
-            public override int WidthPixels => (int)Font.MeasureString(Text).X;
-            public override int HeightPixels => (int)Font.MeasureString(Text).Y;
-
-            public MenuText(string text) {
-                Text = text;
-            }
-
-            protected override void Draw(Master master, int left, int top) {
-                master.SpriteBatch.DrawString(Font, Text, new Vector2(left, top), Color.Black);
-            }
-            protected override bool IsMouseOver(PointI mouse, int left, int top) {
-                return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
-            }
         }
 
         /// <summary>
