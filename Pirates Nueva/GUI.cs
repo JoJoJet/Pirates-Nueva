@@ -34,6 +34,7 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidOperationException">Thrown if there is already a floating element identified by /id/.</exception>
         public void AddFloating(string id, IFloating floating) {
             if(_floatingElements.ContainsKey(id) == false) {
+                (floating as IFloatingContract).GUI = this;
                 _floatingElements[id] = floating;
                 ArrangeFloating();
             }
@@ -75,6 +76,9 @@ namespace Pirates_Nueva
         }
         #endregion
 
+        /// <summary>
+        /// Update the arrangement of Floating elements.
+        /// </summary>
         void ArrangeFloating() {
             const int Padding = 3;
 
@@ -187,10 +191,15 @@ namespace Pirates_Nueva
             }
         }
 
+        /// <summary>
+        /// Allows us to make some properties or methods of public nested functions accessible only within <see cref="GUI"/>.
+        /// </summary>
         private interface IFloatingContract
         {
             int Left { get; set; }
             int Top { get; set; }
+
+            GUI GUI { set; }
 
             void Draw(Master master);
         }
@@ -223,9 +232,14 @@ namespace Pirates_Nueva
 
             public int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
             public int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
+            
+            public GUI GUI { get; private set; }
+            #region Hidden Properties
+            GUI IFloatingContract.GUI { set => this.GUI = value; }
 
             int IFloatingContract.Left { get; set; }
             int IFloatingContract.Top { get; set; }
+            #endregion
 
             public FloatingButton(string text, OnClick onClick, Edge edge, Direction stackDirection) {
                 Text = text;
@@ -240,7 +254,21 @@ namespace Pirates_Nueva
         }
         public class FloatingText : IFloating, IFloatingContract
         {
-            public string Text { get; set; }
+            private string _text;
+
+            /// <summary>
+            /// The string of this <see cref="FloatingText"/>.
+            /// </summary>
+            public string Text {
+                get => this._text;
+                set {
+                    this._text = value;
+
+                    // Update the arrangement of floating elements after this property is changed.
+                    if(GUI != null)
+                        GUI.ArrangeFloating();
+                }
+            }
 
             public Edge Edge { get; }
             public Direction StackDirection { get; }
@@ -248,11 +276,16 @@ namespace Pirates_Nueva
             public int WidthPixels => (int)Font.MeasureString(Text).X;
             public int HeightPixels => (int)Font.MeasureString(Text).Y;
 
+            public GUI GUI { get; private set; }
+            #region Hidden properties
+            GUI IFloatingContract.GUI { set => this.GUI = value; }
+
             int IFloatingContract.Left { get; set; }
             int IFloatingContract.Top { get; set; }
+            #endregion
 
             public FloatingText(string text, Edge edge, Direction stackDirection) {
-                Text = text;
+                this._text = text;
                 Edge = edge;
                 StackDirection = stackDirection;
             }
