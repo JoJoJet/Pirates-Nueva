@@ -119,7 +119,7 @@ namespace Pirates_Nueva
             (Input as IUpdatable).Update(this);
             (GUI as IUpdatable).Update(this);
 
-            this.sea.Update(this);
+            (this.sea as IUpdatable).Update(this);
 
             base.Update(gameTime);
         }
@@ -134,7 +134,7 @@ namespace Pirates_Nueva
             SpriteBatch.Begin();
 
             // TODO: Add your drawing code here
-            this.sea.Draw(this);
+            (this.sea as IDrawable).Draw(this);
             (GUI as IDrawable).Draw(this);
 
             SpriteBatch.End();

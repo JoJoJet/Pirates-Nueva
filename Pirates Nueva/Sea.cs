@@ -21,7 +21,7 @@ namespace Pirates_Nueva
             master.GUI.AddFloating("debug_mouse", new GUI.FloatingText("mouse position", GUI.Edge.Top, GUI.Direction.Right));
         }
 
-        public void Update(Master master) {
+        void IUpdatable.Update(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Update(master);
             }
@@ -31,7 +31,7 @@ namespace Pirates_Nueva
             }
         }
 
-        public void Draw(Master master) {
+        void IDrawable.Draw(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Draw(master);
             }
