@@ -219,8 +219,9 @@ namespace Pirates_Nueva
             }
         }
 
+
         /// <summary>
-        /// Makes the Draw() method of nested classes accessible only within <see cref="GUI"/>.
+        /// Makes the Draw() and IsMouseOver() method elements accessible only within <see cref="GUI"/>.
         /// </summary>
         private interface IElementDrawable
         {
@@ -231,8 +232,25 @@ namespace Pirates_Nueva
             bool IsMouseOver(PointI mouse, int left, int top);
         }
 
+
         /// <summary>
-        /// Allows us to make some properties or methods of public nested functions accessible only within <see cref="GUI"/>.
+        /// Action to invoke when a Button is clicked.
+        /// </summary>
+        public delegate void OnClick();
+        /// <summary>
+        /// Makes the OnClick property of a Button accessible only through this assembly.
+        /// </summary>
+        internal interface IButtonContract
+        {
+            /// <summary> Action to invoke when this button is clicked. </summary>
+            OnClick OnClick { get; }
+        }
+
+
+        public enum Edge { Top, Right, Bottom, Left };
+        public enum Direction { Up, Right, Down, Left };
+        /// <summary>
+        /// Makes some properties of an EdgeElement accessible only within <see cref="Pirates_Nueva.GUI"/>.
         /// </summary>
         private interface IEdgeContract
         {
@@ -244,10 +262,6 @@ namespace Pirates_Nueva
             /// <summary> Sets the edge element's reference to the GUI object. </summary>
             GUI GUI { set; }
         }
-
-        public enum Edge { Top, Right, Bottom, Left };
-        public enum Direction { Up, Right, Down, Left };
-
         /// <summary>
         /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
@@ -294,21 +308,10 @@ namespace Pirates_Nueva
             protected void PropertyChanged() => GUI.ArangeEdges();
         }
 
+        
         /// <summary>
-        /// Action to invoke when a Button is clicked.
+        /// Makes the Draw() method of a <see cref="Menu"/> accessible only within <see cref="GUI"/>.
         /// </summary>
-        public delegate void OnClick();
-
-        /// <summary>
-        /// Makes the OnClick property of a Button accessible only through this internal interface.
-        /// </summary>
-        internal interface IButtonContract
-        {
-            /// <summary> Action to invoke when this button is clicked. </summary>
-            OnClick OnClick { get; }
-        }
-
-
         private interface IMenuContract
         {
             void Draw(Master master);
@@ -348,6 +351,9 @@ namespace Pirates_Nueva
             }
         }
 
+        /// <summary>
+        /// Makes some properties of a <see cref="MenuElement"/> accessible only with <see cref="GUI"/>.
+        /// </summary>
         private interface IMenuToElementContract
         {
             (int Left, int Top)? NullablePosition { get; set; }
