@@ -26,7 +26,7 @@ namespace Pirates_Nueva.UI
                     PropertyChanged();          // update the arrangement of floating elements in GUI.
             }
         }
-
+        /// <summary> The <see cref="UI.Font"/> to render this <see cref="MenuText"/> with. </summary>
         public Font Font { get; }
 
         /// <summary> The width of this <see cref="EdgeText"/>, in pixels. </summary>
@@ -59,7 +59,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Text to display on this <see cref="EdgeButton"/>. </summary>
         public string Text { get; }
-
+        /// <summary> The <see cref="UI.Font"/> to render this button's text with. </summary>
         public Font Font { get; }
 
         /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
