@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Pirates_Nueva
 {
@@ -12,11 +15,15 @@ namespace Pirates_Nueva
     public class GUI : IUpdatable, IDrawable
     {
         private Dictionary<string, IFloating> _floatingElements = new Dictionary<string, IFloating>();
+        
+        static SpriteFont Font { get; set; }
 
         public Master Master { get; }
 
         internal GUI(Master master) {
             Master = master;
+
+            Font = master.Font;
         }
         
         /// <summary>
@@ -87,6 +94,8 @@ namespace Pirates_Nueva
         public delegate void OnClick();
         public class FloatingButton : IFloating
         {
+            const int Padding = 4;
+
             public string Text { get; }
 
             public OnClick OnClick { get; }
@@ -94,16 +103,14 @@ namespace Pirates_Nueva
             public Edge Edge { get; }
             public Direction StackDirection { get; }
 
-            public int WidthPixels { get; }
-            public int HeightPixels { get; }
+            public int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
+            public int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
 
-            public FloatingButton(string text, OnClick onClick, Edge edge, Direction stackDirection, int width, int height) {
+            public FloatingButton(string text, OnClick onClick, Edge edge, Direction stackDirection) {
                 Text = text;
                 OnClick = onClick;
                 Edge = edge;
                 StackDirection = stackDirection;
-                WidthPixels = width;
-                HeightPixels = height;
             }
         }
         public class FloatingText : IFloating
@@ -112,16 +119,14 @@ namespace Pirates_Nueva
 
             public Edge Edge { get; }
             public Direction StackDirection { get; }
+            
+            public int WidthPixels => (int)Font.MeasureString(Text).X;
+            public int HeightPixels => (int)Font.MeasureString(Text).Y;
 
-            public int WidthPixels { get; }
-            public int HeightPixels { get; }
-
-            public FloatingText(string text, Edge edge, Direction stackDirection, int width, int height) {
+            public FloatingText(string text, Edge edge, Direction stackDirection) {
                 Text = text;
                 Edge = edge;
                 StackDirection = stackDirection;
-                WidthPixels = width;
-                HeightPixels = height;
             }
         }
     }
