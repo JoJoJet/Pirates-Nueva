@@ -244,7 +244,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class EdgeElement {
+        public abstract class EdgeElement : IEdgeContract {
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this edge element will stack towards. </summary>
@@ -255,6 +255,15 @@ namespace Pirates_Nueva
             /// <summary> The height of this edge element, in pixels. </summary>
             public abstract int HeightPixels { get; }
 
+            /// <summary> The <see cref="GUI"/> that contains this <see cref="EdgeElement"/>. </summary>
+            public GUI GUI { get; private set; }
+            #region Hidden Properties
+            GUI IEdgeContract.GUI { set => GUI = value; }
+
+            int IEdgeContract.Left { get; set; }
+            int IEdgeContract.Top { get; set; }
+            #endregion
+
             public EdgeElement(Edge edge, Direction stackDirection) {
                 Edge = edge;
                 StackDirection = stackDirection;
@@ -264,7 +273,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A bit of text that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeText : EdgeElement, IEdgeContract, IElementDrawable
+        public class EdgeText : EdgeElement, IElementDrawable
         {
             private string _text;
 
@@ -284,16 +293,7 @@ namespace Pirates_Nueva
             public override int WidthPixels => (int)Font.MeasureString(Text).X;
             /// <summary> The height of this <see cref="EdgeText"/>, in pixels. </summary>
             public override int HeightPixels => (int)Font.MeasureString(Text).Y;
-
-            /// <summary> The <see cref="Pirates_Nueva.GUI"/> object that contains this <see cref="EdgeText"/>. </summary>
-            public GUI GUI { get; private set; }
-            #region Hidden properties
-            GUI IEdgeContract.GUI { set => this.GUI = value; }
-
-            int IEdgeContract.Left { get; set; }
-            int IEdgeContract.Top { get; set; }
-            #endregion
-
+            
             public EdgeText(string text, Edge edge, Direction direction) : base(edge, direction) {
                 this._text = text;
             }
@@ -323,7 +323,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A button that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeButton : EdgeElement, IEdgeContract, IElementDrawable, IButtonContract
+        public class EdgeButton : EdgeElement, IElementDrawable, IButtonContract
         {
             const int Padding = 3;
 
@@ -334,22 +334,15 @@ namespace Pirates_Nueva
             public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
             /// <summary> The width of this <see cref="EdgeButton"/>, in pixels. </summary>
             public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
-
-            /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="EdgeButton"/>. </summary>
-            public GUI GUI { get; private set; }
+            
+            private OnClick OnClick { get; set; }
             #region Hidden Properties
-            GUI IEdgeContract.GUI { set => this.GUI = value; }
-
-            int IEdgeContract.Left { get; set; }
-            int IEdgeContract.Top { get; set; }
-
-            private OnClick _onClick;
-            OnClick IButtonContract.OnClick => this._onClick;
+            OnClick IButtonContract.OnClick => OnClick;
             #endregion
 
             public EdgeButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
                 Text = text;
-                this._onClick = onClick;
+                OnClick = onClick;
             }
 
             void IElementDrawable.Draw(Master master, int left, int top) {
