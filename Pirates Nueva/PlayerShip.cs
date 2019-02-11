@@ -9,8 +9,10 @@ namespace Pirates_Nueva
     public class PlayerShip : Ship
     {
         enum ShipMode { None, Movement, Editing };
+        enum PlaceMode { Block, Furniture };
 
         private ShipMode mode;
+        private PlaceMode placeMode;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
@@ -26,29 +28,36 @@ namespace Pirates_Nueva
                 master.GUI.AddFloating(moveKey, new GUI.FloatingButton("Move", () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
             }
             
-            switch(mode) {
-                // Update editing if that mode is selected.
-                case ShipMode.Editing:
-                    updateEditing();
-                    break;
-                // Update movement if that mode is selected.
-                case ShipMode.Movement:
-                    updateMovement();
-                    break;
+            if(mode == ShipMode.Editing) {
+                updateEditing();
+            }
+            // If the mode is not 'Editing', remove the associated menu.
+            else if(master.GUI.HasFloating("shipediting_block")) {
+                master.GUI.RemoveFloating("shipediting_block");
+                master.GUI.RemoveFloating("shipediting_furniture");
+            }
+
+            if(mode == ShipMode.Movement) {
+                updateMovement();
             }
             
             void updateEditing() {
+                if(master.GUI.HasFloating("shipediting_block") == false) {
+                    master.GUI.AddFloating("shipediting_block", new GUI.FloatingButton("Block", () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddFloating("shipediting_furniture", new GUI.FloatingButton("Furniture", () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                }
+
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
-                    // If the user is holding left shift, try to place a furniture.
-                    if(master.Input.LShift.IsPressed) {
+                    // If the place mode is 'Furniture', try to place a furniture.
+                    if(placeMode == PlaceMode.Furniture) {
                         // If the place the user clicked has a Block but no Furniture.
                         if(HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
                             PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
                     }
-                    // If the user is not holding left shift, try to place a block.
-                    else {
+                    // If the place mode is 'Block', try to place a block.
+                    if(placeMode == PlaceMode.Block) {
                         // If the place that the user clicked is not occupied.
                         if(HasBlock(shipX, shipY) == false)
                             PlaceBlock("wood", shipX, shipY);
@@ -57,13 +66,13 @@ namespace Pirates_Nueva
                 // If the user right clicks, remove a Block or Furniture.
                 if(master.Input.MouseRight.IsDown && isMouseValid(out shipX, out shipY)) {
 
-                    // If the user is holding left shift, try to remove a Furniture.
-                    if(master.Input.LShift.IsPressed) {
+                    // If the place mode is 'Furniture', try to remove a Furniture.
+                    if(placeMode == PlaceMode.Furniture) {
                         if(HasFurniture(shipX, shipY))
                             RemoveFurniture(shipX, shipY);
                     }
-                    // If the user is not holding left shift, try to remove a Block.
-                    else {
+                    // If the place mode is 'Block', try to remove a Block.
+                    if(placeMode == PlaceMode.Block) {
                         // If the place that the user clicked has a block, and that block is not the Root.
                         if(GetBlock(shipX, shipY) is Block b && b.ID != RootID)
                             RemoveBlock(shipX, shipY);
