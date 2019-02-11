@@ -71,8 +71,6 @@ namespace Pirates_Nueva
 
             // Initialize the Def class.
             Def.Initialize(this);
-            
-            this.sea = new Sea(this);
 
             base.Initialize();
         }
@@ -84,9 +82,16 @@ namespace Pirates_Nueva
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            Font = Content.Load<SpriteFont>("font");
 
-            // TODO: use this.Content to load your game content here
+            Font = Content.Load<SpriteFont>("font");
+        }
+
+        /// <summary>
+        /// Initialization performed after <see cref="LoadContent"/>.
+        /// </summary>
+        private void AfterContentLoad() {
+            // Initialize the Sea object.
+            this.sea = new Sea(this);
         }
 
         /// <summary>
