@@ -230,7 +230,7 @@ namespace Pirates_Nueva
                 StackDirection = stackDirection;
             }
         }
-        public class FloatingText : IFloating
+        public class FloatingText : IFloating, IFloatingContract
         {
             public string Text { get; }
 
