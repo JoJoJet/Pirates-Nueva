@@ -71,6 +71,11 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
+        /// Whether or not there is a floating element identified by /id/.
+        /// </summary>
+        public bool HasFloating(string id) => this._floatingElements.ContainsKey(id);
+
+        /// <summary>
         /// Remove the floating element identifed by /id/, and then return it.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="Floating"/> to remove.</exception>
