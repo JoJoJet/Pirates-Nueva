@@ -49,7 +49,7 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to the screen.</param>
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
-            int height = Master.GraphicsDevice.Viewport.Height;
+            int height = Master.GUI.ScreenHeight;
             return ((float)x / Block.Pixels, (float)(height - y) / Block.Pixels);
         }
 
@@ -64,7 +64,7 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to this <see cref="Sea"/>.</param>
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
-            int height = Master.GraphicsDevice.Viewport.Height;
+            int height = Master.GUI.ScreenHeight;
             return ((int)Math.Round(x *  Block.Pixels), (int)Math.Round(height - y * Block.Pixels));
         }
         #endregion
