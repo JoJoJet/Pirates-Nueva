@@ -204,14 +204,24 @@ namespace Pirates_Nueva
         void IDrawable.Draw(Master master) {
             // Draw every drawable floating element.
             foreach(EdgeElement edge in this._edgeElements.Values) {
-                if(edge is IEdgeContract drawable) // If /edge/ implements IEdgeContract,
-                    drawable.Draw(master);         // Call its Draw() method.
+                var con = edge as IEdgeContract;
+                if(edge is IElementDrawable drawable)         // If /edge/ implements IEdgeDrawable,
+                    drawable.Draw(master, con.Left, con.Top); // Call its Draw() method.
             }
             
             // Draw every menu.
             foreach(Menu menu in this._menus.Values) {
                 (menu as IMenuContract).Draw(master);
             }
+        }
+
+        /// <summary>
+        /// Makes the Draw() method of nested classes accessible only within <see cref="GUI"/>.
+        /// </summary>
+        private interface IElementDrawable
+        {
+            /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
+            void Draw(Master master, int left, int top);
         }
 
         /// <summary>
@@ -226,9 +236,6 @@ namespace Pirates_Nueva
 
             /// <summary> Sets the edge element's reference to the GUI object. </summary>
             GUI GUI { set; }
-
-            /// <summary> Draws this edge element onscreen. </summary>
-            void Draw(Master master);
         }
 
         public enum Edge { Top, Right, Bottom, Left };
@@ -257,7 +264,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A bit of text that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeText : EdgeElement, IEdgeContract
+        public class EdgeText : EdgeElement, IEdgeContract, IElementDrawable
         {
             private string _text;
 
@@ -291,8 +298,8 @@ namespace Pirates_Nueva
                 this._text = text;
             }
 
-            void IEdgeContract.Draw(Master master) {
-                var pos = new Vector2((this as IEdgeContract).Left, (this as IEdgeContract).Top);
+            void IElementDrawable.Draw(Master master, int left, int top) {
+                var pos = new Vector2(left, top);
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
             }
         }
@@ -316,7 +323,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// A button that hugs an edge of the screen, not tied to any menu.
         /// </summary>
-        public class EdgeButton : EdgeElement, IEdgeContract, IButtonContract
+        public class EdgeButton : EdgeElement, IEdgeContract, IElementDrawable, IButtonContract
         {
             const int Padding = 3;
 
@@ -345,8 +352,8 @@ namespace Pirates_Nueva
                 this._onClick = onClick;
             }
 
-            void IEdgeContract.Draw(Master master) {
-                var pos = new Vector2((this as IEdgeContract).Left, (this as IEdgeContract).Top);
+            void IElementDrawable.Draw(Master master, int left, int top) {
+                var pos = new Vector2(left, top);
                 pos += new Vector2(Padding, Padding);
 
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
