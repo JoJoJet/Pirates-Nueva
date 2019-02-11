@@ -406,7 +406,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// An element (text, button, slider, etc.) in a menu.
         /// </summary>
-        public abstract class MenuElement : IMenuToElementContract
+        public abstract class MenuElement : IMenuToElementContract, IElementDrawable
         {
             /// <summary> The position of the left edge of this element local to its menu. </summary>
             public int Left => Pos.Left;
@@ -433,6 +433,9 @@ namespace Pirates_Nueva
             public MenuElement(int x, int y) {
                 Pos = (x, y);
             }
+
+            void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
+            protected abstract void Draw(Master master, int left, int top);
         }
 
         public class MenuText : MenuElement
@@ -445,6 +448,11 @@ namespace Pirates_Nueva
             public MenuText(string text) {
                 Text = text;
             }
+
+            protected override void Draw(Master master, int left, int top) {
+                master.SpriteBatch.DrawString(Font, Text, new Vector2(left, top), Color.Black);
+            }
+        }
         }
     }
 }
