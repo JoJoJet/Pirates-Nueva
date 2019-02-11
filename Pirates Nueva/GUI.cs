@@ -15,6 +15,7 @@ namespace Pirates_Nueva
     public class GUI : IUpdatable, IDrawable
     {
         private Dictionary<string, EdgeElement> _edgeElements = new Dictionary<string, EdgeElement>();
+        private Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
         public static Master Master { get; private set; }
 
@@ -79,12 +80,10 @@ namespace Pirates_Nueva
         /// Remove the edge element identifed by /id/, and then return it.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="EdgeElement"/> to remove.</exception>
-        public EdgeElement RemoveEdge(string id) {
-            // If there is a edge element identified by /id/, remove it and then return it.
-            if(this._edgeElements.ContainsKey(id)) {
-                var edge = this._edgeElements[id]; // Store the current element identifed by /id/.
+        public void RemoveEdge(string id) {
+            if(this._edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
                 this._edgeElements.Remove(id);     // Remove that element from the dictionary.
-                return edge;                       // Return the stored element.
+                ArangeEdges();                     // Update the arrangement of edge elements.
             }
             // If there is no edge element identified by /id/, throw a KeyNotFoundException.
             else {
@@ -92,6 +91,45 @@ namespace Pirates_Nueva
                     $"{nameof(GUI)}.{nameof(RemoveEdge)}(): There is no {nameof(EdgeElement)} named \"{id}\" to remove!"
                     );
             }
+        }
+        #endregion
+
+        #region Menu Accessors
+        /// <summary>
+        /// Add the menu to the screen.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if there is already a menu identified by /id/.</exception>
+        public void AddMenu(string id, Menu menu) {
+            if(this._menus.ContainsKey(id) == false)
+                this._menus[id] = menu;
+            else
+                throw new InvalidOperationException(
+                    $"{nameof(GUI)}.{nameof(AddMenu)}(): There is already a {nameof(Menu)} identified by string \"{id}\"!""
+                    );
+        }
+
+        /// <summary>
+        /// Whether or not there is a <see cref="Menu"/> identified by /id/.
+        /// </summary>
+        public bool HasMenu(string id) => this._menus.ContainsKey(id);
+
+        /// <summary>
+        /// Get the <see cref="Menu"/> identified by /id/.
+        /// </summary>
+        public bool TryGetMenu(string id, out Menu menu) => this._menus.TryGetValue(id, out menu);
+
+        /// <summary>
+        /// Remove the <see cref="Menu"/> identified by /id/.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="Menu"/> identified by /id/.</exception>
+        public void RemoveMenu(string id) {
+            if(this._menus.ContainsKey(id)) // If there is a menu keyed with /id/,
+                this._menus.Remove(id);     // Remove it from the dictionary.
+            else
+                // If there is no menu identifed by /id/, throw a KeyNotFoundException.
+                throw new KeyNotFoundException(
+                    $"{nameof(GUI)}.{nameof(RemoveMenu)}(): There is no {nameof(Menu)} identified by \"{id}\"!"
+                    );
         }
         #endregion
 
