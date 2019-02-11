@@ -207,6 +207,11 @@ namespace Pirates_Nueva
                 if(edge is IEdgeContract drawable) // If /edge/ implements IEdgeContract,
                     drawable.Draw(master);         // Call its Draw() method.
             }
+            
+            // Draw every menu.
+            foreach(Menu menu in this._menus.Values) {
+                (menu as IMenuContract).Draw(master);
+            }
         }
 
         /// <summary>
@@ -353,10 +358,15 @@ namespace Pirates_Nueva
             }
         }
 
+
+        private interface IMenuContract
+        {
+            void Draw(Master master);
+        }
         /// <summary>
         /// A base class for different types of menus.
         /// </summary>
-        public abstract class Menu
+        public abstract class Menu : IMenuContract
         {
             protected MenuElement[] Elements { get; set; }
 
@@ -376,6 +386,9 @@ namespace Pirates_Nueva
                     }
                 }
             }
+
+            void IMenuContract.Draw(Master master) => Draw(master);
+            protected abstract void Draw(Master master);
         }
 
         private interface IMenuToElementContract
