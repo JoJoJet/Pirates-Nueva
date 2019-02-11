@@ -392,6 +392,8 @@ namespace Pirates_Nueva
                         elementsLeft += el.WidthPixels + Padding;       // Increment the length of the row by the width of the element.
                     }
                 }
+
+                Elements = elements;
             }
 
             void IMenuContract.Draw(Master master) => Draw(master);
