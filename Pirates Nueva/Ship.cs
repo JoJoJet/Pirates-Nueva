@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : IUpdatable, IDrawable
+    public abstract class Ship : GUI.IScreenSpaceTarget, IUpdatable, IDrawable
     {
         protected const string RootID = "root";
 
@@ -45,6 +45,10 @@ namespace Pirates_Nueva
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Pirates_Nueva.Sea"/>-space.
         /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
+
+        // The position of this ship in screen space.
+        int GUI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
+        int GUI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;

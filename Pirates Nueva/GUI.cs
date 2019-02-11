@@ -453,6 +453,15 @@ namespace Pirates_Nueva
                 master.SpriteBatch.DrawString(Font, Text, new Vector2(left, top), Color.Black);
             }
         }
+
+        /// <summary>
+        /// A pair of potentially moving coordinates, in screen space.
+        /// </summary>
+        public interface IScreenSpaceTarget
+        {
+            int X { get; }
+            int Y { get; }
+        }
         }
     }
 }
