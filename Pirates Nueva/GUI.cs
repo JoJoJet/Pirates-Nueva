@@ -212,7 +212,7 @@ namespace Pirates_Nueva
         /// </summary>
         public class FloatingButton : Floating, IFloatingContract
         {
-            const int Padding = 4;
+            const int Padding = 3;
 
             /// <summary> Text to display on this <see cref="FloatingButton"/>. </summary>
             public string Text { get; }
@@ -240,7 +240,10 @@ namespace Pirates_Nueva
             }
 
             void IFloatingContract.Draw(Master master) {
+                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
+                pos += new Vector2(Padding, Padding);
 
+                master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
             }
         }
         /// <summary>
