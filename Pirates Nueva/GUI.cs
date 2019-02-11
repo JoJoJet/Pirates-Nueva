@@ -204,49 +204,6 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Action to invoke when a Button is clicked.
-        /// </summary>
-        public delegate void OnClick();
-        /// <summary>
-        /// A button that floats along the edge of a screen, not tied to any menu.
-        /// </summary>
-        public class FloatingButton : Floating, IFloatingContract
-        {
-            const int Padding = 3;
-
-            /// <summary> Text to display on this <see cref="FloatingButton"/>. </summary>
-            public string Text { get; }
-
-            /// <summary> Action to invoke when this <see cref="FloatingButton"/> is clicked. </summary>
-            public OnClick OnClick { get; }
-
-            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
-            public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
-            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
-            public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
-            
-            /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="FloatingButton"/>. </summary>
-            public GUI GUI { get; private set; }
-            #region Hidden Properties
-            GUI IFloatingContract.GUI { set => this.GUI = value; }
-
-            int IFloatingContract.Left { get; set; }
-            int IFloatingContract.Top { get; set; }
-            #endregion
-
-            public FloatingButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
-                Text = text;
-                OnClick = onClick;
-            }
-
-            void IFloatingContract.Draw(Master master) {
-                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
-                pos += new Vector2(Padding, Padding);
-
-                master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
-            }
-        }
-        /// <summary>
         /// A bit of text that floats along the edge of a screen, not tied to any menu.
         /// </summary>
         public class FloatingText : Floating, IFloatingContract
@@ -286,6 +243,49 @@ namespace Pirates_Nueva
             void IFloatingContract.Draw(Master master) {
                 var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
                 master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
+            }
+        }
+        /// <summary>
+        /// Action to invoke when a Button is clicked.
+        /// </summary>
+        public delegate void OnClick();
+        /// <summary>
+        /// A button that floats along the edge of a screen, not tied to any menu.
+        /// </summary>
+        public class FloatingButton : Floating, IFloatingContract
+        {
+            const int Padding = 3;
+
+            /// <summary> Text to display on this <see cref="FloatingButton"/>. </summary>
+            public string Text { get; }
+
+            /// <summary> Action to invoke when this <see cref="FloatingButton"/> is clicked. </summary>
+            public OnClick OnClick { get; }
+
+            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
+            public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
+            /// <summary> The width of this <see cref="FloatingButton"/>, in pixels. </summary>
+            public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
+
+            /// <summary> The <see cref="Pirates_Nueva.GUI"/> that contains this <see cref="FloatingButton"/>. </summary>
+            public GUI GUI { get; private set; }
+            #region Hidden Properties
+            GUI IFloatingContract.GUI { set => this.GUI = value; }
+
+            int IFloatingContract.Left { get; set; }
+            int IFloatingContract.Top { get; set; }
+            #endregion
+
+            public FloatingButton(string text, OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
+                Text = text;
+                OnClick = onClick;
+            }
+
+            void IFloatingContract.Draw(Master master) {
+                var pos = new Vector2((this as IFloatingContract).Left, (this as IFloatingContract).Top);
+                pos += new Vector2(Padding, Padding);
+
+                master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
             }
         }
     }
