@@ -375,10 +375,11 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Menu : IMenuContract
         {
+            protected const int Padding = 3;
+
             protected MenuElement[] Elements { get; set; }
 
             public Menu(MenuElement[] elements) {
-                const int Padding = 3;
                 
                 int elementsLeft = Padding; // The length of the row of MenuElements.
                 foreach(MenuElement el in elements) {
