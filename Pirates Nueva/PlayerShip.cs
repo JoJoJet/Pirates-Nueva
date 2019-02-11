@@ -8,12 +8,34 @@ namespace Pirates_Nueva
 {
     public class PlayerShip : Ship
     {
+        enum ShipMode { None, Movement, Editing };
+
+        private ShipMode mode;
+
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         public override void Update(Master master) {
-            updateEditing();
+            const string noneKey = "playershipmode_none";
+            const string editKey = "playershipmode_edit";
+            const string moveKey = "playershipmode_move";
 
-            updateMovement();
+            // If there is no floating menu for the ship onscreen, put one up.
+            if(master.GUI.HasFloating(noneKey) == false) {
+                master.GUI.AddFloating(noneKey, new GUI.FloatingButton("None", () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddFloating(editKey, new GUI.FloatingButton("Edit", () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
+                master.GUI.AddFloating(moveKey, new GUI.FloatingButton("Move", () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
+            }
+            
+            switch(mode) {
+                // Update editing if that mode is selected.
+                case ShipMode.Editing:
+                    updateEditing();
+                    break;
+                // Update movement if that mode is selected.
+                case ShipMode.Movement:
+                    updateMovement();
+                    break;
+            }
             
             void updateEditing() {
                 // If the user left clicks, place a Block or Furniture.
