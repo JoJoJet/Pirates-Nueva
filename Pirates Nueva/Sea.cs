@@ -17,11 +17,17 @@ namespace Pirates_Nueva
             Master = master;
 
             this.ships.Add(new PlayerShip(this, 10, 5));
+
+            master.GUI.AddFloating("debug_mouse", new GUI.FloatingText("mouse position", GUI.Edge.Top, GUI.Direction.Right));
         }
 
         public void Update(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Update(master);
+            }
+
+            if(master.GUI.TryGetFloating<GUI.FloatingText>("debug_mouse", out var tex)) {
+                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }
 
@@ -29,9 +35,6 @@ namespace Pirates_Nueva
             foreach(Ship ship in this.ships) {
                 ship.Draw(master);
             }
-            
-            var (mouseX, mouseY) = ScreenPointToSea(master.Input.MousePosition);
-            master.SpriteBatch.DrawString(master.Font, $"Mouse: {mouseX:.00}, {mouseY:.00}", PointF.Zero, Color.Black);
         }
 
         #region Space Transformation
