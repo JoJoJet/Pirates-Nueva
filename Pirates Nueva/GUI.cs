@@ -262,10 +262,11 @@ namespace Pirates_Nueva
             public string Text {
                 get => this._text;
                 set {
+                    string old = this._text;
                     this._text = value;
 
                     // Update the arrangement of floating elements after this property is changed.
-                    if(GUI != null)
+                    if(old != value && GUI != null)
                         GUI.ArrangeFloating();
                 }
             }
