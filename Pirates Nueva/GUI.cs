@@ -325,13 +325,16 @@ namespace Pirates_Nueva
             public Menu(MenuElement[] elements) {
                 const int Padding = 3;
                 
-                int elementsLeft = Padding;
+                int elementsLeft = Padding; // The length of the row of MenuElements.
                 foreach(MenuElement el in elements) {
                     var con = el as IMenuToElementContract;
-                    if(con.NullablePosition == null) {
-                        con.NullablePosition = (elementsLeft, Padding);
 
-                        elementsLeft += el.WidthPixels + Padding;
+                    con.Menu = this; // Set the element's parent menu to be /this/.
+
+                    if(con.NullablePosition == null) {                  // If the element's position is uninitialied,
+                        con.NullablePosition = (elementsLeft, Padding); // Put it the the furthest right position in the row.
+
+                        elementsLeft += el.WidthPixels + Padding;       // Increment the length of the row by the width of the element.
                     }
                 }
             }
@@ -340,6 +343,7 @@ namespace Pirates_Nueva
         private interface IMenuToElementContract
         {
             (int Left, int Top)? NullablePosition { get; set; }
+            Menu Menu { get; set; }
         }
         /// <summary>
         /// An element (text, button, slider, etc.) in a menu.
@@ -356,12 +360,15 @@ namespace Pirates_Nueva
             /// <summary> The height of this element, in pixels. </summary>
             public abstract int HeightPixels { get; }
 
+            protected Menu Menu { get; private set; }
             #region Hidden Properties
             private (int Left, int Top) Pos {
                 get => (this as IMenuToElementContract).NullablePosition.Value;
                 set => (this as IMenuToElementContract).NullablePosition = value;
             }
             (int Left, int Top)? IMenuToElementContract.NullablePosition { get; set; }
+
+            Menu IMenuToElementContract.Menu { get => Menu; set => Menu = value; }
             #endregion
 
             public MenuElement() {  }
