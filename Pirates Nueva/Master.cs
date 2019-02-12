@@ -39,11 +39,11 @@ namespace Pirates_Nueva
         
         public SpriteBatch SpriteBatch { get; private set; }
         public Font Font { get; private set; }
-        internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
         public GUI GUI { get; }
+        internal Resources Resources { get; }
 
         #region Initialization
         public Master() {

@@ -76,8 +76,8 @@ namespace Pirates_Nueva
             Button updateButton(Button old, bool isPressed) {
                 var newb = new Button();
 
-                (newb as IContract).SetOldIsPressed(old.IsPressed);
-                (newb as IContract).SetIsPressed(isPressed);
+                (newb as IContract).OldIsPressed = old.IsPressed;
+                (newb as IContract).IsPressed = isPressed;
 
                 return newb;
             }
@@ -85,8 +85,8 @@ namespace Pirates_Nueva
 
         private interface IContract
         {
-            void SetIsPressed(bool newValue);
-            void SetOldIsPressed(bool newValue);
+            bool IsPressed { set; }
+            bool OldIsPressed { set; }
         }
 
         /// <summary>
@@ -94,20 +94,19 @@ namespace Pirates_Nueva
         /// </summary>
         public class Button : IContract
         {
-            private bool _isPressed;
-            private bool _oldIsPressed;
-
             /// <summary> Whether or not this <see cref="Button"/> is being pressed this frame. </summary>
-            public bool IsPressed => _isPressed;
+            public bool IsPressed { get; private set; }
             /// <summary> Whether or not this is the first frame that this <see cref="Button"/> is being pressed. </summary>
-            public bool IsDown => !_oldIsPressed && _isPressed;
+            public bool IsDown => !OldIsPressed && IsPressed;
             /// <summary> Whether or not this is the first frame that this <see cref="Button"/> was released. </summary>
-            public bool IsUp => _oldIsPressed && !_isPressed;
+            public bool IsUp => OldIsPressed && !IsPressed;
+
+            private bool OldIsPressed { get; set; }
+
+            bool IContract.IsPressed { set => IsPressed = value; }
+            bool IContract.OldIsPressed { set => OldIsPressed = value; }
 
             internal Button() {  }
-
-            void IContract.SetIsPressed(bool newValue) => _isPressed = newValue;
-            void IContract.SetOldIsPressed(bool newValue) => _oldIsPressed = newValue;
         }
     }
 }
