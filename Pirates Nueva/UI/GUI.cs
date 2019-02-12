@@ -137,7 +137,7 @@ namespace Pirates_Nueva
                 if(d == Direction.Left || d == Direction.Up) // If the direction is 'left' or 'up',
                     incr();                                  // increment the stack.
 
-                    /* Arrange /edge/ into its stack. */
+                /* Arrange /edge/ into its stack. */
                     if(e == Edge.Top || e == Edge.Bottom) // Position it based on the edge it's hugging.
                         con.Top = e == Edge.Top ? Padding : ScreenHeight - height - Padding;
                     else
