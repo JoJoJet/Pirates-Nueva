@@ -123,6 +123,7 @@ namespace Pirates_Nueva
             (Input as IUpdatable).Update(this);
             (GUI as IUpdatable).Update(this);
 
+            (Player as IUpdatable).Update(this);
             (this.sea as IUpdatable).Update(this);
 
             base.Update(gameTime);

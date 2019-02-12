@@ -46,7 +46,8 @@ namespace Pirates_Nueva
                 Focused = focusable.FirstOrDefault() ?? Focused; // Set the focus to be the first element of /focusable/
             }
 
-            Focused.Focus(master);
+            if(Focused != null)
+                Focused.Focus(master);
         }
     }
 }
