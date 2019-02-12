@@ -31,8 +31,5 @@ namespace Pirates_Nueva.UI
         protected override void Draw(Master master, int left, int top) {
             master.SpriteBatch.DrawString(Font, Text, new PointF(left, top), Color.Black);
         }
-        protected override bool IsMouseOver(PointI mouse, int left, int top) {
-            return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
-        }
     }
 }

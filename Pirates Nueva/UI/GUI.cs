@@ -199,7 +199,7 @@ namespace Pirates_Nueva
             foreach(EdgeElement edge in this._edgeElements.Values) {       // For every edge element:
                 var con = edge as IEdgeContract;
                 if(edge is IButtonContract b && edge is IElementDrawable d // If the element is a button,
-                    && d.IsMouseOver(mouse, con.Left, con.Top)) {          // and the mouse is over it,
+                    && d.IsMouseOver(mouse)) {                             // and the mouse is over it,
                     b.OnClick();                                           // invoke its action.
                 }
             }
@@ -229,7 +229,7 @@ namespace Pirates_Nueva
             void Draw(Master master, int left, int top);
 
             /// <summary> Whether or not the mouse is hovering over this element, measuring from the specified top left corner. </summary>
-            bool IsMouseOver(PointI mouse, int left, int top);
+            bool IsMouseOver(PointI mouse);
         }
 
 
@@ -284,6 +284,8 @@ namespace Pirates_Nueva
 
             int IEdgeContract.Left { get; set; }
             int IEdgeContract.Top { get; set; }
+
+            private Rectangle? Bounds { get; set; }
             #endregion
 
             public EdgeElement(Edge edge, Direction stackDirection) {
@@ -295,14 +297,12 @@ namespace Pirates_Nueva
             /// Draws this <see cref="EdgeElement"/> onscreen, from the specified top left corner.
             /// </summary>
             protected abstract void Draw(Master master, int left, int top);
-            /// <summary>
-            /// Whether or not the input coordinates are over this <see cref="EdgeElement"/>,
-            /// measuring from the specified top left corner.
-            /// </summary>
-            protected abstract bool IsMouseOver(PointI mouse, int left, int top);
-
-            void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
-            bool IElementDrawable.IsMouseOver(PointI mouse, int left, int top) => IsMouseOver(mouse, left, top);
+            
+            void IElementDrawable.Draw(Master master, int left, int top) {
+                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);
+                Draw(master, left, top);
+            }
+            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
 
             /// <summary> Call this when a property is changed after initialization. </summary>
             protected void PropertyChanged() => GUI.ArangeEdges();
@@ -383,6 +383,8 @@ namespace Pirates_Nueva
             (int Left, int Top)? IMenuToElementContract.NullablePosition { get; set; }
 
             Menu IMenuToElementContract.Menu { get => Menu; set => Menu = value; }
+
+            private Rectangle? Bounds { get; set; }
             #endregion
 
             /// <summary>
@@ -398,13 +400,12 @@ namespace Pirates_Nueva
 
             /// <summary> Draw this <see cref="MenuElement"/> onscreen. </summary>
             protected abstract void Draw(Master master, int left, int top);
-            /// <summary>
-            /// Whether or not /mouse/ is over this <see cref="MenuElement"/>, measuring from the specified top left corner.
-            /// </summary>
-            protected abstract bool IsMouseOver(PointI mouse, int left, int top);
-
-            void IElementDrawable.Draw(Master master, int left, int top) => Draw(master, left, top);
-            bool IElementDrawable.IsMouseOver(PointI mouse, int left, int top) => IsMouseOver(mouse, left, top);
+            
+            void IElementDrawable.Draw(Master master, int left, int top) {
+                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);
+                Draw(master, left, top);
+            }
+            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
         }
     }
 }

@@ -43,11 +43,6 @@ namespace Pirates_Nueva.UI
             PointF pos = (left, top);
             master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
         }
-
-        protected override bool IsMouseOver(PointI mouse, int left, int top) {
-            // Whether or not /mouse/ is within the bounding box.
-            return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
-        }
     }
     
     /// <summary>
@@ -83,10 +78,6 @@ namespace Pirates_Nueva.UI
             pos += new Vector2(Padding, Padding);
 
             master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
-        }
-
-        protected override bool IsMouseOver(PointI mouse, int left, int top) {
-            return new Rectangle(left, top, WidthPixels, HeightPixels).Contains(mouse);
         }
     }
 }
