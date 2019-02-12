@@ -48,37 +48,25 @@ namespace Pirates_Nueva
             }
         }
 
-        /// <summary>
-        /// Tries to get the edge element identified by /id/, and returns whether or not it was successful.
-        /// If it was successful, stuffs that value into /edge/.
-        /// </summary>
+        /// <summary> Get the <see cref="EdgeElement"/> identifed by /id/. </summary>
         public bool TryGetEdge(string id, out EdgeElement edge) => this._edgeElements.TryGetValue(id, out edge);
 
-        /// <summary>
-        /// Tries to get the edge element identified by /id/, and returns whether or not it was successful.
-        /// If it was successful, stuffs that value into /edge/.
-        /// </summary>
+        /// <summary> Get the edge element identified by /id/ and that is of type /T/. </summary>
         public bool TryGetEdge<T>(string id, out T edge) where T : EdgeElement {
-            // If there is a floating element identified by /id/, and it is of type /T/,
-            // set out parameter /floating/ to be that element, and return true.
-            if(TryGetEdge(id, out EdgeElement med) && med is T last) {
+            if(TryGetEdge(id, out EdgeElement med) && med is T last) // If there's an edge of type /T/ identified by /id/, return it.
                 edge = last;
-                return true;
-            }
-            // If there is no floating element of type /T/ and identified by /id/, return false;
-            else {
+            // If there is no edge element of type /T/ and identified by /id/, return false;
+            else
                 edge = default;
-                return false;
-            }
+
+            return edge != default; // Return whether or not we found /edge/.
         }
 
-        /// <summary>
-        /// Whether or not there is a edge element identified by /id/.
-        /// </summary>
+        /// <summary> Whether or not there is a edge element identified by /id/. </summary>
         public bool HasEdge(string id) => this._edgeElements.ContainsKey(id);
 
         /// <summary>
-        /// Remove the edge element identifed by /id/, and then return it.
+        /// Remove the edge element identifed by /id/.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="EdgeElement"/> to remove.</exception>
         public void RemoveEdge(string id) {
@@ -109,14 +97,10 @@ namespace Pirates_Nueva
                     );
         }
 
-        /// <summary>
-        /// Whether or not there is a <see cref="Menu"/> identified by /id/.
-        /// </summary>
+        /// <summary> Whether or not there is a <see cref="Menu"/> identified by /id/. </summary>
         public bool HasMenu(string id) => this._menus.ContainsKey(id);
 
-        /// <summary>
-        /// Get the <see cref="Menu"/> identified by /id/.
-        /// </summary>
+        /// <summary> Get the <see cref="Menu"/> identified by /id/. </summary>
         public bool TryGetMenu(string id, out Menu menu) => this._menus.TryGetValue(id, out menu);
 
         /// <summary>
