@@ -201,7 +201,13 @@ namespace Pirates_Nueva
                 if(edge is IButtonContract b && edge is IElementDrawable d // If the element is a button,
                     && d.IsMouseOver(mouse)) {                             // and the mouse is over it,
                     b.OnClick();                                           // invoke its action.
+
+                    return; // Exit this method.
                 }
+            }
+
+            foreach(Menu menu in this._menus.Values) {
+                (menu as IMenuContract).QueryClicks(mouse);
             }
         }
 
@@ -315,6 +321,9 @@ namespace Pirates_Nueva
         private interface IMenuContract
         {
             void Draw(Master master);
+
+            /// <summary> If /mouse/ is hovering over any buttons, invoke its action and return true. </summary>
+            bool QueryClicks(PointI mouse);
         }
         /// <summary>
         /// A base class for different types of menus.
@@ -348,6 +357,17 @@ namespace Pirates_Nueva
 
             protected void DrawElement(Master master, MenuElement element, int left, int top) {
                 (element as IElementDrawable).Draw(master, left, top);
+            }
+
+            bool IMenuContract.QueryClicks(PointI mouse) {
+                foreach(MenuElement el in Elements) {                      // For every element in this menu:
+                    if(el is IButtonContract b && el is IElementDrawable d // If the element is a button,
+                        && d.IsMouseOver(mouse)) {                         // and the mouse is hovering over it,
+                        b.OnClick.Invoke();                                // invoke its action,
+                        return true;                                       // and return true.
+                    }
+                }
+                return false; // If we got this far without exiting the method, return false.
             }
         }
 
