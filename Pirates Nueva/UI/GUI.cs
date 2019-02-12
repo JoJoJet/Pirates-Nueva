@@ -29,6 +29,7 @@ namespace Pirates_Nueva
             Master = master;
         }
 
+        /// <summary> Whether or not the mouse is currently hovering over any GUI elements. </summary>
         public bool IsMouseOverGUI => IsPointOverGUI(Master.Input.MousePosition);
         
         #region Edge Accessors
