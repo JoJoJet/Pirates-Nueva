@@ -103,6 +103,18 @@ namespace Pirates_Nueva
             }
         }
 
+        /// <summary>
+        /// Whether or not the current point (<see cref="Pirates_Nueva.Sea"/>-space) is colliding with this <see cref="Ship"/>.
+        /// </summary>
+        public bool IsColliding(PointF seaPoint) {
+            var (shipX, shipY) = SeaPointToShip(seaPoint);
+
+            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height)
+                return HasBlock(shipX, shipY);
+            else
+                return false;
+        }
+
         #region Space Transformation
         /// <summary>
         /// Transform the input <see cref="PointF"/> from <see cref="Pirates_Nueva.Sea"/> space
