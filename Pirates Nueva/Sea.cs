@@ -21,6 +21,20 @@ namespace Pirates_Nueva
             master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
+        /// <summary>
+        /// Get any <see cref="IFocusable"/> objects located at /seaPoint/, in sea-space.
+        /// </summary>
+        public IEnumerable<IFocusable> GetFocusable(PointF seaPoint) {
+            var focusable = new List<IFocusable>();
+
+            foreach(Ship ship in ships) {                               // For every ship:
+                if(ship is IFocusable f && ship.IsColliding(seaPoint))  // If it implements IFocusable,
+                    focusable.Add(f);                                   // add it to the list of focusable objects.
+            }                                                           // TODO: Make this iterate through any and all entities.
+
+            return focusable;
+        }
+
         void IUpdatable.Update(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Update(master);
