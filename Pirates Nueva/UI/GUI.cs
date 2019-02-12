@@ -118,58 +118,40 @@ namespace Pirates_Nueva
         }
         #endregion
 
-        /// <summary>
-        /// Update the arrangement of edge elements.
-        /// </summary>
+        /// <summary> Update the arrangement of edge elements. </summary>
         void ArangeEdges() {
             const int Padding = 5;
 
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
-            foreach(EdgeElement floating in this._edgeElements.Values) {
-                if(!(floating is IEdgeContract con))
+            foreach(EdgeElement edge in this._edgeElements.Values) {
+                if(!(edge is IEdgeContract con))
                     continue;
 
-                // Copy over some commonly used properties of /floating/.
-                var (e, d, width, height) = (floating.Edge, floating.StackDirection, floating.WidthPixels, floating.HeightPixels);
+                // Copy over some commonly used properties of /edge/.
+                var (e, d, width, height) = (edge.Edge, edge.StackDirection, edge.WidthPixels, edge.HeightPixels);
 
-                if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /floating/ is unassigned,
+                if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
                     stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
-
                 
-                if(d == Direction.Left || d == Direction.Up) { // If the stack direction is leftwards or upwards,
-                    incr();                                    // increment the stack,
-                    arrange();                                 // THEN arrange /floating/.
-                }
-                else {         // If the stack direction if rightwards or downwards,
-                    arrange(); // increment the stack,
-                    incr();    // THEN arrange /floating/.
-                }
+                if(d == Direction.Left || d == Direction.Up) // If the direction is 'left' or 'up',
+                    incr();                                  // increment the stack.
 
-                // Arrange /floating/ into its stack.
-                void arrange() {
-                    // Position it based on the edge it's hugging.
-                    if(e == Edge.Top)         // Hugging the top
-                        con.Top = Padding;
-                    else if(e == Edge.Bottom) // Hugging the bottom
-                        con.Top = ScreenHeight - height - Padding;
-                    else if(e == Edge.Right)  // Hugging the right
-                        con.Left = ScreenWidth - width - Padding;
-                    else if(e == Edge.Left)   // Hugging the Left
-                        con.Left = Padding;
+                    /* Arrange /edge/ into its stack. */
+                    if(e == Edge.Top || e == Edge.Bottom) // Position it based on the edge it's hugging.
+                        con.Top = e == Edge.Top ? Padding : ScreenHeight - height - Padding;
+                    else
+                        con.Left = e == Edge.Right ? ScreenWidth - width - Padding : Padding;
+                
+                    if(d == Direction.Up || d == Direction.Down) // Position it based on its stack direction
+                        con.Top = d == Direction.Up ? ScreenHeight - stackLengths[(e, d)] : stackLengths[(e, d)];
+                    else
+                        con.Left = d == Direction.Right ? stackLengths[(e, d)] : ScreenWidth - stackLengths[(e, d)];
 
-                    // Position it based on its stack direction
-                    if(d == Direction.Up)         // Stacking upwards
-                        con.Top = ScreenHeight - stackLengths[(e, d)];
-                    else if(d == Direction.Down)  // Stacking downwards
-                        con.Top = stackLengths[(e, d)];
-                    else if(d == Direction.Right) // Stacking rightwards
-                        con.Left = stackLengths[(e, d)];
-                    else if(d == Direction.Left)  // Stacking leftwards
-                        con.Left = ScreenWidth - stackLengths[(e, d)];
-                }
+                if(d == Direction.Right || d == Direction.Down) // If the direction is 'right' or 'down',
+                    incr();                                     // increment the stack.
 
-                // Increment the stack length that /floating/ is aligned in.
+                // Increment the stack length that /edge/ is aligned in.
                 void incr() => stackLengths[(e, d)] += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
             }
         }
