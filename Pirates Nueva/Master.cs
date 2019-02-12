@@ -43,6 +43,7 @@ namespace Pirates_Nueva
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
         public GUI GUI { get; }
+        public PlayerController Player { get; private set; }
         internal Resources Resources { get; }
 
         #region Initialization
@@ -95,6 +96,8 @@ namespace Pirates_Nueva
         private void AfterContentLoad() {
             // Initialize the Sea object.
             this.sea = new Sea(this);
+
+            Player = new PlayerController(this, this.sea);
         }
 
         /// <summary>
