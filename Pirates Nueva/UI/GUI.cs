@@ -29,7 +29,7 @@ namespace Pirates_Nueva
             Master = master;
         }
         
-        #region Floating Accessors
+        #region Edge Accessors
         /// <summary>
         /// Add the indicated edge element to the GUI.
         /// </summary>
@@ -227,19 +227,6 @@ namespace Pirates_Nueva
 
 
         /// <summary>
-        /// Makes the Draw() and IsMouseOver() method elements accessible only within <see cref="GUI"/>.
-        /// </summary>
-        private interface IElementDrawable
-        {
-            /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
-            void Draw(Master master, int left, int top);
-
-            /// <summary> Whether or not the mouse is hovering over this element, measuring from the specified top left corner. </summary>
-            bool IsMouseOver(PointI mouse);
-        }
-
-
-        /// <summary>
         /// Action to invoke when a Button is clicked.
         /// </summary>
         public delegate void OnClick();
@@ -250,6 +237,44 @@ namespace Pirates_Nueva
         {
             /// <summary> Action to invoke when this button is clicked. </summary>
             OnClick OnClick { get; }
+        }
+
+        /// <summary>
+        /// Makes the Draw() and IsMouseOver() method elements accessible only within <see cref="GUI"/>.
+        /// </summary>
+        private interface IElementDrawable
+        {
+            /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
+            void Draw(Master master, int left, int top);
+
+            /// <summary> Whether or not the mouse is hovering over this element, measuring from the specified top left corner. </summary>
+            bool IsMouseOver(PointI mouse);
+        }
+        /// <summary>
+        /// A GUI element onscreen.
+        /// </summary>
+        public abstract class Element : IElementDrawable
+        {
+            /// <summary> The width of this element, in pixels. </summary>
+            public abstract int WidthPixels { get; }
+            /// <summary> The height of this element, in pixels. </summary>
+            public abstract int HeightPixels { get; }
+            
+            private Rectangle? Bounds { get; set; } // The extents of this element. Used in IsMouseOver().
+
+            internal Element() {  } // Ensures that /Element/ can only be descended from within this Assembly.
+
+            /// <summary>
+            /// Draw this <see cref="Element"/> onscreen, from the specified top left corner.
+            /// </summary>
+            protected abstract void Draw(Master master, int left, int top);
+            
+            void IElementDrawable.Draw(Master master, int left, int top) {
+                Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
+                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);  // Store the current bounds of this element
+                                                                               //     for use in IsMouseOver() at a later time.
+            }
+            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
         }
 
 
@@ -271,27 +296,19 @@ namespace Pirates_Nueva
         /// <summary>
         /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class EdgeElement : IEdgeContract, IElementDrawable
+        public abstract class EdgeElement : Element, IEdgeContract
         {
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this edge element will stack towards. </summary>
             public virtual Direction StackDirection { get; }
 
-            /// <summary> The width of this edge element, in pixels. </summary>
-            public abstract int WidthPixels { get; }
-            /// <summary> The height of this edge element, in pixels. </summary>
-            public abstract int HeightPixels { get; }
-
-            /// <summary> The <see cref="GUI"/> that contains this <see cref="EdgeElement"/>. </summary>
-            public GUI GUI { get; private set; }
             #region Hidden Properties
+            private GUI GUI { get; set; }
             GUI IEdgeContract.GUI { set => GUI = value; }
 
             int IEdgeContract.Left { get; set; }
             int IEdgeContract.Top { get; set; }
-
-            private Rectangle? Bounds { get; set; }
             #endregion
 
             public EdgeElement(Edge edge, Direction stackDirection) {
@@ -299,19 +316,8 @@ namespace Pirates_Nueva
                 StackDirection = stackDirection;
             }
 
-            /// <summary>
-            /// Draws this <see cref="EdgeElement"/> onscreen, from the specified top left corner.
-            /// </summary>
-            protected abstract void Draw(Master master, int left, int top);
-            
-            void IElementDrawable.Draw(Master master, int left, int top) {
-                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);
-                Draw(master, left, top);
-            }
-            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
-
             /// <summary> Call this when a property is changed after initialization. </summary>
-            protected void PropertyChanged() => GUI.ArangeEdges();
+            protected void PropertyChanged() => GUI?.ArangeEdges();
         }
 
         
@@ -377,55 +383,32 @@ namespace Pirates_Nueva
         private interface IMenuToElementContract
         {
             (int Left, int Top)? NullablePosition { get; set; }
-            Menu Menu { get; set; }
+            Menu Menu { set; }
         }
         /// <summary>
         /// An element (text, button, slider, etc.) in a menu.
         /// </summary>
-        public abstract class MenuElement : IMenuToElementContract, IElementDrawable
+        public abstract class MenuElement : Element, IMenuToElementContract
         {
             /// <summary> The position of the left edge of this element local to its menu. </summary>
-            public int Left => Pos.Left;
+            public int Left => Pos.Value.Left;
             /// <summary> The position of the top edge of this element local to its menu. </summary>
-            public int Top => Pos.Top;
-
-            /// <summary> The width of this element, in pixels. </summary>
-            public abstract int WidthPixels { get; }
-            /// <summary> The height of this element, in pixels. </summary>
-            public abstract int HeightPixels { get; }
+            public int Top => Pos.Value.Top;
 
             protected Menu Menu { get; private set; }
             #region Hidden Properties
-            private (int Left, int Top) Pos {
-                get => (this as IMenuToElementContract).NullablePosition.Value;
-                set => (this as IMenuToElementContract).NullablePosition = value;
-            }
-            (int Left, int Top)? IMenuToElementContract.NullablePosition { get; set; }
+            private (int Left, int Top)? Pos { get; set; }
+            (int Left, int Top)? IMenuToElementContract.NullablePosition { get => Pos; set => Pos = value; }
 
-            Menu IMenuToElementContract.Menu { get => Menu; set => Menu = value; }
-
-            private Rectangle? Bounds { get; set; }
+            Menu IMenuToElementContract.Menu { set => Menu = value; }
             #endregion
 
-            /// <summary>
-            /// Create a new <see cref="MenuElement"/>, and allow its <see cref="Menu"/> to choose a position for it.
-            /// </summary>
+            /// <summary> Create a <see cref="MenuElement"/>, allowing its <see cref="GUI.Menu"/> to position it. </summary>
             public MenuElement() {  }
-            /// <summary>
-            /// Create a new <see cref="MenuElement"/>, with the specified position.
-            /// </summary>
+            /// <summary> Create a <see cref="MenuElement"/>, with the specified position. </summary>
             public MenuElement(int left, int top) {
                 Pos = (left, top);
             }
-
-            /// <summary> Draw this <see cref="MenuElement"/> onscreen. </summary>
-            protected abstract void Draw(Master master, int left, int top);
-            
-            void IElementDrawable.Draw(Master master, int left, int top) {
-                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);
-                Draw(master, left, top);
-            }
-            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
         }
     }
 }

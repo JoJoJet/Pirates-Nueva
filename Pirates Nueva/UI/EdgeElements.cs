@@ -22,8 +22,8 @@ namespace Pirates_Nueva.UI
                 string old = this._text; // Store the old value of Text.
                 this._text = value;      // Set the new value of Text.
 
-                if(old != value && GUI != null) // If the value of Text has changed,
-                    PropertyChanged();          // update the arrangement of floating elements in GUI.
+                if(old != value)        // If the value of Text has changed,
+                    PropertyChanged();  // update the arrangement of floating elements in GUI.
             }
         }
         /// <summary> The <see cref="UI.Font"/> to render this <see cref="MenuText"/> with. </summary>
