@@ -310,7 +310,7 @@ namespace Pirates_Nueva
                 
                 int elementsLeft = Padding; // The length of the row of MenuElements.
                 foreach(MenuElement el in elements) {
-                    var con = el as IMenuToElementContract;
+                    var con = el as IMenuElementContract;
 
                     con.Menu = this; // Set the element's parent menu to be /this/.
 
@@ -327,6 +327,7 @@ namespace Pirates_Nueva
             void IMenuContract.Draw(Master master) => Draw(master);
             protected abstract void Draw(Master master);
 
+            /// <summary> Draw the input element onscreen. </summary>
             protected void DrawElement(Master master, MenuElement element, int left, int top) {
                 (element as IElementDrawable).Draw(master, left, top);
             }
@@ -346,7 +347,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Makes some properties of a <see cref="MenuElement"/> accessible only with <see cref="GUI"/>.
         /// </summary>
-        private interface IMenuToElementContract
+        private interface IMenuElementContract
         {
             (int Left, int Top)? NullablePosition { get; set; }
             Menu Menu { set; }
@@ -354,7 +355,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// An element (text, button, slider, etc.) in a menu.
         /// </summary>
-        public abstract class MenuElement : Element, IMenuToElementContract
+        public abstract class MenuElement : Element, IMenuElementContract
         {
             /// <summary> The position of the left edge of this element local to its menu. </summary>
             public int Left => Pos.Value.Left;
@@ -364,9 +365,9 @@ namespace Pirates_Nueva
             protected Menu Menu { get; private set; }
             #region Hidden Properties
             private (int Left, int Top)? Pos { get; set; }
-            (int Left, int Top)? IMenuToElementContract.NullablePosition { get => Pos; set => Pos = value; }
+            (int Left, int Top)? IMenuElementContract.NullablePosition { get => Pos; set => Pos = value; }
 
-            Menu IMenuToElementContract.Menu { set => Menu = value; }
+            Menu IMenuElementContract.Menu { set => Menu = value; }
             #endregion
 
             /// <summary> Create a <see cref="MenuElement"/>, allowing its <see cref="GUI.Menu"/> to position it. </summary>
