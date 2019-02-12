@@ -108,13 +108,5 @@ namespace Pirates_Nueva
                 }
             }
         }
-
-        /// <summary>
-        /// Allows the user to control movement of this <see cref="PlayerShip"/>.
-        /// </summary>
-
-        /// <summary>
-        /// Allows the user to place and remove blocks in this <see cref="PlayerShip"/>.
-        /// </summary>
     }
 }
