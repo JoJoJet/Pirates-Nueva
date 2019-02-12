@@ -14,7 +14,7 @@ namespace Pirates_Nueva
 
         public Master Master { get; }
 
-        public Point MousePosition { get; private set; }
+        public PointI MousePosition { get; private set; }
         public Button MouseLeft { get; private set; } = new Button();
         public Button MouseRight { get; private set; } = new Button();
 
