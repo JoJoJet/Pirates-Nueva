@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva
 {
@@ -37,11 +38,12 @@ namespace Pirates_Nueva
         public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
         public SpriteBatch SpriteBatch { get; private set; }
-        public SpriteFont Font { get; private set; }
+        public Font Font { get; private set; }
         internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
+        public GUI GUI { get; }
 
         #region Initialization
         public Master() {
@@ -52,6 +54,7 @@ namespace Pirates_Nueva
 
             Resources = new Resources(this);
             Input = new Input(this);
+            GUI = new GUI(this);
         }
 
         /// <summary>
@@ -69,8 +72,6 @@ namespace Pirates_Nueva
 
             // Initialize the Def class.
             Def.Initialize(this);
-            
-            this.sea = new Sea(this);
 
             base.Initialize();
         }
@@ -82,9 +83,18 @@ namespace Pirates_Nueva
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+
             Font = Content.Load<SpriteFont>("font");
 
-            // TODO: use this.Content to load your game content here
+            AfterContentLoad();
+        }
+
+        /// <summary>
+        /// Initialization performed after <see cref="LoadContent"/>.
+        /// </summary>
+        private void AfterContentLoad() {
+            // Initialize the Sea object.
+            this.sea = new Sea(this);
         }
 
         /// <summary>
@@ -108,8 +118,9 @@ namespace Pirates_Nueva
             FrameTime = gameTime;
 
             (Input as IUpdatable).Update(this);
+            (GUI as IUpdatable).Update(this);
 
-            this.sea.Update(this);
+            (this.sea as IUpdatable).Update(this);
 
             base.Update(gameTime);
         }
@@ -124,7 +135,8 @@ namespace Pirates_Nueva
             SpriteBatch.Begin();
 
             // TODO: Add your drawing code here
-            this.sea.Draw(this);
+            (this.sea as IDrawable).Draw(this);
+            (GUI as IDrawable).Draw(this);
 
             SpriteBatch.End();
 

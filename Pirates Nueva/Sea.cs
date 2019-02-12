@@ -17,21 +17,24 @@ namespace Pirates_Nueva
             Master = master;
 
             this.ships.Add(new PlayerShip(this, 10, 5));
+
+            master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
-        public void Update(Master master) {
+        void IUpdatable.Update(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Update(master);
             }
+
+            if(master.GUI.TryGetEdge<UI.EdgeText>("debug_mouse", out var tex)) {
+                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
+            }
         }
 
-        public void Draw(Master master) {
+        void IDrawable.Draw(Master master) {
             foreach(Ship ship in this.ships) {
                 ship.Draw(master);
             }
-            
-            var (mouseX, mouseY) = ScreenPointToSea(master.Input.MousePosition);
-            master.SpriteBatch.DrawString(master.Font, $"Mouse: {mouseX:.00}, {mouseY:.00}", PointF.Zero, Color.Black);
         }
 
         #region Space Transformation
@@ -46,7 +49,7 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to the screen.</param>
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
-            int height = Master.GraphicsDevice.Viewport.Height;
+            int height = Master.GUI.ScreenHeight;
             return ((float)x / Block.Pixels, (float)(height - y) / Block.Pixels);
         }
 
@@ -61,7 +64,7 @@ namespace Pirates_Nueva
         /// <param name="x">The x coordinate local to this <see cref="Sea"/>.</param>
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
-            int height = Master.GraphicsDevice.Viewport.Height;
+            int height = Master.GUI.ScreenHeight;
             return ((int)Math.Round(x *  Block.Pixels), (int)Math.Round(height - y * Block.Pixels));
         }
         #endregion

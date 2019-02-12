@@ -51,6 +51,10 @@
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Furniture.cs" />
+    <Compile Include="UI\EdgeElements.cs" />
+    <Compile Include="UI\FloatingMenu.cs" />
+    <Compile Include="UI\Font.cs" />
+    <Compile Include="UI\GUI.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Master.cs" />
     <Compile Include="PlayerShip.cs" />
@@ -60,6 +64,7 @@
     <Compile Include="Resources.cs" />
     <Compile Include="Sea.cs" />
     <Compile Include="Ship.cs" />
+    <Compile Include="UI\MenuElements.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
