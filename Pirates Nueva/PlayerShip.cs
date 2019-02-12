@@ -83,11 +83,12 @@ namespace Pirates_Nueva
 
                 // Return whether or not the user clicked within the ship, and give
                 // the position (local to the ship) as out paremters /x/ and /y/.
+                // Also: If the user clicked a GUI element, definitely return false.
                 bool isMouseValid(out int x, out int y) {
                     var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                     (x, y) = SeaPointToShip(seaX, seaY);
 
-                    return x >= 0 && x < Width && y >= 0 && y < Height;
+                    return x >= 0 && x < Width && y >= 0 && y < Height && !master.GUI.IsMouseOverGUI;
                 }
             }
 
