@@ -28,6 +28,8 @@ namespace Pirates_Nueva
         internal GUI(Master master) {
             Master = master;
         }
+
+        public bool IsMouseOverGUI => IsPointOverGUI(Master.Input.MousePosition);
         
         #region Edge Accessors
         /// <summary>
@@ -117,6 +119,21 @@ namespace Pirates_Nueva
                     );
         }
         #endregion
+
+        /// <summary> Returns whether or not the specified point is over any GUI elements. </summary>
+        public bool IsPointOverGUI(PointI point) {
+            foreach(var edge in this._edgeElements.Values) {      // For every edge element:
+                if((edge as IElementDrawable).IsMouseOver(point)) // If the point is hovering over it,
+                    return true;                                  // return true.
+            }
+
+            foreach(var menu in this._menus.Values) {          // For every menu:
+                if((menu as IMenuContract).IsMouseOver(point)) // If the point is hovering over it,
+                    return true;                               // return true.
+            }
+
+            return false; // If we got this far without returning already, return false.
+        }
 
         /// <summary> Update the arrangement of edge elements. </summary>
         void ArangeEdges() {
@@ -294,6 +311,8 @@ namespace Pirates_Nueva
         {
             void Draw(Master master);
 
+            bool IsMouseOver(PointI mouse);
+
             /// <summary> If /mouse/ is hovering over any buttons, invoke its action and return true. </summary>
             bool QueryClicks(PointI mouse);
         }
@@ -324,8 +343,17 @@ namespace Pirates_Nueva
                 Elements = elements;
             }
 
-            void IMenuContract.Draw(Master master) => Draw(master);
             protected abstract void Draw(Master master);
+            void IMenuContract.Draw(Master master) => Draw(master);
+            
+            protected virtual bool IsMouseOver(PointI mouse) {
+                foreach(var el in Elements) {                       // For every element in this menu:
+                    if((el as IElementDrawable).IsMouseOver(mouse)) // If the mouse is hovering over it,
+                        return true;                                // return true.
+                }
+                return false; // If we got this far without returning, already, return false.
+            }
+            bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
 
             /// <summary> Draw the input element onscreen. </summary>
             protected void DrawElement(Master master, MenuElement element, int left, int top) {
