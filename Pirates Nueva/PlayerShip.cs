@@ -17,15 +17,17 @@ namespace Pirates_Nueva
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         public override void Update(Master master) {
-            const string noneKey = "playershipmode_none";
-            const string editKey = "playershipmode_edit";
-            const string moveKey = "playershipmode_move";
-
-            // If there is no floating menu for the ship onscreen, put one up.
-            if(master.GUI.HasEdge(noneKey) == false) {
-                master.GUI.AddEdge(noneKey, new UI.EdgeButton("None", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddEdge(editKey, new UI.EdgeButton("Edit", master.Font, () => mode = ShipMode.Editing, GUI.Edge.Bottom, GUI.Direction.Right));
-                master.GUI.AddEdge(moveKey, new UI.EdgeButton("Move", master.Font, () => mode = ShipMode.Movement, GUI.Edge.Bottom, GUI.Direction.Right));
+            // If there is no floating menu for the ship, create one.
+            if(master.GUI.HasMenu("playershipfloating") == false) {
+                master.GUI.AddMenu(
+                    "playershipfloating",
+                    new UI.FloatingMenu(
+                        this, (0, -0.15f), UI.Corner.BottomLeft,
+                        new UI.MenuButton("None", master.Font, () => mode = ShipMode.None),
+                        new UI.MenuButton("Edit", master.Font, () => mode = ShipMode.Editing),
+                        new UI.MenuButton("Move", master.Font, () => mode = ShipMode.Movement)
+                        )
+                    );
             }
             
             if(mode == ShipMode.Editing) {
