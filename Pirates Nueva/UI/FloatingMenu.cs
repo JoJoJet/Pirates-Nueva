@@ -23,11 +23,16 @@ namespace Pirates_Nueva.UI
     {
         /// <summary> The point that this <see cref="FloatingMenu"/> should follow. </summary>
         public IScreenSpaceTarget Target { get; }
+        /// <summary>
+        /// How much this <see cref="FloatingMenu"/> should be offset from /Target/, in proportion to the size of the screen.
+        /// </summary>
+        public PointF Offset { get; }
         /// <summary> Which corner of the menu will be aligned with <see cref="Target"/>. </summary>
         public Corner Corner { get; }
 
-        public FloatingMenu(IScreenSpaceTarget target, Corner corner, params GUI.MenuElement[] elements) : base(elements) {
+        public FloatingMenu(IScreenSpaceTarget target, PointF offset, Corner corner, params GUI.MenuElement[] elements) : base(elements) {
             Target = target;
+            Offset = offset;
             Corner = corner;
         }
 
@@ -39,13 +44,16 @@ namespace Pirates_Nueva.UI
                 bottomBound = Math.Max(bottomBound, el.Top + el.HeightPixels + Padding);
             }
 
-            var offset = (Target.X, Target.Y);
+            // Offset the Menu by a different amount depending on which Corner we are pinning against.
+            PointI offset = ((int)(Offset.X * master.GUI.ScreenWidth), (int)(Offset.Y * master.GUI.ScreenHeight));
+            if(Corner == Corner.TopLeft)
+                offset += (Target.X, Target.Y);
             if(Corner == Corner.TopRight)
-                offset = (Target.X - rightBound, Target.Y);
+                offset += (Target.X - rightBound, Target.Y);
             else if(Corner == Corner.BottomRight)
-                offset = (Target.X - rightBound, Target.Y - bottomBound);
+                offset += (Target.X - rightBound, Target.Y - bottomBound);
             else if(Corner == Corner.BottomLeft)
-                offset = (Target.X, Target.Y - bottomBound);
+                offset += (Target.X, Target.Y - bottomBound);
 
             foreach(GUI.MenuElement el in Elements) {
                 var local = (el.Left, el.Top);
