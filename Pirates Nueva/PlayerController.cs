@@ -44,30 +44,42 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
-            if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // If the user clicked, but not on GUI,
-                if(!(Focused?.IsLocked == true)) {                            // and if the current focus isn't locked.
+            if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
+                && !(Focused?.IsLocked == true)) {                         // and if the current focus isn't locked:
 
-                    var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                    var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
+                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
 
-                    IFocusable oldFocus = Focused;
-                    if(Focused != null && Focusable.SequenceEqual(focusable)) { // If the user clicked the same spot as last,
-                        FocusIndex = (FocusIndex + 1) % Focusable.Length;       // Cycle through all of the focusable things right here.
-                    }
-                    else {                               // If this is a new spot,
-                        Focusable = focusable.ToArray(); // set the focus to the first element of /focusable/.
-                        FocusIndex = 0;
-                    }
+                var oldFocused = Focused;        // Save a copy of the old focused object.
+                var oldFocusable = Focusable;    // Save a copy of the old focusable objects.
+                Focusable = focusable.ToArray(); // Assign the new focusable objects.
 
-                    if(Focused != oldFocus) {        // If the focus has changed,
-                        oldFocus?.Unfocus(master);   // call Unfocus() on the old one,
-                        Focused?.StartFocus(master); // and StartFocus() on the new.
+                bool qualify(int i) => i < Focusable.Length && i < oldFocusable.Length;
+                for(int i = 0; qualify(i); i++) {           // For each focusable element:
+                    if(i == FocusIndex) {                   // if its index is the same as the old focused element:
+                        if(Focusable[i] == oldFocusable[i]) //     If the old and new sets have been equal up to here,
+                            FocusIndex = i+1;               //         set the index of focus to be the current index + 1.
+                        break;                              //     Also: break from the loop.
+                    }                                       // Otherwise:
+                    if(Focusable[i] != oldFocusable[i]) {   // If the current element is the previous focusable element at this position,
+                        FocusIndex = i;                     //     set the index of focus to be the current index,
+                        break;                              //     and break from the loop.
                     }
+                }
+
+                if(Focusable.Length > 0)            // If the set of focusable elements is NOT empty,
+                    FocusIndex %= Focusable.Length; //     make sure the index of focus isn't greater than the length of the set.
+                else                                // If the set of focusable elements IS empty,
+                    FocusIndex = 0;                 //     set the index of focus to be zero.
+
+                if(Focused != oldFocused) {      // If the focused object has changed,
+                    oldFocused?.Unfocus(master); //    call Unfocus() on the old one,
+                    Focused?.StartFocus(master); //    and StartFocus() on the new one.
                 }
             }
 
-            if(Focused != null)
-                Focused.Focus(master);
+            if(Focused != null)        // If we're focusing on an object,
+                Focused.Focus(master); //     call its Focus() method
         }
     }
 }
