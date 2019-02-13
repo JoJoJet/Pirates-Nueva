@@ -30,7 +30,6 @@ namespace Pirates_Nueva
                     FocusMenuID,
                     new UI.FloatingMenu(
                         this, (0, -0.15f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("None", master.Font, () => mode = ShipMode.None),
                         new UI.MenuButton("Edit", master.Font, () => mode = ShipMode.Editing),
                         new UI.MenuButton("Move", master.Font, () => mode = ShipMode.Movement)
                         )
@@ -40,11 +39,18 @@ namespace Pirates_Nueva
 
         void IFocusable.Focus(Master master) {
             if(mode == ShipMode.Editing) {
+                // If there is no ship editing menu, add one.
+                if(master.GUI.HasEdge("shipediting_block") == false) {
+                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                }
                 updateEditing();
                 IsFocusLocked = true; // Lock focus onto this object.
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
+                master.GUI.RemoveEdge("shipediting_quit");
                 master.GUI.RemoveEdge("shipediting_block");
                 master.GUI.RemoveEdge("shipediting_furniture");
 
@@ -56,11 +62,6 @@ namespace Pirates_Nueva
             }
 
             void updateEditing() {
-                if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
-                }
-
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
