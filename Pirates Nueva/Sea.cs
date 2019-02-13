@@ -24,7 +24,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Get any <see cref="IFocusable"/> objects located at /seaPoint/, in sea-space.
         /// </summary>
-        public IEnumerable<IFocusable> GetFocusable(PointF seaPoint) {
+        public List<IFocusable> GetFocusable(PointF seaPoint) {
             var focusable = new List<IFocusable>();
 
             foreach(Ship ship in ships) {                               // For every ship:

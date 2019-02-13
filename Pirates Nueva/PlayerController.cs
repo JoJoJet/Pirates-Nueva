@@ -29,17 +29,9 @@ namespace Pirates_Nueva
 
         private Sea Sea { get; }
 
-        private IFocusable Focused {
-            get => this._focused;
-            set {
-                if(value != this._focused) {        // If the focused object changed,
-                    this._focused?.Unfocus(Master); // call the old one's Unfocus() method,
-                    value?.StartFocus(Master);      // and the new one's StartFocus() method.
-                }
-
-                this._focused = value;
-            }
-        }
+        private IFocusable[] Focusable { get; set; } = new IFocusable[0];
+        private int FocusIndex { get; set; }
+        private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
         internal PlayerController(Master master, Sea sea) {
             Master = master;
@@ -47,10 +39,26 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
-            if(master.Input.MouseLeft.IsDown && !(Focused?.IsLocked == true) && master.GUI.IsMouseOverGUI == false) {
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                var focusable = Sea.GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
-                Focused = focusable.FirstOrDefault();            // Set the focus to be the first element of /focusable/
+            if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // If the user clicked, but not on GUI,
+                if(!(Focused?.IsLocked == true)) {                            // and if the current focus isn't locked.
+
+                    var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                    var focusable = Sea.GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
+
+                    IFocusable oldFocus = Focused;
+                    if(Focused != null && Focusable.SequenceEqual(focusable)) { // If the user clicked the same spot as last,
+                        FocusIndex = (FocusIndex + 1) % Focusable.Length;       // Cycle through all of the focusable things right here.
+                    }
+                    else {                               // If this is a new spot,
+                        Focusable = focusable.ToArray(); // set the focus to the first element of /focusable/.
+                        FocusIndex = 0;
+                    }
+
+                    if(Focused != oldFocus) {        // If the focus has changed,
+                        oldFocus?.Unfocus(master);   // call Unfocus() on the old one,
+                        Focused?.StartFocus(master); // and StartFocus() on the new.
+                    }
+                }
             }
 
             if(Focused != null)
