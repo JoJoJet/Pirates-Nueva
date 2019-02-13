@@ -16,6 +16,8 @@ namespace Pirates_Nueva
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
+        public override void Update(Master master) { }
+
         #region IFocusable Implementation
         private bool IsFocusLocked { get; set; }
         bool IFocusable.IsLocked => IsFocusLocked;
@@ -126,7 +128,5 @@ namespace Pirates_Nueva
             }
         }
         #endregion
-
-        public override void Update(Master master) {  }
     }
 }
