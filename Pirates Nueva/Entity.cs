@@ -12,6 +12,10 @@ namespace Pirates_Nueva
     public abstract class Entity
     {
         /// <summary>
+        /// Whether or not the input point is colliding with this <see cref="Entity"/>.
+        /// </summary>
+        public virtual bool IsColliding(PointF point) => Bounds.Contains(point) && IsCollidingPrecise(point);
+        /// <summary>
         /// A box drawn around this <see cref="Entity"/>, used for approximating collision.
         /// </summary>
         protected abstract BoundingBox Bounds { get; }
