@@ -310,7 +310,7 @@ namespace Pirates_Nueva
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
-        protected abstract void Update(Master master) {  }
+        protected abstract void Update(Master master);
         #endregion
 
         #region IDrawable Implementation
