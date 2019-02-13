@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class PlayerShip : Ship
+    public class PlayerShip : Ship, IFocusable
     {
         enum ShipMode { None, Movement, Editing };
         enum PlaceMode { Block, Furniture };
@@ -16,7 +16,7 @@ namespace Pirates_Nueva
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
-        public override void Update(Master master) {
+        void IFocusable.StartFocus(Master master) {
             // If there is no floating menu for the ship, create one.
             if(master.GUI.HasMenu("playershipfloating") == false) {
                 master.GUI.AddMenu(
@@ -29,6 +29,18 @@ namespace Pirates_Nueva
                         )
                     );
             }
+        }
+
+        void IFocusable.Focus(Master master) {  }
+
+        void IFocusable.Unfocus(Master master) {
+            // Remove the floating menu if it exists.
+            if(master.GUI.HasMenu("playershipfloating")) {
+                master.GUI.RemoveMenu("playershipfloating");
+            }
+        }
+
+        public override void Update(Master master) {
             
             if(mode == ShipMode.Editing) {
                 updateEditing();
