@@ -32,5 +32,10 @@ namespace Pirates_Nueva
             Right = right;
         }
         public BoundingBox(PointF bottomLeft, PointF topRight) : this(bottomLeft.X, bottomLeft.Y, topRight.Y, topRight.X) { }
+
+        /// <summary> Whether or not the specified point falls within this <see cref="BoundingBox"/>. </summary>
+        public bool Contains(PointF point) => Contains(point.X, point.Y);
+        /// <summary> Whether or not the specified coordinates fall within this <see cref="BoundingBox"/>. </summary>
+        public bool Contains(float x, float y) => x >= Left && x <= Right && y >= Bottom && y <= Top;
     }
 }
