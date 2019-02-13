@@ -35,18 +35,7 @@ namespace Pirates_Nueva
             }
         }
 
-        void IFocusable.Focus(Master master) {  }
-
-        void IFocusable.Unfocus(Master master) {
-            // Remove the floating menu if it exists.
-            if(master.GUI.HasMenu("playershipfloating")) {
-                master.GUI.RemoveMenu("playershipfloating");
-            }
-        }
-        #endregion
-
-        public override void Update(Master master) {
-            
+        void IFocusable.Focus(Master master) {
             if(mode == ShipMode.Editing) {
                 updateEditing();
                 IsFocusLocked = true; // Lock focus onto this object.
@@ -62,7 +51,7 @@ namespace Pirates_Nueva
             if(mode == ShipMode.Movement) {
                 updateMovement();
             }
-            
+
             void updateEditing() {
                 if(master.GUI.HasEdge("shipediting_block") == false) {
                     master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
@@ -129,5 +118,15 @@ namespace Pirates_Nueva
                 }
             }
         }
+
+        void IFocusable.Unfocus(Master master) {
+            // Remove the floating menu if it exists.
+            if(master.GUI.HasMenu("playershipfloating")) {
+                master.GUI.RemoveMenu("playershipfloating");
+            }
+        }
+        #endregion
+
+        public override void Update(Master master) {  }
     }
 }
