@@ -62,7 +62,7 @@ namespace Pirates_Nueva
         const string FocusMenuID = "furniturefloating";
         void IFocusable.StartFocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this furniture,
-                master.GUI.AddMenu(                              // add one.
+                master.GUI.AddMenu(                      //     add one.
                     FocusMenuID,
                     new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
                     new UI.MenuText("ID: " + ID, master.Font))
@@ -73,7 +73,7 @@ namespace Pirates_Nueva
         }
         void IFocusable.Unfocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this furniture,
-                master.GUI.RemoveMenu(FocusMenuID); // remove it.
+                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
         }
         #endregion
     }

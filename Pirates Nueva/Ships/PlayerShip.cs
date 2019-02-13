@@ -24,9 +24,8 @@ namespace Pirates_Nueva
 
         const string FocusMenuID = "playershipfloating";
         void IFocusable.StartFocus(Master master) {
-            // If there is no floating menu for the ship, create one.
-            if(master.GUI.HasMenu(FocusMenuID) == false) {
-                master.GUI.AddMenu(
+            if(master.GUI.HasMenu(FocusMenuID) == false) { // If there is NOT a floating menu for this ship,
+                master.GUI.AddMenu(                        //     create one.
                     FocusMenuID,
                     new UI.FloatingMenu(
                         this, (0, -0.15f), UI.Corner.BottomLeft,
@@ -124,9 +123,8 @@ namespace Pirates_Nueva
         }
 
         void IFocusable.Unfocus(Master master) {
-            // Remove the floating menu if it exists.
-            if(master.GUI.HasMenu(FocusMenuID)) {
-                master.GUI.RemoveMenu(FocusMenuID);
+            if(master.GUI.HasMenu(FocusMenuID)) {   // If there IS a floating menu for this ship,
+                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
             }
         }
         #endregion

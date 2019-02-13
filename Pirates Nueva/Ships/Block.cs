@@ -74,7 +74,7 @@ namespace Pirates_Nueva
         const string FocusMenuID = "blockfloating";
         void IFocusable.StartFocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this block,
-                master.GUI.AddMenu(                      // add one.
+                master.GUI.AddMenu(                      //     add one.
                     FocusMenuID,
                     new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
                     new UI.MenuText("ID: " + ID, master.Font))
