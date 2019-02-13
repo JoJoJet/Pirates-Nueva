@@ -22,11 +22,12 @@ namespace Pirates_Nueva
         private bool IsFocusLocked { get; set; }
         bool IFocusable.IsLocked => IsFocusLocked;
 
+        const string FocusMenuID = "playershipfloating";
         void IFocusable.StartFocus(Master master) {
             // If there is no floating menu for the ship, create one.
-            if(master.GUI.HasMenu("playershipfloating") == false) {
+            if(master.GUI.HasMenu(FocusMenuID) == false) {
                 master.GUI.AddMenu(
-                    "playershipfloating",
+                    FocusMenuID,
                     new UI.FloatingMenu(
                         this, (0, -0.15f), UI.Corner.BottomLeft,
                         new UI.MenuButton("None", master.Font, () => mode = ShipMode.None),
@@ -123,8 +124,8 @@ namespace Pirates_Nueva
 
         void IFocusable.Unfocus(Master master) {
             // Remove the floating menu if it exists.
-            if(master.GUI.HasMenu("playershipfloating")) {
-                master.GUI.RemoveMenu("playershipfloating");
+            if(master.GUI.HasMenu(FocusMenuID)) {
+                master.GUI.RemoveMenu(FocusMenuID);
             }
         }
         #endregion

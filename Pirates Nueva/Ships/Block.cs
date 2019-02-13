@@ -71,10 +71,11 @@ namespace Pirates_Nueva
         #region IFocusable Implementation
         bool IFocusable.IsLocked => false;
 
+        const string FocusMenuID = "blockfloating";
         void IFocusable.StartFocus(Master master) {
-            if(master.GUI.HasMenu("blockfloating") == false) // If there's no GUI menu for this block,
-                master.GUI.AddMenu(                          // add one.
-                    "blockfloating",
+            if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this block,
+                master.GUI.AddMenu(                      // add one.
+                    FocusMenuID,
                     new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
                     new UI.MenuText("ID: " + ID, master.Font))
                     );
@@ -83,8 +84,8 @@ namespace Pirates_Nueva
 
         }
         void IFocusable.Unfocus(Master master) {
-            if(master.GUI.HasMenu("blockfloating"))     // If there is a GUI menu for this block,
-                master.GUI.RemoveMenu("blockfloating"); // remove it.
+            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
+                master.GUI.RemoveMenu(FocusMenuID); // remove it.
         }
         #endregion
     }
