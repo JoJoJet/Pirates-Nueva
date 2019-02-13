@@ -27,11 +27,16 @@ namespace Pirates_Nueva
         List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
             var focusable = new List<IFocusable>();
 
-            foreach(Ship ship in ships) {                               // For every ship:
-                if(ship is IFocusable f && ship.IsColliding(seaPoint))  // If it implements IFocusable,
-                    focusable.Add(f);                                   // add it to the list of focusable objects.
-            }                                                           // TODO: Make this iterate through any and all entities.
-
+            foreach(Ship ship in ships) {          // For every ship:
+                if(ship.IsColliding(seaPoint)) {   // If it is colliding with /seaPoint/,
+                    if(ship is IFocusable f) {     // and it implements IFocusable,
+                        focusable.Add(f);          // add it to the list of focusable objects.
+                    }                                                  // Otherwise:
+                    if(ship is IFocusableParent fp)                    // If it implement IFocusableParent,
+                        focusable.AddRange(fp.GetFocusable(seaPoint)); // add any of its focusable children to the list.
+                                                                       // TODO: Make this iterate through any and all entities.
+                }
+            }
             return focusable;
         }
 
