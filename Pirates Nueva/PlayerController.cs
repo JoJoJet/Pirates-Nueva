@@ -11,6 +11,9 @@ namespace Pirates_Nueva
     /// </summary>
     public interface IFocusable
     {
+        /// <summary> Whether or not the focus should be locked onto this object. </summary>
+        bool IsLocked { get; }
+
         /// <summary> Called when <see cref="PlayerController"/> starts focusing on this object. </summary>
         void StartFocus(Master master);
         /// <summary> Called when <see cref="PlayerController"/> is focusing on this object. </summary>
@@ -44,7 +47,7 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
-            if(master.Input.MouseLeft.IsDown && master.GUI.IsMouseOverGUI == false) {
+            if(master.Input.MouseLeft.IsDown && !(Focused?.IsLocked == true) && master.GUI.IsMouseOverGUI == false) {
                 var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                 var focusable = Sea.GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
                 Focused = focusable.FirstOrDefault();            // Set the focus to be the first element of /focusable/

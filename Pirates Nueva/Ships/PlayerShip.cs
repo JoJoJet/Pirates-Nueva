@@ -14,6 +14,10 @@ namespace Pirates_Nueva
         private ShipMode mode;
         private PlaceMode placeMode;
 
+        private bool _isFocusLocked;
+
+        bool IFocusable.IsLocked => this._isFocusLocked;
+
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
         
         void IFocusable.StartFocus(Master master) {
@@ -44,11 +48,14 @@ namespace Pirates_Nueva
             
             if(mode == ShipMode.Editing) {
                 updateEditing();
+                this._isFocusLocked = true; // Lock focus onto this object.
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
                 master.GUI.RemoveEdge("shipediting_block");
                 master.GUI.RemoveEdge("shipediting_furniture");
+
+                this._isFocusLocked = false; // Release focus from this object.
             }
 
             if(mode == ShipMode.Movement) {
