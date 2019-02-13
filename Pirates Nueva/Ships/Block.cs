@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Block : IDrawable
+    public class Block : IDrawable, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary>
         /// The number of pixels in a <see cref="Block"/> (square).
@@ -61,5 +61,32 @@ namespace Pirates_Nueva
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Ship.Angle, (0, 0));
         }
+
+        #region IScreenSpaceTarget Implementation
+        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
+        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+        #endregion
+
+        #region IFocusable Implementation
+        bool IFocusable.IsLocked => false;
+
+        const string FocusMenuID = "blockfloating";
+        void IFocusable.StartFocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this block,
+                master.GUI.AddMenu(                      //     add one.
+                    FocusMenuID,
+                    new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
+                    new UI.MenuText("ID: " + ID, master.Font))
+                    );
+        }
+        void IFocusable.Focus(Master master) {
+
+        }
+        void IFocusable.Unfocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
+                master.GUI.RemoveMenu(FocusMenuID); // remove it.
+        }
+        #endregion
     }
 }

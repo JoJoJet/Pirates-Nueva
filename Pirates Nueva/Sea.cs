@@ -3,39 +3,61 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Color = Microsoft.Xna.Framework.Color;
 
 namespace Pirates_Nueva
 {
-    public sealed class Sea : IUpdatable, IDrawable
+    public sealed class Sea : IUpdatable, IDrawable, IFocusableParent
     {
-        private readonly List<Ship> ships = new List<Ship>();
+        private readonly List<Entity> entities = new List<Entity>();
 
         private Master Master { get; }
 
+        const string MouseDebugID = "debug_mouse";
         public Sea(Master master) {
             Master = master;
 
-            this.ships.Add(new PlayerShip(this, 10, 5));
+            this.entities.Add(new PlayerShip(this, 10, 5));
 
-            master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
+            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master) {
-            foreach(Ship ship in this.ships) {
-                ship.Update(master);
+            foreach(var ent in this.entities) { // For every entity:
+                if(ent is IUpdatable u)         // If it is updatable,
+                    u.Update(master);           //     call its Update() method.
             }
 
-            if(master.GUI.TryGetEdge<UI.EdgeText>("debug_mouse", out var tex)) {
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
                 tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }
 
         void IDrawable.Draw(Master master) {
-            foreach(Ship ship in this.ships) {
-                ship.Draw(master);
+            foreach(var ent in this.entities) { // For every entity:
+                if(ent is IDrawable d)          // If it is drawable,
+                    d.Draw(master);             //     call its Draw() method.
             }
         }
+
+        #region IFocusableParent Implementation
+        /// <summary>
+        /// Get any <see cref="IFocusable"/> objects located at /seaPoint/, in sea-space.
+        /// </summary>
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
+            var focusable = new List<IFocusable>();
+
+            foreach(var ent in entities) {          // For every ship:
+                if(ent.IsColliding(seaPoint)) {     // If it is colliding with /seaPoint/,
+                    if(ent is IFocusable f) {       // and it implements IFocusable,
+                        focusable.Add(f);           // add it to the list of focusable objects.
+                    }                                                  // Otherwise:
+                    if(ent is IFocusableParent fp)                    // If it implement IFocusableParent,
+                        focusable.AddRange(fp.GetFocusable(seaPoint)); // add any of its focusable children to the list.
+                }
+            }
+            return focusable;
+        }
+        #endregion
 
         #region Space Transformation
         /// <summary>

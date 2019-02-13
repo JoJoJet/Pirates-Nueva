@@ -39,11 +39,12 @@ namespace Pirates_Nueva
         
         public SpriteBatch SpriteBatch { get; private set; }
         public Font Font { get; private set; }
-        internal Resources Resources { get; }
 
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
         public GUI GUI { get; }
+        public PlayerController Player { get; private set; }
+        internal Resources Resources { get; }
 
         #region Initialization
         public Master() {
@@ -95,6 +96,8 @@ namespace Pirates_Nueva
         private void AfterContentLoad() {
             // Initialize the Sea object.
             this.sea = new Sea(this);
+
+            Player = new PlayerController(this, this.sea);
         }
 
         /// <summary>
@@ -120,6 +123,7 @@ namespace Pirates_Nueva
             (Input as IUpdatable).Update(this);
             (GUI as IUpdatable).Update(this);
 
+            (Player as IUpdatable).Update(this);
             (this.sea as IUpdatable).Update(this);
 
             base.Update(gameTime);

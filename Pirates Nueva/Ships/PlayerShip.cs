@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class PlayerShip : Ship
+    public class PlayerShip : Ship, IFocusable
     {
         enum ShipMode { None, Movement, Editing };
         enum PlaceMode { Block, Furniture };
@@ -15,40 +15,52 @@ namespace Pirates_Nueva
         private PlaceMode placeMode;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
-        
-        public override void Update(Master master) {
-            // If there is no floating menu for the ship, create one.
-            if(master.GUI.HasMenu("playershipfloating") == false) {
-                master.GUI.AddMenu(
-                    "playershipfloating",
+
+        protected override void Update(Master master) {  }
+
+        #region IFocusable Implementation
+        private bool IsFocusLocked { get; set; }
+        bool IFocusable.IsLocked => IsFocusLocked;
+
+        const string FocusMenuID = "playershipfloating";
+        void IFocusable.StartFocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID) == false) { // If there is NOT a floating menu for this ship,
+                master.GUI.AddMenu(                        //     create one.
+                    FocusMenuID,
                     new UI.FloatingMenu(
                         this, (0, -0.15f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("None", master.Font, () => mode = ShipMode.None),
                         new UI.MenuButton("Edit", master.Font, () => mode = ShipMode.Editing),
                         new UI.MenuButton("Move", master.Font, () => mode = ShipMode.Movement)
                         )
                     );
             }
-            
+        }
+
+        void IFocusable.Focus(Master master) {
             if(mode == ShipMode.Editing) {
+                // If there is no ship editing menu, add one.
+                if(master.GUI.HasEdge("shipediting_block") == false) {
+                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                }
                 updateEditing();
+                IsFocusLocked = true; // Lock focus onto this object.
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
+                master.GUI.RemoveEdge("shipediting_quit");
                 master.GUI.RemoveEdge("shipediting_block");
                 master.GUI.RemoveEdge("shipediting_furniture");
+
+                IsFocusLocked = false; // Release focus from this object.
             }
 
             if(mode == ShipMode.Movement) {
                 updateMovement();
             }
-            
-            void updateEditing() {
-                if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
-                }
 
+            void updateEditing() {
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
@@ -83,11 +95,12 @@ namespace Pirates_Nueva
 
                 // Return whether or not the user clicked within the ship, and give
                 // the position (local to the ship) as out paremters /x/ and /y/.
+                // Also: If the user clicked a GUI element, definitely return false.
                 bool isMouseValid(out int x, out int y) {
                     var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                     (x, y) = SeaPointToShip(seaX, seaY);
 
-                    return x >= 0 && x < Width && y >= 0 && y < Height;
+                    return x >= 0 && x < Width && y >= 0 && y < Height && !master.GUI.IsMouseOverGUI;
                 }
             }
 
@@ -108,5 +121,12 @@ namespace Pirates_Nueva
                 }
             }
         }
+
+        void IFocusable.Unfocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID)) {   // If there IS a floating menu for this ship,
+                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
+            }
+        }
+        #endregion
     }
 }

@@ -46,24 +46,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Angle.cs" />
-    <Compile Include="Block.cs" />
+    <Compile Include="BoundingBox.cs" />
+    <Compile Include="Entity.cs" />
+    <Compile Include="PlayerController.cs" />
+    <Compile Include="Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
-    <Compile Include="Furniture.cs" />
+    <Compile Include="Ships\Furniture.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />
     <Compile Include="UI\Font.cs" />
     <Compile Include="UI\GUI.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Master.cs" />
-    <Compile Include="PlayerShip.cs" />
+    <Compile Include="Ships\PlayerShip.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Sea.cs" />
-    <Compile Include="Ship.cs" />
+    <Compile Include="Ships\Ship.cs" />
     <Compile Include="UI\MenuElements.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : UI.IScreenSpaceTarget, IUpdatable, IDrawable
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent
     {
         protected const string RootID = "root";
 
@@ -46,9 +46,23 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
 
-        // The position of this ship in screen space.
-        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
+        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
+        protected override BoundingBox Bounds {
+            get {
+                var lb = ShipPointToSea(0, 0);
+                var lt = ShipPointToSea(0, Height-1);
+                var rt = ShipPointToSea(Width-1, Height-1);
+                var rb = ShipPointToSea(Width-1, 0);
+
+                return new BoundingBox(
+                    min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
+                    max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
+                    );
+
+                float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4));
+                float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4));
+            }
+        }
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
@@ -68,10 +82,8 @@ namespace Pirates_Nueva
             this.blocks = new Block[width, height];
 
             Center = (PointF)RootIndex;
-
-            // Place the root block.
-            // It should be in the exact middle of the Ship.
-            Block root = PlaceBlock(RootID, RootX, RootY);
+            
+            Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
         }
 
         /// <summary>
@@ -80,27 +92,13 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
-        public abstract void Update(Master master);
+        protected override bool IsCollidingPrecise(PointF point) {
+            var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
 
-        /// <summary>
-        /// Draw this <see cref="Ship"/> onscreen.
-        /// </summary>
-        public virtual void Draw(Master master) {
-            // Draw each block.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
-                        b.Draw(master);
-                }
-            }
-
-            // Draw each Furniture.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b && b.Furniture is Furniture f)
-                        f.Draw(master);
-                }
-            }
+            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) // If the index is valid,
+                return HasBlock(shipX, shipY);                              //     return whether or not there is a block there.
+            else                                                            // Otherwise:
+                return false;                                               //     just return false.
         }
 
         #region Space Transformation
@@ -173,12 +171,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block GetBlock(int x, int y) {
-            try {
-                ValidateIndices(nameof(GetBlock), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
+            ValidateIndices(nameof(GetBlock), x, y);
             
             return unsafeGetBlock(x, y);
         }
@@ -187,12 +180,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasBlock(int x, int y) {
-            try {
-                ValidateIndices(nameof(HasBlock), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
+            ValidateIndices(nameof(HasBlock), x, y);
 
             return unsafeGetBlock(x, y) != null;
         }
@@ -205,19 +193,12 @@ namespace Pirates_Nueva
         /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public Block PlaceBlock(string id, int x, int y) {
-            try {
-                ValidateIndices(nameof(PlaceBlock), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
+            ValidateIndices(nameof(PlaceBlock), x, y);
             
-            // If /x/, /y/ is empty, place a new Block there, and then return it.
-            if(unsafeGetBlock(x, y) == null)
-                return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y);
-            // Throw an InvalidOperationException if there is already a Block at /x/, /y/.
-            else
-                throw new InvalidOperationException(
+            if(unsafeGetBlock(x, y) == null)                                        // If there is NOT a Block at /x/, /y/,
+                return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y); //     place a Block there and return it.
+            else                                                                    // If there IS a Block at /x/, /y/,
+                throw new InvalidOperationException(                                //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
         }
@@ -228,21 +209,14 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
         public Block RemoveBlock(int x, int y) {
-            try {
-                ValidateIndices(nameof(RemoveBlock), x, y);
+            ValidateIndices(nameof(RemoveBlock), x, y);
+            
+            if(unsafeGetBlock(x, y) is Block b) { // If there is a Block at /x/, /y/,
+                this.blocks[x, y] = null;         //     remove it,
+                return b;                         //     and then return it.
             }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
-
-            // If there is a Block at /x/, /y/, remove it, and then return it.
-            if(unsafeGetBlock(x, y) is Block b) {
-                this.blocks[x, y] = null;
-                return b;
-            }
-            // Throw an InvalidOperationException if there is no Block to remove at /x/, /y/.
-            else {
-                throw new InvalidOperationException(
+            else {                                   // If there is no Block at /x/, /y/,
+                throw new InvalidOperationException( //    throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
             }
@@ -255,12 +229,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Furniture GetFurniture(int x, int y) {
-            try {
-                ValidateIndices(nameof(GetFurniture), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
+            ValidateIndices(nameof(GetFurniture), x, y);
 
             return unsafeGetBlock(x, y)?.Furniture;
         }
@@ -269,14 +238,9 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasFurniture(int x, int y) {
-            try {
-                ValidateIndices(nameof(HasFurniture), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
+            ValidateIndices(nameof(HasFurniture), x, y);
 
-            return unsafeGetBlock(x, y)?.Furniture != null;
+            return unsafeGetBlock(x, y)?.Furniture != null; // Return true if there is a Block at /x/, /y/ AND that block has a Furniture.
         }
 
         /// <summary>
@@ -287,48 +251,37 @@ namespace Pirates_Nueva
         /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
         /// </exception>
         public Furniture PlaceFurniture(FurnitureDef def, int x, int y) {
-            try {
-                ValidateIndices(nameof(PlaceFurniture), x, y);
-            }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
-
-            // If there is a Block at /x/, /y/.
-            if(unsafeGetBlock(x, y) is Block b) {
-                // If there is an empty Block to place it on, place a Furniture and return it.
-                if(b.Furniture == null)
-                    return SetBlockFurniture(b, new Furniture(def, b));
-                // Throw an InvalidOperationException if there is already a Furniture at /x/, /y/.
-                else
-                    throw new InvalidOperationException(
+            ValidateIndices(nameof(PlaceFurniture), x, y);
+            
+            if(unsafeGetBlock(x, y) is Block b) {                       // If there is a block at /x/, /y/:
+                if(b.Furniture == null)                                 //     If the block is empty,
+                    return SetBlockFurniture(b, new Furniture(def, b)); //         place a Furniture there and return it.
+                else                                                    //     If the block is occupied,
+                    throw new InvalidOperationException(                //         throw an InvalidOperationException.
                         $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
                         );
             }
-            // Throw an InvalidOperationException if there is no Block at /x/, /y/.
-            else {
-                throw new InvalidOperationException(
+            else {                                                      // If there is no block at /x/, /y/,
+                throw new InvalidOperationException(                    //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
                     );
             }
         }
 
+        /// <summary>
+        /// Remove the <see cref="Furniture"/> at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Furniture"/> at /x/, /y/.</exception>
         public Furniture RemoveFurniture(int x, int y) {
-            try {
-                ValidateIndices(nameof(RemoveFurniture), x, y);
+            ValidateIndices(nameof(RemoveFurniture), x, y);
+            
+            if(unsafeGetBlock(x, y)?.Furniture is Furniture f) { // If there is a furniture at /x/, /y/,
+                SetBlockFurniture(f.Floor, null);                //     remove it,
+                return f;                                        //     and then return it.
             }
-            catch(ArgumentOutOfRangeException) {
-                throw;
-            }
-
-            // If there is a Furniture at /x/, /y/, remove it, and then return it.
-            if(unsafeGetBlock(x, y)?.Furniture is Furniture f) {
-                SetBlockFurniture(f.Floor, null);
-                return f;
-            }
-            // Throw an InvalidOperationException if there is no Furniture to remove at /x/, /y/.
-            else {
-                throw new InvalidOperationException(
+            else {                                   // If there is no furniture at /x/, /y/,
+                throw new InvalidOperationException( //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(RemoveFurniture)}(): There is no {nameof(Furniture)} at index ({x}, {y})!"
                     );
             }
@@ -352,6 +305,56 @@ namespace Pirates_Nueva
                     nameof(y),
                     $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
+        }
+        #endregion
+
+        #region IUpdatable Implementation
+        void IUpdatable.Update(Master master) => Update(master);
+        protected abstract void Update(Master master);
+        #endregion
+
+        #region IDrawable Implementation
+        void IDrawable.Draw(Master master) => Draw(master);
+        /// <summary>
+        /// Draw this <see cref="Ship"/> onscreen.
+        /// </summary>
+        protected virtual void Draw(Master master) {
+            // Draw each block.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlock(x, y) is Block b)
+                        b.Draw(master);
+                }
+            }
+
+            // Draw each Furniture.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetFurniture(x, y) is Furniture f)
+                        f.Draw(master);
+                }
+            }
+        }
+        #endregion
+
+        #region IScreenSpaceTarget Implementation
+        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
+        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
+        #endregion
+
+        #region IFocusableParent Implementation
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
+            var focusable = new List<IFocusable>();
+
+            var (shipX, shipY) = SeaPointToShip(seaPoint);
+            if(GetFurniture(shipX, shipY) is Furniture f) {
+                focusable.Add(f);
+            }
+            if(GetBlock(shipX, shipY) is Block b) {
+                focusable.Add(b);
+            }
+
+            return focusable;
         }
         #endregion
     }
