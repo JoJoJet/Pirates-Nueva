@@ -11,6 +11,8 @@ namespace Pirates_Nueva
     /// </summary>
     public interface IFocusable
     {
+        /// <summary> Called when <see cref="PlayerController"/> starts focusing on this object. </summary>
+        void StartFocus(Master master);
         /// <summary> Called when <see cref="PlayerController"/> is focusing on this object. </summary>
         void Focus(Master master);
         /// <summary> Called when <see cref="PlayerController"/> stops focusing on this object. </summary>
@@ -27,8 +29,10 @@ namespace Pirates_Nueva
         private IFocusable Focused {
             get => this._focused;
             set {
-                if(value != this._focused)          // If the focused object changed,
-                    this._focused?.Unfocus(Master); // call its Unfocus() method.
+                if(value != this._focused) {        // If the focused object changed,
+                    this._focused?.Unfocus(Master); // call the old one's Unfocus() method,
+                    value?.StartFocus(Master);      // and the new one's StartFocus() method.
+                }
 
                 this._focused = value;
             }
@@ -40,10 +44,10 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
-            if(master.Input.MouseLeft.IsDown) {
+            if(master.Input.MouseLeft.IsDown && master.GUI.IsMouseOverGUI == false) {
                 var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                 var focusable = Sea.GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
-                Focused = focusable.FirstOrDefault() ?? Focused; // Set the focus to be the first element of /focusable/
+                Focused = focusable.FirstOrDefault();            // Set the focus to be the first element of /focusable/
             }
 
             if(Focused != null)
