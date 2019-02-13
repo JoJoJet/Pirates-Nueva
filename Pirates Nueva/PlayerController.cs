@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// A game object that can be <see cref="Focus(Master)"/>'ed on by <see cref="PlayerController"/>.
+    /// A object that the <see cref="PlayerController"/> can focus on.
     /// </summary>
     public interface IFocusable
     {
