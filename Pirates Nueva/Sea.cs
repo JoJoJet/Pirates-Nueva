@@ -24,7 +24,7 @@ namespace Pirates_Nueva
 
         void IUpdatable.Update(Master master) {
             foreach(Ship ship in this.entities) {
-                ship.Update(master);
+                (ship as IUpdatable).Update(master);
             }
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
@@ -34,7 +34,7 @@ namespace Pirates_Nueva
 
         void IDrawable.Draw(Master master) {
             foreach(Ship ship in this.entities) {
-                ship.Draw(master);
+                (ship as IDrawable).Draw(master);
             }
         }
 
