@@ -13,12 +13,13 @@ namespace Pirates_Nueva
 
         private Master Master { get; }
 
+        const string MouseDebugID = "debug_mouse";
         public Sea(Master master) {
             Master = master;
 
             this.entities.Add(new PlayerShip(this, 10, 5));
 
-            master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
+            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master) {
@@ -26,7 +27,7 @@ namespace Pirates_Nueva
                 ship.Update(master);
             }
 
-            if(master.GUI.TryGetEdge<UI.EdgeText>("debug_mouse", out var tex)) {
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
                 tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }
