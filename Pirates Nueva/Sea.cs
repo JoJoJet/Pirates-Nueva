@@ -9,14 +9,14 @@ namespace Pirates_Nueva
 {
     public sealed class Sea : IUpdatable, IDrawable, IFocusableParent
     {
-        private readonly List<Ship> ships = new List<Ship>();
+        private readonly List<Entity> entities = new List<Entity>();
 
         private Master Master { get; }
 
         public Sea(Master master) {
             Master = master;
 
-            this.ships.Add(new PlayerShip(this, 10, 5));
+            this.entities.Add(new PlayerShip(this, 10, 5));
 
             master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
@@ -27,21 +27,20 @@ namespace Pirates_Nueva
         List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
             var focusable = new List<IFocusable>();
 
-            foreach(Ship ship in ships) {          // For every ship:
-                if(ship.IsColliding(seaPoint)) {   // If it is colliding with /seaPoint/,
-                    if(ship is IFocusable f) {     // and it implements IFocusable,
-                        focusable.Add(f);          // add it to the list of focusable objects.
+            foreach(var ent in entities) {          // For every ship:
+                if(ent.IsColliding(seaPoint)) {     // If it is colliding with /seaPoint/,
+                    if(ent is IFocusable f) {       // and it implements IFocusable,
+                        focusable.Add(f);           // add it to the list of focusable objects.
                     }                                                  // Otherwise:
-                    if(ship is IFocusableParent fp)                    // If it implement IFocusableParent,
+                    if(ent is IFocusableParent fp)                    // If it implement IFocusableParent,
                         focusable.AddRange(fp.GetFocusable(seaPoint)); // add any of its focusable children to the list.
-                                                                       // TODO: Make this iterate through any and all entities.
                 }
             }
             return focusable;
         }
 
         void IUpdatable.Update(Master master) {
-            foreach(Ship ship in this.ships) {
+            foreach(Ship ship in this.entities) {
                 ship.Update(master);
             }
 
@@ -51,7 +50,7 @@ namespace Pirates_Nueva
         }
 
         void IDrawable.Draw(Master master) {
-            foreach(Ship ship in this.ships) {
+            foreach(Ship ship in this.entities) {
                 ship.Draw(master);
             }
         }
