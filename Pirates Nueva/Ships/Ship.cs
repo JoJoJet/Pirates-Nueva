@@ -50,9 +50,9 @@ namespace Pirates_Nueva
         protected override BoundingBox Bounds {
             get {
                 var lb = ShipPointToSea(0, 0);
-                var lt = ShipPointToSea(0, Height-1);
-                var rt = ShipPointToSea(Width-1, Height-1);
-                var rb = ShipPointToSea(Width-1, 0);
+                var lt = ShipPointToSea(0, Height);
+                var rt = ShipPointToSea(Width, Height);
+                var rb = ShipPointToSea(Width, 0);
 
                 return new BoundingBox(
                     min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
