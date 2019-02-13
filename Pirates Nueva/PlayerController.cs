@@ -21,10 +21,15 @@ namespace Pirates_Nueva
         /// <summary> Called when <see cref="PlayerController"/> stops focusing on this object. </summary>
         void Unfocus(Master master);
     }
+    /// <summary>
+    /// An object that contains <see cref="IFocusable"/>s.
+    /// </summary>
+    public interface IFocusableParent
+    {
+        List<IFocusable> GetFocusable(PointF seaPoint);
+    }
     public class PlayerController : IUpdatable
     {
-        private IFocusable _focused;
-
         public Master Master { get; }
 
         private Sea Sea { get; }
@@ -43,7 +48,7 @@ namespace Pirates_Nueva
                 if(!(Focused?.IsLocked == true)) {                            // and if the current focus isn't locked.
 
                     var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
-                    var focusable = Sea.GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
+                    var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
 
                     IFocusable oldFocus = Focused;
                     if(Focused != null && Focusable.SequenceEqual(focusable)) { // If the user clicked the same spot as last,

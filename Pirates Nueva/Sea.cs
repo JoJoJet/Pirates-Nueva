@@ -7,7 +7,7 @@ using Color = Microsoft.Xna.Framework.Color;
 
 namespace Pirates_Nueva
 {
-    public sealed class Sea : IUpdatable, IDrawable
+    public sealed class Sea : IUpdatable, IDrawable, IFocusableParent
     {
         private readonly List<Ship> ships = new List<Ship>();
 
@@ -24,7 +24,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Get any <see cref="IFocusable"/> objects located at /seaPoint/, in sea-space.
         /// </summary>
-        public List<IFocusable> GetFocusable(PointF seaPoint) {
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
             var focusable = new List<IFocusable>();
 
             foreach(Ship ship in ships) {                               // For every ship:
