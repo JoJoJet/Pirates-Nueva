@@ -385,11 +385,17 @@ namespace Pirates_Nueva
 
         #region IFocusableParent Implementation
         List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
+            var focusable = new List<IFocusable>();
+
             var (shipX, shipY) = SeaPointToShip(seaPoint);
-            if(GetBlock(shipX, shipY) is Block b)
-                return new List<IFocusable>() { b };
-            else
-                return new List<IFocusable>(1);
+            if(GetFurniture(shipX, shipY) is Furniture f) {
+                focusable.Add(f);
+            }
+            if(GetBlock(shipX, shipY) is Block b) {
+                focusable.Add(b);
+            }
+
+            return focusable;
         }
         #endregion
     }

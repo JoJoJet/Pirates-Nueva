@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Furniture : IDrawable
+    public class Furniture : IDrawable, IFocusable, UI.IScreenSpaceTarget
     {
         public Ship Ship => Floor.Ship;
 
@@ -49,5 +49,32 @@ namespace Pirates_Nueva
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture in screen-space.
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Ship.Angle, (0, 0));
         }
+
+        #region IScreenSpaceTarget Implementation
+        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
+        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+        #endregion
+
+        #region IFocusable Implementation
+        bool IFocusable.IsLocked => false;
+
+        const string FocusMenuID = "furniturefloating";
+        void IFocusable.StartFocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this furniture,
+                master.GUI.AddMenu(                              // add one.
+                    FocusMenuID,
+                    new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
+                    new UI.MenuText("ID: " + ID, master.Font))
+                    );
+        }
+        void IFocusable.Focus(Master master) {
+
+        }
+        void IFocusable.Unfocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this furniture,
+                master.GUI.RemoveMenu(FocusMenuID); // remove it.
+        }
+        #endregion
     }
 }
