@@ -92,29 +92,6 @@ namespace Pirates_Nueva
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
 
-        public abstract void Update(Master master);
-
-        /// <summary>
-        /// Draw this <see cref="Ship"/> onscreen.
-        /// </summary>
-        public virtual void Draw(Master master) {
-            // Draw each block.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
-                        b.Draw(master);
-                }
-            }
-
-            // Draw each Furniture.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is Furniture f)
-                        f.Draw(master);
-                }
-            }
-        }
-
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
 
@@ -328,6 +305,35 @@ namespace Pirates_Nueva
                     nameof(y),
                     $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
+        }
+        #endregion
+
+        #region IUpdatable Implementation
+        void IUpdatable.Update(Master master) => Update(master);
+        protected abstract void Update(Master master) {  }
+        #endregion
+
+        #region IDrawable Implementation
+        void IDrawable.Draw(Master master) => Draw(master);
+        /// <summary>
+        /// Draw this <see cref="Ship"/> onscreen.
+        /// </summary>
+        protected virtual void Draw(Master master) {
+            // Draw each block.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlock(x, y) is Block b)
+                        b.Draw(master);
+                }
+            }
+
+            // Draw each Furniture.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetFurniture(x, y) is Furniture f)
+                        f.Draw(master);
+                }
+            }
         }
         #endregion
 
