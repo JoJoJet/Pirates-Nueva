@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : UI.IScreenSpaceTarget, IUpdatable, IDrawable
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable
     {
         protected const string RootID = "root";
 
@@ -45,6 +45,24 @@ namespace Pirates_Nueva
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Pirates_Nueva.Sea"/>-space.
         /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
+
+        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
+        protected override BoundingBox Bounds {
+            get {
+                var lb = ShipPointToSea(0, 0);
+                var lt = ShipPointToSea(0, Height-1);
+                var rt = ShipPointToSea(Width-1, Height-1);
+                var rb = ShipPointToSea(Width-1, 0);
+
+                return new BoundingBox(
+                    min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
+                    max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
+                    );
+
+                float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4));
+                float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4));
+            }
+        }
 
         // The position of this ship in screen space.
         int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
@@ -103,16 +121,13 @@ namespace Pirates_Nueva
             }
         }
 
-        /// <summary>
-        /// Whether or not the current point (<see cref="Pirates_Nueva.Sea"/>-space) is colliding with this <see cref="Ship"/>.
-        /// </summary>
-        public bool IsColliding(PointF seaPoint) {
-            var (shipX, shipY) = SeaPointToShip(seaPoint);
+        protected override bool IsCollidingPrecise(PointF point) {
+            var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
 
-            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height)
-                return HasBlock(shipX, shipY);
-            else
-                return false;
+            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) // If the index is valid,
+                return HasBlock(shipX, shipY);                              // return whether or not there is a block there.
+            else                                                            // Otherwise:
+                return false;                                               // just return false.
         }
 
         #region Space Transformation

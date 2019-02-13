@@ -46,6 +46,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Angle.cs" />
+    <Compile Include="BoundingBox.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="PlayerController.cs" />
     <Compile Include="Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
