@@ -28,7 +28,7 @@ namespace Pirates_Nueva
                 master.GUI.AddMenu(                        //     create one.
                     FocusMenuID,
                     new UI.FloatingMenu(
-                        this, (0, -0.15f), UI.Corner.BottomLeft,
+                        this, (0, -0.1f), UI.Corner.BottomLeft,
                         new UI.MenuButton("Edit", master.Font, () => mode = ShipMode.Editing),
                         new UI.MenuButton("Move", master.Font, () => mode = ShipMode.Movement)
                         )
