@@ -23,8 +23,9 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master) {
-            foreach(Ship ship in this.entities) {
-                (ship as IUpdatable).Update(master);
+            foreach(var ent in this.entities) { // For every entity:
+                if(ent is IUpdatable u)         // If it is updatable,
+                    u.Update(master);           //     call its Update() method.
             }
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
@@ -33,8 +34,9 @@ namespace Pirates_Nueva
         }
 
         void IDrawable.Draw(Master master) {
-            foreach(Ship ship in this.entities) {
-                (ship as IDrawable).Draw(master);
+            foreach(var ent in this.entities) { // For every entity:
+                if(ent is IDrawable d)          // If it is drawable,
+                    d.Draw(master);             //     call its Draw() method.
             }
         }
 
