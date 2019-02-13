@@ -21,6 +21,23 @@ namespace Pirates_Nueva
             master.GUI.AddEdge("debug_mouse", new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
+        void IUpdatable.Update(Master master) {
+            foreach(Ship ship in this.entities) {
+                ship.Update(master);
+            }
+
+            if(master.GUI.TryGetEdge<UI.EdgeText>("debug_mouse", out var tex)) {
+                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
+            }
+        }
+
+        void IDrawable.Draw(Master master) {
+            foreach(Ship ship in this.entities) {
+                ship.Draw(master);
+            }
+        }
+
+        #region IFocusableParent Implementation
         /// <summary>
         /// Get any <see cref="IFocusable"/> objects located at /seaPoint/, in sea-space.
         /// </summary>
@@ -38,22 +55,7 @@ namespace Pirates_Nueva
             }
             return focusable;
         }
-
-        void IUpdatable.Update(Master master) {
-            foreach(Ship ship in this.entities) {
-                ship.Update(master);
-            }
-
-            if(master.GUI.TryGetEdge<UI.EdgeText>("debug_mouse", out var tex)) {
-                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
-            }
-        }
-
-        void IDrawable.Draw(Master master) {
-            foreach(Ship ship in this.entities) {
-                ship.Draw(master);
-            }
-        }
+        #endregion
 
         #region Space Transformation
         /// <summary>
