@@ -64,10 +64,6 @@ namespace Pirates_Nueva
             }
         }
 
-        // The position of this ship in screen space.
-        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
-
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
@@ -380,6 +376,11 @@ namespace Pirates_Nueva
                     $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
         }
+        #endregion
+
+        #region IScreenSpaceTarget Implementation
+        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
+        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
         #endregion
 
         #region IFocusableParent Implementation
