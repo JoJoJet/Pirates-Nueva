@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Block : IDrawable
+    public class Block : IDrawable, IFocusable
     {
         /// <summary>
         /// The number of pixels in a <see cref="Block"/> (square).
@@ -61,5 +61,25 @@ namespace Pirates_Nueva
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Ship.Angle, (0, 0));
         }
+
+        #region IFocusable Implementation
+        bool IFocusable.IsLocked => false;
+
+        void IFocusable.StartFocus(Master master) {
+            if(master.GUI.HasMenu("blockfloating") == false) // If there's no GUI menu for this block,
+                master.GUI.AddMenu(                          // add one.
+                    "blockfloating",
+                    new UI.FloatingMenu(Ship, (0f, -0.1f), UI.Corner.BottomLeft,
+                    new UI.MenuText("ID: " + ID, master.Font))
+                    );
+        }
+        void IFocusable.Focus(Master master) {
+
+        }
+        void IFocusable.Unfocus(Master master) {
+            if(master.GUI.HasMenu("blockfloating"))     // If there is a GUI menu for this block,
+                master.GUI.RemoveMenu("blockfloating"); // remove it.
+        }
+        #endregion
     }
 }

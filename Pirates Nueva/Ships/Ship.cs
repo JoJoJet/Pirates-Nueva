@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent
     {
         protected const string RootID = "root";
 
@@ -379,6 +379,16 @@ namespace Pirates_Nueva
                     nameof(y),
                     $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
                     );
+        }
+        #endregion
+
+        #region IFocusableParent Implementation
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
+            var (shipX, shipY) = SeaPointToShip(seaPoint);
+            if(GetBlock(shipX, shipY) is Block b)
+                return new List<IFocusable>() { b };
+            else
+                return new List<IFocusable>(1);
         }
         #endregion
     }
