@@ -54,9 +54,7 @@ namespace Pirates_Nueva
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
-                master.GUI.RemoveEdge("shipediting_quit");
-                master.GUI.RemoveEdge("shipediting_block");
-                master.GUI.RemoveEdge("shipediting_furniture");
+                master.GUI.RemoveEdges("shipediting_quit", "shipediting_block", "shipediting_furniture");
 
                 IsFocusLocked = false; // Release focus from this object.
             }
