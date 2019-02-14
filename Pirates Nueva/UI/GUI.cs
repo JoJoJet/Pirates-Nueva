@@ -86,6 +86,15 @@ namespace Pirates_Nueva
                     );
             }
         }
+        /// <summary>
+        /// Remove every edge element identified by the input strings.
+        /// </summary>
+        /// <exception cref="KeyNotFoundException">Thrown when one of the strings does not identify an existing <see cref="EdgeElement"/>.</exception>
+        public void RemoveEdges(params string[] ids) {
+            foreach(var id in ids) {
+                RemoveEdge(id);
+            }
+        }
         #endregion
 
         #region Menu Accessors
