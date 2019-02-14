@@ -228,6 +228,8 @@ namespace Pirates_Nueva
         /// </summary>
         private interface IElementDrawable
         {
+            bool IsHidden { get; set; }
+
             /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
             void Draw(Master master, int left, int top);
 
@@ -253,10 +255,17 @@ namespace Pirates_Nueva
             /// </summary>
             protected abstract void Draw(Master master, int left, int top);
             
+            private bool IsHidden { get; set; }
+            bool IElementDrawable.IsHidden { get => IsHidden; set => IsHidden = value; }
             void IElementDrawable.Draw(Master master, int left, int top) {
-                Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
-                Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);  // Store the current bounds of this element
-                                                                               //     for use in IsMouseOver() at a later time.
+                if(!IsHidden) {
+                    Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
+                    Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);  // Store the current bounds of this element
+                                                                                   //     for use in IsMouseOver() at a later time.
+                }
+                else {             // If the element is hidden,
+                    Bounds = null; //     don't draw it, and set the bounds to null.
+                }
             }
             bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
         }
@@ -322,8 +331,10 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Menu : IMenuContract
         {
+            /// <summary> The default spacing between <see cref="Element"/>s. </summary>
             protected const int Padding = 3;
 
+            /// <summary> Every <see cref="MenuElement"/> in this <see cref="Menu"/>. </summary>
             protected MenuElement[] Elements { get; set; }
 
             public Menu(MenuElement[] elements) {
@@ -344,13 +355,23 @@ namespace Pirates_Nueva
                 Elements = elements;
             }
 
+            /// <summary> Hide this <see cref="Menu"/> next frame. </summary>
+            public void Hide() => SetIsHidden(true);
+            /// <summary> Unhide this <see cref="Menu"/> next frame. </summary>
+            public void Unhide() => SetIsHidden(false);
+
+            private void SetIsHidden(bool which) {
+                foreach(IElementDrawable el in Elements) // For every element:
+                    el.IsHidden = which;                 //     set whether or not it is hidden.
+            }
+
             protected abstract void Draw(Master master);
             void IMenuContract.Draw(Master master) => Draw(master);
             
             protected virtual bool IsMouseOver(PointI mouse) {
-                foreach(var el in Elements) {                       // For every element in this menu:
-                    if((el as IElementDrawable).IsMouseOver(mouse)) // If the mouse is hovering over it,
-                        return true;                                // return true.
+                foreach(IElementDrawable el in Elements) { // For every element in this menu:
+                    if(el.IsMouseOver(mouse))              // If the mouse is hovering over it,
+                        return true;                       // return true.
                 }
                 return false; // If we got this far without returning, already, return false.
             }
