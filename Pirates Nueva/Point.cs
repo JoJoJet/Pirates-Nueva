@@ -78,6 +78,18 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
+        /// Returns the squared distance between two points. Faster than <see cref="Distance(PointF, PointF)"/>/
+        /// </summary>
+        public static float SqrDistance(PointF a, PointF b) {
+            return sqr(a.X - b.X) + sqr(a.Y - b.Y);
+            float sqr(float val) => val*val;
+        }
+        /// <summary>
+        /// Returns the euclidean distance between two points.
+        /// </summary>
+        public static float Distance(PointF a, PointF b) => (float)Math.Sqrt(SqrDistance(a, b));
+
+        /// <summary>
         /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
         public static PointF Rotate(PointF p, Angle theta) {
