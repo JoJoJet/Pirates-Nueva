@@ -368,7 +368,7 @@ namespace Pirates_Nueva
 
         #region IScreenSpaceTarget Implementation
         int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
+        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(CenterX, GetBounds().Top).y;
         #endregion
 
         #region IFocusableParent Implementation
