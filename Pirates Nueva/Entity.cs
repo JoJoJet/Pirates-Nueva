@@ -14,11 +14,11 @@ namespace Pirates_Nueva
         /// <summary>
         /// Whether or not the input point is colliding with this <see cref="Entity"/>.
         /// </summary>
-        public virtual bool IsColliding(PointF point) => Bounds.Contains(point) && IsCollidingPrecise(point);
+        public virtual bool IsColliding(PointF point) => GetBounds().Contains(point) && IsCollidingPrecise(point);
         /// <summary>
         /// A box drawn around this <see cref="Entity"/>, used for approximating collision.
         /// </summary>
-        protected abstract BoundingBox Bounds { get; }
+        protected abstract BoundingBox GetBounds();
         /// <summary>
         /// Whether or not the specified point (<see cref="Sea"/>-space) is colliding with this <see cref="Entity"/>.
         /// </summary>

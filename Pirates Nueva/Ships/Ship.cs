@@ -46,24 +46,6 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
 
-        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
-        protected override BoundingBox Bounds {
-            get {
-                var lb = ShipPointToSea(0, 0);
-                var lt = ShipPointToSea(0, Height);
-                var rt = ShipPointToSea(Width, Height);
-                var rb = ShipPointToSea(Width, 0);
-
-                return new BoundingBox(
-                    min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
-                    max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
-                    );
-
-                float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4));
-                float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4));
-            }
-        }
-
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
@@ -91,7 +73,37 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
+        
+        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
+        protected override BoundingBox GetBounds() {
+            // Find the left-, right-, bottom-, and top-most extents of blocks in this ship.
+            var (left, bottom, right, top) = (Width, Height, 0, 0);
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(HasBlock(x, y)) {
+                        left = Math.Min(left, x);
+                        right = Math.Max(right, x+1);
+                        bottom = Math.Min(bottom, y);
+                        top = Math.Max(top, y+1);
+                    }
+                }
+            }
 
+            // Transform those extents into sea-space.
+            var lb = ShipPointToSea(left, bottom);
+            var lt = ShipPointToSea(left, top);
+            var rt = ShipPointToSea(right, top);
+            var rb = ShipPointToSea(right, bottom);
+
+            // Return a bounding box eveloping all four points above.
+            return new BoundingBox(
+                min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
+                max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
+                );
+
+            float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
+            float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4)); // Find the max of 4 values
+        }
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
 
