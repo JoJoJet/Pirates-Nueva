@@ -36,6 +36,8 @@ namespace Pirates_Nueva
             protected set => (CenterX, CenterY) = value;
         }
 
+        public PointF? Destination { get; protected set; }
+
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
         /// </summary>
@@ -104,6 +106,7 @@ namespace Pirates_Nueva
             float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
             float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4)); // Find the max of 4 values
         }
+
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
 
@@ -322,7 +325,21 @@ namespace Pirates_Nueva
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
-        protected abstract void Update(Master master);
+        protected virtual void Update(Master master) {
+            if(Destination is PointF dest) {                                     // If there is a destination:
+                if(PointF.Distance(Center, dest) > 0.25f) {                      // If the destination is more than half a block away,
+                    var delta = master.FrameTime.DeltaSeconds();                 //
+                                                                                 //
+                    Angle newAngle = PointF.Angle((1, 0), dest - Center);        //    Get the angle towards the destination, 
+                    this.Angle = Angle.MoveTowards(this.Angle, newAngle, delta); //    and slowly rotate the ship towards that angle.
+                                                                                 //
+                    Center += Right * 3 * delta;                                 //     Slowly move the ship to the right.
+                }                                                                //
+                else {                                                           // If the destination is within half a block,
+                    Destination = null;                                          //     unassign the destination (we're there!)
+                }
+            }
+        }
         #endregion
 
         #region IDrawable Implementation
