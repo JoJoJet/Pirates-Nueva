@@ -62,11 +62,13 @@ namespace Pirates_Nueva
             }
 
             if(focusOption == FocusOption.Movement) {
-                IsFocusLocked = true; // Lock focus onto this object.
+                IsFocusLocked = true;                             // Lock focus onto this object.
+                master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
                 if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {
                     Destination = Sea.ScreenPointToSea(master.Input.MousePosition);
                     focusOption = FocusOption.None;
-                    IsFocusLocked = false; // Release focus from this object.
+                    IsFocusLocked = false;   // Release focus from this object.
+                    master.GUI.Tooltip = ""; // Unset the tooltip.
                 }
             }
 
