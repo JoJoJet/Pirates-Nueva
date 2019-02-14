@@ -36,7 +36,7 @@ namespace Pirates_Nueva
 
         void IFocusable.Focus(Master master) {
             if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is an options menu:
-                if(focusOption == FocusOption.None)                         // If an option is NOT selected,
+                if(focusOption == FocusOption.None)                // If an option is NOT selected,
                     menu.Unhide();                                 //     show the menu.
                 else                                               // If an option IS selected,
                     menu.Hide();                                   //     hide the menu.
