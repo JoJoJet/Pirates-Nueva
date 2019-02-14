@@ -8,10 +8,10 @@ namespace Pirates_Nueva
 {
     public class PlayerShip : Ship, IFocusable
     {
-        enum FocusMode { None, Movement, Editing };
+        enum FocusOption { None, Movement, Editing };
         enum PlaceMode { Block, Furniture };
 
-        private FocusMode mode;
+        private FocusOption focusOption;
         private PlaceMode placeMode;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
@@ -27,18 +27,25 @@ namespace Pirates_Nueva
                     FocusMenuID,
                     new UI.FloatingMenu(
                         this, (0, -0.1f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("Edit", master.Font, () => mode = FocusMode.Editing),
-                        new UI.MenuButton("Move", master.Font, () => mode = FocusMode.Movement)
+                        new UI.MenuButton("Edit", master.Font, () => focusOption = FocusOption.Editing),
+                        new UI.MenuButton("Move", master.Font, () => focusOption = FocusOption.Movement)
                         )
                     );
             }
         }
 
         void IFocusable.Focus(Master master) {
-            if(mode == FocusMode.Editing) {
+            if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is an options menu:
+                if(focusOption == FocusOption.None)                         // If an option is NOT selected,
+                    menu.Unhide();                                 //     show the menu.
+                else                                               // If an option IS selected,
+                    menu.Hide();                                   //     hide the menu.
+            }
+
+            if(focusOption == FocusOption.Editing) {
                 // If there is no ship editing menu, add one.
                 if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => mode = FocusMode.None, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => focusOption = FocusOption.None, GUI.Edge.Bottom, GUI.Direction.Left));
                     master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
                     master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
                 }
@@ -54,11 +61,11 @@ namespace Pirates_Nueva
                 IsFocusLocked = false; // Release focus from this object.
             }
 
-            if(mode == FocusMode.Movement) {
+            if(focusOption == FocusOption.Movement) {
                 IsFocusLocked = true; // Lock focus onto this object.
                 if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {
                     Destination = Sea.ScreenPointToSea(master.Input.MousePosition);
-                    mode = FocusMode.None;
+                    focusOption = FocusOption.None;
                     IsFocusLocked = false; // Release focus from this object.
                 }
             }
