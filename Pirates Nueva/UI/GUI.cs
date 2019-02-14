@@ -25,6 +25,8 @@ namespace Pirates_Nueva
         public int ScreenWidth => Master.GraphicsDevice.Viewport.Width;
         public int ScreenHeight => Master.GraphicsDevice.Viewport.Height;
 
+        public string Tooltip { get; set; }
+
         internal GUI(Master master) {
             Master = master;
         }
@@ -206,6 +208,12 @@ namespace Pirates_Nueva
             // Draw every menu.
             foreach(Menu menu in this._menus.Values) {
                 (menu as IMenuContract).Draw(master);
+            }
+
+            // Draw the tooltip.
+            if(!string.IsNullOrEmpty(Tooltip)) {                                             // If there is a tooltip:
+                var (x, y) = master.Input.MousePosition;                                     //
+                master.SpriteBatch.DrawString(Font, Tooltip, new PointF(x, y), Color.Black); //     Draw it next to the mouse cursor.
             }
         }
 
