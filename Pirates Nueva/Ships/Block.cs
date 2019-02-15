@@ -8,9 +8,6 @@ namespace Pirates_Nueva
 {
     public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
-        /// <summary> The number of pixels in a <see cref="Block"/> (square). </summary>
-        internal const int Pixels = 32;
-
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
