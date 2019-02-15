@@ -7,7 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva.UI
 {
-    /// <summary> A bit of text in a <see cref="GUI.Menu"/>. </summary>
+    /// <summary>
+    /// A bit of text in a <see cref="GUI.Menu"/>.
+    /// </summary>
     public class MenuText : GUI.MenuElement
     {
         /// <summary> The string of this <see cref="MenuText"/>. </summary>
@@ -28,22 +30,28 @@ namespace Pirates_Nueva.UI
             Font = font;
         }
 
+        /// <summary> Draw this <see cref="MenuText"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
             master.SpriteBatch.DrawString(Font, Text, new PointF(left, top), Color.Black);
         }
     }
 
+    /// <summary>
+    /// A button in a <see cref="GUI.Menu"/>.
+    /// </summary>
     public class MenuButton : GUI.MenuElement, GUI.IButtonContract
     {
+        const int Padding = 4; // Padding on each edge of the button.
+
         /// <summary> The text on this <see cref="MenuButton"/>. </summary>
         public string Text { get; }
         /// <summary> The <see cref="UI.Font"/> to render the text with. </summary>
         public Font Font { get; }
 
         /// <summary> The width of this <see cref="MenuButton"/>, in pixels. </summary>
-        public override int WidthPixels => (int)Font.MeasureString(Text).X;
+        public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
         /// <summary> The height of this <see cref="MenuButton"/>, in pixels. </summary>
-        public override int HeightPixels => (int)Font.MeasureString(Text).Y;
+        public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
 
         private GUI.OnClick OnClick { get; }
         #region Hidden Properties
@@ -66,9 +74,12 @@ namespace Pirates_Nueva.UI
             Font = font;
             OnClick = onClick;
         }
-
+        /// <summary> Draw this <see cref="MenuButton"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            master.SpriteBatch.DrawString(Font, Text, new PointF(left, top), Color.Green);
+            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master);         // Make a panel.
+            master.SpriteBatch.Draw(panel, new Rectangle(left, top, WidthPixels, HeightPixels), Color.White); // Draw a panel behind the text.
+
+            master.SpriteBatch.DrawString(Font, Text, new PointF(left+Padding, top+Padding), Color.Black);    // Draw the text.
         }
     }
 }

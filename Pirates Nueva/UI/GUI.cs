@@ -267,9 +267,7 @@ namespace Pirates_Nueva
 
             internal Element() {  } // Ensures that /Element/ can only be descended from within this Assembly.
 
-            /// <summary>
-            /// Draw this <see cref="Element"/> onscreen, from the specified top left corner.
-            /// </summary>
+            /// <summary> Draw this <see cref="Element"/> onscreen, from the specified top left corner. </summary>
             protected abstract void Draw(Master master, int left, int top);
             
             private bool IsHidden { get; set; }

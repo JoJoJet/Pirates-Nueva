@@ -46,6 +46,9 @@ namespace Pirates_Nueva
                             case "FurnitureDef":
                                 readDef<FurnitureDef>(reader);
                                 break;
+                            case "SliceDef":
+                                readDef<SliceDef>(reader);
+                                break;
                         }
                     }
                 }
