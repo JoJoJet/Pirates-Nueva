@@ -55,11 +55,12 @@ namespace Pirates_Nueva
         protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
 
-            // SpriteBatch.Draw() draws the texture from the top left, while our indices are positioned on the bottom left.
-            // We need to bump this position upwards (local to the ship) by one block length.
-            (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Ship.Angle, (0, 0));
+            PointF texOffset = (0.5f, 0.5f);                  // As MonoGame draws from the top left, ofset the texture by
+            texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); //     a rotated constant to account for this.
+            
+            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of the Block's texture in sea-space.
+            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
+            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Angle - Ship.Angle, (0, 0));
         }
 
         #region IScreenSpaceTarget Implementation
