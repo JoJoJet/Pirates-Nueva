@@ -39,7 +39,7 @@ namespace Pirates_Nueva
         
         /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
         protected override void Draw(Master master) {
-            var tex = master.Resources.LoadTexture(Def.ID);
+            var tex = master.Resources.LoadTexture(Def.TextureID);
             (int sizeX, int sizeY) = Def.TextureSize * Block.Pixels;
             
             // /Def.TextureOffset/ is the coordinate, local to the texture, from which it will be drawn.
@@ -49,8 +49,8 @@ namespace Pirates_Nueva
                                                                                             // of the texture in ship-space.
             texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); // As MonoGame draws from the top left, offset by a rotated constant.
 
-            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of this Furniture in sea-space.
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture in screen-space.
+            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of this Furniture's texture in sea-space.
+            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture's texture in screen-space.
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Angle - Ship.Angle, (0, 0));
         }
 
