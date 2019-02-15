@@ -13,4 +13,13 @@
 		<!-- The point on the texture (from 0 to 1) from which the texture will be drawn. You can think of it as (1 - offset) -->
 		<TextureOrigin>0.5, 0.25</TextureOrigin>
 	</FurnitureDef>
+	<SliceDef ID="panel">
+		<TextureID>panel</TextureID>
+		<Slices>
+			<Left>10</Left>
+			<Right>10</Right>
+			<Top>10</Top>
+			<Bottom>10</Bottom>
+		</Slices>
+	</SliceDef>
 </Defs>
