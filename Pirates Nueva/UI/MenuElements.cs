@@ -7,7 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva.UI
 {
-    /// <summary> A bit of text in a <see cref="GUI.Menu"/>. </summary>
+    /// <summary>
+    /// A bit of text in a <see cref="GUI.Menu"/>.
+    /// </summary>
     public class MenuText : GUI.MenuElement
     {
         /// <summary> The string of this <see cref="MenuText"/>. </summary>
@@ -34,6 +36,9 @@ namespace Pirates_Nueva.UI
         }
     }
 
+    /// <summary>
+    /// A button in a <see cref="GUI.Menu"/>.
+    /// </summary>
     public class MenuButton : GUI.MenuElement, GUI.IButtonContract
     {
         const int Padding = 4; // Padding on each edge of the button.
