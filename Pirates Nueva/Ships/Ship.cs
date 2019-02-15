@@ -401,7 +401,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Part of a <see cref="Ship"/>.
+        /// Part of a <see cref="Pirates_Nueva.Ship"/>.
         /// </summary>
         public abstract class Part : IPartContract
         {
@@ -427,6 +427,7 @@ namespace Pirates_Nueva
 
             #region IPartContract Implementation
             void IPartContract.Update(Master master) => Update(master);
+            /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
             void IPartContract.Draw(Master master) => Draw(master);
