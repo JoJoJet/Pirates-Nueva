@@ -392,14 +392,13 @@ namespace Pirates_Nueva
         #endregion
 
         /// <summary>
-        /// Makes some properties of <see cref="Part"/> accessible only within this class.
+        /// Makes some members of <see cref="Part"/> accessible only within this class.
         /// </summary>
         private interface IPartContract
         {
             void Update(Master master);
             void Draw(Master master);
         }
-
         /// <summary>
         /// Part of a <see cref="Pirates_Nueva.Ship"/>.
         /// </summary>
