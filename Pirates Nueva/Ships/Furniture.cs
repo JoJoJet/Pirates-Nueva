@@ -28,11 +28,6 @@ namespace Pirates_Nueva
         /// <summary> The Y index of this <see cref="Furniture"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public override int Y => Floor.Y;
 
-        /// <summary> The direction that this <see cref="Furniture"/> is facing. </summary>
-        public Dir Direction { get; protected set; }
-        
-        public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
-
         /// <summary>
         /// Create a <see cref="Furniture"/>, defined by the <see cref="FurnitureDef"/> /def/, and placed on the <see cref="Block"/> /block/.
         /// </summary>

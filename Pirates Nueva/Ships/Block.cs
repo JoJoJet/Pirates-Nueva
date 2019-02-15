@@ -22,6 +22,9 @@ namespace Pirates_Nueva
         /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public override int Y { get; }
 
+        /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
+        public override Dir Direction => Dir.Right;
+
         /// <summary>
         /// The <see cref="Pirates_Nueva.Furniture"/> placed on this block. Might be null.
         /// </summary>

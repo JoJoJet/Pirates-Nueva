@@ -412,6 +412,11 @@ namespace Pirates_Nueva
             /// <summary> The X and Y indices of this <see cref="Part"/>, local to its <see cref="Ship"/>. </summary>
             public virtual PointI Index => (X, Y);
 
+            /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
+            public virtual Dir Direction { get; protected set; }
+            /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Ship"/>. </summary>
+            public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
+
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
             #region IPartContract Implementation
