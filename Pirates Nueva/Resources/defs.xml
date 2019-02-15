@@ -14,6 +14,7 @@
 		<TextureOrigin>0.5, 0.25</TextureOrigin>
 	</FurnitureDef>
 	<SliceDef ID="panel">
+		<!-- The name of the source texture. -->
 		<TextureID>panel</TextureID>
 		<Slices>
 			<Left>10</Left>
