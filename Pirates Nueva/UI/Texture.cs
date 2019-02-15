@@ -54,6 +54,7 @@ namespace Pirates_Nueva.UI
         private static Texture2D CreateTex(SliceDef def, int width, int height, Master master) {
             var source = master.Resources.LoadTexture(def.Texture);
 
+            // Fetch the colors of the source texture for use in the /readInner()/ method below.
             var innerData = new Color[source.Width * source.Height];
             source.GetData(innerData);
 
