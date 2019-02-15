@@ -19,9 +19,9 @@ namespace Pirates_Nueva
         public Button MouseRight { get; private set; } = new Button();
 
         /// <summary> The Horizontal input axis. </summary>
-        public float Horizontal => (AKey.IsPressed || LeftKey.IsPressed ? -1 : 0) + (DKey.IsPressed || RightKey.IsPressed ? 1 : 0);
+        public Axis Horizontal => new Axis(AKey, DKey);
         /// <summary> The Vertical input axis. </summary>
-        public float Vertical => (WKey.IsPressed || UpKey.IsPressed ? 1 : 0) + (SKey.IsPressed || DownKey.IsPressed ? -1 : 0);
+        public Axis Vertical => new Axis(WKey, SKey);
 
         public Button WKey => GetKey(Keys.W);
         public Button AKey => GetKey(Keys.A);
@@ -76,14 +76,14 @@ namespace Pirates_Nueva
             Button updateButton(Button old, bool isPressed) {
                 var newb = new Button();
 
-                (newb as IContract).OldIsPressed = old.IsPressed;
-                (newb as IContract).IsPressed = isPressed;
+                (newb as IButtonContract).OldIsPressed = old.IsPressed;
+                (newb as IButtonContract).IsPressed = isPressed;
 
                 return newb;
             }
         }
 
-        private interface IContract
+        private interface IButtonContract
         {
             bool IsPressed { set; }
             bool OldIsPressed { set; }
@@ -92,7 +92,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// An object representing the status of a button or key during this frame.
         /// </summary>
-        public class Button : IContract
+        public class Button : IButtonContract
         {
             /// <summary> Whether or not this <see cref="Button"/> is being pressed this frame. </summary>
             public bool IsPressed { get; private set; }
@@ -103,10 +103,32 @@ namespace Pirates_Nueva
 
             private bool OldIsPressed { get; set; }
 
-            bool IContract.IsPressed { set => IsPressed = value; }
-            bool IContract.OldIsPressed { set => OldIsPressed = value; }
+            bool IButtonContract.IsPressed { set => IsPressed = value; }
+            bool IButtonContract.OldIsPressed { set => OldIsPressed = value; }
 
             internal Button() {  }
+        }
+
+        /// <summary>
+        /// An ojbect representing the status of an input axis during this frame.
+        /// </summary>
+        public struct Axis
+        {
+            private Button negative, positive;
+
+            /// <summary> Get the value of this axis for the current frame. </summary>
+            public float Value => (negative.IsPressed ? -1 : 0) + (positive.IsPressed ? 1 : 0);
+            /// <summary>
+            /// Get the value of this axis for the current frame. See <see cref="Button.IsDown"/> documentation.
+            /// </summary>
+            public float Down => (negative.IsDown ? -1 : 0) + (positive.IsDown ? 1 : 0);
+
+            internal Axis(Button negative, Button positive) {
+                this.negative = negative;
+                this.positive = positive;
+            }
+
+            public static implicit operator float (Axis box) => box.Value;
         }
     }
 }
