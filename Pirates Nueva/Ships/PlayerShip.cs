@@ -13,6 +13,7 @@ namespace Pirates_Nueva
 
         private FocusOption focusOption;
         private PlaceMode placeMode;
+        private Dir placeDir;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
@@ -71,6 +72,8 @@ namespace Pirates_Nueva
             }
 
             void updateEditing() {
+                placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down) % 4); // Cycle through place directions.
+
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
@@ -78,7 +81,7 @@ namespace Pirates_Nueva
                     if(placeMode == PlaceMode.Furniture) {
                         // If the place the user clicked has a Block but no Furniture.
                         if(HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
-                            PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
+                            PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY, placeDir);
                     }
                     // If the place mode is 'Block', try to place a block.
                     if(placeMode == PlaceMode.Block) {
