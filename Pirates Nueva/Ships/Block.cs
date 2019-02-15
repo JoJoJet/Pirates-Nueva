@@ -6,25 +6,21 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Block : IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
-        /// <summary>
-        /// The number of pixels in a <see cref="Block"/> (square).
-        /// </summary>
+        /// <summary> The number of pixels in a <see cref="Block"/> (square). </summary>
         internal const int Pixels = 32;
 
+        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
         public Ship Ship { get; }
 
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
 
         /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int X { get; private set; }
+        public override int X { get; }
         /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int Y { get; private set; }
-
-        /// <summary> The x and y indices of this <see cref="Block"/> within its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public PointI Index => new PointI(X, Y);
+        public override int Y { get; }
 
         /// <summary>
         /// The <see cref="Pirates_Nueva.Furniture"/> placed on this block. Might be null.
@@ -52,7 +48,7 @@ namespace Pirates_Nueva
             Y = y;
         }
 
-        public void Draw(Master master) {
+        protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
 
             // SpriteBatch.Draw() draws the texture from the top left, while our indices are positioned on the bottom left.

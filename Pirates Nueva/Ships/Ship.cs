@@ -352,7 +352,7 @@ namespace Pirates_Nueva
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
+                    if(GetBlock(x, y) is IPartContract b)
                         b.Draw(master);
                 }
             }
@@ -388,7 +388,7 @@ namespace Pirates_Nueva
         }
         #endregion
 
-        private interface IShipPartContract
+        private interface IPartContract
         {
             void Update(Master master);
             void Draw(Master master);
@@ -397,7 +397,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Part of a <see cref="Ship"/>.
         /// </summary>
-        public abstract class Part : IShipPartContract
+        public abstract class Part : IPartContract
         {
             /// <summary> The X index of this <see cref="Part"/>, local to its <see cref="Ship"/>. </summary>
             public abstract int X { get; }
@@ -409,10 +409,10 @@ namespace Pirates_Nueva
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
             #region IShipPartContract Implementation
-            void IShipPartContract.Update(Master master) => Update(master);
+            void IPartContract.Update(Master master) => Update(master);
             protected virtual void Update(Master master) {  }
 
-            void IShipPartContract.Draw(Master master) => Draw(master);
+            void IPartContract.Draw(Master master) => Draw(master);
             protected abstract void Draw(Master master);
             #endregion
         }
