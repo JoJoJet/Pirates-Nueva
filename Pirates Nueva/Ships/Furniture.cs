@@ -42,7 +42,7 @@ namespace Pirates_Nueva
             Direction = direction;
         }
         
-        /// <summary> Draw this <see cref="Furniture"/> onscreen. </summary>
+        /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
         protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.ID);
             (int sizeX, int sizeY) = Def.TextureSize * Block.Pixels;

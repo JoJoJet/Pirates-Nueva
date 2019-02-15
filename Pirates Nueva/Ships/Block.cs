@@ -48,6 +48,7 @@ namespace Pirates_Nueva
             Y = y;
         }
 
+        /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
         protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
 

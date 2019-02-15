@@ -419,6 +419,7 @@ namespace Pirates_Nueva
             protected virtual void Update(Master master) {  }
 
             void IPartContract.Draw(Master master) => Draw(master);
+            /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
             protected abstract void Draw(Master master);
             #endregion
         }
