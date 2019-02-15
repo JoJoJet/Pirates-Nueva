@@ -18,7 +18,7 @@ namespace Pirates_Nueva.UI
         /// <summary> The height of this <see cref="Texture"/>. </summary>
         public virtual int Height => Drawable.Height;
 
-        public virtual Texture2D Drawable { get; }
+        protected virtual Texture2D Drawable { get; }
 
         /// <summary>
         /// Create a new <see cref="Texture"/> from a MonoGame <see cref="Texture2D"/>.
@@ -41,7 +41,7 @@ namespace Pirates_Nueva.UI
     {
         private static readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
-        public override Texture2D Drawable { get; }
+        protected override Texture2D Drawable { get; }
 
         public NineSlice(SliceDef def, int width, int height, Master master) : base() {
 
@@ -54,7 +54,7 @@ namespace Pirates_Nueva.UI
         }
 
         private static Texture2D CreateTex(SliceDef def, int width, int height, Master master) {
-            var source = master.Resources.LoadTexture(def.TextureID);
+            Texture2D source = master.Resources.LoadTexture(def.TextureID);
 
             // Fetch the colors of the source texture for use in the /readInner()/ method below.
             var innerData = new Color[source.Width * source.Height];

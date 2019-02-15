@@ -6,25 +6,21 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Block : IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
-        /// <summary>
-        /// The number of pixels in a <see cref="Block"/> (square).
-        /// </summary>
-        internal const int Pixels = 32;
-
-        public Ship Ship { get; }
+        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
+        public override Ship Ship { get; }
 
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
 
         /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int X { get; private set; }
+        public override int X { get; }
         /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int Y { get; private set; }
+        public override int Y { get; }
 
-        /// <summary> The x and y indices of this <see cref="Block"/> within its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public PointI Index => new PointI(X, Y);
+        /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
+        public override Dir Direction => Dir.Right;
 
         /// <summary>
         /// The <see cref="Pirates_Nueva.Furniture"/> placed on this block. Might be null.
@@ -52,14 +48,16 @@ namespace Pirates_Nueva
             Y = y;
         }
 
-        public void Draw(Master master) {
+        /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
+        protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.TextureID);
 
-            // SpriteBatch.Draw() draws the texture from the top left, while our indices are positioned on the bottom left.
-            // We need to bump this position upwards (local to the ship) by one block length.
-            (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Ship.Angle, (0, 0));
+            PointF texOffset = (0.5f, 0.5f);                  // As MonoGame draws from the top left, ofset the texture by
+            texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); //     a rotated constant to account for this.
+            
+            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of the Block's texture in sea-space.
+            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
+            master.SpriteBatch.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Angle - Ship.Angle, (0, 0));
         }
 
         #region IScreenSpaceTarget Implementation

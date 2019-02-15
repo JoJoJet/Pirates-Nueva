@@ -353,18 +353,21 @@ namespace Pirates_Nueva
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlock(x, y) is Block b)
-                        b.Draw(master);
+                        DrawPart(b, master);
                 }
             }
 
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is IDrawable d)
-                        d.Draw(master);
+                    if(GetFurniture(x, y) is Furniture f)
+                        DrawPart(f, master);
                 }
             }
         }
+
+        /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
+        protected void DrawPart(Part p, Master master) => (p as IPartContract).Draw(master);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -387,5 +390,49 @@ namespace Pirates_Nueva
             return focusable;
         }
         #endregion
+
+        /// <summary>
+        /// Makes some members of <see cref="Part"/> accessible only within this class.
+        /// </summary>
+        private interface IPartContract
+        {
+            void Update(Master master);
+            void Draw(Master master);
+        }
+        /// <summary>
+        /// Part of a <see cref="Pirates_Nueva.Ship"/>.
+        /// </summary>
+        public abstract class Part : IPartContract
+        {
+            /// <summary> The number of pixels per unit of a <see cref="Part"/>. </summary>
+            protected const int Pixels = 32;
+
+            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Part"/>. </summary>
+            public abstract Ship Ship { get; }
+
+            /// <summary> The X index of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public abstract int X { get; }
+            /// <summary> The Y index of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public abstract int Y { get; }
+            /// <summary> The X and Y indices of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public virtual PointI Index => (X, Y);
+
+            /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
+            public virtual Dir Direction { get; protected set; }
+            /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
+
+            internal Part() {  } // Ensures that this class can only be derived from within this assembly.
+
+            #region IPartContract Implementation
+            void IPartContract.Update(Master master) => Update(master);
+            /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
+            protected virtual void Update(Master master) {  }
+
+            void IPartContract.Draw(Master master) => Draw(master);
+            /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
+            protected abstract void Draw(Master master);
+            #endregion
+        }
     }
 }

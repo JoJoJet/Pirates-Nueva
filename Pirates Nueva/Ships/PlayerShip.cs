@@ -73,7 +73,7 @@ namespace Pirates_Nueva
             }
 
             void updateEditing() {
-                placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down) % 4); // Cycle through place directions.
+                placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down + 4) % 4); // Cycle through place directions.
 
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
