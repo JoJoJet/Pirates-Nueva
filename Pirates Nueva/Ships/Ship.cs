@@ -36,6 +36,9 @@ namespace Pirates_Nueva
             protected set => (CenterX, CenterY) = value;
         }
 
+        /// <summary> Where this <see cref="Ship"/> is moving towards. </summary>
+        public PointF? Destination { get; protected set; }
+
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
         /// </summary>
@@ -45,24 +48,6 @@ namespace Pirates_Nueva
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Pirates_Nueva.Sea"/>-space.
         /// </summary>
         public PointF Right => PointF.Rotate((1, 0), Angle);
-
-        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
-        protected override BoundingBox Bounds {
-            get {
-                var lb = ShipPointToSea(0, 0);
-                var lt = ShipPointToSea(0, Height-1);
-                var rt = ShipPointToSea(Width-1, Height-1);
-                var rb = ShipPointToSea(Width-1, 0);
-
-                return new BoundingBox(
-                    min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
-                    max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
-                    );
-
-                float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4));
-                float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4));
-            }
-        }
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
@@ -81,7 +66,7 @@ namespace Pirates_Nueva
 
             this.blocks = new Block[width, height];
 
-            Center = (PointF)RootIndex;
+            Center = (PointF)RootIndex + (0.5f, 0.5f);
             
             Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
         }
@@ -91,6 +76,37 @@ namespace Pirates_Nueva
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public Block this[int x, int y] => GetBlock(x, y);
+        
+        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
+        protected override BoundingBox GetBounds() {
+            // Find the left-, right-, bottom-, and top-most extents of blocks in this ship.
+            var (left, bottom, right, top) = (Width, Height, 0, 0);
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(HasBlock(x, y)) {
+                        left = Math.Min(left, x);
+                        right = Math.Max(right, x+1);
+                        bottom = Math.Min(bottom, y);
+                        top = Math.Max(top, y+1);
+                    }
+                }
+            }
+
+            // Transform those extents into sea-space.
+            var lb = ShipPointToSea(left, bottom);
+            var lt = ShipPointToSea(left, top);
+            var rt = ShipPointToSea(right, top);
+            var rb = ShipPointToSea(right, bottom);
+
+            // Return a bounding box eveloping all four points above.
+            return new BoundingBox(
+                min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
+                max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
+                );
+
+            float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
+            float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4)); // Find the max of 4 values
+        }
 
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
@@ -125,7 +141,7 @@ namespace Pirates_Nueva
             var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
 
             // Indices within the ship
-            var (indX, indY) = (shipX + RootX, shipY + RootY); // Translate ship coords into indices centered on ship's bottom left corner.
+            var (indX, indY) = (shipX + RootX + 0.5f, shipY + RootY + 0.5f); // Translate ship coords into indices centered on ship's bottom left corner.
 
             return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
         }
@@ -153,8 +169,8 @@ namespace Pirates_Nueva
             var (indX, indY) = (x, y);
             
             // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = (indX - RootX, indY - RootY);  // Translate the input coords to be centered around the root block.
-
+            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input coords to be
+                                                                              //     centered around the root block.
             // Rotated coordinate's local to the ship's root.
             var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
 
@@ -310,7 +326,21 @@ namespace Pirates_Nueva
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
-        protected abstract void Update(Master master);
+        protected virtual void Update(Master master) {
+            if(Destination is PointF dest) {                                     // If there is a destination:
+                if(PointF.Distance(Center, dest) > 0.25f) {                      // If the destination is more than half a block away,
+                    var delta = master.FrameTime.DeltaSeconds();                 //
+                                                                                 //
+                    Angle newAngle = PointF.Angle((1, 0), dest - Center);        //    Get the angle towards the destination, 
+                    this.Angle = Angle.MoveTowards(this.Angle, newAngle, delta); //    and slowly rotate the ship towards that angle.
+                                                                                 //
+                    Center += Right * 3 * delta;                                 //     Slowly move the ship to the right.
+                }                                                                //
+                else {                                                           // If the destination is within half a block,
+                    Destination = null;                                          //     unassign the destination (we're there!)
+                }
+            }
+        }
         #endregion
 
         #region IDrawable Implementation
@@ -339,7 +369,7 @@ namespace Pirates_Nueva
 
         #region IScreenSpaceTarget Implementation
         int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(Center).Y;
+        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(CenterX, GetBounds().Top).y;
         #endregion
 
         #region IFocusableParent Implementation

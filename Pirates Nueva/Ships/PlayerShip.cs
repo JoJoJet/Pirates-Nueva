@@ -8,15 +8,13 @@ namespace Pirates_Nueva
 {
     public class PlayerShip : Ship, IFocusable
     {
-        enum ShipMode { None, Movement, Editing };
+        enum FocusOption { None, Movement, Editing };
         enum PlaceMode { Block, Furniture };
 
-        private ShipMode mode;
+        private FocusOption focusOption;
         private PlaceMode placeMode;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
-
-        protected override void Update(Master master) {  }
 
         #region IFocusable Implementation
         private bool IsFocusLocked { get; set; }
@@ -28,19 +26,26 @@ namespace Pirates_Nueva
                 master.GUI.AddMenu(                        //     create one.
                     FocusMenuID,
                     new UI.FloatingMenu(
-                        this, (0, -0.15f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("Edit", master.Font, () => mode = ShipMode.Editing),
-                        new UI.MenuButton("Move", master.Font, () => mode = ShipMode.Movement)
+                        this, (0, -0.025f), UI.Corner.BottomLeft,
+                        new UI.MenuButton("Edit", master.Font, () => focusOption = FocusOption.Editing),
+                        new UI.MenuButton("Move", master.Font, () => focusOption = FocusOption.Movement)
                         )
                     );
             }
         }
 
         void IFocusable.Focus(Master master) {
-            if(mode == ShipMode.Editing) {
+            if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is an options menu:
+                if(focusOption == FocusOption.None)                // If an option is NOT selected,
+                    menu.Unhide();                                 //     show the menu.
+                else                                               // If an option IS selected,
+                    menu.Hide();                                   //     hide the menu.
+            }
+
+            if(focusOption == FocusOption.Editing) {
                 // If there is no ship editing menu, add one.
                 if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => mode = ShipMode.None, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => focusOption = FocusOption.None, GUI.Edge.Bottom, GUI.Direction.Left));
                     master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
                     master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
                 }
@@ -49,15 +54,20 @@ namespace Pirates_Nueva
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
-                master.GUI.RemoveEdge("shipediting_quit");
-                master.GUI.RemoveEdge("shipediting_block");
-                master.GUI.RemoveEdge("shipediting_furniture");
+                master.GUI.RemoveEdges("shipediting_quit", "shipediting_block", "shipediting_furniture");
 
                 IsFocusLocked = false; // Release focus from this object.
             }
 
-            if(mode == ShipMode.Movement) {
-                updateMovement();
+            if(focusOption == FocusOption.Movement) {
+                IsFocusLocked = true;                             // Lock focus onto this object.
+                master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {
+                    Destination = Sea.ScreenPointToSea(master.Input.MousePosition);
+                    focusOption = FocusOption.None;
+                    IsFocusLocked = false;   // Release focus from this object.
+                    master.GUI.Tooltip = ""; // Unset the tooltip.
+                }
             }
 
             void updateEditing() {
@@ -101,23 +111,6 @@ namespace Pirates_Nueva
                     (x, y) = SeaPointToShip(seaX, seaY);
 
                     return x >= 0 && x < Width && y >= 0 && y < Height && !master.GUI.IsMouseOverGUI;
-                }
-            }
-
-            void updateMovement() {
-                // Get a PointF containing the direction of the user's arrow keys or WASD.
-                PointF inputAxes = new PointF(master.Input.Horizontal, master.Input.Vertical).Normalized;
-
-                // Do ship movement if arrow keys or WASD are held.
-                if(inputAxes.SqrMagnitude > 0) {
-                    float deltaTime = master.FrameTime.DeltaSeconds();
-
-                    // Slowly rotate the ship to point at the input axes.
-                    Angle inputAngle = PointF.Angle((1, 0), inputAxes);
-                    this.Angle = Angle.MoveTowards(this.Angle, inputAngle, deltaTime);
-
-                    // Slowly move the ship in the direction of its right edge.
-                    Center += Right * deltaTime * 3;
                 }
             }
         }
