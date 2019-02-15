@@ -13,7 +13,7 @@ namespace Pirates_Nueva
     public class Furniture : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Furniture"/>. </summary>
-        public Ship Ship => Floor.Ship;
+        public override Ship Ship => Floor.Ship;
 
         public FurnitureDef Def { get; private set; }
         public string ID => Def.ID;

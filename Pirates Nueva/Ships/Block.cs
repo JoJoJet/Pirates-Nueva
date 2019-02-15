@@ -12,7 +12,7 @@ namespace Pirates_Nueva
         internal const int Pixels = 32;
 
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
-        public Ship Ship { get; }
+        public override Ship Ship { get; }
 
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
