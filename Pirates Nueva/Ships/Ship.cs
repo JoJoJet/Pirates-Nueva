@@ -387,5 +387,34 @@ namespace Pirates_Nueva
             return focusable;
         }
         #endregion
+
+        private interface IShipPartContract
+        {
+            void Update(Master master);
+            void Draw(Master master);
+        }
+
+        /// <summary>
+        /// Part of a <see cref="Ship"/>.
+        /// </summary>
+        public abstract class Part : IShipPartContract
+        {
+            /// <summary> The X index of this <see cref="Part"/>, local to its <see cref="Ship"/>. </summary>
+            public abstract int X { get; }
+            /// <summary> The Y index of this <see cref="Part"/>, local to its <see cref="Ship"/>. </summary>
+            public abstract int Y { get; }
+            /// <summary> The X and Y indices of this <see cref="Part"/>, local to its <see cref="Ship"/>. </summary>
+            public virtual PointI Index => (X, Y);
+
+            internal Part() {  } // Ensures that this class can only be derived from within this assembly.
+
+            #region IShipPartContract Implementation
+            void IShipPartContract.Update(Master master) => Update(master);
+            protected virtual void Update(Master master) {  }
+
+            void IShipPartContract.Draw(Master master) => Draw(master);
+            protected abstract void Draw(Master master);
+            #endregion
+        }
     }
 }
