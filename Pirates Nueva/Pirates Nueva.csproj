@@ -68,6 +68,7 @@
     <Compile Include="Sea.cs" />
     <Compile Include="Ships\Ship.cs" />
     <Compile Include="UI\MenuElements.cs" />
+    <Compile Include="UI\Texture.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
