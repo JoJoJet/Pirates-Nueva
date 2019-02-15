@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
+    /// <summary>
+    /// A relative direction.
+    /// </summary>
+    public enum Dir { Up, Right, Down, Left };
     public class Furniture : IDrawable, IFocusable, UI.IScreenSpaceTarget
     {
+        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Furniture"/>. </summary>
         public Ship Ship => Floor.Ship;
 
         public FurnitureDef Def { get; private set; }
@@ -26,6 +31,11 @@ namespace Pirates_Nueva
         /// <summary> The X and Y indices of of this <see cref="Furniture"/> within its <see cref="Ship"/>. </summary>
         public PointI Index => (X, Y);
 
+        /// <summary> The direction that this <see cref="Furniture"/> is facing. </summary>
+        public Dir Direction { get; protected set; }
+        
+        public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
+
         /// <summary>
         /// Create a <see cref="Furniture"/>, defined by the <see cref="FurnitureDef"/> /def/, and placed on the <see cref="Block"/> /block/.
         /// </summary>
@@ -43,11 +53,11 @@ namespace Pirates_Nueva
             PointF texOffset = (1, 1) - Def.TextureOrigin;
             texOffset = (texOffset.X * Def.TextureSize.X, texOffset.Y * Def.TextureSize.Y); // Multiply the offset by the size
                                                                                             // of the texture in ship-space.
-            texOffset += (-0.5f, 0.5f); // Offset it by a constant, since MonoGame draws from the top left of textures.
+            texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); // As MonoGame draws from the top left, offset by a rotated constant.
 
             (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of this Furniture in sea-space.
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture in screen-space.
-            master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Ship.Angle, (0, 0));
+            master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Angle - Ship.Angle, (0, 0));
         }
 
         #region IScreenSpaceTarget Implementation
