@@ -36,6 +36,7 @@ namespace Pirates_Nueva
             protected set => (CenterX, CenterY) = value;
         }
 
+        /// <summary> Where this <see cref="Ship"/> is moving towards. </summary>
         public PointF? Destination { get; protected set; }
 
         /// <summary>
