@@ -73,11 +73,13 @@ namespace Pirates_Nueva.UI
             OnClick = onClick;
         }
 
+        /// <summary> Draw this <see cref="EdgeButton"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            var pos = new Vector2(left, top);
-            pos += new Vector2(Padding, Padding);
+            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master);         // Make a panel.
+            master.SpriteBatch.Draw(panel, new Rectangle(left, top, WidthPixels, HeightPixels), Color.White); // Draw a panel behind the text.
 
-            master.SpriteBatch.DrawString(Font, Text, pos, Color.Green);
+            var pos = new PointF(left+Padding, top+Padding);
+            master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);                                      // Draw the text.
         }
     }
 }

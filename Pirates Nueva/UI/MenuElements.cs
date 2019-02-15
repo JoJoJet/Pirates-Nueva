@@ -68,12 +68,12 @@ namespace Pirates_Nueva.UI
             Font = font;
             OnClick = onClick;
         }
-
+        /// <summary> Draw this <see cref="MenuButton"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master);
+            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master);         // Make a panel.
+            master.SpriteBatch.Draw(panel, new Rectangle(left, top, WidthPixels, HeightPixels), Color.White); // Draw a panel behind the text.
 
-            master.SpriteBatch.Draw(panel, new Rectangle(left, top, panel.Width, panel.Height), Color.White); // Draw a panel behind the text.
-            master.SpriteBatch.DrawString(Font, Text, new PointF(left+Padding, top+Padding), Color.Green);    // Draw the text.
+            master.SpriteBatch.DrawString(Font, Text, new PointF(left+Padding, top+Padding), Color.Black);    // Draw the text.
         }
     }
 }
