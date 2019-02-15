@@ -32,6 +32,7 @@ namespace Pirates_Nueva
             Master = master;
         }
 
+        /// <summary> Get the <see cref="XmlReader"/> for the specified resources file. </summary>
         public XmlReader GetXmlReader(string file) => XmlReader.Create(Load(file + ".xml"), new XmlReaderSettings() { CloseInput = true });
 
         /// <summary>

@@ -13,6 +13,7 @@ namespace Pirates_Nueva
 
         private FocusOption focusOption;
         private PlaceMode placeMode;
+        private Dir placeDir;
 
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
@@ -62,15 +63,18 @@ namespace Pirates_Nueva
             if(focusOption == FocusOption.Movement) {
                 IsFocusLocked = true;                             // Lock focus onto this object.
                 master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {
-                    Destination = Sea.ScreenPointToSea(master.Input.MousePosition);
-                    focusOption = FocusOption.None;
-                    IsFocusLocked = false;   // Release focus from this object.
-                    master.GUI.Tooltip = ""; // Unset the tooltip.
+
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {   // When the user clicks:
+                    Destination = Sea.ScreenPointToSea(master.Input.MousePosition); //     Set the destination as the click point,
+                    focusOption = FocusOption.None;                                 //     unset the focus option,
+                    IsFocusLocked = false;                                          //     release focus from this object,
+                    master.GUI.Tooltip = "";                                        //     and unset the tooltip.
                 }
             }
 
             void updateEditing() {
+                placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down) % 4); // Cycle through place directions.
+
                 // If the user left clicks, place a Block or Furniture.
                 if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
@@ -78,7 +82,7 @@ namespace Pirates_Nueva
                     if(placeMode == PlaceMode.Furniture) {
                         // If the place the user clicked has a Block but no Furniture.
                         if(HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
-                            PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY);
+                            PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY, placeDir);
                     }
                     // If the place mode is 'Block', try to place a block.
                     if(placeMode == PlaceMode.Block) {
