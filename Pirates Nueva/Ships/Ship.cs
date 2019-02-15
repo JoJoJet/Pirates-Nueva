@@ -352,19 +352,22 @@ namespace Pirates_Nueva
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is IPartContract b)
-                        b.Draw(master);
+                    if(GetBlock(x, y) is Block b)
+                        DrawPart(b, master);
                 }
             }
 
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is IDrawable d)
-                        d.Draw(master);
+                    if(GetFurniture(x, y) is Furniture f)
+                        DrawPart(f, master);
                 }
             }
         }
+
+        /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
+        protected void DrawPart(Part p, Master master) => (p as IPartContract).Draw(master);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -388,6 +391,9 @@ namespace Pirates_Nueva
         }
         #endregion
 
+        /// <summary>
+        /// Makes some properties of <see cref="Part"/> accessible only within this class.
+        /// </summary>
         private interface IPartContract
         {
             void Update(Master master);
@@ -408,7 +414,7 @@ namespace Pirates_Nueva
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
-            #region IShipPartContract Implementation
+            #region IPartContract Implementation
             void IPartContract.Update(Master master) => Update(master);
             protected virtual void Update(Master master) {  }
 

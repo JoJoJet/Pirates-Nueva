@@ -10,7 +10,7 @@ namespace Pirates_Nueva
     /// A relative direction.
     /// </summary>
     public enum Dir { Up, Right, Down, Left };
-    public class Furniture : IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public class Furniture : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Furniture"/>. </summary>
         public Ship Ship => Floor.Ship;
@@ -24,12 +24,9 @@ namespace Pirates_Nueva
         public Block Floor { get; private set; }
 
         /// <summary> The X index of this <see cref="Furniture"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int X => Floor.X;
+        public override int X => Floor.X;
         /// <summary> The Y index of this <see cref="Furniture"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int Y => Floor.Y;
-
-        /// <summary> The X and Y indices of of this <see cref="Furniture"/> within its <see cref="Ship"/>. </summary>
-        public PointI Index => (X, Y);
+        public override int Y => Floor.Y;
 
         /// <summary> The direction that this <see cref="Furniture"/> is facing. </summary>
         public Dir Direction { get; protected set; }
@@ -44,11 +41,9 @@ namespace Pirates_Nueva
             Floor = floor;
             Direction = direction;
         }
-
-        #region IDrawable Implementation
-        void IDrawable.Draw(Master master) => Draw(master);
+        
         /// <summary> Draw this <see cref="Furniture"/> onscreen. </summary>
-        protected virtual void Draw(Master master) {
+        protected override void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.ID);
             (int sizeX, int sizeY) = Def.TextureSize * Block.Pixels;
             
@@ -63,7 +58,6 @@ namespace Pirates_Nueva
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture in screen-space.
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Angle - Ship.Angle, (0, 0));
         }
-        #endregion
 
         #region IScreenSpaceTarget Implementation
         private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
