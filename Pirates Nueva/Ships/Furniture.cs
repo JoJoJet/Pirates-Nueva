@@ -44,7 +44,10 @@ namespace Pirates_Nueva
             Floor = floor;
         }
 
-        public void Draw(Master master) {
+        #region IDrawable Implementation
+        void IDrawable.Draw(Master master) => Draw(master);
+        /// <summary> Draw this <see cref="Furniture"/> onscreen. </summary>
+        protected virtual void Draw(Master master) {
             var tex = master.Resources.LoadTexture(Def.ID);
             (int sizeX, int sizeY) = Def.TextureSize * Block.Pixels;
             
@@ -59,6 +62,7 @@ namespace Pirates_Nueva
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture in screen-space.
             master.SpriteBatch.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Angle - Ship.Angle, (0, 0));
         }
+        #endregion
 
         #region IScreenSpaceTarget Implementation
         private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));

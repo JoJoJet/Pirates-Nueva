@@ -360,8 +360,8 @@ namespace Pirates_Nueva
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is Furniture f)
-                        f.Draw(master);
+                    if(GetFurniture(x, y) is IDrawable d)
+                        d.Draw(master);
                 }
             }
         }
