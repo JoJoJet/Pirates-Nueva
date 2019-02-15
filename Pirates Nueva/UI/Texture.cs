@@ -30,6 +30,8 @@ namespace Pirates_Nueva.UI
         /// Create a blank <see cref="Texture2D"/>; only usable from derived classes.
         /// </summary>
         protected Texture() { }
+
+        public static implicit operator Texture2D(Texture from) => from.Drawable;
     }
 
     /// <summary>
