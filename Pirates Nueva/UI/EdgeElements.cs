@@ -39,6 +39,7 @@ namespace Pirates_Nueva.UI
             Font = font;
         }
 
+        /// <summary> Draw this <see cref="EdgeText"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
             PointF pos = (left, top);
             master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);

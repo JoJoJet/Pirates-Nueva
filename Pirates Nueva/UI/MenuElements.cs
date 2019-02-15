@@ -28,6 +28,7 @@ namespace Pirates_Nueva.UI
             Font = font;
         }
 
+        /// <summary> Draw this <see cref="MenuText"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
             master.SpriteBatch.DrawString(Font, Text, new PointF(left, top), Color.Black);
         }
