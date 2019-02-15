@@ -36,10 +36,10 @@ namespace Pirates_Nueva
         public XmlReader GetXmlReader(string file) => XmlReader.Create(Load(file + ".xml"), new XmlReaderSettings() { CloseInput = true });
 
         /// <summary>
-        /// Get the <see cref="Texture2D"/> with name /name/.
+        /// Get the <see cref="UI.Texture"/> with name /name/.
         /// </summary>
         /// <exception cref="ResourceException">Thrown if there is no texture with name /name/.</exception>
-        public Texture2D LoadTexture(string name) {
+        public UI.Texture LoadTexture(string name) {
             try {
                 // Get the texture named /name/ out of this instance's dictionary.
                 // If there is no texture with that name, load the texture with that name from file.
@@ -48,7 +48,7 @@ namespace Pirates_Nueva
                     this._textures[name] = tex;
                 }
 
-                return tex;
+                return new UI.Texture(tex);
             }
             catch(Microsoft.Xna.Framework.Content.ContentLoadException) {
                 throw new ResourceException($"{nameof(Resources)}.{nameof(LoadTexture)}(): There is no texture named \"{name}\"!");
