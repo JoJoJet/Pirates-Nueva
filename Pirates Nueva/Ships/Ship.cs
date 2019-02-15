@@ -266,19 +266,19 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidOperationException">
         /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
         /// </exception>
-        public Furniture PlaceFurniture(FurnitureDef def, int x, int y) {
+        public Furniture PlaceFurniture(FurnitureDef def, int x, int y, Dir dir) {
             ValidateIndices(nameof(PlaceFurniture), x, y);
             
-            if(unsafeGetBlock(x, y) is Block b) {                       // If there is a block at /x/, /y/:
-                if(b.Furniture == null)                                 //     If the block is empty,
-                    return SetBlockFurniture(b, new Furniture(def, b)); //         place a Furniture there and return it.
-                else                                                    //     If the block is occupied,
-                    throw new InvalidOperationException(                //         throw an InvalidOperationException.
+            if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
+                if(b.Furniture == null)                                      //     If the block is empty,
+                    return SetBlockFurniture(b, new Furniture(def, b, dir)); //         place a Furniture there and return it.
+                else                                                         //     If the block is occupied,
+                    throw new InvalidOperationException(                     //         throw an InvalidOperationException.
                         $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
                         );
             }
-            else {                                                      // If there is no block at /x/, /y/,
-                throw new InvalidOperationException(                    //     throw an InvalidOperationException.
+            else {                                                           // If there is no block at /x/, /y/,
+                throw new InvalidOperationException(                         //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
                     );
             }

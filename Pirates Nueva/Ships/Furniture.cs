@@ -39,9 +39,10 @@ namespace Pirates_Nueva
         /// <summary>
         /// Create a <see cref="Furniture"/>, defined by the <see cref="FurnitureDef"/> /def/, and placed on the <see cref="Block"/> /block/.
         /// </summary>
-        public Furniture(FurnitureDef def, Block floor) {
+        public Furniture(FurnitureDef def, Block floor, Dir direction) {
             Def = def;
             Floor = floor;
+            Direction = direction;
         }
 
         #region IDrawable Implementation
