@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Texture2D = Microsoft.Xna.Framework.Graphics.Texture2D;
 
 namespace Pirates_Nueva
 {
@@ -12,13 +13,16 @@ namespace Pirates_Nueva
     /// </summary>
     public class SliceDef : Def
     {
-        internal string Texture { get; private set; }
+        /// <summary>
+        /// The identifier for the source <see cref="Texture2D"/> of a <see cref="UI.NineSlice"/> defined with this <see cref="Def"/>.
+        /// </summary>
+        internal string TextureID { get; private set; }
         internal (int left, int right, int top, int bottom) Slices { get; private set; }
 
         protected override void ReadXml(XmlReader parentReader) {
             using(var reader = parentReader.ReadSubtree()) {
                 reader.ReadToDescendant("TextureID");
-                Texture = reader.ReadElementContentAsString();
+                TextureID = reader.ReadElementContentAsString();
 
                 reader.ReadToNextSibling("Slices");
 
