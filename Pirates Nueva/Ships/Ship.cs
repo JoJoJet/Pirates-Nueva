@@ -388,6 +388,11 @@ namespace Pirates_Nueva
                     Destination = null;                                          //     unassign the destination (we're there!)
                 }
             }
+
+            // Update every agent in the ship.
+            foreach(var agent in this.agents) {
+                (agent as IUpdatable).Update(master);
+            }
         }
         #endregion
 

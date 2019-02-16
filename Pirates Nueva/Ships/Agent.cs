@@ -7,7 +7,7 @@ using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva
 {
-    public class Agent : IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
     {
         private Stack<Block> _path;
 
@@ -40,6 +40,31 @@ namespace Pirates_Nueva
             Ship = ship;
             CurrentBlock = floor;
         }
+
+        #region IUpdatable Implementation
+        void IUpdatable.Update(Master master) => Update(master);
+        protected virtual void Update(Master master) {
+            if(NextBlock == null && Path?.Count > 0) // If we're on a path but aren't moving towards a block,
+                NextBlock = Path.Pop();              //     set the next block as the next step on the math.
+
+            if(NextBlock != null) {                                     // If we are moving towards a block:
+                MoveProgress += master.FrameTime.DeltaSeconds() * 1.5f; // increment our progress towards it.
+                                                                        //
+                if(MoveProgress >= 1) {                                 // If we have reached the block,
+                    CurrentBlock = NextBlock;                           //     set it as our current block.
+                    if(Path.Count > 0)                                  //     If we are currently on a path,
+                        NextBlock = Path.Pop();                         //         set the next block as the next step on the path.
+                    else                                                //     If we are not on a path,
+                        NextBlock = null;                               //         unassign the next block.
+                                                                        //
+                    if(NextBlock != null)                               //     If we are still moving towards a block,
+                        MoveProgress -= 1f;                             //         subtract 1 from our move progress.
+                    else                                                //     If we are no longer moving towrards a block,
+                        MoveProgress = 0;                               //         set our move progress to be 0.
+                }
+            }
+        }
+        #endregion
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
