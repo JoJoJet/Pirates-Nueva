@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, Path.IGraph<Block>
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, IGraph<Block>
     {
         protected const string RootID = "root";
 
@@ -445,8 +446,8 @@ namespace Pirates_Nueva
         }
         #endregion
 
-        #region Path.IGraph Implementation
-        IEnumerable<Path.INode<Block>> Path.IGraph<Block>.Nodes {
+        #region IGraph Implementation
+        IEnumerable<INode<Block>> IGraph<Block>.Nodes {
             get {
                 // Return every block in this ship.
                 for(int x = 0; x < Width; x++) {
