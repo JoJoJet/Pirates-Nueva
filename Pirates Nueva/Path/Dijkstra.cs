@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Path
     public interface IGraph
     {
         /// <summary> Every <see cref="INode"/> in this pathfinding graph. </summary>
-        INode[] Nodes { get; }
+        IEnumerable<INode> Nodes { get; }
     }
     /// <summary>
     /// Part of a pathfinding graph.
