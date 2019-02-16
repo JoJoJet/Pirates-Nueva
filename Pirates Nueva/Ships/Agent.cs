@@ -50,19 +50,40 @@ namespace Pirates_Nueva
         #endregion
 
         #region IFocusable Implementation
-        bool IFocusable.IsLocked => false;
+        enum FocusOption { None, ChoosePath };
+        private FocusOption focusMode;
+
+        private bool IsFocusLocked { get; set; }
+        bool IFocusable.IsLocked => IsFocusLocked;
 
         const string FocusMenuID = "agentfocusfloating";
         void IFocusable.StartFocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID) == false) // If there is no GUI menu for this Agent,
                 master.GUI.AddMenu(                      //     create one.
                     FocusMenuID,
-                    new UI.FloatingMenu(this, (0, -0.05f), UI.Corner.BottomLeft, new UI.MenuText("Agent", master.Font)
+                    new UI.FloatingMenu(
+                        this, (0, -0.05f), UI.Corner.BottomLeft,
+                        new UI.MenuText("Agent", master.Font),
+                        new UI.MenuButton("Path", master.Font, () => this.focusMode = FocusOption.ChoosePath)
                     )
                 );
         }
         void IFocusable.Focus(Master master) {
+            if(this.focusMode == FocusOption.ChoosePath) { // If we are currently choosing a path,
+                IsFocusLocked = true;                      //     lock the focus onto this agent.
 
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {             // If the user clicked, but not on GUI,
+                    var (seaX, seaY) = Ship.Sea.ScreenPointToSea(master.Input.MousePosition);
+                    var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);
+
+                    if(shipX >= 0 && shipX < Ship.Width && shipY >= 0 && shipY < Ship.Height) {
+                        // TODO: Make the agent path to /shipX/, /shipY/.
+                    }
+
+                    this.focusMode = FocusOption.None; //     unset the focus mode,
+                    IsFocusLocked = false;             //     and release the focus.
+                }
+            }
         }
         void IFocusable.Unfocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
