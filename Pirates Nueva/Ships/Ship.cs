@@ -70,6 +70,8 @@ namespace Pirates_Nueva
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
             Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
+
+            AddAgent(RootX, RootY); // Add an agent to the center.
         }
 
         /// <summary>
@@ -403,6 +405,10 @@ namespace Pirates_Nueva
                     if(GetFurniture(x, y) is Furniture f)
                         DrawPart(f, master);
                 }
+            }
+
+            foreach(var agent in this.agents) {
+                (agent as IDrawable).Draw(master);
             }
         }
 
