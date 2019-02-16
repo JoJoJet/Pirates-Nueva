@@ -426,6 +426,9 @@ namespace Pirates_Nueva
             var focusable = new List<IFocusable>();
 
             var (shipX, shipY) = SeaPointToShip(seaPoint);
+            if(TryGetAgent(shipX, shipY, out var agent)) {
+                focusable.Add(agent);
+            }
             if(GetFurniture(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }

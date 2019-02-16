@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Agent : IDrawable
+    public class Agent : IDrawable, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Agent"/>. </summary>
         public Ship Ship { get; }
@@ -40,6 +40,33 @@ namespace Pirates_Nueva
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
             master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Part.Pixels, Ship.Part.Pixels, -Ship.Angle, (0, 0));
+        }
+        #endregion
+
+        #region IScreenSpaceTarget Implementation
+        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X + 0.5f, Y + 0.5f));
+        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+        #endregion
+
+        #region IFocusable Implementation
+        bool IFocusable.IsLocked => false;
+
+        const string FocusMenuID = "agentfocusfloating";
+        void IFocusable.StartFocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID) == false) // If there is no GUI menu for this Agent,
+                master.GUI.AddMenu(                      //     create one.
+                    FocusMenuID,
+                    new UI.FloatingMenu(this, (0, -0.05f), UI.Corner.BottomLeft, new UI.MenuText("Agent", master.Font)
+                    )
+                );
+        }
+        void IFocusable.Focus(Master master) {
+
+        }
+        void IFocusable.Unfocus(Master master) {
+            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
+                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
         }
         #endregion
     }
