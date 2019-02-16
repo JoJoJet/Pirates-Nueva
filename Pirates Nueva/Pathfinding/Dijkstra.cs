@@ -7,10 +7,19 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Pathfinding
 {
     /// <summary>
+    /// A pathfinding graph.
+    /// </summary>
+    public interface IGraph
+    {
+        /// <summary> Every <see cref="INode"/> in this pathfinding graph. </summary>
+        INode[] Nodes { get; }
+    }
+    /// <summary>
     /// Part of a pathfinding graph.
     /// </summary>
     public interface INode
     {
+        /// <summary> The edges moving FROM this <see cref="INode"/>. </summary>
         Edge[] Edges { get; }
     }
     /// <summary>
