@@ -32,8 +32,8 @@ namespace Pirates_Nueva
         private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
         protected Stack<Block> Path {
-            get => this._path;
-            set => this._path = (value.Count > 0 ? value : null);
+            get => this._path ?? (this._path = new Stack<Block>());
+            set => this._path = value;
         }
 
         public Agent(Ship ship, Block floor) {
@@ -44,8 +44,8 @@ namespace Pirates_Nueva
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
         protected virtual void Update(Master master) {
-            if(NextBlock == null && Path?.Count > 0) // If we're on a path but aren't moving towards a block,
-                NextBlock = Path.Pop();              //     set the next block as the next step on the math.
+            if(NextBlock == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
+                NextBlock = Path.Pop();             //     set the next block as the next step on the math.
 
             if(NextBlock != null) {                                     // If we are moving towards a block:
                 MoveProgress += master.FrameTime.DeltaSeconds() * 1.5f; // increment our progress towards it.
@@ -105,13 +105,13 @@ namespace Pirates_Nueva
             if(this.focusMode == FocusOption.ChoosePath) { // If we are currently choosing a path,
                 IsFocusLocked = true;                      //     lock the focus onto this agent.
 
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {             // If the user clicked, but not on GUI:
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {       // If the user clicked, but not on GUI:
                     var (seaX, seaY) = Ship.Sea.ScreenPointToSea(master.Input.MousePosition);
                     var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);               // The point the user clicked,
                                                                                         //     local to the ship.
                     if(Ship.AreIndicesValid(shipX, shipY) &&                            // If the spot is a valid index,
                         Ship.GetBlock(shipX, shipY) is Block target) {                  // and it has a block,
-                        Path = Dijkstra.FindPath(Ship, CurrentBlock, target); //     have the agent path to that block.
+                        Path = Dijkstra.FindPath(Ship, CurrentBlock, target);           //     have the agent path to that block.
                     }
 
                     this.focusMode = FocusOption.None; // Unset the focus mode,
