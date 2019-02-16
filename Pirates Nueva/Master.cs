@@ -32,18 +32,22 @@ namespace Pirates_Nueva
         static Master _instance;
 
         GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
         Sea sea;
 
         /// <summary> Prolly don't use this. Will likely be removed later. </summary>
         public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
-        public SpriteBatch SpriteBatch { get; private set; }
         public Font Font { get; private set; }
 
         public GameTime FrameTime { get; private set; }
         public Input Input { get; }
-        public GUI GUI { get; }
+
+        public Renderer Renderer { get; private set; }
+        public GUI GUI { get; private set; }
+
         public PlayerController Player { get; private set; }
+
         internal Resources Resources { get; }
 
         #region Initialization
@@ -53,9 +57,10 @@ namespace Pirates_Nueva
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
+            GUI = new GUI(this);
+
             Resources = new Resources(this);
             Input = new Input(this);
-            GUI = new GUI(this);
         }
 
         /// <summary>
@@ -83,7 +88,7 @@ namespace Pirates_Nueva
         /// </summary>
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Font = Content.Load<SpriteFont>("font");
 
@@ -96,6 +101,8 @@ namespace Pirates_Nueva
         private void AfterContentLoad() {
             // Initialize the Sea object.
             this.sea = new Sea(this);
+
+            Renderer = new Renderer(this, spriteBatch);
 
             Player = new PlayerController(this, this.sea);
         }
@@ -136,13 +143,13 @@ namespace Pirates_Nueva
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            SpriteBatch.Begin();
+            spriteBatch.Begin();
 
             // TODO: Add your drawing code here
             (this.sea as IDrawable).Draw(this);
             (GUI as IDrawable).Draw(this);
 
-            SpriteBatch.End();
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -150,15 +157,6 @@ namespace Pirates_Nueva
 
     public static class MasterExt
     {
-        /// <summary>
-        /// Submit a rotated sprite for drawing in the current batch.
-        /// </summary>
-        public static void DrawRotated(
-            this SpriteBatch spriteBatch, Texture2D texture, int x, int y, int width, int height, float angle, PointF origin
-            ) {
-            spriteBatch.Draw(texture, new Rectangle(x, y, width, height), null, Color.White, angle, origin, SpriteEffects.None, 0f);
-        }
-
         /// <summary>
         /// Gets the time, in seconds, since last frame.
         /// </summary>
