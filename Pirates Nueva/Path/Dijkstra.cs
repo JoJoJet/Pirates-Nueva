@@ -20,7 +20,7 @@ namespace Pirates_Nueva.Path
     public interface INode
     {
         /// <summary> The edges moving FROM this <see cref="INode"/>. </summary>
-        Edge[] Edges { get; }
+        IEnumerable<Edge> Edges { get; }
     }
     /// <summary>
     /// End edge between two <see cref="INode"/>s.
