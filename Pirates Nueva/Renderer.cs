@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Pirates_Nueva
 {
+    /// <summary>
+    /// Controls rendering for <see cref="Pirates_Nueva"/>.
+    /// </summary>
     public class Renderer
     {
         public Master Master { get; }
