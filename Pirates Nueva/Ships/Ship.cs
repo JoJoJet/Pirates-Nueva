@@ -445,6 +445,20 @@ namespace Pirates_Nueva
         }
         #endregion
 
+        #region Path.IGraph Implementation
+        IEnumerable<Path.INode<Block>> Path.IGraph<Block>.Nodes {
+            get {
+                // Return every block in this ship.
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(GetBlock(x, y) is Block b)
+                            yield return b;
+                    }
+                }
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Makes some members of <see cref="Part"/> accessible only within this class.
         /// </summary>
