@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, IGraph<Block>
     {
         protected const string RootID = "root";
 
@@ -113,11 +114,11 @@ namespace Pirates_Nueva
 
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
-
-            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) // If the index is valid,
-                return HasBlock(shipX, shipY);                              //     return whether or not there is a block there.
-            else                                                            // Otherwise:
-                return false;                                               //     just return false.
+            
+            if(AreIndicesValid(shipX, shipY))  // If the index is valid,
+                return HasBlock(shipX, shipY); //     return whether or not there is a block there.
+            else                               // Otherwise:
+                return false;                  //     just return false.
         }
 
         #region Space Transformation
@@ -182,6 +183,11 @@ namespace Pirates_Nueva
 
             return (seaX, seaY); // Return the Sea-space coordinates.
         }
+        
+        /// <summary>
+        /// Whether or not the specified indices are within the bounds of this ship.
+        /// </summary>
+        public bool AreIndicesValid(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
         #endregion
 
         #region Block Accessor Methods
@@ -382,6 +388,11 @@ namespace Pirates_Nueva
                     Destination = null;                                          //     unassign the destination (we're there!)
                 }
             }
+
+            // Update every agent in the ship.
+            foreach(var agent in this.agents) {
+                (agent as IUpdatable).Update(master);
+            }
         }
         #endregion
 
@@ -437,6 +448,20 @@ namespace Pirates_Nueva
             }
 
             return focusable;
+        }
+        #endregion
+
+        #region IGraph Implementation
+        IEnumerable<INode<Block>> IGraph<Block>.Nodes {
+            get {
+                // Return every block in this ship.
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(GetBlock(x, y) is Block b)
+                            yield return b;
+                    }
+                }
+            }
         }
         #endregion
 
