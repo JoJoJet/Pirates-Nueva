@@ -182,6 +182,11 @@ namespace Pirates_Nueva
 
             return (seaX, seaY); // Return the Sea-space coordinates.
         }
+        
+        /// <summary>
+        /// Whether or not the specified indices are within the bounds of this ship.
+        /// </summary>
+        public bool AreIndicesValid(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
         #endregion
 
         #region Block Accessor Methods
