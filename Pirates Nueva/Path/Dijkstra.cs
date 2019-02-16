@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Path
 {
     /// <summary>
-    /// Pathfinding with Dijkstra'a algorithm.
+    /// Pathfinding with Dijkstra's algorithm.
     /// <para />
     /// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm.
     /// </summary>
@@ -60,12 +60,11 @@ namespace Pirates_Nueva.Path
                     while(prev[u] != null) { // Construct the shortest path
                         S.Push((T)u);        //     push the vertex onto the stack
                         u = prev[u];         //     set /u/ as the previous node in the optimal path.
-                    }                        //
-                    return S;                // Return the path we have constructed.
+                    }
                 }
-                else {                    // If the vertex is NOT reachable:
-                    return S;             // Return an empty stack; let the caller figure it out
-                }
+                return S;                    // Return the path we just constructed.
+                                             // If the target was unreachable,
+                                             //     just return an empty stack and let the caller figure it out.
             }
         }
     }
