@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, Path.IGraph
     {
         protected const string RootID = "root";
 

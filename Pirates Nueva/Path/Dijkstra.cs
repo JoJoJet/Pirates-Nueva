@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pirates_Nueva.Pathfinding
+namespace Pirates_Nueva.Path
 {
     /// <summary>
     /// A pathfinding graph.
