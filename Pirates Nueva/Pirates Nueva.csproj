@@ -51,6 +51,7 @@
     <Compile Include="Entity.cs" />
     <Compile Include="PlayerController.cs" />
     <Compile Include="Renderer.cs" />
+    <Compile Include="Ships\Agent.cs" />
     <Compile Include="Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
