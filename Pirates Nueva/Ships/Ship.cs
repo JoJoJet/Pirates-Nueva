@@ -113,11 +113,11 @@ namespace Pirates_Nueva
 
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
-
-            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) // If the index is valid,
-                return HasBlock(shipX, shipY);                              //     return whether or not there is a block there.
-            else                                                            // Otherwise:
-                return false;                                               //     just return false.
+            
+            if(AreIndicesValid(shipX, shipY))  // If the index is valid,
+                return HasBlock(shipX, shipY); //     return whether or not there is a block there.
+            else                               // Otherwise:
+                return false;                  //     just return false.
         }
 
         #region Space Transformation
