@@ -26,10 +26,11 @@ namespace Pirates_Nueva.Path
                 Q.Add(v);                   // Add it to the list of unvisited nodes
             }
             dist[source] = 0;               // Distance from /source/ to itself is always 0;
+            prev[source] = null;            // There should never be node coming before the source.
 
             while(Q.Count > 0) {                        // While there are still unvisited nodes:
                 var u = (from n in Q                    // Get the node with lowest distance from /source/.
-                         orderby dist[n] ascending
+                         orderby dist[n] ascending //NOTE: this can be optimized by using a priority queue.
                          select n).First();
 
                 Q.Remove(u);                            // Remove the node from the unvisited nodes.
@@ -49,21 +50,21 @@ namespace Pirates_Nueva.Path
                 }
             }
 
-            return reverse_iterate();                  // Construct the optimal path by reverse
-                                                       // iterating through /prev/ from /target/.
+            return reverse_iterate(); // Construct the optimal path by reverse
+                                      //     iterating through /prev/ from /target/.
             
             Stack<T> reverse_iterate() {
-                var S = new Stack<T>();                       // Empty sequence.
-                var u = target;
-                if(prev.ContainsKey(u) || u == source) {          // If the vertex is reachable:
-                    while(u != null) {                            // Construct the shortest path
-                        S.Push((T)u);                                //     push the vertex onto the stack
-                        u = prev.ContainsKey(u) ? prev[u] : null; //     set /u/ as the previous node in the optimal path.
-                    }                                             //
-                    return S;                                     // Return the path we have constructed.
+                var S = new Stack<T>();   // Empty sequence.
+                var u = target;           // The current node, working backwards from /target/.
+                if(prev.ContainsKey(u)) {    // If the vertex is reachable:
+                    while(prev[u] != null) { // Construct the shortest path
+                        S.Push((T)u);        //     push the vertex onto the stack
+                        u = prev[u];         //     set /u/ as the previous node in the optimal path.
+                    }                        //
+                    return S;                // Return the path we have constructed.
                 }
-                else {                                            // If the vertex is NOT reachable:
-                    return S;                                     // Return an empty stack; let the caller figure it out
+                else {                    // If the vertex is NOT reachable:
+                    return S;             // Return an empty stack; let the caller figure it out
                 }
             }
         }
