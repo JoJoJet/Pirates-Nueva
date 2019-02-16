@@ -27,14 +27,14 @@ namespace Pirates_Nueva.Pathfinding
     /// </summary>
     public struct Edge
     {
-        /// <summary> The cost to move along this <see cref="Edge"/>. </summary>
-        public float Cost { get; }
+        /// <summary> The squared cost to move along this <see cref="Edge"/>. </summary>
+        public float SqrCost { get; }
 
         /// <summary> The node that this <see cref="Edge"/> connects to. </summary>
         public INode End { get; }
 
-        public Edge(float cost, INode end) {
-            Cost = cost;
+        public Edge(float sqrCost, INode end) {
+            SqrCost = sqrCost;
             End = end;
         }
     }
