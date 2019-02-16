@@ -11,6 +11,7 @@ namespace Pirates_Nueva
         protected const string RootID = "root";
 
         private readonly Block[,] blocks;
+        private readonly List<Agent> agents = new List<Agent>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -299,6 +300,45 @@ namespace Pirates_Nueva
             else {                                   // If there is no furniture at /x/, /y/,
                 throw new InvalidOperationException( //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(RemoveFurniture)}(): There is no {nameof(Furniture)} at index ({x}, {y})!"
+                    );
+            }
+        }
+        #endregion
+
+        #region Agent Accessor Methods
+        /// <summary>
+        /// Get the <see cref="Agent"/> at index /x/, /y/, if it exists.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool TryGetAgent(int x, int y, out Agent agent) {
+            ValidateIndices(nameof(TryGetAgent), x, y);
+
+            foreach(var ag in this.agents) { // For each agent in this ship:
+                if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
+                    agent = ag;              //     set it as the out parameter,
+                    return true;             //     and return true.
+                }
+            }
+
+            agent = null; // If we got this far, set the out parameter as null,
+            return false; // and return false.
+        }
+        /// <summary>
+        /// Add an <see cref="Agent"/> at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
+        public Agent AddAgent(int x, int y) {
+            ValidateIndices(nameof(AddAgent), x, y);
+
+            if(HasBlock(x, y)) {                   // If there is a block at /x/, /y/,
+                var agent = new Agent(this, x, y); //     create a new agent,
+                this.agents.Add(agent);            //     add it to the list of agents,
+                return agent;                      //     and then return it.
+            }
+            else {                                   // If there is no block at /x/, /y/,
+                throw new InvalidOperationException( //     throw an InvalidOperationException.
+                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the {nameof(Agent)} onto!"
                     );
             }
         }
