@@ -332,11 +332,11 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
         public Agent AddAgent(int x, int y) {
             ValidateIndices(nameof(AddAgent), x, y);
-
-            if(HasBlock(x, y)) {                   // If there is a block at /x/, /y/,
-                var agent = new Agent(this, x, y); //     create a new agent,
-                this.agents.Add(agent);            //     add it to the list of agents,
-                return agent;                      //     and then return it.
+            
+            if(unsafeGetBlock(x, y) is Block b) { // If there is a block at /x/, /y/,
+                var agent = new Agent(this, b);   //     create an agent on it,
+                this.agents.Add(agent);           //     add the agent to the list of agents,
+                return agent;                     //     and then return the agent.
             }
             else {                                   // If there is no block at /x/, /y/,
                 throw new InvalidOperationException( //     throw an InvalidOperationException.

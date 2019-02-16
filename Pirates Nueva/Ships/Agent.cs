@@ -11,15 +11,26 @@ namespace Pirates_Nueva
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Agent"/>. </summary>
         public Ship Ship { get; }
 
-        /// <summary> The X index of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int X { get; protected set; }
-        /// <summary> The Y index of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-        public int Y { get; protected set; }
+        /// <summary> The <see cref="Block"/> that this <see cref="Agent"/> is standing on or moving from. </summary>
+        public Block CurrentBlock { get; protected set; }
+        /// <summary> The <see cref="Block"/> that this <see cref="Agent"/> is moving to. </summary>
+        public Block NextBlock { get; protected set; }
+        /// <summary>
+        /// This <see cref="Agent"/>'s progress in moving between <see cref="CurrentBlock"/> and <see cref="NextBlock"/>.
+        /// </summary>
+        public float MoveProgress { get; protected set; }
+        
+        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        public float X => Lerp(CurrentBlock.X, (NextBlock??CurrentBlock).X, MoveProgress);
+        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        public float Y => Lerp(CurrentBlock.Y, (NextBlock??CurrentBlock).Y, MoveProgress);
 
-        public Agent(Ship ship, int x, int y) {
+        /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
+        private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
+
+        public Agent(Ship ship, Block floor) {
             Ship = ship;
-            X = x;
-            Y = y;
+            CurrentBlock = floor;
         }
 
         #region IDrawable Implementation
