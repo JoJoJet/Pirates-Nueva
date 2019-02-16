@@ -49,6 +49,7 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="PlayerController.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="Ships\Agent.cs" />
