@@ -41,8 +41,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Draw this <see cref="EdgeText"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            PointF pos = (left, top);
-            master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);
+            master.Renderer.DrawString(Font, Text, left, top, Color.Black);
         }
     }
     
@@ -76,11 +75,11 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Draw this <see cref="EdgeButton"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master);         // Make a panel.
-            master.SpriteBatch.Draw(panel, new Rectangle(left, top, WidthPixels, HeightPixels), Color.White); // Draw a panel behind the text.
+            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master); // Make a panel.
+            master.Renderer.Draw(panel, left, top, WidthPixels, HeightPixels);                        // Draw a panel behind the text.
+            
+            master.Renderer.DrawString(Font, Text, left+Padding, top+Padding, Color.Black);           // Draw the text.
 
-            var pos = new PointF(left+Padding, top+Padding);
-            master.SpriteBatch.DrawString(Font, Text, pos, Color.Black);                                      // Draw the text.
         }
     }
 }
