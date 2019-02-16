@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Pathfinding
 {
     /// <summary>
+    /// Part of a pathfinding graph.
+    /// </summary>
+    public interface INode
+    {
+        Edge[] Edges { get; }
+    }
+    /// <summary>
     /// End edge between two <see cref="INode"/>s.
     /// </summary>
     public struct Edge
