@@ -356,8 +356,8 @@ namespace Pirates_Nueva
 
         #region Job Accessor Methods
         /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
-        public void CreateJob(params Job.Toil[] toils) {
-            this.jobs.Add(new Job(this, toils));
+        public void CreateJob(int x, int y, params Job.Toil[] toils) {
+            this.jobs.Add(new Job(this, x, y, toils));
         }
         /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
         public void AddJob(Job job) {

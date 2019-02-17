@@ -16,8 +16,13 @@ namespace Pirates_Nueva
         public Ship Ship { get; }
         public Agent Worker { get; set; }
 
-        public Job(Ship ship, params Toil[] toils) {
+        public int X { get; }
+        public int Y { get; }
+
+        public Job(Ship ship, int x, int y, params Toil[] toils) {
             Ship = ship;
+            X = x;
+            Y = y;
 
             foreach(IToilContract toil in toils) {
                 toil.Ship = ship;
