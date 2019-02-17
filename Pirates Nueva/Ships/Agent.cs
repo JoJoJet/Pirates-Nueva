@@ -105,16 +105,23 @@ namespace Pirates_Nueva
                 );
         }
         void IFocusable.Focus(Master master) {
+            if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is a menu:
+                if(focusMode == FocusOption.None)                  //     If the focus mode is unset,
+                    menu.Unhide();                                 //         unhide the menu.
+                else                                               //     If the focus mode IS set.
+                    menu.Hide();                                   //         hide the menu.
+            }
+
             if(this.focusMode == FocusOption.ChoosePath) { // If we are currently choosing a path,
                 IsFocusLocked = true;                      //     lock the focus onto this agent.
 
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {       // If the user clicked, but not on GUI:
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {        // If the user clicked, but not on GUI:
                     var (seaX, seaY) = Ship.Sea.ScreenPointToSea(master.Input.MousePosition);
-                    var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);               // The point the user clicked,
-                                                                                        //     local to the ship.
-                    if(Ship.AreIndicesValid(shipX, shipY) &&                            // If the spot is a valid index,
-                        Ship.GetBlock(shipX, shipY) is Block target) {                  // and it has a block,
-                        Path = Dijkstra.FindPath(Ship, CurrentBlock, target);           //     have the agent path to that block.
+                    var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);                // The point the user clicked,
+                                                                                         //     local to the ship.
+                    if(Ship.AreIndicesValid(shipX, shipY) &&                             // If the spot is a valid index,
+                        Ship.GetBlock(shipX, shipY) is Block target) {                   // and it has a block,
+                        Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target); //     have the agent path to that block.
                     }
 
                     this.focusMode = FocusOption.None; // Unset the focus mode,
