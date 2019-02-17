@@ -50,6 +50,7 @@ namespace Pirates_Nueva
             for(int i = _toils.Length-1; i >= 0; i--) {    // For every toil, working backwards from the end:
                 var t = _toils[i];                         //
                 if(t.Requirement.Qualify(worker, out _)) { // If the toil's requirement is met:
+                                                           //     Work the action.
                     if(t.Action.Work(worker))              //     If the toil was just completed,
                         return false;                      //         return false.
                     else                                   //     If the toil still has more work,
