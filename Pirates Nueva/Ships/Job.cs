@@ -80,7 +80,8 @@ namespace Pirates_Nueva
         public abstract class Requirement : ToilSegment
         {
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
-            public abstract bool Qualify(Agent worker);
+            /// <param name="reason">The reason that this <see cref="Requirement"/> is not fulfilled.</param>
+            public abstract bool Qualify(Agent worker, out string reason);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
