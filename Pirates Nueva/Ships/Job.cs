@@ -42,7 +42,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Have the specified <see cref="Agent"/> work this job.
         /// </summary>
-        /// <returns>Whether or not the job is still workable.</returns>
+        /// <returns>Whether or not the job was just completed.</returns>
         public bool Work(Agent worker) {
             if(_toils.Length == 0) { // If the job is empty,
                 return false;        //     return false.
@@ -53,10 +53,10 @@ namespace Pirates_Nueva
                 var req = _toils[i].Requirement as IReqContract; //
                 if(req.Qualify(worker, out _)) {       // If the toil's requirement is met:
                     var act = t.Action as IActionContract;       //     Work the action.
-                    if(act.Work(worker))                         //     If the toil was just completed,
-                        return false;                            //         return false.
+                    if(act.Work(worker) && i == _toils.Length-1) //     If the last toil was just completed,
+                        return true;                             //         return false.
                     else                                         //     If the toil still has more work,
-                        return true;                             //         return true.
+                        return false;                            //         return true.
                 }
             }
                           // If we got this far without leaving the method,
