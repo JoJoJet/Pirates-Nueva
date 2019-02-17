@@ -31,7 +31,8 @@ namespace Pirates_Nueva
         public bool Qualify(Agent worker, out string reason) {
             reason = "The job is empty!";                             // Set the default reason to be that the job is empty.
             for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil, working backwards from the end:
-                if(_toils[i].Requirement.Qualify(worker, out reason)) // If the toil's requirement is fulfilled,
+                var req = _toils[i].Requirement as IReqContract;      //
+                if(req.Qualify(worker, out reason))                   // If the toil's requirement is fulfilled,
                     return true;                                      //     return true;
             }
                           // If we got this far without leaving the method,
@@ -47,14 +48,15 @@ namespace Pirates_Nueva
                 return false;        //     return false.
             }
 
-            for(int i = _toils.Length-1; i >= 0; i--) {    // For every toil, working backwards from the end:
-                var t = _toils[i];                         //
-                if(t.Requirement.Qualify(worker, out _)) { // If the toil's requirement is met:
-                                                           //     Work the action.
-                    if(t.Action.Work(worker))              //     If the toil was just completed,
-                        return false;                      //         return false.
-                    else                                   //     If the toil still has more work,
-                        return true;                       //         return true.
+            for(int i = _toils.Length-1; i >= 0; i--) {          // For every toil, working backwards from the end:
+                var t = _toils[i];                               //
+                var req = _toils[i].Requirement as IReqContract; //
+                if(req.Qualify(worker, out _)) {       // If the toil's requirement is met:
+                    var act = t.Action as IActionContract;       //     Work the action.
+                    if(act.Work(worker))                         //     If the toil was just completed,
+                        return false;                            //         return false.
+                    else                                         //     If the toil still has more work,
+                        return true;                             //         return true.
                 }
             }
                           // If we got this far without leaving the method,
@@ -110,23 +112,37 @@ namespace Pirates_Nueva
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
         }
+
+        /// <summary> Makes members of <see cref="Requirement"/> accessible only within the <see cref="Job"/> class. </summary>
+        private interface IReqContract
+        {
+            bool Qualify(Agent worker, out string reason);
+        }
         /// <summary>
         /// Something that must be fulfilled before a <see cref="Toil"/> can be completed.
         /// </summary>
-        public abstract class Requirement : ToilSegment
+        public abstract class Requirement : ToilSegment, IReqContract
         {
+            bool IReqContract.Qualify(Agent worker, out string reason) => Qualify(worker, out reason);
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
             /// <param name="reason">The reason that this <see cref="Requirement"/> is not fulfilled.</param>
-            public abstract bool Qualify(Agent worker, out string reason);
+            protected abstract bool Qualify(Agent worker, out string reason);
+        }
+        
+        /// <summary> Makes members of <see cref="Action"/> accessible only within the <see cref="Job"/> class. </summary>
+        private interface IActionContract
+        {
+            bool Work(Agent worker);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
-        public abstract class Action : ToilSegment
+        public abstract class Action : ToilSegment, IActionContract
         {
+            bool IActionContract.Work(Agent worker) => Work(worker);
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
-            public abstract bool Work(Agent worker);
+            protected abstract bool Work(Agent worker);
         }
     }
 }
