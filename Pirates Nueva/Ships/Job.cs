@@ -30,7 +30,7 @@ namespace Pirates_Nueva
         /// <param name="reason">The reason this job cannot be completed.</param>
         public bool Qualify(Agent worker, out string reason) {
             reason = "The job is empty!";                             // Set the default reason to be that the job is empty.
-            for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil in the job:
+            for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil, working backwards from the end:
                 if(_toils[i].Requirement.Qualify(worker, out reason)) // If the toil's requirement is fulfilled,
                     return true;                                      //     return true;
             }
@@ -47,13 +47,13 @@ namespace Pirates_Nueva
                 return false;        //     return false.
             }
 
-            for(int i = _toils.Length-1; i >= 0; i--) {
-                var t = _toils[i];
+            for(int i = _toils.Length-1; i >= 0; i--) {    // For every toil, working backwards from the end:
+                var t = _toils[i];                         //
                 if(t.Requirement.Qualify(worker, out _)) { // If the toil's requirement is met:
-                    if(t.Action.Work(worker))              // If the toil was just completed,
-                        return false;                      //     return false.
-                    else                                   // If the toil still has more work,
-                        return true;                       //     return true.
+                    if(t.Action.Work(worker))              //     If the toil was just completed,
+                        return false;                      //         return false.
+                    else                                   //     If the toil still has more work,
+                        return true;                       //         return true.
                 }
             }
                           // If we got this far without leaving the method,
