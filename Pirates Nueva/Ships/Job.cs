@@ -25,6 +25,7 @@ namespace Pirates_Nueva
             this._toils = toils;
         }
 
+        /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract
         {
             Ship Ship { set; }
@@ -49,6 +50,7 @@ namespace Pirates_Nueva
                 Action = action;
             }
         }
+        /// <summary> Makes the Toil property of a toil segment only settable from with this class. </summary>
         private interface IToilSegmentContract
         {
             Toil Toil { set; }
@@ -56,6 +58,9 @@ namespace Pirates_Nueva
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : IToilSegmentContract
         {
+            /// <summary>
+            /// The <see cref="Job.Toil"/> that contains this <see cref="Requirement"/> or <see cref="Action"/>.
+            /// </summary>
             protected Toil Toil { get; private set; }
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
