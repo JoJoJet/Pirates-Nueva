@@ -18,17 +18,27 @@ namespace Pirates_Nueva
 
         public Job(Ship ship, params Toil[] toils) {
             Ship = ship;
+
+            foreach(IToilContract toil in toils) {
+                toil.Ship = ship;
+            }
             this._toils = toils;
         }
 
+        private interface IToilContract
+        {
+            Ship Ship { get; set; }
+        }
         /// <summary>
         /// An action paired with a requirement.
         /// </summary>
-        public class Toil
+        public class Toil : IToilContract
         {
             public Requirement Requirement { get; }
             public Action Action { get; }
             
+            Ship IToilContract.Ship { get; set; }
+
             public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
                 (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
