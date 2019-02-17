@@ -14,6 +14,7 @@ namespace Pirates_Nueva
         private readonly Toil[] _toils;
 
         public Ship Ship { get; }
+        public Agent Worker { get; set; }
 
         public Job(Ship ship, params Toil[] toils) {
             Ship = ship;

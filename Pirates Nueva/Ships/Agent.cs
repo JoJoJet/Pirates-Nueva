@@ -47,17 +47,21 @@ namespace Pirates_Nueva
         void IUpdatable.Update(Master master) => Update(master);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master) {
-            if(Job == null)                      // If this agent has no job,
-                Job = Ship.GetWorkableJob(this); //     get a workable job from the ship.
+            if(Job == null) {                    // If this agent has no job,
+                Job = Ship.GetWorkableJob(this); //     get a workable job from the ship,
+                Job.Worker = this;               //     and assign this agent to it.
+            }
 
             if(Job != null) {                  // If there is a job:
                 if(Job.Qualify(this, out _)) { //     If the job is workable,
-                    if(Job.Work(this))         //         work it. If it's done,
-                        Job = null;            //             unassign the job.
+                    if(Job.Work(this)) {       //         work it. If it's done,
+                        Ship.RemoveJob(Job);   //             remove the job from the ship,
+                        Job = null;            //             and unassign it.
+                    }                          //
                 }                              //
                 else {                         //     If the job is not workable,
-                    Ship.AddJob(Job);          //         put it back on the ship's list of jobs,
-                    Job = null;                //         and unset our current job.
+                    Job.Worker = null;         //
+                    Job = null;                //         unset it.
                 }
             }
 
