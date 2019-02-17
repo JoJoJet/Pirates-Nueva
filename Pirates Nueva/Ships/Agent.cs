@@ -43,6 +43,7 @@ namespace Pirates_Nueva
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
+        /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master) {
             if(NextBlock == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
                 NextBlock = Path.Pop();             //     set the next block as the next step on the math.
@@ -67,7 +68,9 @@ namespace Pirates_Nueva
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) {
+        void IDrawable.Draw(Master master) => Draw(master);
+        /// <summary> Draw this <see cref="Agent"/> onscreen. </summary>
+        protected virtual void Draw(Master master) {
             var tex = master.Resources.LoadTexture("agent");
 
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
