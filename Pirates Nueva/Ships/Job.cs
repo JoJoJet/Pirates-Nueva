@@ -11,5 +11,21 @@ namespace Pirates_Nueva
     /// </summary>
     public class Job
     {
+        private readonly Toil[] _toils;
+
+        public Ship Ship { get; }
+        public Toil[] Toils => this._toils.ToArray();
+
+        public Job(Ship ship, params Toil[] toils) {
+            Ship = ship;
+            this._toils = toils;
+        }
+
+        /// <summary>
+        /// An action paired with a requirement.
+        /// </summary>
+        public class Toil
+        {
+        }
     }
 }
