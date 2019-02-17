@@ -427,6 +427,7 @@ namespace Pirates_Nueva
             /// <summary> The position of the top edge of this element local to its menu. </summary>
             public int Top => Pos.Value.Top;
 
+            /// <summary> The <see cref="GUI.Menu"/> that contains this <see cref="MenuElement"/>. </summary>
             protected Menu Menu { get; private set; }
             #region Hidden Properties
             private (int Left, int Top)? Pos { get; set; }
