@@ -61,7 +61,6 @@ namespace Pirates_Nueva
                     }                          //
                 }                              //
                 else {                         //     If the job is not workable,
-                    Job.Worker = null;         //
                     Job.Worker = null;         //         unassign this agent from the job,
                     Job = null;                //         and unset it.
                 }
