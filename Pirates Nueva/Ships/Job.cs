@@ -25,7 +25,7 @@ namespace Pirates_Nueva
             Y = y;
 
             foreach(IToilContract toil in toils) {
-                toil.Ship = ship;
+                toil.Job = this;
             }
             this._toils = toils;
         }
@@ -72,14 +72,15 @@ namespace Pirates_Nueva
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract
         {
-            Ship Ship { set; }
+            Job Job { set; }
         }
         /// <summary>
         /// An action paired with a requirement.
         /// </summary>
         public sealed class Toil : IToilContract
         {
-            public Ship Ship { get; private set; }
+            public Ship Ship => Job.Ship;
+            public Job Job { get; private set; }
 
             /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
             public int X { get; }
@@ -89,11 +90,11 @@ namespace Pirates_Nueva
             public Requirement Requirement { get; }
             public Action Action { get; }
             
-            Ship IToilContract.Ship { set => Ship = value; }
 
             public Toil(int x, int y, Requirement req, Action action) {
                 X = x;
                 Y = y;
+            Job IToilContract.Job { set => Job = value; }
 
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
                 (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
