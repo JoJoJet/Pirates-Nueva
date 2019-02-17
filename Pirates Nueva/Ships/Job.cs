@@ -87,7 +87,7 @@ namespace Pirates_Nueva
             /// <summary>
             /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>.
             /// </summary>
-            public PointI Index => this.nullableIndex ?? (Job.X, Job.Y);
+            public PointI Index => this.nullableIndex ?? (Job.X, Job.Y); // If this toil has no position, default to the position of its job.
 
             /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
             public int X => Index.X;
