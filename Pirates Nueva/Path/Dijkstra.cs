@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Path
 {
     /// <summary>
+    /// A function that checks whether or not the current node is at the destination.
+    /// </summary>
+    public delegate bool IsAtDestination<T>(INode<T> currentNode);
+    /// <summary>
     /// Pathfinding with Dijkstra's algorithm.
     /// <para />
     /// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm.
@@ -17,6 +21,13 @@ namespace Pirates_Nueva.Path
         /// Find the shortest distance between nodes /source/ and /target/ on the specified graph.
         /// </summary>
         public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, INode<T> target) where T : INode<T> {
+            return FindPath(graph, source, (n) => n == target);
+        }
+        /// <summary>
+        /// Find the shortest path between /source/ and the first node to pass the destination check.
+        /// </summary>
+        /// <param name="dest">Returns whether or not the specified node is the destination.</param>
+        public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, IsAtDestination<T> dest) where T : INode<T> {
             var dist = new Dictionary<INode<T>, float>();    // The squared distance from /source/ for each node.
             var prev = new Dictionary<INode<T>, INode<T>>(); // The node before the key in the optimal path to /source/.
             var Q = new List<INode<T>>();                    // Set of unvisited nodes.
@@ -34,9 +45,9 @@ namespace Pirates_Nueva.Path
                          select n).First();
 
                 Q.Remove(u);                            // Remove the node from the unvisited nodes.
-
-                if(u == target)                         // If we are at /target/, we can stop looping.
-                    break;
+                
+                if(dest(u))                             // If we are at the destination,
+                    return reverse_iterate(u);          //     construct the path through reverse iteration, and return it.
 
                 var neighbors = from n in u.Edges       // Every neighbor of /u/ that is unvisited.
                                 where Q.Contains(n.End)
@@ -49,11 +60,11 @@ namespace Pirates_Nueva.Path
                     }
                 }
             }
-
-            return reverse_iterate(); // Construct the optimal path by reverse
-                                      //     iterating through /prev/ from /target/.
+                                   // If we got this far without leaving the method,
+                                   //     that means there there is no possible path.
+            return new Stack<T>(); //     Return an empty stack and let the caller figure it out.
             
-            Stack<T> reverse_iterate() {
+            Stack<T> reverse_iterate(INode<T> target) {
                 var S = new Stack<T>();   // Empty sequence.
                 var u = target;           // The current node, working backwards from /target/.
                 if(prev.ContainsKey(u)) {    // If the vertex is reachable:
