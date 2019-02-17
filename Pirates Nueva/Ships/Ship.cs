@@ -368,10 +368,11 @@ namespace Pirates_Nueva
         /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>, and removes it from this ship.
         /// </summary>
         public Job GetWorkableJob(Agent hiree) {
-            foreach(var job in this.jobs) {     // For each job in this ship:
-                if(job.Qualify(hiree, out _)) { // If the agent can currenlty work it,
-                    this.jobs.Remove(job);      //     remove the job from this ship,
-                    return job;                 //     and return it.
+            for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
+                var job = jobs[i];
+                if(job.Qualify(hiree, out _)) {   // If the agent can currenlty work it,
+                    this.jobs.Remove(job);        //     remove the job from this ship,
+                    return job;                   //     and return it.
                 }
             }
                          // If we got this far without leaving the method,
