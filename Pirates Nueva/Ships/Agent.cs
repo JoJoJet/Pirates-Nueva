@@ -49,7 +49,8 @@ namespace Pirates_Nueva
         protected virtual void Update(Master master) {
             if(Job == null) {                    // If this agent has no job,
                 Job = Ship.GetWorkableJob(this); //     get a workable job from the ship,
-                Job.Worker = this;               //     and assign this agent to it.
+                if(Job != null)                  //     If there was a workable job,
+                    Job.Worker = this;           //         assign this agent to it.
             }
 
             if(Job != null) {                  // If there is a job:
