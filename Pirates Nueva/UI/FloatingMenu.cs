@@ -39,7 +39,7 @@ namespace Pirates_Nueva.UI
         protected override void Draw(Master master) {
             // Find the extents of the menu.
             var (rightBound, bottomBound) = (0, 0);
-            foreach(GUI.MenuElement el in Elements) {
+            foreach(var el in Elements) {
                 rightBound  = Math.Max(rightBound, el.Left + el.WidthPixels  + Padding);
                 bottomBound = Math.Max(bottomBound, el.Top + el.HeightPixels + Padding);
             }
@@ -55,7 +55,7 @@ namespace Pirates_Nueva.UI
             else if(Corner == Corner.BottomLeft)
                 offset += (Target.X, Target.Y - bottomBound);
 
-            foreach(GUI.MenuElement el in Elements) {
+            foreach(var el in Elements) {
                 var local = (el.Left, el.Top);
                 DrawElement(master, el, local.Left + offset.X, local.Top + offset.Y);
             }

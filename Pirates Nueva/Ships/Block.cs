@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget, Path.INode<Block>
     {
         /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
@@ -84,6 +84,26 @@ namespace Pirates_Nueva
         void IFocusable.Unfocus(Master master) {
             if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
                 master.GUI.RemoveMenu(FocusMenuID); // remove it.
+        }
+        #endregion
+
+        #region Path.INode Implementation
+        IEnumerable<Path.Edge<Block>> Path.INode<Block>.Edges {
+            get {
+                // Return an edge connecting to every neighboring block that exists.
+                if(Ship.AreIndicesValid(X-1, Y) && Ship.GetBlock(X-1, Y) is Block b1) { // If there's a block to the left,
+                    yield return new Path.Edge<Block>(1, b1);                           //     return an edge connecting to it.
+                }
+                if(Ship.AreIndicesValid(X, Y+1) && Ship.GetBlock(X, Y+1) is Block b2) { // If there's a block to the top,
+                    yield return new Path.Edge<Block>(1, b2);                           //     return an edge connecting to it.
+                }
+                if(Ship.AreIndicesValid(X+1, Y) && Ship.GetBlock(X+1, Y) is Block b3) { // If there's a block to the right,
+                    yield return new Path.Edge<Block>(1, b3);                           //     return an edge connecting to it.
+                }
+                if(Ship.AreIndicesValid(X, Y-1) && Ship.GetBlock(X, Y-1) is Block b4) { // If there's a block downwards,
+                    yield return new Path.Edge<Block>(1, b4);                           //     return an edge connecting to it.
+                }
+            }
         }
         #endregion
     }

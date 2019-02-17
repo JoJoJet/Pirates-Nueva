@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent
+    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, IGraph<Block>
     {
         protected const string RootID = "root";
 
         private readonly Block[,] blocks;
+        private readonly List<Agent> agents = new List<Agent>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -69,6 +71,8 @@ namespace Pirates_Nueva
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
             Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
+
+            AddAgent(RootX, RootY); // Add an agent to the center.
         }
 
         /// <summary>
@@ -110,11 +114,11 @@ namespace Pirates_Nueva
 
         protected override bool IsCollidingPrecise(PointF point) {
             var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
-
-            if(shipX >= 0 && shipX < Width && shipY >= 0 && shipY < Height) // If the index is valid,
-                return HasBlock(shipX, shipY);                              //     return whether or not there is a block there.
-            else                                                            // Otherwise:
-                return false;                                               //     just return false.
+            
+            if(AreIndicesValid(shipX, shipY))  // If the index is valid,
+                return HasBlock(shipX, shipY); //     return whether or not there is a block there.
+            else                               // Otherwise:
+                return false;                  //     just return false.
         }
 
         #region Space Transformation
@@ -179,6 +183,11 @@ namespace Pirates_Nueva
 
             return (seaX, seaY); // Return the Sea-space coordinates.
         }
+        
+        /// <summary>
+        /// Whether or not the specified indices are within the bounds of this ship.
+        /// </summary>
+        public bool AreIndicesValid(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
         #endregion
 
         #region Block Accessor Methods
@@ -304,6 +313,45 @@ namespace Pirates_Nueva
         }
         #endregion
 
+        #region Agent Accessor Methods
+        /// <summary>
+        /// Get the <see cref="Agent"/> at index /x/, /y/, if it exists.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        public bool TryGetAgent(int x, int y, out Agent agent) {
+            ValidateIndices(nameof(TryGetAgent), x, y);
+
+            foreach(var ag in this.agents) { // For each agent in this ship:
+                if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
+                    agent = ag;              //     set it as the out parameter,
+                    return true;             //     and return true.
+                }
+            }
+
+            agent = null; // If we got this far, set the out parameter as null,
+            return false; // and return false.
+        }
+        /// <summary>
+        /// Add an <see cref="Agent"/> at index /x/, /y/.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
+        public Agent AddAgent(int x, int y) {
+            ValidateIndices(nameof(AddAgent), x, y);
+            
+            if(unsafeGetBlock(x, y) is Block b) { // If there is a block at /x/, /y/,
+                var agent = new Agent(this, b);   //     create an agent on it,
+                this.agents.Add(agent);           //     add the agent to the list of agents,
+                return agent;                     //     and then return the agent.
+            }
+            else {                                   // If there is no block at /x/, /y/,
+                throw new InvalidOperationException( //     throw an InvalidOperationException.
+                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the {nameof(Agent)} onto!"
+                    );
+            }
+        }
+        #endregion
+
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
@@ -340,6 +388,11 @@ namespace Pirates_Nueva
                     Destination = null;                                          //     unassign the destination (we're there!)
                 }
             }
+
+            // Update every agent in the ship.
+            foreach(var agent in this.agents) {
+                (agent as IUpdatable).Update(master);
+            }
         }
         #endregion
 
@@ -364,6 +417,10 @@ namespace Pirates_Nueva
                         DrawPart(f, master);
                 }
             }
+
+            foreach(var agent in this.agents) {
+                (agent as IDrawable).Draw(master);
+            }
         }
 
         /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
@@ -380,6 +437,9 @@ namespace Pirates_Nueva
             var focusable = new List<IFocusable>();
 
             var (shipX, shipY) = SeaPointToShip(seaPoint);
+            if(TryGetAgent(shipX, shipY, out var agent)) {
+                focusable.Add(agent);
+            }
             if(GetFurniture(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }
@@ -388,6 +448,20 @@ namespace Pirates_Nueva
             }
 
             return focusable;
+        }
+        #endregion
+
+        #region IGraph Implementation
+        IEnumerable<INode<Block>> IGraph<Block>.Nodes {
+            get {
+                // Return every block in this ship.
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(GetBlock(x, y) is Block b)
+                            yield return b;
+                    }
+                }
+            }
         }
         #endregion
 

@@ -113,8 +113,8 @@ namespace Pirates_Nueva
                 bool isMouseValid(out int x, out int y) {
                     var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
                     (x, y) = SeaPointToShip(seaX, seaY);
-
-                    return x >= 0 && x < Width && y >= 0 && y < Height && !master.GUI.IsMouseOverGUI;
+                    
+                    return AreIndicesValid(x, y) && !master.GUI.IsMouseOverGUI;
                 }
             }
         }
