@@ -123,7 +123,7 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
 
-        public static explicit operator PointF(PointI p) => new PointF(p.X, p.Y);
+        public static implicit operator PointF(PointI p) => new PointF(p.X, p.Y);
 
         public static implicit operator Vector2(PointF p) => new Vector2(p.X, p.Y);
         public static implicit operator PointF(Vector2 v) => new PointF(v.X, v.Y);
