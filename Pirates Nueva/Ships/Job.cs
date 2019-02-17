@@ -79,28 +79,35 @@ namespace Pirates_Nueva
         /// </summary>
         public sealed class Toil : IToilContract
         {
+            private PointI? nullableIndex;
+
             public Ship Ship => Job.Ship;
             public Job Job { get; private set; }
 
+            /// <summary>
+            /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>.
+            /// </summary>
+            public PointI Index => this.nullableIndex ?? (Job.X, Job.Y);
+
             /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-            public int X { get; }
+            public int X => Index.X;
             /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
-            public int Y { get; }
+            public int Y => Index.Y;
 
             public Requirement Requirement { get; }
             public Action Action { get; }
             
-
-            public Toil(int x, int y, Requirement req, Action action) {
-                X = x;
-                Y = y;
             Job IToilContract.Job { set => Job = value; }
 
+            public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
                 (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
 
                 Requirement = req;
                 Action = action;
+            }
+            public Toil(int x, int y, Requirement req, Action action) : this(req, action) {
+                nullableIndex = (x, y);
             }
         }
         /// <summary> Makes the Toil property of a toil segment only settable from with this class. </summary>
