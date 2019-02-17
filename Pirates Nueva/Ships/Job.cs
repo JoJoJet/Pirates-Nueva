@@ -37,12 +37,20 @@ namespace Pirates_Nueva
         {
             public Ship Ship { get; private set; }
 
+            /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public int X { get; }
+            /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            public int Y { get; }
+
             public Requirement Requirement { get; }
             public Action Action { get; }
             
             Ship IToilContract.Ship { set => Ship = value; }
 
-            public Toil(Requirement req, Action action) {
+            public Toil(int x, int y, Requirement req, Action action) {
+                X = x;
+                Y = y;
+
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
                 (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
 
