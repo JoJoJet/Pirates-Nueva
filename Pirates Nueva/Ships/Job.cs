@@ -34,17 +34,29 @@ namespace Pirates_Nueva
                 Action = action;
             }
         }
+        private interface IToilSegmentContract
+        {
+            Toil Toil { set; }
+        }
+        /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
+        public abstract class ToilSegment : IToilSegmentContract
+        {
+            protected Toil Toil { get; private set; }
+            Toil IToilSegmentContract.Toil { set => Toil = value; }
+
+            internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
+        }
         /// <summary>
         /// Something that must be fulfilled before a <see cref="Toil"/> can be completed.
         /// </summary>
-        public abstract class Requirement
+        public abstract class Requirement : ToilSegment
         {
             public abstract bool Qualify(Agent worker);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
-        public abstract class Action
+        public abstract class Action : ToilSegment
         {
             public abstract bool IsCompleted { get; }
         }
