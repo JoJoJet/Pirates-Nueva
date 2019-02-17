@@ -28,6 +28,8 @@ namespace Pirates_Nueva
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public float Y => Lerp(CurrentBlock.Y, (NextBlock??CurrentBlock).Y, MoveProgress);
 
+        public Job Job { get; protected set; }
+
         /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
         private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
@@ -45,6 +47,20 @@ namespace Pirates_Nueva
         void IUpdatable.Update(Master master) => Update(master);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master) {
+            if(Job == null)                      // If this agent has no job,
+                Job = Ship.GetWorkableJob(this); //     get a workable job from the ship.
+
+            if(Job != null) {                  // If there is a job:
+                if(Job.Qualify(this, out _)) { //     If the job is workable,
+                    if(Job.Work(this))         //         work it. If it's done,
+                        Job = null;            //             unassign the job.
+                }                              //
+                else {                         //     If the job is not workable,
+                    Ship.AddJob(Job);          //         put it back on the ship's list of jobs,
+                    Job = null;                //         and unset our current job.
+                }
+            }
+
             if(NextBlock == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
                 NextBlock = Path.Pop();             //     set the next block as the next step on the math.
 
