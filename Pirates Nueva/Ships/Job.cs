@@ -30,6 +30,9 @@ namespace Pirates_Nueva
             public Action Action { get; }
             
             public Toil(Requirement req, Action action) {
+                (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
+                (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
+
                 Requirement = req;
                 Action = action;
             }
