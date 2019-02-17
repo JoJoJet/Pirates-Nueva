@@ -27,17 +27,19 @@ namespace Pirates_Nueva
 
         private interface IToilContract
         {
-            Ship Ship { get; set; }
+            Ship Ship { set; }
         }
         /// <summary>
         /// An action paired with a requirement.
         /// </summary>
-        public class Toil : IToilContract
+        public sealed class Toil : IToilContract
         {
+            public Ship Ship { get; private set; }
+
             public Requirement Requirement { get; }
             public Action Action { get; }
             
-            Ship IToilContract.Ship { get; set; }
+            Ship IToilContract.Ship { set => Ship = value; }
 
             public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
