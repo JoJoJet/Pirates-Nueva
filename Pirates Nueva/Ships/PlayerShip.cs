@@ -88,7 +88,7 @@ namespace Pirates_Nueva
                     if(placeMode == PlaceMode.Block) {
                         // If the place that the user clicked is not occupied.
                         if(HasBlock(shipX, shipY) == false)
-                            PlaceBlock("wood", shipX, shipY);
+                            CreateJob(new Job.Toil(shipX, shipY, new IsAdjacentToBlock(), new PlaceBlock()));
                     }
                 }
                 // If the user right clicks, remove a Block or Furniture.
