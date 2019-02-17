@@ -14,7 +14,6 @@ namespace Pirates_Nueva
         private readonly Toil[] _toils;
 
         public Ship Ship { get; }
-        public Toil[] Toils => this._toils.ToArray();
 
         public Job(Ship ship, params Toil[] toils) {
             Ship = ship;
@@ -24,6 +23,21 @@ namespace Pirates_Nueva
             }
             this._toils = toils;
         }
+
+        /// <summary>
+        /// Check if this <see cref="Job"/> can currently be completed by the specified <see cref="Agent"/>
+        /// </summary>
+        /// <param name="reason">The reason this job cannot be completed.</param>
+        public bool Qualify(Agent worker, out string reason) {
+            reason = "The job is empty!";                             // Set the default reason to be that the job is empty.
+            for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil in the job:
+                if(_toils[i].Requirement.Qualify(worker, out reason)) // If the toil's requirement is fulfilled,
+                    return true;                                      //     return true;
+            }
+            return false;                                             // If we got this far without leaving the method, return false.
+        }
+
+
 
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract
