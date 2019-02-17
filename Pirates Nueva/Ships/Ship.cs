@@ -13,6 +13,8 @@ namespace Pirates_Nueva
 
         private readonly Block[,] blocks;
         private readonly List<Agent> agents = new List<Agent>();
+        
+        private readonly List<Job> jobs = new List<Job>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -349,6 +351,32 @@ namespace Pirates_Nueva
                     $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the {nameof(Agent)} onto!"
                     );
             }
+        }
+        #endregion
+
+        #region Job Accessor Methods
+        /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
+        public void CreateJob(params Job.Toil[] toils) {
+            this.jobs.Add(new Job(this, toils));
+        }
+        /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
+        public void AddJob(Job job) {
+            this.jobs.Add(job);
+        }
+
+        /// <summary>
+        /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>, and removes it from this ship.
+        /// </summary>
+        public Job GetWorkableJob(Agent hiree) {
+            foreach(var job in this.jobs) {     // For each job in this ship:
+                if(job.Qualify(hiree, out _)) { // If the agent can currenlty work it,
+                    this.jobs.Remove(job);      //     remove the job from this ship,
+                    return job;                 //     and return it.
+                }
+            }
+                         // If we got this far without leaving the method,
+                         //     that means there is no workable job on the ship.
+            return null; //     Return null.
         }
         #endregion
 
