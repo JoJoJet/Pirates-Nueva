@@ -34,10 +34,31 @@ namespace Pirates_Nueva
                 if(_toils[i].Requirement.Qualify(worker, out reason)) // If the toil's requirement is fulfilled,
                     return true;                                      //     return true;
             }
-            return false;                                             // If we got this far without leaving the method, return false.
+                          // If we got this far without leaving the method,
+            return false; //     return false.
         }
 
+        /// <summary>
+        /// Have the specified <see cref="Agent"/> work this job.
+        /// </summary>
+        /// <returns>Whether or not the job is still workable.</returns>
+        public bool Work(Agent worker) {
+            if(_toils.Length == 0) { // If the job is empty,
+                return false;        //     return false.
+            }
 
+            for(int i = _toils.Length-1; i >= 0; i--) {
+                var t = _toils[i];
+                if(t.Requirement.Qualify(worker, out _)) { // If the toil's requirement is met:
+                    if(t.Action.Work(worker))              // If the toil was just completed,
+                        return false;                      //     return false.
+                    else                                   // If the toil still has more work,
+                        return true;                       //     return true.
+                }
+            }
+                          // If we got this far without leaving the method,
+            return false; //    return false.
+        }
 
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract
@@ -102,10 +123,8 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Action : ToilSegment
         {
-            /// <summary> Whether or not this action has been completed. </summary>
-            public abstract bool IsCompleted { get; }
-
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
+            /// <returns>Whether or not the action was just completed.</returns>
             public abstract bool Work(Agent worker);
         }
     }
