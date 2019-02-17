@@ -79,6 +79,7 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Requirement : ToilSegment
         {
+            /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
             public abstract bool Qualify(Agent worker);
         }
         /// <summary>
@@ -86,7 +87,11 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Action : ToilSegment
         {
+            /// <summary> Whether or not this action has been completed. </summary>
             public abstract bool IsCompleted { get; }
+
+            /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
+            public abstract bool Work(Agent worker);
         }
     }
 }
