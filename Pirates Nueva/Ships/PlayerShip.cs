@@ -90,8 +90,8 @@ namespace Pirates_Nueva
                         if(HasBlock(shipX, shipY) == false)
                             CreateJob(
                                 shipX, shipY,
-                                new Job.Toil(new AlwaysTrue(), new PathToAdjacent()),
-                                new Job.Toil(new IsAdjacentToBlock(), new PlaceBlock())
+                                new Job.Toil(new IsAccessibleAdj(), new PathToAdjacent()),
+                                new Job.Toil(new IsAdjacentTo(), new PlaceBlock())
                                 );
                     }
                 }

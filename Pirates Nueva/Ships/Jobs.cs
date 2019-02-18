@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva
 {
-    public class IsAdjacentToBlock : Job.Requirement
+    public class IsAdjacentTo : Job.Requirement
     {
         /// <summary>
         /// Check if the specified <see cref="Agent"/> is adjacent to the <see cref="Job.Toil"/>.
@@ -33,12 +33,20 @@ namespace Pirates_Nueva
             return true;                                  // and return true.
         }
     }
-
-    public class AlwaysTrue : Job.Requirement
+    
+    public class IsAccessibleAdj : Job.Requirement
     {
         protected override bool Qualify(Agent worker, out string reason) {
-            reason = "";
-            return true;
+            if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
+                reason = "";                                //     set the reason as an empty string,
+                return true;                                //     and return true.
+            }                                               //
+            else {                                          // If a spot is NOT accessible to the worker,
+                reason = "Worker can't path to the block."; //     set that as the reason,
+                return false;                               //     and return false.
+            }
+
+            bool isAdjacent(Path.INode<Block> n) => PointI.SqrDistance((n as Block).Index, Toil.Index) == 1;
         }
     }
 
