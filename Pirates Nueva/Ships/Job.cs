@@ -60,9 +60,9 @@ namespace Pirates_Nueva
                 if(req.Qualify(worker, out _)) {                 // If the toil's requirement is met:
                     var act = t.Action as IActionContract;       //     Work the action.
                     if(act.Work(worker) && i == _toils.Length-1) //     If the last toil was just completed,
-                        return true;                             //         return false.
+                        return true;                             //         return true.
                     else                                         //     If the toil still has more work,
-                        return false;                            //         return true.
+                        return false;                            //         return false.
                 }
             }
                           // If we got this far without leaving the method,
