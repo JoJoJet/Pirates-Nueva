@@ -45,7 +45,20 @@ namespace Pirates_Nueva
             Ship = ship;
             CurrentBlock = floor;
         }
-        
+
+        /// <summary>
+        /// Returns whether or not the specified <see cref="Block"/> is accessible to this <see cref="Agent"/>.
+        /// </summary>
+        public bool IsAccessible(Block target) {
+            return Dijkstra.IsAccessible(Ship, NextBlock??CurrentBlock, target);
+        }
+        /// <summary>
+        /// Returns whether or not this <see cref="Agent"/> can access a <see cref="Block"/> that matches /destination/.
+        /// </summary>
+        public bool IsAccessible(IsAtDestination<Block> destination) {
+            return Dijkstra.IsAccessible(Ship, NextBlock??CurrentBlock, destination);
+        }
+
         /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
         public void PathTo(Block target) {
             Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target);
