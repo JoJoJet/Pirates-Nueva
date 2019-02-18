@@ -82,7 +82,6 @@ namespace Pirates_Nueva
             private PointI? nullableIndex;
 
             public Ship Ship => Job.Ship;
-            public Job Job { get; private set; }
 
             /// <summary>
             /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>.
@@ -97,6 +96,7 @@ namespace Pirates_Nueva
             public Requirement Requirement { get; }
             public Action Action { get; }
             
+            private Job Job { get; set; }
             Job IToilContract.Job { set => Job = value; }
 
             public Toil(Requirement req, Action action) {
