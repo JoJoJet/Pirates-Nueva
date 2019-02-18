@@ -33,6 +33,9 @@ namespace Pirates_Nueva
         /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
         private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
+        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Is null if there is no path. </summary>
+        public Block PathingTo => Path.Count > 0 ? Path.Last() : null;
+
         protected Stack<Block> Path {
             get => this._path ?? (this._path = new Stack<Block>());
             set => this._path = value;
