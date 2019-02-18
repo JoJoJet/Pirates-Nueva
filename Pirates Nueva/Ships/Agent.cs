@@ -46,6 +46,7 @@ namespace Pirates_Nueva
             CurrentBlock = floor;
         }
 
+        #region Pathing
         /// <summary>
         /// Returns whether or not the specified <see cref="Block"/> is accessible to this <see cref="Agent"/>.
         /// </summary>
@@ -67,6 +68,7 @@ namespace Pirates_Nueva
         public void PathTo(IsAtDestination<Block> destination) {
             Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, destination);
         }
+        #endregion
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
