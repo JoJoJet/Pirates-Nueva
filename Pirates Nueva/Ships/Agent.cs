@@ -45,6 +45,15 @@ namespace Pirates_Nueva
             Ship = ship;
             CurrentBlock = floor;
         }
+        
+        /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
+        public void PathTo(Block target) {
+            Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target);
+        }
+        /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
+        public void PathTo(IsAtDestination<Block> destination) {
+            Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, destination);
+        }
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
@@ -145,7 +154,7 @@ namespace Pirates_Nueva
                                                                                          //     local to the ship.
                     if(Ship.AreIndicesValid(shipX, shipY) &&                             // If the spot is a valid index,
                         Ship.GetBlock(shipX, shipY) is Block target) {                   // and it has a block,
-                        Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target); //     have the agent path to that block.
+                        PathTo(target);                                                  //     have the agent path to that block.
                     }
 
                     this.focusMode = FocusOption.None; // Unset the focus mode,
