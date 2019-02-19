@@ -80,16 +80,16 @@ namespace Pirates_Nueva
                     Job.Worker = this;           //         assign this agent to it.
             }
 
-            if(Job != null) {                  // If there is a job:
-                if(Job.Qualify(this, out _)) { //     If the job is workable,
-                    if(Job.Work(this)) {       //         work it. If it's done,
-                        Ship.RemoveJob(Job);   //             remove the job from the ship,
-                        Job = null;            //             and unassign it.
-                    }                          //
-                }                              //
-                else {                         //     If the job is not workable,
-                    Job.Worker = null;         //         unassign this agent from the job,
-                    Job = null;                //         and unset it.
+            if(Job != null) {                    // If there is a job:
+                if(Job.Qualify(this, out _)) {   //     If the job is workable,
+                    if(Job.Work(this, master)) { //         work it. If it's done,
+                        Ship.RemoveJob(Job);     //             remove the job from the ship,
+                        Job = null;              //             and unassign it.
+                    }                            //
+                }                                //
+                else {                           //     If the job is not workable,
+                    Job.Worker = null;           //         unassign this agent from the job,
+                    Job = null;                  //         and unset it.
                 }
             }
 

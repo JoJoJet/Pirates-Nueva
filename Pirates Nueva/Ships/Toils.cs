@@ -27,6 +27,8 @@ namespace Pirates_Nueva
     {
         /// <summary> The ID of the <see cref="Block"/> to place. </summary>
         public string PlaceID { get; }
+        /// <summary> The progress, out of 1, towards placing the <see cref="Block"/>. </summary>
+        public float Progress { get; protected set; }
 
         public PlaceBlock(string id) {
             PlaceID = id;
@@ -36,9 +38,16 @@ namespace Pirates_Nueva
         /// Have the specified <see cref="Agent"/> work at placing this block.
         /// </summary>
         /// <returns>Whether or not the action was just completed.</returns>
-        protected override bool Work(Agent worker) {
-            Toil.Ship.PlaceBlock(PlaceID, Toil.X, Toil.Y); // Place a block at the toil's position,
-            return true;                                   // and return true.
+        protected override bool Work(Agent worker, Master master) {
+            Progress += master.FrameTime.DeltaSeconds();       // Increment the building progress.
+
+            if(Progress >= 1) {                                // If the progress has reached '1',
+                Toil.Ship.PlaceBlock(PlaceID, Toil.X, Toil.Y); //     place a block at the toil's position,
+                return true;                                   //     and return true.
+            }                                                  //
+            else {                                             // If the progress has yet to reach '1',
+                return false;                                  //     return false.
+            }
         }
 
         protected override void Draw(Master master, Agent worker) {
@@ -69,7 +78,7 @@ namespace Pirates_Nueva
 
     public class PathToAdjacent : Job.Action
     {
-        protected override bool Work(Agent worker) {
+        protected override bool Work(Agent worker, Master master) {
             if(worker.PathingTo == null) {                // If the worker is currently still:
                 if(isAdjacent(worker.CurrentBlock)) {     //     If its standing next to the toil,
                     return true;                          //         return true.
