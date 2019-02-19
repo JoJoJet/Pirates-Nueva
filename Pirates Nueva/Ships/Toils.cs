@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
 {
@@ -31,6 +32,14 @@ namespace Pirates_Nueva
         protected override bool Work(Agent worker) {
             Toil.Ship.PlaceBlock("wood", Toil.X, Toil.Y); // Place a block at the toil's position,
             return true;                                  // and return true.
+        }
+
+        protected override void Draw(Master master, Agent worker) {
+            var tex = master.Resources.LoadTexture("woodBlock");
+            
+            (float seaX, float seaY) = Toil.Ship.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
+            (int screenX, int screenY) = Toil.Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
+            master.Renderer.DrawRotated(tex, screenX, screenY, Block.Pixels, Block.Pixels, -Toil.Ship.Angle, (0, 0), Color.Lime);
         }
     }
     
