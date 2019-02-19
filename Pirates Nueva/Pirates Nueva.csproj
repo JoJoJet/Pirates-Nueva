@@ -60,7 +60,7 @@
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Ships\Furniture.cs" />
     <Compile Include="Ships\Job.cs" />
-    <Compile Include="Ships\Jobs.cs" />
+    <Compile Include="Ships\Toils.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />
     <Compile Include="UI\Font.cs" />
