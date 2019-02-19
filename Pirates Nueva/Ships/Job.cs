@@ -114,6 +114,8 @@ namespace Pirates_Nueva
         private interface IToilSegmentContract
         {
             Toil Toil { set; }
+
+            void Draw(Master master, Agent worker);
         }
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : IToilSegmentContract
@@ -125,6 +127,10 @@ namespace Pirates_Nueva
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
+
+            void IToilSegmentContract.Draw(Master master, Agent worker) => Draw(master, worker);
+            /// <summary> Draw this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
+            protected abstract void Draw(Master master, Agent worker);
         }
 
         /// <summary> Makes members of <see cref="Requirement"/> accessible only within the <see cref="Job"/> class. </summary>
@@ -141,6 +147,9 @@ namespace Pirates_Nueva
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
             /// <param name="reason">The reason that this <see cref="Requirement"/> is not fulfilled.</param>
             protected abstract bool Qualify(Agent worker, out string reason);
+
+            /// <summary> Draw this <see cref="Requirement"/> to the screen. </summary>
+            protected override void Draw(Master master, Agent worker) {  }
         }
         
         /// <summary> Makes members of <see cref="Action"/> accessible only within the <see cref="Job"/> class. </summary>
