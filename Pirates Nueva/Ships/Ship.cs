@@ -13,6 +13,8 @@ namespace Pirates_Nueva
 
         private readonly Block[,] blocks;
         private readonly List<Agent> agents = new List<Agent>();
+        
+        private readonly List<Job> jobs = new List<Job>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -352,6 +354,35 @@ namespace Pirates_Nueva
         }
         #endregion
 
+        #region Job Accessor Methods
+        /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
+        public void CreateJob(int x, int y, params Job.Toil[] toils) {
+            this.jobs.Add(new Job(this, x, y, toils));
+        }
+        /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
+        public void AddJob(Job job) {
+            this.jobs.Add(job);
+        }
+
+        /// <summary>
+        /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
+        /// </summary>
+        public Job GetWorkableJob(Agent hiree) {
+            for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
+                var job = jobs[i];
+                if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
+                    return job;                                         //     return it.
+                }
+            }
+                         // If we got this far without leaving the method,
+                         //     that means there is no workable job on the ship.
+            return null; //     Return null.
+        }
+
+        /// <summary> Remove the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
+        public void RemoveJob(Job job) => this.jobs.Remove(job);
+        #endregion
+
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
@@ -418,6 +449,12 @@ namespace Pirates_Nueva
                 }
             }
 
+            // Draw each job.
+            foreach(IDrawable job in this.jobs) {
+                job.Draw(master);
+            }
+
+            // Draw each agent.
             foreach(var agent in this.agents) {
                 (agent as IDrawable).Draw(master);
             }

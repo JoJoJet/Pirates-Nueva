@@ -23,6 +23,18 @@ namespace Pirates_Nueva
             Y = y;
         }
 
+        /// <summary>
+        /// Returns the squared distance between two points. Faster than <see cref="Distance(PointI, PointI)"/>.
+        /// </summary>
+        public static int SqrDistance(PointI a, PointI b) {
+            return sqr(a.X - b.X) + sqr(a.Y - b.Y);
+            int sqr(int val) => val*val;
+        }
+        /// <summary>
+        /// Returns the euclidean distance between two points.
+        /// </summary>
+        public static float Distance(PointI a, PointI b) => (float)Math.Sqrt(SqrDistance(a, b));
+
         public void Deconstruct(out int x, out int y) {
             x = X;
             y = Y;
@@ -111,7 +123,7 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
 
-        public static explicit operator PointF(PointI p) => new PointF(p.X, p.Y);
+        public static implicit operator PointF(PointI p) => new PointF(p.X, p.Y);
 
         public static implicit operator Vector2(PointF p) => new Vector2(p.X, p.Y);
         public static implicit operator PointF(Vector2 v) => new PointF(v.X, v.Y);

@@ -28,8 +28,13 @@ namespace Pirates_Nueva
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
         public float Y => Lerp(CurrentBlock.Y, (NextBlock??CurrentBlock).Y, MoveProgress);
 
+        public Job Job { get; protected set; }
+
         /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
         private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
+
+        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Is null if there is no path. </summary>
+        public Block PathingTo => Path.Count > 0 ? Path.Last() : null;
 
         protected Stack<Block> Path {
             get => this._path ?? (this._path = new Stack<Block>());
@@ -41,10 +46,53 @@ namespace Pirates_Nueva
             CurrentBlock = floor;
         }
 
+        #region Pathing
+        /// <summary>
+        /// Returns whether or not the specified <see cref="Block"/> is accessible to this <see cref="Agent"/>.
+        /// </summary>
+        public bool IsAccessible(Block target) {
+            return Dijkstra.IsAccessible(Ship, NextBlock??CurrentBlock, target);
+        }
+        /// <summary>
+        /// Returns whether or not this <see cref="Agent"/> can access a <see cref="Block"/> that matches /destination/.
+        /// </summary>
+        public bool IsAccessible(IsAtDestination<Block> destination) {
+            return Dijkstra.IsAccessible(Ship, NextBlock??CurrentBlock, destination);
+        }
+
+        /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
+        public void PathTo(Block target) {
+            Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target);
+        }
+        /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
+        public void PathTo(IsAtDestination<Block> destination) {
+            Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, destination);
+        }
+        #endregion
+
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master) => Update(master);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master) {
+            if(Job == null) {                    // If this agent has no job,
+                Job = Ship.GetWorkableJob(this); //     get a workable job from the ship,
+                if(Job != null)                  //     If there was a workable job,
+                    Job.Worker = this;           //         assign this agent to it.
+            }
+
+            if(Job != null) {                    // If there is a job:
+                if(Job.Qualify(this, out _)) {   //     If the job is workable,
+                    if(Job.Work(this, master)) { //         work it. If it's done,
+                        Ship.RemoveJob(Job);     //             remove the job from the ship,
+                        Job = null;              //             and unassign it.
+                    }                            //
+                }                                //
+                else {                           //     If the job is not workable,
+                    Job.Worker = null;           //         unassign this agent from the job,
+                    Job = null;                  //         and unset it.
+                }
+            }
+
             if(NextBlock == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
                 NextBlock = Path.Pop();             //     set the next block as the next step on the math.
 
@@ -121,7 +169,7 @@ namespace Pirates_Nueva
                                                                                          //     local to the ship.
                     if(Ship.AreIndicesValid(shipX, shipY) &&                             // If the spot is a valid index,
                         Ship.GetBlock(shipX, shipY) is Block target) {                   // and it has a block,
-                        Path = Dijkstra.FindPath(Ship, NextBlock??CurrentBlock, target); //     have the agent path to that block.
+                        PathTo(target);                                                  //     have the agent path to that block.
                     }
 
                     this.focusMode = FocusOption.None; // Unset the focus mode,

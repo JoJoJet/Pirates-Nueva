@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Path
 {
     /// <summary>
+    /// A function that checks whether or not the current node is at the destination.
+    /// </summary>
+    public delegate bool IsAtDestination<T>(INode<T> currentNode);
+    /// <summary>
     /// Pathfinding with Dijkstra's algorithm.
     /// <para />
     /// https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm.
@@ -17,6 +21,13 @@ namespace Pirates_Nueva.Path
         /// Find the shortest distance between nodes /source/ and /target/ on the specified graph.
         /// </summary>
         public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, INode<T> target) where T : INode<T> {
+            return FindPath(graph, source, (n) => n == target);
+        }
+        /// <summary>
+        /// Find the shortest path between /source/ and the first node to pass the destination check.
+        /// </summary>
+        /// <param name="dest">Returns whether or not the specified node is the destination.</param>
+        public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, IsAtDestination<T> dest) where T : INode<T> {
             var dist = new Dictionary<INode<T>, float>();    // The squared distance from /source/ for each node.
             var prev = new Dictionary<INode<T>, INode<T>>(); // The node before the key in the optimal path to /source/.
             var Q = new List<INode<T>>();                    // Set of unvisited nodes.
@@ -30,13 +41,14 @@ namespace Pirates_Nueva.Path
 
             while(Q.Count > 0) {                        // While there are still unvisited nodes:
                 var u = (from n in Q                    // Get the node with lowest distance from /source/.
+                         where dist[n] != float.MaxValue
                          orderby dist[n] ascending //NOTE: this can be optimized by using a priority queue.
                          select n).First();
 
                 Q.Remove(u);                            // Remove the node from the unvisited nodes.
-
-                if(u == target)                         // If we are at /target/, we can stop looping.
-                    break;
+                
+                if(dest(u))                             // If we are at the destination,
+                    return reverse_iterate(u);          //     construct the path through reverse iteration, and return it.
 
                 var neighbors = from n in u.Edges       // Every neighbor of /u/ that is unvisited.
                                 where Q.Contains(n.End)
@@ -49,11 +61,11 @@ namespace Pirates_Nueva.Path
                     }
                 }
             }
-
-            return reverse_iterate(); // Construct the optimal path by reverse
-                                      //     iterating through /prev/ from /target/.
+                                   // If we got this far without leaving the method,
+                                   //     that means there there is no possible path.
+            return new Stack<T>(); //     Return an empty stack and let the caller figure it out.
             
-            Stack<T> reverse_iterate() {
+            Stack<T> reverse_iterate(INode<T> target) {
                 var S = new Stack<T>();   // Empty sequence.
                 var u = target;           // The current node, working backwards from /target/.
                 if(prev.ContainsKey(u)) {    // If the vertex is reachable:
@@ -66,6 +78,44 @@ namespace Pirates_Nueva.Path
                                              // If the target was unreachable,
                                              //     just return an empty stack and let the caller figure it out.
             }
+        }
+
+        /// <summary>
+        /// Returns whether or not there exists a path between /source/ and /target/.
+        /// </summary>
+        public static bool IsAccessible<T>(IGraph<T> graph, INode<T> source, INode<T> target) where T : INode<T> {
+            return IsAccessible(graph, source, (n) => n == target);
+        }
+        /// <summary>
+        /// Returns whether or not there exists a path between /source/ and the first node to pass the destination check.
+        /// </summary>
+        /// <param name="dest">Returns whether or not the specified node is the destination.</param>
+        public static bool IsAccessible<T>(IGraph<T> graph, INode<T> source, IsAtDestination<T> dest) where T : INode<T> {
+            var unvisited = new List<INode<T>>(graph.Nodes);  // All unvisited nodes. Initially contains all nodes in the graph.
+            var accessible = new List<INode<T>>() { source }; // Nodes accessible from the source. Initiall only contains the source.
+
+            while(accessible.Count > 0) {                       // Loop until there are no accessible nodes:
+                var u = (from n in accessible                   // Get the first accessible and unvisited node.
+                         where unvisited.Contains(n)
+                         select n).FirstOrDefault();
+
+                if(u == null)                                   // If there are no accessible and unvisited nodes,
+                    break;                                      //     break from this loop.
+
+                unvisited.Remove(u);                            // Remove that node from the univisited nodes.
+
+                if(dest(u))                                     // If we are at the destination,
+                    return true;                                //     return true right now.
+
+                var neighbors = from n in u.Edges               // Every neighbor of the node that is unvisited.
+                                where unvisited.Contains(n.End)
+                                select n.End;
+                foreach(var v in neighbors) {                   // For every unvisited node:
+                    accessible.Add(v);                          //     add it to the list of accessible nodes.
+                }
+            }
+                          // If we've visited every accessible node without findint the destination,
+            return false; //     return false.
         }
     }
 }
