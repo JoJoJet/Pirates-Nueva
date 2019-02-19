@@ -166,6 +166,9 @@ namespace Pirates_Nueva
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
             protected abstract bool Work(Agent worker);
+
+            /// <summary> Draw this <see cref="Action"/> to the screen. </summary>
+            protected override void Draw(Master master, Agent worker) {  }
         }
     }
 }
