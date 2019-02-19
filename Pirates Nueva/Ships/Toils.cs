@@ -25,17 +25,25 @@ namespace Pirates_Nueva
     }
     public class PlaceBlock : Job.Action
     {
+        /// <summary> The ID of the <see cref="Block"/> to place. </summary>
+        public string PlaceID { get; }
+
+        public PlaceBlock(string id) {
+            PlaceID = id;
+        }
+
         /// <summary>
         /// Have the specified <see cref="Agent"/> work at placing this block.
         /// </summary>
         /// <returns>Whether or not the action was just completed.</returns>
         protected override bool Work(Agent worker) {
-            Toil.Ship.PlaceBlock("wood", Toil.X, Toil.Y); // Place a block at the toil's position,
-            return true;                                  // and return true.
+            Toil.Ship.PlaceBlock(PlaceID, Toil.X, Toil.Y); // Place a block at the toil's position,
+            return true;                                   // and return true.
         }
 
         protected override void Draw(Master master, Agent worker) {
-            var tex = master.Resources.LoadTexture("woodBlock");
+            var def = BlockDef.Get(PlaceID);
+            var tex = master.Resources.LoadTexture(def.TextureID);
             
             (float seaX, float seaY) = Toil.Ship.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
             (int screenX, int screenY) = Toil.Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.

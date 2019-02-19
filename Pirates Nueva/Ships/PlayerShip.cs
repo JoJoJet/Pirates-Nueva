@@ -91,7 +91,7 @@ namespace Pirates_Nueva
                             CreateJob(
                                 shipX, shipY,
                                 new Job.Toil(new IsAccessibleAdj(), new PathToAdjacent()),
-                                new Job.Toil(new IsAdjacentTo(), new PlaceBlock())
+                                new Job.Toil(new IsAdjacentTo(), new PlaceBlock("wood"))
                                 );
                     }
                 }
