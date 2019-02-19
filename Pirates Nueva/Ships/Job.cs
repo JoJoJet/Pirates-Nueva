@@ -9,7 +9,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// Something that an <see cref="Agent"/> can do in a <see cref="Ship"/>.
     /// </summary>
-    public class Job
+    public class Job : IDrawable
     {
         private readonly Toil[] _toils;
 
@@ -56,7 +56,7 @@ namespace Pirates_Nueva
 
             for(int i = _toils.Length-1; i >= 0; i--) {          // For every toil, working backwards from the end:
                 var t = _toils[i];                               //
-                var req = _toils[i].Requirement as IReqContract; //
+                var req = t.Requirement as IReqContract;         //
                 if(req.Qualify(worker, out _)) {                 // If the toil's requirement is met:
                     var act = t.Action as IActionContract;       //     Work the action.
                     if(act.Work(worker) && i == _toils.Length-1) //     If the last toil was just completed,
@@ -68,6 +68,21 @@ namespace Pirates_Nueva
                           // If we got this far without leaving the method,
             return false; //    return false.
         }
+
+        #region IDrawable Implementation
+        void IDrawable.Draw(Master master) {
+            for(int i = _toils.Length-1; i >= 0; i--) {                             // For each toil, working backwards from the end:
+                var act = _toils[i].Action as IToilSegmentContract;                 //
+                var req = _toils[i].Requirement as IToilSegmentContract;            //
+                                                                                    //
+                act.Draw(master, Worker);                                           // Draw its action,
+                req.Draw(master, Worker);                                           // then draw its requirement on top.
+                                                                                    //
+                if(Worker != null && (req as IReqContract).Qualify(Worker, out _))  // If this job's worker qualifies for this toil,
+                    break;                                                          //     break from this loop.
+            }
+        }
+        #endregion
 
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract

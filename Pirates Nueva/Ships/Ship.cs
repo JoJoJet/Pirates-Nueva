@@ -449,6 +449,12 @@ namespace Pirates_Nueva
                 }
             }
 
+            // Draw each job.
+            foreach(IDrawable job in this.jobs) {
+                job.Draw(master);
+            }
+
+            // Draw each agent.
             foreach(var agent in this.agents) {
                 (agent as IDrawable).Draw(master);
             }
