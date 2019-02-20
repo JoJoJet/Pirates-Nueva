@@ -43,7 +43,7 @@ namespace Pirates_Nueva
             Sea = sea;
         }
 
-        void IUpdatable.Update(Master master) {
+        void IUpdatable.Update(Master master, Time delta) {
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
                 && !(Focused?.IsLocked == true)) {                         // and if the current focus isn't locked:
 

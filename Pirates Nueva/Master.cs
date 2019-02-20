@@ -15,7 +15,7 @@ namespace Pirates_Nueva
     /// </summary>
     internal interface IUpdatable
     {
-        void Update(Master master);
+        void Update(Master master, Time delta);
     }
     /// <summary>
     /// An instance that can be drawn through the <see cref="Master"/> object.
@@ -40,7 +40,6 @@ namespace Pirates_Nueva
         
         public Font Font { get; private set; }
 
-        public GameTime FrameTime { get; private set; }
         public Input Input { get; }
 
         public Renderer Renderer { get; private set; }
@@ -125,13 +124,13 @@ namespace Pirates_Nueva
             if(GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            FrameTime = gameTime;
+            var delta = new Time(gameTime);
 
-            (Input as IUpdatable).Update(this);
-            (GUI as IUpdatable).Update(this);
+            (Input as IUpdatable).Update(this, delta);
+            (GUI as IUpdatable).Update(this, delta);
 
-            (Player as IUpdatable).Update(this);
-            (this.sea as IUpdatable).Update(this);
+            (Player as IUpdatable).Update(this, delta);
+            (this.sea as IUpdatable).Update(this, delta);
 
             base.Update(gameTime);
         }

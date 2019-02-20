@@ -71,45 +71,45 @@ namespace Pirates_Nueva
         #endregion
 
         #region IUpdatable Implementation
-        void IUpdatable.Update(Master master) => Update(master);
+        void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
-        protected virtual void Update(Master master) {
+        protected virtual void Update(Master master, Time delta) {
             if(Job == null) {                    // If this agent has no job,
                 Job = Ship.GetWorkableJob(this); //     get a workable job from the ship,
                 if(Job != null)                  //     If there was a workable job,
                     Job.Worker = this;           //         assign this agent to it.
             }
 
-            if(Job != null) {                    // If there is a job:
-                if(Job.Qualify(this, out _)) {   //     If the job is workable,
-                    if(Job.Work(this, master)) { //         work it. If it's done,
-                        Ship.RemoveJob(Job);     //             remove the job from the ship,
-                        Job = null;              //             and unassign it.
-                    }                            //
-                }                                //
-                else {                           //     If the job is not workable,
-                    Job.Worker = null;           //         unassign this agent from the job,
-                    Job = null;                  //         and unset it.
+            if(Job != null) {                   // If there is a job:
+                if(Job.Qualify(this, out _)) {  //     If the job is workable,
+                    if(Job.Work(this, delta)) { //         work it. If it's done,
+                        Ship.RemoveJob(Job);    //             remove the job from the ship,
+                        Job = null;             //             and unassign it.
+                    }                           //
+                }                               //
+                else {                          //     If the job is not workable,
+                    Job.Worker = null;          //         unassign this agent from the job,
+                    Job = null;                 //         and unset it.
                 }
             }
 
             if(NextBlock == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
                 NextBlock = Path.Pop();             //     set the next block as the next step on the math.
 
-            if(NextBlock != null) {                                     // If we are moving towards a block:
-                MoveProgress += master.FrameTime.DeltaSeconds() * 1.5f; // increment our progress towards it.
-                                                                        //
-                if(MoveProgress >= 1) {                                 // If we have reached the block,
-                    CurrentBlock = NextBlock;                           //     set it as our current block.
-                    if(Path.Count > 0)                                  //     If we are currently on a path,
-                        NextBlock = Path.Pop();                         //         set the next block as the next step on the path.
-                    else                                                //     If we are not on a path,
-                        NextBlock = null;                               //         unassign the next block.
-                                                                        //
-                    if(NextBlock != null)                               //     If we are still moving towards a block,
-                        MoveProgress -= 1f;                             //         subtract 1 from our move progress.
-                    else                                                //     If we are no longer moving towrards a block,
-                        MoveProgress = 0;                               //         set our move progress to be 0.
+            if(NextBlock != null) {             // If we are moving towards a block:
+                MoveProgress += delta * 1.5f;   // increment our progress towards it.
+                                                //
+                if(MoveProgress >= 1) {         // If we have reached the block,
+                    CurrentBlock = NextBlock;   //     set it as our current block.
+                    if(Path.Count > 0)          //     If we are currently on a path,
+                        NextBlock = Path.Pop(); //         set the next block as the next step on the path.
+                    else                        //     If we are not on a path,
+                        NextBlock = null;       //         unassign the next block.
+                                                //
+                    if(NextBlock != null)       //     If we are still moving towards a block,
+                        MoveProgress -= 1f;     //         subtract 1 from our move progress.
+                    else                        //     If we are no longer moving towrards a block,
+                        MoveProgress = 0;       //         set our move progress to be 0.
                 }
             }
         }

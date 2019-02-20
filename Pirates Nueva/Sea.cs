@@ -21,10 +21,10 @@ namespace Pirates_Nueva
             master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
-        void IUpdatable.Update(Master master) {
+        void IUpdatable.Update(Master master, Time delta) {
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
-                    u.Update(master);           //     call its Update() method.
+                    u.Update(master, delta);    //     call its Update() method.
             }
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {

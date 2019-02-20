@@ -38,8 +38,8 @@ namespace Pirates_Nueva
         /// Have the specified <see cref="Agent"/> work at placing this block.
         /// </summary>
         /// <returns>Whether or not the action was just completed.</returns>
-        protected override bool Work(Agent worker, Master master) {
-            Progress += master.FrameTime.DeltaSeconds();       // Increment the building progress.
+        protected override bool Work(Agent worker, Time delta) {
+            Progress += delta;                                 // Increment the building progress.
 
             if(Progress >= 1) {                                // If the progress has reached '1',
                 Toil.Ship.PlaceBlock(PlaceID, Toil.X, Toil.Y); //     place a block at the toil's position,
@@ -78,7 +78,7 @@ namespace Pirates_Nueva
 
     public class PathToAdjacent : Job.Action
     {
-        protected override bool Work(Agent worker, Master master) {
+        protected override bool Work(Agent worker, Time delta) {
             if(worker.PathingTo == null) {                // If the worker is currently still:
                 if(isAdjacent(worker.CurrentBlock)) {     //     If its standing next to the toil,
                     return true;                          //         return true.

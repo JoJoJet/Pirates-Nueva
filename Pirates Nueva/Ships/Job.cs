@@ -49,7 +49,7 @@ namespace Pirates_Nueva
         /// Have the specified <see cref="Agent"/> work this job.
         /// </summary>
         /// <returns>Whether or not the job was just completed.</returns>
-        public bool Work(Agent worker, Master master) {
+        public bool Work(Agent worker, Time delta) {
             if(_toils.Length == 0) { // If the job is empty,
                 return false;        //     return false.
             }
@@ -59,7 +59,7 @@ namespace Pirates_Nueva
                 var req = t.Requirement as IReqContract;                 //
                 if(req.Qualify(worker, out _)) {                         // If the toil's requirement is met:
                     var act = t.Action as IActionContract;               //     Work the action.
-                    if(act.Work(worker, master) && i == _toils.Length-1) //     If the last toil was just completed,
+                    if(act.Work(worker, delta) && i == _toils.Length-1)  //     If the last toil was just completed,
                         return true;                                     //         return true.
                     else                                                 //     If the toil still has more work,
                         return false;                                    //         return false.
@@ -170,17 +170,17 @@ namespace Pirates_Nueva
         /// <summary> Makes members of <see cref="Action"/> accessible only within the <see cref="Job"/> class. </summary>
         private interface IActionContract
         {
-            bool Work(Agent worker, Master master);
+            bool Work(Agent worker, Time delta);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
         public abstract class Action : ToilSegment, IActionContract
         {
-            bool IActionContract.Work(Agent worker, Master master) => Work(worker, master);
+            bool IActionContract.Work(Agent worker, Time delta) => Work(worker, delta);
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
-            protected abstract bool Work(Agent worker, Master master);
+            protected abstract bool Work(Agent worker, Time delta);
 
             /// <summary> Draw this <see cref="Action"/> to the screen. </summary>
             protected override void Draw(Master master, Agent worker) {  }
