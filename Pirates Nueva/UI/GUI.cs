@@ -185,7 +185,7 @@ namespace Pirates_Nueva
             }
         }
 
-        void IUpdatable.Update(Master master) {
+        void IUpdatable.Update(Master master, Time delta) {
             // Exit the method if the mouse wasn't clicked this frame.
             if(!master.Input.MouseLeft.IsDown)
                 return;

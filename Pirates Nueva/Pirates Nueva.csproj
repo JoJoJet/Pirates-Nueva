@@ -61,6 +61,7 @@
     <Compile Include="Ships\Furniture.cs" />
     <Compile Include="Ships\Job.cs" />
     <Compile Include="Ships\Toils.cs" />
+    <Compile Include="Time.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />
     <Compile Include="UI\Font.cs" />
