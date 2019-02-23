@@ -49,6 +49,7 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Island.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
     <Compile Include="PlayerController.cs" />
