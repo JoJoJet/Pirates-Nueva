@@ -17,6 +17,8 @@ namespace Pirates_Nueva
         public int X { get; set; }
         public int Y { get; set; }
 
+        public int SqrMagnitude => X*X + Y*Y;
+
         public PointI(int value) : this(value, value) {  }
         public PointI(int x, int y) {
             X = x;
