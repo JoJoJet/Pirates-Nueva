@@ -25,7 +25,7 @@ namespace Pirates_Nueva
             await waitForClick();
             
             // Connect separated but close blocks.
-            await connectEdges();
+            await Task.Run(() => connectEdges());
             await waitForClick();
 
             // Fill in the entire terrain.
@@ -33,7 +33,7 @@ namespace Pirates_Nueva
             await waitForClick();
 
             // Randomly kill 20% of the blocks.
-            await decimate();
+            await Task.Run(() => decimate());
             await waitForClick();
 
             await floodFill();
@@ -68,33 +68,30 @@ namespace Pirates_Nueva
                 }
             }
 
-            async Task connectEdges() {
-                await Task.Run(() => doConnectEdges());
-                void doConnectEdges() {
-                    for(int x = 1; x < Width - 1; x++) {
-                        for(int y = 1; y < Height - 1; y++) {
-                            if(!ground[x, y] && r.Next(0, 100) < 80) {
-                                //   0   //
-                                // 1 0 1 //
-                                //   0   //
-                                if(ground[x - 1, y] && ground[x + 1, y] && !ground[x, y + 1] && !ground[x, y - 1])
-                                    ground[x, y] = true;
-                                //   1   //
-                                // 0 0 0 //
-                                //   1   //
-                                else if(ground[x, y + 1] && ground[x, y - 1] && !ground[x - 1, y] && !ground[x + 1, y])
-                                    ground[x, y] = true;
-                                // 1   0 //
-                                //   0   //
-                                // 0   1 //
-                                else if(ground[x - 1, y + 1] && ground[x + 1, y - 1] && !ground[x - 1, y - 1] && !ground[x + 1, y + 1])
-                                    ground[x, y] = true;
-                                // 0   1 //
-                                //   0   //
-                                // 1   0 //
-                                else if(ground[x + 1, y + 1] && ground[x - 1, y - 1] && !ground[x - 1, y + 1] && !ground[x + 1, y - 1])
-                                    ground[x, y] = true;
-                            }
+            void connectEdges() {
+                for(int x = 1; x < Width - 1; x++) {
+                    for(int y = 1; y < Height - 1; y++) {
+                        if(!ground[x, y] && r.Next(0, 100) < 80) {
+                            //   0   //
+                            // 1 0 1 //
+                            //   0   //
+                            if(ground[x - 1, y] && ground[x + 1, y] && !ground[x, y + 1] && !ground[x, y - 1])
+                                ground[x, y] = true;
+                            //   1   //
+                            // 0 0 0 //
+                            //   1   //
+                            else if(ground[x, y + 1] && ground[x, y - 1] && !ground[x - 1, y] && !ground[x + 1, y])
+                                ground[x, y] = true;
+                            // 1   0 //
+                            //   0   //
+                            // 0   1 //
+                            else if(ground[x - 1, y + 1] && ground[x + 1, y - 1] && !ground[x - 1, y - 1] && !ground[x + 1, y + 1])
+                                ground[x, y] = true;
+                            // 0   1 //
+                            //   0   //
+                            // 1   0 //
+                            else if(ground[x + 1, y + 1] && ground[x - 1, y - 1] && !ground[x - 1, y + 1] && !ground[x + 1, y - 1])
+                                ground[x, y] = true;
                         }
                     }
                 }
@@ -136,14 +133,11 @@ namespace Pirates_Nueva
                 }
             }
 
-            async Task decimate() {
-                await Task.Run(() => doDecimate());
-                void doDecimate() {
-                    for(int x = 0; x < Width; x++) {
-                        for(int y = 0; y < Height; y++) {
-                            if(ground[x, y] && r.Next(0, 100) < 20)
-                                ground[x, y] = false;
-                        }
+            void decimate() {
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(ground[x, y] && r.Next(0, 100) < 20)
+                            ground[x, y] = false;
                     }
                 }
             }
