@@ -20,22 +20,22 @@ namespace Pirates_Nueva
             ground = new bool[Width, Height];
 
             // Scatter shapes around the canvas.
-            await placeBlobs(); // Start placing blobs.
-            await waitForClick();     // Wait for the user to click.
+            await placeBlobs();
+            await waitForClick();
             
             // Connect separated but close blocks.
             await connectEdges();
             await waitForClick();
 
             // Fill in the entire terrain.
-            doFloodFill();
+            await floodFill();
             await waitForClick();
 
             // Randomly kill 20% of the blocks.
             decimate();
             await waitForClick();
 
-            doFloodFill();
+            await floodFill();
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());
@@ -96,39 +96,39 @@ namespace Pirates_Nueva
                 }
             }
 
-            void doFloodFill() {
+            async Task floodFill() {
                 var fill = new bool[Width, Height];
                 for(int x = 0; x < Width; x++) {
                     for(int y = 0; y < Height; y++) {
                         fill[x, y] = true;
                     }
                 }
-                floodFill(ground, (0, Height-1), (x, y) => fill[x, y] = false);
+                await Task.Run(() => doFloodFill(ground, (0, Height-1), (x, y) => fill[x, y] = false));
                 ground = fill;
-            }
 
-            void floodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
-                var w = canvas.GetLength(0);
-                var h = canvas.GetLength(1);
+                void doFloodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
+                    var w = canvas.GetLength(0);
+                    var h = canvas.GetLength(1);
 
-                var frontier = new List<PointI>() { start };
-                var known = new List<PointI>();
+                    var frontier = new List<PointI>() { start };
+                    var known = new List<PointI>();
 
-                while(frontier.Count > 0) {
-                    var (x, y) = frontier[frontier.Count-1];
-                    frontier.RemoveAt(frontier.Count-1);
-                    known.Add((x, y));
+                    while(frontier.Count > 0) {
+                        var (x, y) = frontier[frontier.Count - 1];
+                        frontier.RemoveAt(frontier.Count - 1);
+                        known.Add((x, y));
 
-                    paint(x, y);
+                        paint(x, y);
 
-                    if(x > 0 && canvas[x-1, y] == false && !known.Contains((x-1, y)))
-                        frontier.Add((x-1, y));
-                    if(y < h-1 && canvas[x, y+1] == false && !known.Contains((x, y+1)))
-                        frontier.Add((x, y+1));
-                    if(x < w-1 && canvas[x+1, y] == false && !known.Contains((x+1, y)))
-                        frontier.Add((x+1, y));
-                    if(y > 0 && canvas[x, y-1] == false && !known.Contains((x, y-1)))
-                        frontier.Add((x, y-1));
+                        if(x > 0 && canvas[x - 1, y] == false && !known.Contains((x - 1, y)))
+                            frontier.Add((x - 1, y));
+                        if(y < h - 1 && canvas[x, y + 1] == false && !known.Contains((x, y + 1)))
+                            frontier.Add((x, y + 1));
+                        if(x < w - 1 && canvas[x + 1, y] == false && !known.Contains((x + 1, y)))
+                            frontier.Add((x + 1, y));
+                        if(y > 0 && canvas[x, y - 1] == false && !known.Contains((x, y - 1)))
+                            frontier.Add((x, y - 1));
+                    }
                 }
             }
 
