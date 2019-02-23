@@ -29,11 +29,21 @@ namespace Pirates_Nueva
 
             // Fill in the entire terrain.
             doFloodFill();
+            await waitForClick();
 
             // Randomly kill 20% of the blocks.
             decimate();
+            await waitForClick();
 
             doFloodFill();
+
+            async Task waitForClick() {
+                await Task.Run(() => doWait());
+                void doWait() {
+                    while(!master.Input.MouseLeft.IsDown) ;
+                    System.Threading.Thread.Sleep(100);
+                }
+            }
 
             async Task placeBlobs() {
                 const int Radius = 3;
@@ -47,6 +57,7 @@ namespace Pirates_Nueva
 
                 const int BlobCount = 6;
                 for(int i = 0; i < BlobCount; i++) {
+                    await waitForClick();
                     var (x, y) = (r.Next(Radius, Width-Radius), r.Next(Radius, Height-Radius));
                     foreach(var s in shape)
                         ground[x+s.X, y+s.Y] = true;
