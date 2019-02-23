@@ -9,6 +9,7 @@ namespace Pirates_Nueva
     public class Island : IDrawable
     {
         private bool[,] ground;
+        private List<PointI>[] seperates;
 
         public Island() { }
 
@@ -36,6 +37,9 @@ namespace Pirates_Nueva
             await waitForClick();
 
             await floodFill();
+            await waitForClick();
+
+            await findSeperates();
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());
@@ -143,6 +147,45 @@ namespace Pirates_Nueva
                     }
                 }
             }
+
+            async Task findSeperates() {
+                var fragments = new List<PointI>();
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(ground[x, y])
+                            fragments.Add((x, y));
+                    }
+                }
+
+                var seperates = new List<List<PointI>>();
+                while(fragments.Count > 0) {
+                    var frontier = new List<PointI>() { fragments[fragments.Count - 1] };
+                    var known = new List<PointI>();
+
+                    while(frontier.Count > 0) {
+                        var (x, y) = frontier[frontier.Count - 1];
+                        frontier.RemoveAt(frontier.Count - 1);
+                        fragments.Remove((x, y));
+                        known.Add((x, y));
+
+                        peripheral(x - 1, y);
+                        peripheral(x, y + 1);
+                        peripheral(x + 1, y);
+                        peripheral(x, y - 1);
+
+                        void peripheral(int px, int py) {
+                            if(fragments.Contains((px, py)))
+                                frontier.Add((px, py));
+                        }
+                    }
+
+                    seperates.Add(known);
+                }
+
+                this.seperates = (from s in seperates
+                                  orderby s.Count descending
+                                  select s).ToArray();
+            }
         }
 
         void IDrawable.Draw(Master master) {
@@ -150,10 +193,28 @@ namespace Pirates_Nueva
 
             var tex = master.Resources.LoadTexture("woodBlock");
 
-            for(int x = 0; x < ground.GetLength(0); x++) {
-                for(int y = 0; y < ground.GetLength(1); y++) {
-                    if(ground[x, y])
-                        master.Renderer.Draw(tex, x*Pixels, master.GUI.ScreenHeight - y*Pixels, Pixels, Pixels);
+            /*
+             * If isolated chunks have seperated, display them.
+             */
+            if(this.seperates != null) {
+                foreach(var s in this.seperates) {
+                    var r = new Random(s.GetHashCode());
+                    var color = new Microsoft.Xna.Framework.Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
+
+                    foreach(var p in s) {
+                        master.Renderer.Draw(tex, p.X * Pixels, master.GUI.ScreenHeight - p.Y * Pixels, Pixels, Pixels, color);
+                    }
+                }
+            }
+            /*
+             * If isolated chunks have NOT been separated, display the whole ground.
+             */
+            else {
+                for(int x = 0; x < ground.GetLength(0); x++) {
+                    for(int y = 0; y < ground.GetLength(1); y++) {
+                        if(ground[x, y])
+                            master.Renderer.Draw(tex, x * Pixels, master.GUI.ScreenHeight - y * Pixels, Pixels, Pixels);
+                    }
                 }
             }
         }
