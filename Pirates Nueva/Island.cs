@@ -12,7 +12,7 @@ namespace Pirates_Nueva
 
         public Island() { }
 
-        public void Generate(int seed, Master master) {
+        public async Task Generate(int seed, Master master) {
             Random r = new Random(seed);
 
             const int Width = 15;
@@ -20,7 +20,8 @@ namespace Pirates_Nueva
             ground = new bool[Width, Height];
 
             // Scatter shapes around the canvas.
-            placeBlobs();
+            await placeBlobs(); // Start placing blobs.
+            await waitForClick();     // Wait for the user to click.
             
             // Connect separated but close blocks.
             connectEdges();
@@ -33,7 +34,7 @@ namespace Pirates_Nueva
 
             doFloodFill();
 
-            void placeBlobs() {
+            async Task placeBlobs() {
                 const int Radius = 3;
                 PointI[] shape = {
                                    (0,  2),
@@ -45,7 +46,6 @@ namespace Pirates_Nueva
 
                 const int BlobCount = 6;
                 for(int i = 0; i < BlobCount; i++) {
-                    pause();
                     var (x, y) = (r.Next(Radius, Width-Radius), r.Next(Radius, Height-Radius));
                     foreach(var s in shape)
                         ground[x+s.X, y+s.Y] = true;
