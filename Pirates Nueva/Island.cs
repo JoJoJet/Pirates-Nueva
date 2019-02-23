@@ -28,6 +28,11 @@ namespace Pirates_Nueva
             // Fill in the entire terrain.
             doFloodFill();
 
+            // Randomly kill 20% of the blocks.
+            decimate();
+
+            doFloodFill();
+
             void placeBlobs() {
                 const int Radius = 3;
                 PointI[] shape = {
@@ -109,6 +114,15 @@ namespace Pirates_Nueva
                         frontier.Add((x+1, y));
                     if(y > 0 && canvas[x, y-1] == false && !known.Contains((x, y-1)))
                         frontier.Add((x, y-1));
+                }
+            }
+
+            void decimate() {
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(ground[x, y] && r.Next(0, 100) < 20)
+                            ground[x, y] = false;
+                    }
                 }
             }
         }
