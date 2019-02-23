@@ -32,7 +32,7 @@ namespace Pirates_Nueva
             await waitForClick();
 
             // Randomly kill 20% of the blocks.
-            decimate();
+            await decimate();
             await waitForClick();
 
             await floodFill();
@@ -132,11 +132,14 @@ namespace Pirates_Nueva
                 }
             }
 
-            void decimate() {
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
-                        if(ground[x, y] && r.Next(0, 100) < 20)
-                            ground[x, y] = false;
+            async Task decimate() {
+                await Task.Run(() => doDecimate());
+                void doDecimate() {
+                    for(int x = 0; x < Width; x++) {
+                        for(int y = 0; y < Height; y++) {
+                            if(ground[x, y] && r.Next(0, 100) < 20)
+                                ground[x, y] = false;
+                        }
                     }
                 }
             }
