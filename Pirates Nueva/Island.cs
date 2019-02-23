@@ -24,7 +24,8 @@ namespace Pirates_Nueva
             await waitForClick();     // Wait for the user to click.
             
             // Connect separated but close blocks.
-            connectEdges();
+            await connectEdges();
+            await waitForClick();
 
             // Fill in the entire terrain.
             doFloodFill();
@@ -52,30 +53,33 @@ namespace Pirates_Nueva
                 }
             }
 
-            void connectEdges() {
-                for(int x = 1; x < Width-1; x++) {
-                    for(int y = 1; y < Height-1; y++) {
-                        if(!ground[x, y] && r.Next(0, 100) < 80) {
-                            //   0   //
-                            // 1 0 1 //
-                            //   0   //
-                            if(ground[x-1, y] && ground[x+1, y] && !ground[x, y+1] && !ground[x, y-1])
-                                ground[x, y] = true;
-                            //   1   //
-                            // 0 0 0 //
-                            //   1   //
-                            else if(ground[x, y+1] && ground[x, y-1] && !ground[x-1, y] && !ground[x+1, y])
-                                ground[x, y] = true;
-                            // 1   0 //
-                            //   0   //
-                            // 0   1 //
-                            else if(ground[x-1, y+1] && ground[x+1, y-1] && !ground[x-1, y-1] && !ground[x+1, y+1])
-                                ground[x, y] = true;
-                            // 0   1 //
-                            //   0   //
-                            // 1   0 //
-                            else if(ground[x+1, y+1] && ground[x-1, y-1] && !ground[x-1, y+1] && !ground[x+1, y-1])
-                                ground[x, y] = true;
+            async Task connectEdges() {
+                await Task.Run(() => doConnectEdges());
+                void doConnectEdges() {
+                    for(int x = 1; x < Width - 1; x++) {
+                        for(int y = 1; y < Height - 1; y++) {
+                            if(!ground[x, y] && r.Next(0, 100) < 80) {
+                                //   0   //
+                                // 1 0 1 //
+                                //   0   //
+                                if(ground[x - 1, y] && ground[x + 1, y] && !ground[x, y + 1] && !ground[x, y - 1])
+                                    ground[x, y] = true;
+                                //   1   //
+                                // 0 0 0 //
+                                //   1   //
+                                else if(ground[x, y + 1] && ground[x, y - 1] && !ground[x - 1, y] && !ground[x + 1, y])
+                                    ground[x, y] = true;
+                                // 1   0 //
+                                //   0   //
+                                // 0   1 //
+                                else if(ground[x - 1, y + 1] && ground[x + 1, y - 1] && !ground[x - 1, y - 1] && !ground[x + 1, y + 1])
+                                    ground[x, y] = true;
+                                // 0   1 //
+                                //   0   //
+                                // 1   0 //
+                                else if(ground[x + 1, y + 1] && ground[x - 1, y - 1] && !ground[x - 1, y + 1] && !ground[x + 1, y - 1])
+                                    ground[x, y] = true;
+                            }
                         }
                     }
                 }
