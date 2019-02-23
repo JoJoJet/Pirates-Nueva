@@ -59,6 +59,9 @@ namespace Pirates_Nueva
         public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
 
         public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
+
+        public static bool operator ==(PointI a, PointI b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(PointI a, PointI b) => a.X != b.X || a.Y != b.Y;
     }
 
     /// <summary>
@@ -144,6 +147,9 @@ namespace Pirates_Nueva
 
         public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
         public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
+
+        public static bool operator ==(PointF a, PointF b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(PointF a, PointF b) => a.X != b.X || a.Y != b.Y;
     }
 
     public static class PointExt
