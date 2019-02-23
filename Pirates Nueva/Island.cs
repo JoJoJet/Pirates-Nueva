@@ -39,7 +39,7 @@ namespace Pirates_Nueva
             await floodFill();
             await waitForClick();
 
-            await findSeperates();
+            await Task.Run(() => findSeperates());
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());
@@ -142,7 +142,7 @@ namespace Pirates_Nueva
                 }
             }
 
-            async Task findSeperates() {
+            void findSeperates() {
                 var fragments = new List<PointI>();
                 for(int x = 0; x < Width; x++) {
                     for(int y = 0; y < Height; y++) {
