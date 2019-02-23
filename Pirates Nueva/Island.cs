@@ -21,6 +21,9 @@ namespace Pirates_Nueva
 
             // Scatter shapes around the canvas.
             placeBlobs();
+            
+            // Connect separated but close blocks.
+            connectEdges();
 
             void placeBlobs() {
                 const int Radius = 3;
@@ -38,6 +41,35 @@ namespace Pirates_Nueva
                     var (x, y) = (r.Next(Radius, Width-Radius), r.Next(Radius, Height-Radius));
                     foreach(var s in shape)
                         ground[x+s.X, y+s.Y] = true;
+                }
+            }
+
+            void connectEdges() {
+                for(int x = 1; x < Width-1; x++) {
+                    for(int y = 1; y < Height-1; y++) {
+                        if(!ground[x, y] && r.Next(0, 100) < 80) {
+                            //   0   //
+                            // 1 0 1 //
+                            //   0   //
+                            if(ground[x-1, y] && ground[x+1, y] && !ground[x, y+1] && !ground[x, y-1])
+                                ground[x, y] = true;
+                            //   1   //
+                            // 0 0 0 //
+                            //   1   //
+                            else if(ground[x, y+1] && ground[x, y-1] && !ground[x-1, y] && !ground[x+1, y])
+                                ground[x, y] = true;
+                            // 1   0 //
+                            //   0   //
+                            // 0   1 //
+                            else if(ground[x-1, y+1] && ground[x+1, y-1] && !ground[x-1, y-1] && !ground[x+1, y+1])
+                                ground[x, y] = true;
+                            // 0   1 //
+                            //   0   //
+                            // 1   0 //
+                            else if(ground[x+1, y+1] && ground[x-1, y-1] && !ground[x-1, y+1] && !ground[x+1, y-1])
+                                ground[x, y] = true;
+                        }
+                    }
                 }
             }
         }
