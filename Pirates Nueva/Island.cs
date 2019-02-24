@@ -222,21 +222,21 @@ namespace Pirates_Nueva
                         (0, 1)
                         );
                     
-                    if(slide is PointI s) {
-                        for(int i = 0; i < isolated.Count; i++) {
-                            var (x, y) = isolated[i] + s;
+                    if(slide is PointI s) {                       // If the isolated chunk can be slid,
+                        for(int i = 0; i < isolated.Count; i++) { //     draw the chunk to the ground pixels,
+                            var (x, y) = isolated[i] + s;         //         offset by the slide amount.
                             ground[x, y] = true;
                         }
                     }
 
                     IEnumerable<PointI> findEdge(Func<PointI, int> indexer, Func<PointI, PointI, bool> isFurther) {
-                        var ed = new PointI?[Math.Max(Width, Height)];
-                        foreach(var p in isolated) {
-                            int i = indexer(p);
-                            if(ed[i] == null || isFurther(ed[i].Value, p))
-                                ed[i] = p;
+                        var ed = new PointI?[Math.Max(Width, Height)];      // An array of edge blocks.
+                        foreach(var p in isolated) {                        // For every block in the chunk:
+                            int i = indexer(p);                             //
+                            if(ed[i] == null || isFurther(ed[i].Value, p))  // If it is the closest block to the edge in this axis,
+                                ed[i] = p;                                  //     add it to the array of edges.
                         }
-                        return from e in ed where e != null select e.Value;
+                        return from e in ed where e != null select e.Value; // Return an array of (initialized) edge blocks.
                     }
 
                     void trySlide(IEnumerable<PointI> ed, PointI dir) {
@@ -244,7 +244,7 @@ namespace Pirates_Nueva
                         foreach(var e in ed) {
                             for(int i = 0; bounds.Contains(e + dir * i); i++) {
                                 if(hasAdjacent(e.X + dir.X * i, e.Y + dir.Y * i)) {
-                                    if((slide?.SqrMagnitude > i * i || slide == null) && checkBounds(dir * i))
+                                    if((slide?.SqrMagnitude > i*i || slide == null) && checkBounds(dir * i))
                                         slide = dir * i;
                                     break;
                                 }
@@ -256,12 +256,12 @@ namespace Pirates_Nueva
                                                       (x < Width - 1 && ground[x + 1, y]) || (y > 0 && ground[x, y - 1]);
 
                     bool checkBounds(PointI offset) {
-                        foreach(var p in isolated) {
-                            var (x, y) = p + offset;
-                            if(x < 0 || x >= Width || y < 0 || y >= Height)
-                                return false;
-                        }
-                        return true;
+                        foreach(var p in isolated) {                        // For every point in the isolated chunk:
+                            var (x, y) = p + offset;                        //
+                            if(x < 0 || x >= Width || y < 0 || y >= Height) // If it is beyond the bounds of the island,
+                                return false;                               //     return false.
+                        }                                                   // If we got this far without exiting the method,                                     
+                        return true;                                        //     return true.
                     }
                 }
             }
