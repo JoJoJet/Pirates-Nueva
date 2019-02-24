@@ -19,48 +19,40 @@ namespace Pirates_Nueva
             const int Width = 15;
             const int Height = 15;
             ground = new bool[Width, Height];
-
-            // Scatter shapes around the canvas.
-            await placeBlobs();
-            await waitForClick();
             
-            // Connect separated but close blocks.
-            await Task.Run(() => connectEdges());
-            await waitForClick();
+            await placeBlobs();                   // Scatter shapes around the canvas.
+            await waitForClick();                 // Wait for the user to click.
+            
+            await Task.Run(() => connectEdges()); // Connect separated but close blocks.
+            await waitForClick();                 // Wait for the user to click.
 
-            // Fill in the entire terrain.
-            await floodFill();
-            await waitForClick();
+            await floodFill();                    // Fill in the entire terrain.
+            await waitForClick();                 // Wait for the user to click.
 
-            // Randomly kill 20% of the blocks.
-            await Task.Run(() => decimate());
-            await waitForClick();
+            await Task.Run(() => decimate());     // Randomly kill 20% of the blocks.
+            await waitForClick();                 // Wait for the user to click.
 
-            // Fill in the terrain.
-            await floodFill();
-            await waitForClick();
+            await floodFill();                    // Fill in the terrain.
+            await waitForClick();                 // Wait for the user to click.
 
-            // Combine any stray fragments into one thing.
-            await slideSeperates();
+            await slideSeperates();               // Combine any stray islands into one shape.
 
-            // Connnect separated but close blocks.
-            await Task.Run(() => connectEdges());
-            await waitForClick();
+            await Task.Run(() => connectEdges()); // Connnect separated but close blocks.
+            await waitForClick();                 // Wait for the user to click.
 
-            // Fill in the terrain.
-            await floodFill();
+            await floodFill();                    // Fill in the terrain.
 
             async Task waitForClick() {
-                await Task.Run(() => doWait());
+                await Task.Run(() => doWait());             // Run the method on a background thread.
                 void doWait() {
-                    while(!master.Input.MouseLeft.IsDown) ;
-                    System.Threading.Thread.Sleep(100);
+                    while(!master.Input.MouseLeft.IsDown) ; // Loop until the user clicks.
+                    System.Threading.Thread.Sleep(100);     // Wait for a tenth of a second.
                 }
             }
 
             async Task placeBlobs() {
                 const int Radius = 3;
-                PointI[] shape = {
+                PointI[] shape = {                           // Defines the shape of a blob.
                                    (0,  2),
                          (-1,  1), (0,  1), (1,  1),
                 (-2, 0), (-1,  0), (0,  0), (1,  0), (2, 0),
@@ -68,11 +60,12 @@ namespace Pirates_Nueva
                                    (0, -2)
                 };
 
-                const int BlobCount = 6;
-                for(int i = 0; i < BlobCount; i++) {
-                    await waitForClick();
-                    var (x, y) = (r.Next(Radius, Width-Radius), r.Next(Radius, Height-Radius));
-                    foreach(var s in shape)
+                const int BlobCount = 6;                     // Defines the number of blobs to place.
+                for(int i = 0; i < BlobCount; i++) {         // Repeat for every blob to place:
+                    await waitForClick();                    // Wait until the user clicks.
+                    int x = r.Next(Radius, Width - Radius);  // Choose a random /x/ coordinate in the island.
+                    int y = r.Next(Radius, Height - Radius); // Choose a random /y/ coordinate in the island.
+                    foreach(var s in shape)                  // Place a blob centered at /x/, /y/.
                         ground[x+s.X, y+s.Y] = true;
                 }
             }
@@ -107,10 +100,10 @@ namespace Pirates_Nueva
             }
 
             async Task floodFill() {
-                var fill = new bool[Width, Height];
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
-                        fill[x, y] = true;
+                var fill = new bool[Width, Height];   // An empty 2D array.
+                for(int x = 0; x < Width; x++) {      // For every point in the array:
+                    for(int y = 0; y < Height; y++) { //
+                        fill[x, y] = true;            // Default its to be filled in.
                     }
                 }
                 await Task.Run(() => doFloodFill(ground, (0, Height-1), (x, y) => fill[x, y] = false));
@@ -119,24 +112,23 @@ namespace Pirates_Nueva
                 void doFloodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
                     var box = new BoundingBox(0, 0, Width-1, Height-1);
 
-                    var frontier = new List<PointI>() { start };
-                    var known = new List<PointI>();
+                    var frontier = new Stack<PointI>(new[] { start }); // List of pixels to be searched.
+                    var known = new List<PointI>();                    // Pixels that have already been searched.
 
-                    while(frontier.Count > 0) {
-                        var (x, y) = frontier[frontier.Count - 1];
-                        frontier.RemoveAt(frontier.Count - 1);
-                        known.Add((x, y));
-
-                        paint(x, y);
-
-                        neighbor(x - 1, y);
-                        neighbor(x, y + 1);
-                        neighbor(x + 1, y);
-                        neighbor(x, y - 1);
+                    while(frontier.Count > 0) {      // While there are coordinates to be searched:
+                        var (x, y) = frontier.Pop(); // Get a coordinate to search, /x/, /y/.
+                        known.Add((x, y));           // Add it to the list of searched coordinates.
+                                                     //
+                        paint(x, y);                 // Color in that coordinate.
+                                                     //
+                        neighbor(x - 1, y);          // Mark its left adjacent neighbor to be searched, if it wasn't already.
+                        neighbor(x, y + 1);          // Do the same for its upward neighbor,
+                        neighbor(x + 1, y);          // its rightward neighbor,
+                        neighbor(x, y - 1);          // and its downward neighbor.
                     }
                     void neighbor(int x, int y) {
-                        if(box.Contains(x, y) && !ground[x, y] && !known.Contains((x, y)))
-                            frontier.Add((x, y));
+                        if(box.Contains(x, y) && !ground[x, y] && !known.Contains((x, y))) // If the point is empty & not yet searched,
+                            frontier.Push((x, y));                                         //     mark it to be searched later on.
                     }
                 }
             }
@@ -168,7 +160,7 @@ namespace Pirates_Nueva
                         var (x, y) = frontier.Dequeue(); // Get a coordinate to search, /x/, /y/.
                         fragments.Remove((x, y));        // Remove it from the list of loose fragments,
                         known.Add((x, y));               // and add it to the list of searched coordinates.
-
+                                                         //
                         peripheral(x - 1, y);            // Mark its left adjacent neighbor to be searched, if it wansn't already.
                         peripheral(x, y + 1);            // Do the same for its upward neighbor,
                         peripheral(x + 1, y);            // its rightward neighbor,
