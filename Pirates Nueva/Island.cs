@@ -9,7 +9,6 @@ namespace Pirates_Nueva
     public class Island : IDrawable
     {
         private bool[,] ground;
-        private List<List<PointI>> seperates;
 
         public Island() { }
 
@@ -142,56 +141,56 @@ namespace Pirates_Nueva
                 }
             }
 
-            void findSeperates() {
-                var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
-                for(int x = 0; x < Width; x++) {      // For every point in the island:
-                    for(int y = 0; y < Height; y++) { //
-                        if(ground[x, y])              // If there is a ground pixel there,
-                            fragments.Add((x, y));    //     add the point to the list.
-                    }
-                }
-
-                var seperates = new List<List<PointI>>();
-                while(fragments.Count > 0) {
-                    var frontier = new Queue<PointI>(new[] { fragments.Last() }); // Coordinates to be searched.
-                    var known = new List<PointI>();                               // Coordinates that have already been searched.
-
-                    while(frontier.Count > 0) {          // While there are coordinates to be searched:
-                        var (x, y) = frontier.Dequeue(); // Get a coordinate to search, /x/, /y/.
-                        fragments.Remove((x, y));        // Remove it from the list of loose fragments,
-                        known.Add((x, y));               // and add it to the list of searched coordinates.
-                                                         //
-                        peripheral(x - 1, y);            // Mark its left adjacent neighbor to be searched, if it wansn't already.
-                        peripheral(x, y + 1);            // Do the same for its upward neighbor,
-                        peripheral(x + 1, y);            // its rightward neighbor,
-                        peripheral(x, y - 1);            // and its downward neighbor.
-                    }
-                    void peripheral(int x, int y) {
-                        if(fragments.Contains((x, y))) // If the specified point is still loose,
-                            frontier.Enqueue((x, y));  //     mark it to be searched later on.
-                    }
-
-                    seperates.Add(known);
-                }
-
-                this.seperates = (from s in seperates
-                                  orderby s.Count descending
-                                  select s).ToList();
-            }
-
             async Task slideSeperates() {
-                await Task.Run(() => findSeperates()); // Find the separated chunks of the island.
+                var seperates = await Task.Run(() => findSeperates()); // Find the separated chunks of the island.
                 while(seperates.Count > 1) {
                     int c = seperates.Count;
-
-                    ground = new bool[Width, Height];              // Clear the ground pixels,
-                    foreach(var p in seperates.Take(c-1).Union())  //     and populate them with
-                        ground[p.X, p.Y] = true;                   //         the seperate chunks, except the final one.
-
-                    await Task.Run(() => doSlide(seperates[c-1])); // Slide the last separated chunk into the mainland.
-                    await Task.Run(() => findSeperates());         // Re-compute the seperated chunks of the island.
                     
-                    await waitForClick();                          // Wait for the user to click.
+                    ground = new bool[Width, Height];                  // Clear the ground pixels,
+                    foreach(var p in seperates.Take(c-1).Union())      //     and populate them with
+                        ground[p.X, p.Y] = true;                       //         the seperate chunks, except the final one.
+                    
+                    await Task.Run(() => doSlide(seperates[c-1]));     // Slide the last separated chunk into the mainland.
+                    seperates = await Task.Run(() => findSeperates()); // Re-compute the seperated chunks of the island.
+                    
+                    await waitForClick();                              // Wait for the user to click.
+                }
+                
+                List<List<PointI>> findSeperates() {
+                    var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
+                    for(int x = 0; x < Width; x++) {      // For every point in the island:
+                        for(int y = 0; y < Height; y++) { //
+                            if(this.ground[x, y])         // If there is a ground pixel there,
+                                fragments.Add((x, y));    //     add the point to the list.
+                        }
+                    }
+                    
+                    var chunks = new List<List<PointI>>();
+                    while(fragments.Count > 0) {
+                        var frontier = new Queue<PointI>(new[] { fragments.Last() }); // Coordinates to be searched.
+                        var known = new List<PointI>();                               // Coordinates that have already been searched.
+
+                        while(frontier.Count > 0) {          // While there are coordinates to be searched:
+                            var (x, y) = frontier.Dequeue(); // Get a coordinate to search, /x/, /y/.
+                            fragments.Remove((x, y));        // Remove it from the list of loose fragments,
+                            known.Add((x, y));               // and add it to the list of searched coordinates.
+                                                             //
+                            peripheral(x - 1, y);            // Mark its left adjacent neighbor to be searched, if it wansn't already.
+                            peripheral(x, y + 1);            // Do the same for its upward neighbor,
+                            peripheral(x + 1, y);            // its rightward neighbor,
+                            peripheral(x, y - 1);            // and its downward neighbor.
+                        }
+                        void peripheral(int x, int y) {
+                            if(fragments.Contains((x, y))) // If the specified point is still loose,
+                                frontier.Enqueue((x, y));  //     mark it to be searched later on.
+                        }
+
+                        chunks.Add(known);
+                    }
+                    
+                    return (from s in chunks
+                            orderby s.Count descending
+                            select s).ToList();
                 }
 
                 void doSlide(List<PointI> isolated) {
