@@ -125,11 +125,10 @@ namespace Pirates_Nueva
                         neighbor(x, y + 1);
                         neighbor(x + 1, y);
                         neighbor(x, y - 1);
-
-                        void neighbor(int nx, int ny) {
-                            if(box.Contains(nx, ny) && !ground[nx, ny] && !known.Contains((nx, ny)))
-                                frontier.Add((nx, ny));
-                        }
+                    }
+                    void neighbor(int x, int y) {
+                        if(box.Contains(x, y) && !ground[x, y] && !known.Contains((x, y)))
+                            frontier.Add((x, y));
                     }
                 }
             }
@@ -166,11 +165,10 @@ namespace Pirates_Nueva
                         peripheral(x, y + 1);            // Do the same for its upward neighbor,
                         peripheral(x + 1, y);            // its rightward neighbor,
                         peripheral(x, y - 1);            // and its downward neighbor.
-
-                        void peripheral(int px, int py) {
-                            if(fragments.Contains((px, py))) // If the specified point is still loose,
-                                frontier.Enqueue((px, py));  //     mark it to be searched later on.
-                        }
+                    }
+                    void peripheral(int x, int y) {
+                        if(fragments.Contains((x, y))) // If the specified point is still loose,
+                            frontier.Enqueue((x, y));  //     mark it to be searched later on.
                     }
 
                     seperates.Add(known);
