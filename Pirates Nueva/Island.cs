@@ -269,28 +269,10 @@ namespace Pirates_Nueva
 
             var tex = master.Resources.LoadTexture("woodBlock");
 
-            /*
-             * If isolated chunks have seperated, display them.
-             */
-            if(this.seperates != null) {
-                foreach(var s in this.seperates) {
-                    var r = new Random(s.GetHashCode());
-                    var color = new Microsoft.Xna.Framework.Color(r.Next(0, 256), r.Next(0, 256), r.Next(0, 256));
-
-                    foreach(var p in s) {
-                        master.Renderer.Draw(tex, p.X * Pixels, master.GUI.ScreenHeight - p.Y * Pixels, Pixels, Pixels, color);
-                    }
-                }
-            }
-            /*
-             * If isolated chunks have NOT been separated, display the whole ground.
-             */
-            else {
-                for(int x = 0; x < ground.GetLength(0); x++) {
-                    for(int y = 0; y < ground.GetLength(1); y++) {
-                        if(ground[x, y])
-                            master.Renderer.Draw(tex, x * Pixels, master.GUI.ScreenHeight - y * Pixels, Pixels, Pixels);
-                    }
+            for(int x = 0; x < ground.GetLength(0); x++) {
+                for(int y = 0; y < ground.GetLength(1); y++) {
+                    if(ground[x, y])
+                        master.Renderer.Draw(tex, x * Pixels, master.GUI.ScreenHeight - y * Pixels, Pixels, Pixels);
                 }
             }
         }
