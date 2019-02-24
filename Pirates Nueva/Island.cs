@@ -40,6 +40,9 @@ namespace Pirates_Nueva
             await waitForClick();                 // Wait for the user to click.
 
             await floodFill();                    // Fill in the terrain.
+            await waitForClick();                 // Wait for the user to click.
+
+            await Task.Run(() => extraneous());
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());             // Run the method on a background thread.
@@ -258,6 +261,104 @@ namespace Pirates_Nueva
                         return true;                                        //     return true.
                     }
                 }
+            }
+
+            void extraneous() {
+                /*
+                 * Delete parts of the island that are extruding too far.
+                 */
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        // 0 1 0 //
+                        // 0 1 0 //
+                        // 0 1 0 //
+                        // 0 0 0 //
+                        if(
+                           !q(x-1, y+2) &&  q(x, y+2) && !q(x+1, y+2) &&
+                           !q(x-1, y+1) &&  q(x, y+1) && !q(x+1, y+1) &&
+                           !q(x-1, y  ) &&  q(x, y  ) && !q(x+1, y  ) &&
+                           !q(x-1, y-1) && !q(x, y-1) && !q(x+1, y-1)
+                          )
+                            ground[x, y] = false;
+                        // 0 0 0 0 //
+                        // 0 1 1 1 //
+                        // 0 0 0 0 //
+                        else if(
+                                !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) && !q(x+2, y+1) &&
+                                !q(x-1, y  ) &&  q(x, y  ) &&  q(x+1, y  ) &&  q(x+2, y  ) &&
+                                !q(x-1, y-1) && !q(x, y-1) && !q(x+1, y-1) && !q(x+2, y-1)
+                               )
+                            ground[x, y] = false;
+                        // 0 0 0 //
+                        // 0 1 0 //
+                        // 0 1 0 //
+                        // 0 1 0 //
+                        else if(
+                                !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) &&
+                                !q(x-1, y  ) &&  q(x, y  ) && !q(x+1, y  ) &&
+                                !q(x-1, y-1) &&  q(x, y-1) && !q(x+1, y-1) &&
+                                !q(x-1, y-2) &&  q(x, y-2) && !q(x+1, y-2)
+                               )
+                            ground[x, y] = false;
+                        // 0 0 0 0 //
+                        // 1 1 1 0 //
+                        // 0 0 0 0 //
+                        else if(
+                                !q(x-2, y+1) && !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) &&
+                                 q(x-2, y  ) &&  q(x-1, y  ) &&  q(x, y  ) && !q(x+1, y  ) &&
+                                !q(x-2, y-1) && !q(x-1, y-1) && !q(x, y-1) && !q(x+1, y-1)
+                               )
+                            ground[x, y] = false;
+                    }
+                }
+
+                /*
+                 * Have a chance to delete parts of the island that are extruding a bit.
+                 */
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(q(x, y) && r.Next(0, 100) < 70) {
+                            // 0 1 0 //
+                            // 0 1 0 //
+                            // 0 0 0 //
+                            if(
+                               !q(x - 1, y + 1) && q(x, y + 1) && !q(x + 1, y + 1) &&
+                               !q(x - 1, y) && !q(x + 1, y) &&
+                               !q(x - 1, y - 1) && !q(x, y - 1) && !q(x + 1, y - 1)
+                              )
+                                ground[x, y] = false;
+                            // 0 0 0 //
+                            // 0 1 1 //
+                            // 0 0 0 //
+                            else if(
+                                    !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) &&
+                                    !q(x-1, y  ) &&                q(x+1, y  ) &&
+                                    !q(x-1, y-1) && !q(x, y-1) && !q(x+1, y-1)
+                                   )
+                                ground[x, y] = false;
+                            // 0 0 0 //
+                            // 0 1 0 //
+                            // 0 1 0 //
+                            else if(
+                                    !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) &&
+                                    !q(x-1, y  ) &&               !q(x+1, y  ) &&
+                                    !q(x-1, y-1) &&  q(x, y-1) && !q(x+1, y-1)
+                                   )
+                                ground[x, y] = false;
+                            // 0 0 0 //
+                            // 1 1 0 //
+                            // 0 0 0 //
+                            else if(
+                                    !q(x-1, y+1) && !q(x, y+1) && !q(x+1, y+1) &&
+                                     q(x-1, y  ) &&               !q(x+1, y  ) &&
+                                    !q(x-1, y-1) && !q(x, y-1) && !q(x+1, y-1)
+                                   )
+                                ground[x, y] = false;
+                        }
+                    }
+                }
+
+                bool q(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height && ground[x, y];
             }
         }
 
