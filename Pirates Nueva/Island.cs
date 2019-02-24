@@ -41,6 +41,9 @@ namespace Pirates_Nueva
             await waitForClick();
 
             await Task.Run(() => findSeperates());
+            await waitForClick();
+
+            await slideSeperates();
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());
@@ -181,6 +184,91 @@ namespace Pirates_Nueva
                                   orderby s.Count descending
                                   select s).ToList();
             }
+
+            async Task slideSeperates() {
+                while(seperates.Count > 1) {
+                    int c = seperates.Count;
+
+                    ground = new bool[Width, Height];              // Clear the ground pixels,
+                    foreach(var p in seperates.Take(c-1).Union())  //     and populate them with
+                        ground[p.X, p.Y] = true;                   //         the seperate chunks, except the final one.
+
+                    await Task.Run(() => doSlide(seperates[c-1])); // Slide the last separated chunk into other masses.
+                    await Task.Run(() => findSeperates());         // Re-compute the separated chunks.
+                    
+                    await waitForClick();                          // Wait for the user to click.
+                }
+
+                void doSlide(List<PointI> isolated) {
+                    var slide = findSlide();
+                    if(slide != (0, 0)) {
+                        for(int i = 0; i < isolated.Count; i++) {
+                            var (x, y) = isolated[i] + slide;
+                            ground[x, y] = true;
+                        }
+                    }
+
+                    PointI findSlide() {
+                        PointI? factor = null;
+                        
+                        trySlide( // Try to slide leftward.
+                            findEdge((p) => p.Y, (p1, p2) => p1.X > p2.X),
+                            (-1, 0)
+                            );
+                        
+                        trySlide( // Try to slide downward.
+                            findEdge((p) => p.X, (p1, p2) => p1.Y > p2.Y),
+                            (0, -1)
+                            );
+                        
+                        trySlide( // Try to slide rightward.
+                            findEdge((p) => p.Y, (p1, p2) => p1.X < p2.X),
+                            (1, 0)
+                            );
+                        
+                        trySlide( // Try to slide upward.
+                            findEdge((p) => p.X, (p1, p2) => p1.Y < p2.Y),
+                            (0, 1)
+                            );
+
+                        return factor ?? (0, 0);
+
+                        IEnumerable<PointI> findEdge(Func<PointI, int> indexer, Func<PointI, PointI, bool> isFurther) {
+                            var ed = new PointI?[Math.Max(Width, Height)];
+                            foreach(var p in isolated) {
+                                int i = indexer(p);
+                                if(ed[i] == null || isFurther(ed[i].Value, p))
+                                    ed[i] = p;
+                            }
+                            return from e in ed where e != null select e.Value;
+                        }
+
+                        void trySlide(IEnumerable<PointI> ed, PointI dir) {
+                            var bounds = new BoundingBox(0, 0, Width - 1, Height - 1);
+                            foreach(var e in ed) {
+                                for(int i = 0; bounds.Contains(e + dir * i); i++) {
+                                    if(hasAdjacent(e.X + dir.X * i, e.Y + dir.Y * i)) {
+                                        if((factor?.SqrMagnitude > i * i || factor == null) && checkBounds(dir * i))
+                                            factor = dir * i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        bool hasAdjacent(int x, int y) => (x > 0 && ground[x - 1, y]) || (y < Height-1 && ground[x, y + 1]) ||
+                                                          (x < Width-1 && ground[x + 1, y]) || (y > 0 && ground[x, y - 1]);
+
+                        bool checkBounds(PointI offset) {
+                            foreach(var p in isolated) {
+                                var (x, y) = p + offset;
+                                if(x < 0 || x >= Width || y < 0 || y >= Height)
+                                    return false;
+                            }
+                            return true;
+                        }
+                    }
+                }
             }
         }
 
