@@ -40,7 +40,15 @@ namespace Pirates_Nueva
             await floodFill();
             await waitForClick();
 
+            // Combine any stray fragments into one thing.
             await slideSeperates();
+
+            // Connnect separated but close blocks.
+            await Task.Run(() => connectEdges());
+            await waitForClick();
+
+            // Fill in the terrain.
+            await floodFill();
 
             async Task waitForClick() {
                 await Task.Run(() => doWait());
