@@ -9,7 +9,7 @@ namespace Pirates_Nueva
     public class Island : IDrawable
     {
         private bool[,] ground;
-        private List<PointI>[] seperates;
+        private List<List<PointI>> seperates;
 
         public Island() { }
 
@@ -36,6 +36,7 @@ namespace Pirates_Nueva
             await Task.Run(() => decimate());
             await waitForClick();
 
+            // Fill in the terrain.
             await floodFill();
             await waitForClick();
 
@@ -178,7 +179,8 @@ namespace Pirates_Nueva
 
                 this.seperates = (from s in seperates
                                   orderby s.Count descending
-                                  select s).ToArray();
+                                  select s).ToList();
+            }
             }
         }
 
