@@ -12,7 +12,7 @@ namespace Pirates_Nueva
 
         public Island() { }
 
-        public async Task Generate(int seed, Master master) {
+        public async Task GenerateAsync(int seed, Master master) {
             Random r = new Random(seed);
 
             const int Width = 15;
@@ -42,8 +42,11 @@ namespace Pirates_Nueva
             await floodFill();                    // Fill in the terrain.
             await waitForClick();                 // Wait for the user to click.
 
-            await Task.Run(() => extraneous());
+            await Task.Run(() => extraneous());   // Delete unnatural extrusions.
 
+            /*
+             * Local Methods.
+             */
             async Task waitForClick() {
                 await Task.Run(() => doWait());             // Run the method on a background thread.
                 void doWait() {
