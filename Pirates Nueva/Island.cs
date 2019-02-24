@@ -138,42 +138,41 @@ namespace Pirates_Nueva
             }
 
             void decimate() {
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
-                        if(ground[x, y] && r.Next(0, 100) < 20)
+                for(int x = 0; x < Width; x++) {                // For every ground pixel:
+                    for(int y = 0; y < Height; y++) {           //
+                        if(ground[x, y] && r.Next(0, 100) < 20) // Have a 20% chance to delete the pixel.
                             ground[x, y] = false;
                     }
                 }
             }
 
             void findSeperates() {
-                var fragments = new List<PointI>();
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
-                        if(ground[x, y])
-                            fragments.Add((x, y));
+                var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
+                for(int x = 0; x < Width; x++) {      // For every point in the island:
+                    for(int y = 0; y < Height; y++) { //
+                        if(ground[x, y])              // If there is a ground pixel there,
+                            fragments.Add((x, y));    //     add the point to the list.
                     }
                 }
 
                 var seperates = new List<List<PointI>>();
                 while(fragments.Count > 0) {
-                    var frontier = new List<PointI>() { fragments[fragments.Count - 1] };
-                    var known = new List<PointI>();
+                    var frontier = new Queue<PointI>(new[] { fragments.Last() }); // Coordinates to be searched.
+                    var known = new List<PointI>();                               // Coordinates that have already been searched.
 
-                    while(frontier.Count > 0) {
-                        var (x, y) = frontier[frontier.Count - 1];
-                        frontier.RemoveAt(frontier.Count - 1);
-                        fragments.Remove((x, y));
-                        known.Add((x, y));
+                    while(frontier.Count > 0) {          // While there are coordinates to be searched:
+                        var (x, y) = frontier.Dequeue(); // Get a coordinate to search, /x/, /y/.
+                        fragments.Remove((x, y));        // Remove it from the list of loose fragments,
+                        known.Add((x, y));               // and add it to the list of searched coordinates.
 
-                        peripheral(x - 1, y);
-                        peripheral(x, y + 1);
-                        peripheral(x + 1, y);
-                        peripheral(x, y - 1);
+                        peripheral(x - 1, y);            // Mark its left adjacent neighbor to be searched, if it wansn't already.
+                        peripheral(x, y + 1);            // Do the same for its upward neighbor,
+                        peripheral(x + 1, y);            // its rightward neighbor,
+                        peripheral(x, y - 1);            // and its downward neighbor.
 
                         void peripheral(int px, int py) {
-                            if(fragments.Contains((px, py)))
-                                frontier.Add((px, py));
+                            if(fragments.Contains((px, py))) // If the specified point is still loose,
+                                frontier.Enqueue((px, py));  //     mark it to be searched later on.
                         }
                     }
 
