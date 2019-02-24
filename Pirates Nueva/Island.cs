@@ -23,8 +23,6 @@ namespace Pirates_Nueva
             await waitForClick();                 // Wait for the user to click.
             
             await Task.Run(() => connectEdges()); // Connect separated but close blocks.
-            await waitForClick();                 // Wait for the user to click.
-
             await floodFill();                    // Fill in the entire terrain.
             await waitForClick();                 // Wait for the user to click.
 
@@ -33,16 +31,21 @@ namespace Pirates_Nueva
 
             await floodFill();                    // Fill in the terrain.
             await waitForClick();                 // Wait for the user to click.
+            
+            await Task.Run(() => breakNecks());   // Break any thin connectors.
+            await waitForClick();
 
             await slideSeperates();               // Combine any stray islands into one shape.
 
             await Task.Run(() => connectEdges()); // Connnect separated but close blocks.
-            await waitForClick();                 // Wait for the user to click.
-
             await floodFill();                    // Fill in the terrain.
             await waitForClick();                 // Wait for the user to click.
 
             await Task.Run(() => extraneous());   // Delete unnatural extrusions.
+            await Task.Run(() => breakNecks());   // Break any thin connectors.
+            await waitForClick();
+
+            await slideSeperates();
 
             /*
              * Local Methods.
@@ -145,6 +148,57 @@ namespace Pirates_Nueva
                             ground[x, y] = false;
                     }
                 }
+            }
+
+            void breakNecks() {
+                /*
+                 * Delete longer thin connectors.
+                 */
+                for(int x = 1; x < Width-2; x++) {
+                    for(int y = 1; y < Height-2; y++) {
+                        if(q(x, y)) {
+                            //   1   //
+                            // 0 1 0 //
+                            // 0 1 0 //
+                            //   1   //
+                            if(q(x, y+2) && !q(x-1, y+1) && q(x, y+1) && !q(x+1, y+1) && !q(x-1, y) && !q(x+1, y) && q(x, y-1)) {
+                                if(r.Next(0, 100) < 80)
+                                    ground[x, y  ] = false;
+                                if(r.Next(0, 100) < 80)
+                                    ground[x, y+1] = false;
+                            }
+                            //   0 0   //
+                            // 1 1 1 1 //
+                            //   0 0   //
+                            else if(!q(x, y+1) && !q(x+1, y+1) && q(x-1, y) && q(x+1, y) && q(x+2, y) && !q(x, y-1) && !q(x+1, y-1)) {
+                                if(r.Next(0, 100) < 80)
+                                    ground[x  , y] = false;
+                                if(r.Next(0, 100) < 80)
+                                    ground[x+1, y] = false;
+                            }
+                        }
+                    }
+                }
+                /*
+                 * Delete long-ish thin connectors.
+                 */
+                for(int x = 1; x < Width-1; x++) {
+                    for(int y = 1; y < Height-1; y++) {
+                        if(q(x, y) && r.Next(0, 100) < 75) {
+                            //   0   //
+                            // 1 1 1 //
+                            //   0   //
+                            if(!q(x, y+1) && q(x-1, y) && q(x+1, y) && !q(x, y-1))
+                                ground[x, y] = false;
+                            //   1   //
+                            // 0 1 0 //
+                            //   1   //
+                            else if(q(x, y+1) && !q(x-1, y) && !q(x+1, y) && q(x, y-1))
+                                ground[x, y] = false;
+                        }
+                    }
+                }
+                bool q(int x, int y) => ground[x, y];
             }
 
             async Task slideSeperates() {
@@ -322,7 +376,7 @@ namespace Pirates_Nueva
                  */
                 for(int x = 0; x < Width; x++) {
                     for(int y = 0; y < Height; y++) {
-                        if(q(x, y) && r.Next(0, 100) < 70) {
+                        if(q(x, y) && r.Next(0, 100) < 75) {
                             // 0 1 0 //
                             // 0 1 0 //
                             // 0 0 0 //
