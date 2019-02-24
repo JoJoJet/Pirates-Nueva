@@ -109,8 +109,7 @@ namespace Pirates_Nueva
                 ground = fill;
 
                 void doFloodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
-                    var w = canvas.GetLength(0);
-                    var h = canvas.GetLength(1);
+                    var box = new BoundingBox(0, 0, Width-1, Height-1);
 
                     var frontier = new List<PointI>() { start };
                     var known = new List<PointI>();
@@ -122,14 +121,15 @@ namespace Pirates_Nueva
 
                         paint(x, y);
 
-                        if(x > 0 && canvas[x - 1, y] == false && !known.Contains((x - 1, y)))
-                            frontier.Add((x - 1, y));
-                        if(y < h - 1 && canvas[x, y + 1] == false && !known.Contains((x, y + 1)))
-                            frontier.Add((x, y + 1));
-                        if(x < w - 1 && canvas[x + 1, y] == false && !known.Contains((x + 1, y)))
-                            frontier.Add((x + 1, y));
-                        if(y > 0 && canvas[x, y - 1] == false && !known.Contains((x, y - 1)))
-                            frontier.Add((x, y - 1));
+                        neighbor(x - 1, y);
+                        neighbor(x, y + 1);
+                        neighbor(x + 1, y);
+                        neighbor(x, y - 1);
+
+                        void neighbor(int nx, int ny) {
+                            if(box.Contains(nx, ny) && !ground[nx, ny] && !known.Contains((nx, ny)))
+                                frontier.Add((nx, ny));
+                        }
                     }
                 }
             }
