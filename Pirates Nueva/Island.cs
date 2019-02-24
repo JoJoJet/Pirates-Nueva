@@ -40,9 +40,6 @@ namespace Pirates_Nueva
             await floodFill();
             await waitForClick();
 
-            await Task.Run(() => findSeperates());
-            await waitForClick();
-
             await slideSeperates();
 
             async Task waitForClick() {
@@ -185,6 +182,7 @@ namespace Pirates_Nueva
             }
 
             async Task slideSeperates() {
+                await Task.Run(() => findSeperates()); // Find the separated chunks of the island.
                 while(seperates.Count > 1) {
                     int c = seperates.Count;
 
@@ -192,8 +190,8 @@ namespace Pirates_Nueva
                     foreach(var p in seperates.Take(c-1).Union())  //     and populate them with
                         ground[p.X, p.Y] = true;                   //         the seperate chunks, except the final one.
 
-                    await Task.Run(() => doSlide(seperates[c-1])); // Slide the last separated chunk into other masses.
-                    await Task.Run(() => findSeperates());         // Re-compute the separated chunks.
+                    await Task.Run(() => doSlide(seperates[c-1])); // Slide the last separated chunk into the mainland.
+                    await Task.Run(() => findSeperates());         // Re-compute the seperated chunks of the island.
                     
                     await waitForClick();                          // Wait for the user to click.
                 }
