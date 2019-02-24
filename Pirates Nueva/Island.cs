@@ -232,14 +232,15 @@ namespace Pirates_Nueva
                         return from e in ed where e != null select e.Value; // Return an array of (initialized) edge blocks.
                     }
 
-                    void trySlide(IEnumerable<PointI> ed, PointI dir) {
-                        var bounds = new BoundingBox(0, 0, Width - 1, Height - 1);
-                        foreach(var e in ed) {
-                            for(int i = 0; bounds.Contains(e + dir * i); i++) {
-                                if(hasAdjacent(e.X + dir.X * i, e.Y + dir.Y * i)) {
-                                    if((slide?.SqrMagnitude > i*i || slide == null) && checkBounds(dir * i))
-                                        slide = dir * i;
-                                    break;
+                    void trySlide(IEnumerable<PointI> edge, PointI dir) {
+                        var box = new BoundingBox(0, 0, Width-1, Height-1);         // A box encompassing the island.
+                        foreach(var e in edge) {                                    // For every edge block:
+                            for(int i = 0; box.Contains(e + dir * i); i++) {        // Cast a ray from that block in the specified direction.
+                                if(hasAdjacent(e.X + dir.X * i, e.Y + dir.Y * i)) { // If this point in the ray is touching the mainland,
+                                    if((slide?.SqrMagnitude > i*i || slide == null) //     the point is closer than the previous candidate,
+                                        && checkBounds(dir * i))                    //     and it is within the bounds of the island,
+                                        slide = dir * i;                            //         set the best best candidate to be this point.
+                                    break;                                          // Stop raycasting.
                                 }
                             }
                         }
