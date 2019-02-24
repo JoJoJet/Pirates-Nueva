@@ -45,7 +45,10 @@ namespace Pirates_Nueva
             await Task.Run(() => breakNecks());   // Break any thin connectors.
             await waitForClick();
 
-            await slideSeperates();
+            await slideSeperates();               // Combine any stray shapes into one.
+
+            await Task.Run(() => connectEdges()); // Connect separated but close blocks.
+            await floodFill();                    // Fill in the terrain.
 
             /*
              * Local Methods.
@@ -70,7 +73,7 @@ namespace Pirates_Nueva
 
                 const int BlobCount = 6;                     // Defines the number of blobs to place.
                 for(int i = 0; i < BlobCount; i++) {         // Repeat for every blob to place:
-                    await waitForClick();                    // Wait until the user clicks.
+                    //await waitForClick();                    // Wait until the user clicks.
                     int x = r.Next(Radius, Width - Radius);  // Choose a random /x/ coordinate in the island.
                     int y = r.Next(Radius, Height - Radius); // Choose a random /y/ coordinate in the island.
                     foreach(var s in shape)                  // Place a blob centered at /x/, /y/.
