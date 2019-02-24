@@ -143,16 +143,14 @@ namespace Pirates_Nueva
 
             async Task slideSeperates() {
                 var seperates = await Task.Run(() => findSeperates()); // Find the separated chunks of the island.
-                while(seperates.Count > 1) {
-                    int c = seperates.Count;
-                    
+                while(seperates.Count > 1) {                           // Loop until there is only one island:
                     ground = new bool[Width, Height];                  // Clear the ground pixels,
-                    foreach(var p in seperates.Take(c-1).Union())      //     and populate them with
-                        ground[p.X, p.Y] = true;                       //         the seperate chunks, except the final one.
-                    
-                    await Task.Run(() => doSlide(seperates[c-1]));     // Slide the last separated chunk into the mainland.
+                    foreach(var p in seperates.Skip(1).Union())        //     and populate them with
+                        ground[p.X, p.Y] = true;                       //         the seperate chunks, except the first one.
+                                                                       //
+                    await Task.Run(() => doSlide(seperates.First()));  // Slide the first separated chunk into the mainland.
                     seperates = await Task.Run(() => findSeperates()); // Re-compute the seperated chunks of the island.
-                    
+                                                                       //
                     await waitForClick();                              // Wait for the user to click.
                 }
                 
@@ -180,16 +178,17 @@ namespace Pirates_Nueva
                             peripheral(x + 1, y);            // its rightward neighbor,
                             peripheral(x, y - 1);            // and its downward neighbor.
                         }
+
+                        chunks.Add(known);
+
                         void peripheral(int x, int y) {
                             if(fragments.Contains((x, y))) // If the specified point is still loose,
                                 frontier.Enqueue((x, y));  //     mark it to be searched later on.
                         }
-
-                        chunks.Add(known);
                     }
                     
                     return (from s in chunks
-                            orderby s.Count descending
+                            orderby s.Count ascending
                             select s).ToList();
                 }
 
