@@ -201,25 +201,27 @@ namespace Pirates_Nueva
                 void doSlide(List<PointI> isolated) {
                     PointI? slide = null; // The direction and amount of sliding.
                     
-                    trySlide( // Try to slide leftward.
-                        findEdge((p) => p.Y, (p1, p2) => p1.X > p2.X),
-                        (-1, 0)
-                        );
-
-                    trySlide( // Try to slide downward.
-                        findEdge((p) => p.X, (p1, p2) => p1.Y > p2.Y),
-                        (0, -1)
-                        );
-
-                    trySlide( // Try to slide rightward.
-                        findEdge((p) => p.Y, (p1, p2) => p1.X < p2.X),
-                        (1, 0)
-                        );
-
-                    trySlide( // Try to slide upward.
-                        findEdge((p) => p.X, (p1, p2) => p1.Y < p2.Y),
-                        (0, 1)
-                        );
+                    var order = from n in new[] { 0, 1, 2, 3 } orderby r.Next() select n;
+                    foreach(int n in order) {
+                        switch(n) {
+                            // Try to slide leftwards.
+                            case 0:
+                                trySlide(findEdge((p) => p.Y, (p1, p2) => p1.X > p2.X), (-1, 0));
+                                break;
+                            // Try to slide downward.
+                            case 1:
+                                trySlide(findEdge((p) => p.X, (p1, p2) => p1.Y > p2.Y), (0, -1));
+                                break;
+                            // Try to slide rightward.
+                            case 2:
+                                trySlide(findEdge((p) => p.Y, (p1, p2) => p1.X < p2.X), (1, 0));
+                                break;
+                            // Try to slide upward.
+                            case 3:
+                                trySlide(findEdge((p) => p.X, (p1, p2) => p1.Y < p2.Y), (0, 1));
+                                break;
+                        }
+                    }
                     
                     if(slide is PointI s) {                       // If the isolated chunk can be slid,
                         for(int i = 0; i < isolated.Count; i++) { //     draw the chunk to the ground pixels,
