@@ -30,32 +30,21 @@ namespace Pirates_Nueva
             const int Height = 15;
             ground = new bool[Width, Height];
             
-            await placeBlobs();                   // Scatter shapes around the canvas.
-            await waitForClick();                 // Wait for the user to click.
-            
+            await Task.Run(() => placeBlobs());   // Scatter shapes around the canvas.
             await Task.Run(() => connectEdges()); // Connect separated but close blocks.
             await floodFill();                    // Fill in the entire terrain.
-            await waitForClick();                 // Wait for the user to click.
 
             await Task.Run(() => decimate());     // Randomly kill 20% of the blocks.
-            await waitForClick();                 // Wait for the user to click.
-
             await floodFill();                    // Fill in the terrain.
-            await waitForClick();                 // Wait for the user to click.
             
             await Task.Run(() => breakNecks());   // Break any thin connectors.
-            await waitForClick();
-
             await slideSeperates();               // Combine any stray islands into one shape.
 
             await Task.Run(() => connectEdges()); // Connnect separated but close blocks.
             await floodFill();                    // Fill in the terrain.
-            await waitForClick();                 // Wait for the user to click.
 
             await Task.Run(() => extraneous());   // Delete unnatural extrusions.
             await Task.Run(() => breakNecks());   // Break any thin connectors.
-            await waitForClick();
-
             await slideSeperates();               // Combine any stray shapes into one.
 
             await Task.Run(() => connectEdges()); // Connect separated but close blocks.
@@ -64,15 +53,7 @@ namespace Pirates_Nueva
             /*
              * Local Methods.
              */
-            async Task waitForClick() {
-                await Task.Run(() => doWait());             // Run the method on a background thread.
-                void doWait() {
-                    while(!master.Input.MouseLeft.IsDown) ; // Loop until the user clicks.
-                    System.Threading.Thread.Sleep(100);     // Wait for a tenth of a second.
-                }
-            }
-
-            async Task placeBlobs() {
+            void placeBlobs() {
                 const int Radius = 3;
                 PointI[] shape = {                           // Defines the shape of a blob.
                                    (0,  2),
@@ -84,7 +65,6 @@ namespace Pirates_Nueva
 
                 const int BlobCount = 6;                     // Defines the number of blobs to place.
                 for(int i = 0; i < BlobCount; i++) {         // Repeat for every blob to place:
-                    //await waitForClick();                    // Wait until the user clicks.
                     int x = r.Next(Radius, Width - Radius);  // Choose a random /x/ coordinate in the island.
                     int y = r.Next(Radius, Height - Radius); // Choose a random /y/ coordinate in the island.
                     foreach(var s in shape)                  // Place a blob centered at /x/, /y/.
@@ -224,8 +204,6 @@ namespace Pirates_Nueva
                                                                        //
                     await Task.Run(() => doSlide(seperates.First()));  // Slide the first separated chunk into the mainland.
                     seperates = await Task.Run(() => findSeperates()); // Re-compute the seperated chunks of the island.
-                                                                       //
-                    await waitForClick();                              // Wait for the user to click.
                 }
                 
                 List<List<PointI>> findSeperates() {
