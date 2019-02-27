@@ -17,7 +17,14 @@ namespace Pirates_Nueva
         public int X { get; set; }
         public int Y { get; set; }
 
+        /// <summary>
+        /// Gets the squared magnitude of this <see cref="PointI"/>. Faster than <see cref="Magnitude"/>.
+        /// </summary>
         public int SqrMagnitude => X*X + Y*Y;
+        /// <summary>
+        /// Gets the magnitude (distance from origin) of this <see cref="PointI"/>.
+        /// </summary>
+        public float Magnitude => (float)Math.Sqrt(SqrMagnitude);
 
         public PointI(int value) : this(value, value) {  }
         public PointI(int x, int y) {
