@@ -40,6 +40,8 @@ namespace Pirates_Nueva
         }
 
         void IDrawable.Draw(Master master) {
+            (Islands as IDrawable).Draw(master);
+
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IDrawable d)          // If it is drawable,
                     d.Draw(master);             //     call its Draw() method.
@@ -103,7 +105,7 @@ namespace Pirates_Nueva
         {
             Task GenerateAsync(int seed, Master master);
         }
-        public sealed class Archipelago : IEnumerable<Island>, IArchiContract
+        public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
         {
             private Sea sea;
             private Island[,] islands;
@@ -158,6 +160,14 @@ namespace Pirates_Nueva
                 }
             }
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            #endregion
+
+            #region IDrawable Implementation
+            void IDrawable.Draw(Master master) {
+                foreach(IDrawable i in this) {  // For every island in this archipelago:
+                    i.Draw(master);             // Call its Draw() method.
+                }
+            }
             #endregion
         }
     }
