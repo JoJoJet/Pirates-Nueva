@@ -103,13 +103,23 @@ namespace Pirates_Nueva
         {
             Task GenerateAsync(int seed, Master master);
         }
-        public sealed class Archipelago : IArchiContract
+        public sealed class Archipelago : IEnumerable<Island>, IArchiContract
         {
             private Sea sea;
             private Island[,] islands;
 
             internal Archipelago(Sea sea) {
                 this.sea = sea;
+            }
+
+            /// <summary> Get the <see cref="Island"> at the specified index. </summary>
+            public Island this[int x, int y] {
+                get {
+                    if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
+                        return islands[x, y];
+                    else
+                        return null;
+                }
             }
 
             async Task IArchiContract.GenerateAsync(int seed, Master master) {
@@ -137,6 +147,18 @@ namespace Pirates_Nueva
                     await gen;             // wait until the task finishes execution.
                 }
             }
+
+            #region IEnumerable Implementation
+            public IEnumerator<Island> GetEnumerator() {
+                for(int x = 0; x < islands.GetLength(0); x++) {     // For every spot in the archipelago:
+                    for(int y = 0; y < islands.GetLength(1); y++) { //
+                        if(islands[x, y] != null)                   // If there is an island there,
+                            yield return islands[x, y];             //     return it.
+                    }
+                }
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            #endregion
         }
     }
 }
