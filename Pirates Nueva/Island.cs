@@ -10,7 +10,18 @@ namespace Pirates_Nueva
     {
         private bool[,] ground;
 
-        public Island() { }
+        public Sea Sea { get; }
+
+        /// <summary> The left edge of this <see cref="Island"/>, in <see cref="Pirates_Nueva.Sea"/>-space. </summary>
+        public float Left { get; }
+        /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Pirates_Nueva.Sea"/>-space. </summary>
+        public float Bottom { get; }
+
+        public Island(Sea sea, int left, int bottom) {
+            Sea = sea;
+            Left = left;
+            Bottom = bottom;
+        }
 
         public async Task GenerateAsync(int seed, Master master) {
             Random r = new Random(seed);
@@ -431,8 +442,10 @@ namespace Pirates_Nueva
 
             for(int x = 0; x < ground.GetLength(0); x++) {
                 for(int y = 0; y < ground.GetLength(1); y++) {
-                    if(ground[x, y])
-                        master.Renderer.Draw(tex, x * Pixels, master.GUI.ScreenHeight - y * Pixels, Pixels, Pixels);
+                    if(ground[x, y]) {
+                        var (sX, sY) = Sea.SeaPointToScreen(Left + x, Bottom + y);
+                        master.Renderer.Draw(tex, sX, sY, Pixels, Pixels);
+                    }
                 }
             }
         }
