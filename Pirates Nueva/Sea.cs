@@ -10,11 +10,18 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
+        public Archipelago Islands { get; }
+
         private Master Master { get; }
 
         const string MouseDebugID = "debug_mouse";
         public Sea(Master master) {
             Master = master;
+
+            // Generate the islands.
+            Islands = new Archipelago(this);
+            var isl = Islands as IArchiContract;
+            Task.Run(async () => await isl.GenerateAsync(new Random().Next(), master)).Wait();
 
             this.entities.Add(new PlayerShip(this, 10, 5));
 
@@ -90,5 +97,46 @@ namespace Pirates_Nueva
             return ((int)Math.Round(x *  Ship.Part.Pixels), (int)Math.Round(height - y * Ship.Part.Pixels));
         }
         #endregion
+
+        /// <summary> Allows some methods to be accessible only within the <see cref="Sea"/> class. </summary>
+        private interface IArchiContract
+        {
+            Task GenerateAsync(int seed, Master master);
+        }
+        public sealed class Archipelago : IArchiContract
+        {
+            private Sea sea;
+            private Island[,] islands;
+
+            internal Archipelago(Sea sea) {
+                this.sea = sea;
+            }
+
+            async Task IArchiContract.GenerateAsync(int seed, Master master) {
+                var r = new Random(seed);
+                var gens = new List<Task>();
+                
+                /*
+                 * Begin generating all of the islands.
+                 */
+                this.islands = new Island[10, 10];
+                for(int x = 0; x < 10; x++) {                                         // For every point in a 30x30 area:
+                    for(int y = 0; y < 10; y++) {                                     //
+                        if(r.Next(0, 100) < 25) {                                     // If we roll a 25% chance:
+                            islands[x, y] = new Island(this.sea, x * 30, y * 30);     //     Create an island at this point,
+                            var gen = islands[x, y].GenerateAsync(r.Next(), master);  //     start to generate the island,
+                            gens.Add(gen);                                            //     and store the task for generating it.
+                        }
+                    }
+                }
+
+                /*
+                 * Wait until all of the islands finish generating.
+                 */
+                foreach(var gen in gens) { // For every island generation task:
+                    await gen;             // wait until the task finishes execution.
+                }
+            }
+        }
     }
 }
