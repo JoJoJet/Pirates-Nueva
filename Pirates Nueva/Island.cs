@@ -10,6 +10,11 @@ namespace Pirates_Nueva
     {
         private bool[,] ground;
 
+        /// <summary> The point on the outline of this island. </summary>
+        private PointF[] vertices;
+        /// <summary> Each element contains the indices of two connected vertices. </summary>
+        private (int a, int b)[] edges;
+
         public Sea Sea { get; }
 
         /// <summary> The left edge of this <see cref="Island"/>, in <see cref="Pirates_Nueva.Sea"/>-space. </summary>
@@ -49,6 +54,8 @@ namespace Pirates_Nueva
 
             await Task.Run(() => connectEdges()); // Connect separated but close blocks.
             await floodFill();                    // Fill in the terrain.
+
+            await Task.Run(() => findOutline());  // Generate an outline surrounding the island.
 
             /*
              * Local Methods.
@@ -411,8 +418,136 @@ namespace Pirates_Nueva
 
                 bool q(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height && ground[x, y];
             }
+
+            void findOutline() {
+                var vertices = new List<PointF>();      // Initialize a list of vertices.
+                var edges = new List<(int a, int b)>(); // Initialize a list of edges.
+
+                //
+                // Run the Marching Squares algorithm on the pixels.
+                // https://en.wikipedia.org/wiki/Marching_squares.
+                //
+                for(int x = 0; x < Width - 1; x++) {
+                    for(int y = 0; y < Height - 1; y++) {
+                        var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
+
+                        const float Whole = 1f;        // The width of a single cell.
+                        const float Half = Whole / 2f; // Half the width of a cell.
+                        switch(lookup) {
+                            // 0 0 //
+                            // 0 0 //
+                            case 0:
+
+                                break;
+                            // 0 0 //
+                            // 1 0 //
+                            case 1:
+                                addEdge((0, Half), (Half, 0));
+                                break;
+                            // 0 0 //
+                            // 0 1 //
+                            case 2:
+                                addEdge((Half, 0), (Whole, Half));
+                                break;
+                            // 0 0 //
+                            // 1 1 //
+                            case 3:
+                                addEdge((0, Half), (Whole, Half));
+                                break;
+                            // 0 1 //
+                            // 0 0 //
+                            case 4:
+                                addEdge((Half, Whole), (Whole, Half));
+                                break;
+                            // 0 1 //
+                            // 1 0 //
+                            case 5:
+                                addEdge((0, Half), (Half, Whole));
+                                addEdge((Half, 0), (Whole, Half));
+                                break;
+                            // 0 1 //
+                            // 0 1 //
+                            case 6:
+                                addEdge((Half, 0), (Half, Whole));
+                                break;
+                            // 0 1 //
+                            // 1 1 //
+                            case 7:
+                                addEdge((0, Half), (Half, Whole));
+                                break;
+                            // 1 0 //
+                            // 0 0 //
+                            case 8:
+                                addEdge((0, Half), (Half, Whole));
+                                break;
+                            // 1 0 //
+                            // 1 0 //
+                            case 9:
+                                addEdge((Half, 0), (Half, Whole));
+                                break;
+                            // 1 0 //
+                            // 0 1 //
+                            case 10:
+                                addEdge((0, Half), (Half, 0));
+                                addEdge((Half, Whole), (Whole, Half));
+                                break;
+                            // 1 0 //
+                            // 1 1 //
+                            case 11:
+                                addEdge((Half, Whole), (Whole, Half));
+                                break;
+                            // 1 1 //
+                            // 0 0 //
+                            case 12:
+                                addEdge((0, Half), (Whole, Half));
+                                break;
+                            // 1 1 //
+                            // 1 0 //
+                            case 13:
+                                addEdge((Half, 0), (Whole, Half));
+                                break;
+                            // 1 1 //
+                            // 0 1 //
+                            case 14:
+                                addEdge((0, Half), (Half, 0));
+                                break;
+                            // 1 1 //
+                            // 1 1 //
+                            case 15:
+
+                                break;
+                        }
+
+                        void addEdge(PointF alpha, PointF beta) {
+                            var indices = (a: -1, b: -1);
+
+                            indices.a = makeIndex((x, y) + alpha);
+                            indices.b = makeIndex((x, y) + beta);
+
+                            edges.Add(indices);
+
+                            int makeIndex(PointF v) {
+                                var i = vertices.IndexOf(v);   // Get the index of the specified vertex.
+                                if(i >= 0) {                   // If the index exists,
+                                    return i;                  //     return it.
+                                }                              //
+                                else {                         // If the index does NOT exist,
+                                    vertices.Add(v);           //     add the specified vertex,
+                                    return vertices.Count - 1; //     and return its index.
+                                }
+                            }
+                        }
+
+                        int b(int g, int h) => ground[g, h] ? 1 : 0;
+                    }
+                }
+                
+                this.vertices = vertices.ToArray();
+                this.edges = edges.ToArray();
+            }
         }
 
+        #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
             const int Pixels = 32;
 
@@ -421,11 +556,18 @@ namespace Pirates_Nueva
             for(int x = 0; x < ground.GetLength(0); x++) {
                 for(int y = 0; y < ground.GetLength(1); y++) {
                     if(ground[x, y]) {
-                        var (sX, sY) = Sea.SeaPointToScreen(Left + x, Bottom + y);
-                        master.Renderer.Draw(tex, sX, sY, Pixels, Pixels);
+                        var (sX, sY) = Sea.SeaPointToScreen(Left + x - 1 / 4f, Bottom + y + 1 / 4f);
+                        master.Renderer.Draw(tex, sX, sY, Pixels/2, Pixels/2);
                     }
                 }
             }
+
+            foreach(var l in this.edges) {
+                var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a]);
+                var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b]);
+                master.Renderer.DrawLine(a, b);
+            }
         }
+        #endregion
     }
 }
