@@ -22,6 +22,15 @@ namespace Pirates_Nueva
             SpriteBatch = spriteBatch;
         }
 
+        /// <summary>
+        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
+        /// </summary>
+        public UI.Texture CreateTexture(int width, int height, params Color[] pixels) {
+            var tex = new Texture2D(Master.GraphicsDevice, width, height);
+            tex.SetData(pixels);
+            return new UI.Texture(tex);
+        }
+
         /// <summary> Submit a sprite to be drawn this frame. </summary>
         public void Draw(UI.Texture texture, int left, int top, int width, int height, Color? tint = null) {
             var color = tint ?? Color.White;
