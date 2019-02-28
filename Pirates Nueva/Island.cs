@@ -57,6 +57,8 @@ namespace Pirates_Nueva
 
             await Task.Run(() => findOutline());  // Generate an outline surrounding the island.
 
+            await Task.Run(() => smoothOutline());
+
             /*
              * Local Methods.
              */
@@ -544,6 +546,27 @@ namespace Pirates_Nueva
                 
                 this.vertices = vertices.ToArray();
                 this.edges = edges.ToArray();
+            }
+
+            void smoothOutline() {
+                PointF[] verts = new PointF[this.vertices.Length];
+
+                for(int i = 0; i < this.vertices.Length; i++) {
+                    var neighbors = from n in this.edges
+                                    where n.a == i || n.b == i
+                                    select this.vertices[n.a == i ? n.b : n.a];
+
+                    var xi = PointF.Zero;
+                    int length = 0;
+                    foreach(var n in neighbors) {
+                        xi += n;
+                        length++;
+                    }
+
+                    verts[i] = xi / length;
+                }
+
+                this.vertices = verts;
             }
         }
 
