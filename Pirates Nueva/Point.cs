@@ -114,6 +114,15 @@ namespace Pirates_Nueva
         public static float Distance(PointF a, PointF b) => (float)Math.Sqrt(SqrDistance(a, b));
 
         /// <summary>
+        /// Linearly interpolate between the specified points, by the specified factor.
+        /// </summary>
+        public static PointF Lerp(PointF first, PointF second, float factor) {
+            return (l(first.X, second.X, factor), l(first.Y, second.Y, factor));
+
+            float l(float a, float b, float f) => a * (1 - f) + b * f;
+        }
+
+        /// <summary>
         /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
         public static PointF Rotate(PointF p, Angle theta) {
