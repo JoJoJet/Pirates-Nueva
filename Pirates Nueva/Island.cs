@@ -551,19 +551,28 @@ namespace Pirates_Nueva
             void smoothOutline() {
                 PointF[] verts = new PointF[this.vertices.Length];
 
-                for(int i = 0; i < this.vertices.Length; i++) {
-                    var neighbors = from n in this.edges
-                                    where n.a == i || n.b == i
-                                    select this.vertices[n.a == i ? n.b : n.a];
-
-                    var xi = PointF.Zero;
-                    int length = 0;
-                    foreach(var n in neighbors) {
-                        xi += n;
-                        length++;
-                    }
-
-                    verts[i] = xi / length;
+                //
+                // Apply Laplacian smoothing to the outline.
+                // https://en.wikipedia.org/wiki/Laplacian_smoothing.
+                //
+                for(int i = 0; i < this.vertices.Length; i++) { // For every vertex in this island's outline:
+                    var neighbors = from n in this.edges        // Get each neighbor of the vertex.
+                                    where n.a == i || n.b == i  //
+                                    select this.vertices[       //
+                                        n.a == i ? n.b : n.a    //
+                                        ];                      //
+                                                                //
+                    var xi = PointF.Zero;                       // The smoothed position of the vertex.
+                    int length = 0;                             // How many neighbors it has.
+                    foreach(var n in neighbors) {               // For every neighbor:
+                        xi += n;                                //     Add its position to the smoothed position,
+                        length++;                               //     and increment the neighbor count.
+                    }                                           //
+                    xi /= length;                               // Divide the smoothed position by the number of neighbors.
+                                                                //
+                    verts[i] = PointF.Lerp(                     // Set the new position of the vertex
+                        this.vertices[i], xi, 0.5f              //     as the midpoint between the smoothed
+                        );                                      //     position & its original position.
                 }
 
                 this.vertices = verts;
