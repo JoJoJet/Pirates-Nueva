@@ -125,16 +125,20 @@ namespace Pirates_Nueva
             }
 
             async Task IArchiContract.GenerateAsync(int seed, Master master) {
+                const int Width = 10;
+                const int Height = 10;
+                const int Chance = 25;
+
                 var r = new Random(seed);
-                var gens = new List<Task>();
+                var gens = new List<Task>(Width*Height * Chance/100); // A list of tasks for generating the shape of islands.
                 
                 /*
                  * Begin generating all of the islands.
                  */
-                this.islands = new Island[10, 10];
-                for(int x = 0; x < 10; x++) {                                         // For every point in a 30x30 area:
-                    for(int y = 0; y < 10; y++) {                                     //
-                        if(r.Next(0, 100) < 25) {                                     // If we roll a 25% chance:
+                this.islands = new Island[Width, Height];
+                for(int x = 0; x < Width; x++) {                                      // For every point in a square area:
+                    for(int y = 0; y < Height; y++) {                                 //
+                        if(r.Next(0, 100) < Chance) {                                 // If we roll a random chance:
                             islands[x, y] = new Island(this.sea, x * 30, y * 30);     //     Create an island at this point,
                             var gen = islands[x, y].GenerateAsync(r.Next(), master);  //     start to generate the island,
                             gens.Add(gen);                                            //     and store the task for generating it.
