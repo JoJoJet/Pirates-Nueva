@@ -431,7 +431,7 @@ namespace Pirates_Nueva
                 //
                 for(int x = 0; x < Width - 1; x++) {
                     for(int y = 0; y < Height - 1; y++) {
-                        var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
+                        var lookup = b(x, y+1) << 3 | b(x+1, y + 1) << 2 | b(x+1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
                         const float Half = Whole / 2f; // Half the width of a cell.
