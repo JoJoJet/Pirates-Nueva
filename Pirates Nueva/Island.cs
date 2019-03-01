@@ -35,29 +35,28 @@ namespace Pirates_Nueva
             const int Height = 15;
             ground = new bool[Width, Height];
             
-            await Task.Run(() => placeBlobs());   // Scatter shapes around the canvas.
-            await Task.Run(() => connectEdges()); // Connect separated but close blocks.
-            await floodFill();                    // Fill in the entire terrain.
+            await Task.Run(() => placeBlobs());    // Scatter shapes around the canvas.
+            await Task.Run(() => connectEdges());  // Connect separated but close blocks.
+            await floodFill();                     // Fill in the entire terrain.
 
-            await Task.Run(() => decimate());     // Randomly kill 20% of the blocks.
-            await floodFill();                    // Fill in the terrain.
+            await Task.Run(() => decimate());      // Randomly kill 20% of the blocks.
+            await floodFill();                     // Fill in the terrain.
             
-            await Task.Run(() => breakNecks());   // Break any thin connectors.
-            await slideSeperates();               // Combine any stray islands into one shape.
+            await Task.Run(() => breakNecks());    // Break any thin connectors.
+            await slideSeperates();                // Combine any stray islands into one shape.
 
-            await Task.Run(() => connectEdges()); // Connnect separated but close blocks.
-            await floodFill();                    // Fill in the terrain.
+            await Task.Run(() => connectEdges());  // Connnect separated but close blocks.
+            await floodFill();                     // Fill in the terrain.
 
-            await Task.Run(() => extraneous());   // Delete unnatural extrusions.
-            await Task.Run(() => breakNecks());   // Break any thin connectors.
-            await slideSeperates();               // Combine any stray shapes into one.
+            await Task.Run(() => extraneous());    // Delete unnatural extrusions.
+            await Task.Run(() => breakNecks());    // Break any thin connectors.
+            await slideSeperates();                // Combine any stray shapes into one.
 
-            await Task.Run(() => connectEdges()); // Connect separated but close blocks.
-            await floodFill();                    // Fill in the terrain.
+            await Task.Run(() => connectEdges());  // Connect separated but close blocks.
+            await floodFill();                     // Fill in the terrain.
 
-            await Task.Run(() => findOutline());  // Generate an outline surrounding the island.
-
-            await Task.Run(() => smoothOutline());
+            await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
+            await Task.Run(() => smoothOutline()); // Smooth the outline.
 
             /*
              * Local Methods.
