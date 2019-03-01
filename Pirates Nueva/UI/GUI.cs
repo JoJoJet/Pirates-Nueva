@@ -58,13 +58,12 @@ namespace Pirates_Nueva
 
         /// <summary> Get the edge element identified by /id/ and that is of type /T/. </summary>
         public bool TryGetEdge<T>(string id, out T edge) where T : EdgeElement {
-            if(TryGetEdge(id, out EdgeElement med) && med is T last) // If there's an edge of type /T/ identified by /id/, return it.
-                edge = last;
-            // If there is no edge element of type /T/ and identified by /id/, return false;
-            else
-                edge = default;
-
-            return edge != default; // Return whether or not we found /edge/.
+            if(TryGetEdge(id, out EdgeElement med) && med is T last) // If there's an edge of type /T/ identified by /id/,
+                edge = last;                                         //     return it.
+            else                                                     // If there is no edge element of type /T/ and identified by /id/,
+                edge = default;                                      //     return false;
+                                                                     //
+            return edge != default;                                  // Return whether or not we found /edge/.
         }
 
         /// <summary> Whether or not there is a edge element identified by /id/. </summary>
@@ -136,15 +135,15 @@ namespace Pirates_Nueva
         public bool IsPointOverGUI(PointI point) {
             foreach(var edge in this._edgeElements.Values) {      // For every edge element:
                 if((edge as IElementDrawable).IsMouseOver(point)) // If the point is hovering over it,
-                    return true;                                  // return true.
-            }
-
-            foreach(var menu in this._menus.Values) {          // For every menu:
-                if((menu as IMenuContract).IsMouseOver(point)) // If the point is hovering over it,
-                    return true;                               // return true.
-            }
-
-            return false; // If we got this far without returning already, return false.
+                    return true;                                  //     return true.
+            }                                                     //
+                                                                  //
+            foreach(var menu in this._menus.Values) {             // For every menu:
+                if((menu as IMenuContract).IsMouseOver(point))    // If the point is hovering over it,
+                    return true;                                  //     return true.
+            }                                                     //
+                                                                  //
+            return false;                                         // If we got this far without returning, return false.
         }
 
         /// <summary> Update the arrangement of edge elements. </summary>
@@ -186,37 +185,35 @@ namespace Pirates_Nueva
         }
 
         void IUpdatable.Update(Master master, Time delta) {
-            // Exit the method if the mouse wasn't clicked this frame.
-            if(!master.Input.MouseLeft.IsDown)
-                return;
+            if(!master.Input.MouseLeft.IsDown) // If the mouse was NOT clicked this frame,
+                return;                        //     exit the method.
 
             var mouse = master.Input.MousePosition;
             foreach(EdgeElement edge in this._edgeElements.Values) {       // For every edge element:
-                var con = edge as IEdgeContract;
+                var con = edge as IEdgeContract;                           //
                 if(edge is IButtonContract b && edge is IElementDrawable d // If the element is a button,
                     && d.IsMouseOver(mouse)) {                             // and the mouse is over it,
-                    b.OnClick();                                           // invoke its action.
-
-                    return; // Exit this method.
+                    b.OnClick();                                           //     invoke its action,
+                    return;                                                //     and exit this method.
                 }
             }
 
-            foreach(Menu menu in this._menus.Values) {
-                (menu as IMenuContract).QueryClicks(mouse);
+            foreach(var menu in this._menus.Values) {        // For every menu:
+                (menu as IMenuContract).QueryClicks(mouse);  //     query a click at the current mouse position.
             }
         }
 
         void IDrawable.Draw(Master master) {
-            // Draw every drawable floating element.
-            foreach(EdgeElement edge in this._edgeElements.Values) {
+            // Draw every drawable edge element.
+            foreach(var edge in this._edgeElements.Values) {
                 var con = edge as IEdgeContract;
                 if(edge is IElementDrawable drawable)         // If /edge/ implements IEdgeDrawable,
-                    drawable.Draw(master, con.Left, con.Top); // Call its Draw() method.
+                    drawable.Draw(master, con.Left, con.Top); //     call its Draw() method.
             }
             
             // Draw every menu.
-            foreach(Menu menu in this._menus.Values) {
-                (menu as IMenuContract).Draw(master);
+            foreach(IMenuContract menu in this._menus.Values) {
+                menu.Draw(master);
             }
 
             // Draw the tooltip.
@@ -272,6 +269,7 @@ namespace Pirates_Nueva
             
             private bool IsHidden { get; set; }
             bool IElementDrawable.IsHidden { get => IsHidden; set => IsHidden = value; }
+
             void IElementDrawable.Draw(Master master, int left, int top) {
                 if(!IsHidden) {
                     Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
