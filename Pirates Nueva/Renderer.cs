@@ -58,11 +58,11 @@ namespace Pirates_Nueva
         }
 
         /// <summary> Submit a line between two points to be drawn this frame. </summary>
-        public void DrawLine(PointI start, PointI end) {
+        public void DrawLine(PointI start, PointI end, Color? tint = null) {
             var edge = end - start;
             var angle = (Angle)Math.Atan2(edge.Y, edge.X);
 
-            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0));
+            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0), tint);
         }
     }
 }
