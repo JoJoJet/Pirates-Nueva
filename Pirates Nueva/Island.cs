@@ -8,9 +8,7 @@ namespace Pirates_Nueva
 {
     public class Island : IDrawable
     {
-        private bool[,] ground;
-
-        /// <summary> The point on the outline of this island. </summary>
+        /// <summary> The outline of this island. </summary>
         private PointF[] vertices;
         /// <summary> Each element contains the indices of two connected vertices. </summary>
         private (int a, int b)[] edges;
@@ -33,7 +31,7 @@ namespace Pirates_Nueva
 
             const int Width = 15;
             const int Height = 15;
-            ground = new bool[Width, Height];
+            var ground = new bool[Width, Height];
             
             await Task.Run(() => placeBlobs());    // Scatter shapes around the canvas.
             await Task.Run(() => connectEdges());  // Connect separated but close blocks.
@@ -218,7 +216,7 @@ namespace Pirates_Nueva
                     var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
                     for(int x = 0; x < Width; x++) {      // For every point in the island:
                         for(int y = 0; y < Height; y++) { //
-                            if(this.ground[x, y])         // If there is a ground pixel there,
+                            if(ground[x, y])              // If there is a ground pixel there,
                                 fragments.Add((x, y));    //     add the point to the list.
                         }
                     }
@@ -580,19 +578,6 @@ namespace Pirates_Nueva
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
-            const int Pixels = 32;
-
-            var tex = master.Resources.LoadTexture("woodBlock");
-
-            for(int x = 0; x < ground.GetLength(0); x++) {
-                for(int y = 0; y < ground.GetLength(1); y++) {
-                    if(ground[x, y]) {
-                        var (sX, sY) = Sea.SeaPointToScreen(Left + x - 1 / 4f, Bottom + y + 1 / 4f);
-                        master.Renderer.Draw(tex, sX, sY, Pixels/2, Pixels/2);
-                    }
-                }
-            }
-
             foreach(var l in this.edges) {
                 var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a]);
                 var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b]);
