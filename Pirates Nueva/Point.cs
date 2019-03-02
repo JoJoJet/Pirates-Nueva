@@ -17,6 +17,15 @@ namespace Pirates_Nueva
         public int X { get; set; }
         public int Y { get; set; }
 
+        /// <summary>
+        /// Gets the squared magnitude of this <see cref="PointI"/>. Faster than <see cref="Magnitude"/>.
+        /// </summary>
+        public int SqrMagnitude => X*X + Y*Y;
+        /// <summary>
+        /// Gets the magnitude (distance from origin) of this <see cref="PointI"/>.
+        /// </summary>
+        public float Magnitude => (float)Math.Sqrt(SqrMagnitude);
+
         public PointI(int value) : this(value, value) {  }
         public PointI(int x, int y) {
             X = x;
@@ -57,6 +66,9 @@ namespace Pirates_Nueva
         public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
 
         public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
+
+        public static bool operator ==(PointI a, PointI b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(PointI a, PointI b) => a.X != b.X || a.Y != b.Y;
     }
 
     /// <summary>
@@ -102,6 +114,15 @@ namespace Pirates_Nueva
         public static float Distance(PointF a, PointF b) => (float)Math.Sqrt(SqrDistance(a, b));
 
         /// <summary>
+        /// Linearly interpolate between the specified points, by the specified factor.
+        /// </summary>
+        public static PointF Lerp(PointF first, PointF second, float factor) {
+            return (l(first.X, second.X, factor), l(first.Y, second.Y, factor));
+
+            float l(float a, float b, float f) => a * (1 - f) + b * f;
+        }
+
+        /// <summary>
         /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
         public static PointF Rotate(PointF p, Angle theta) {
@@ -142,6 +163,9 @@ namespace Pirates_Nueva
 
         public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
         public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
+
+        public static bool operator ==(PointF a, PointF b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(PointF a, PointF b) => a.X != b.X || a.Y != b.Y;
     }
 
     public static class PointExt

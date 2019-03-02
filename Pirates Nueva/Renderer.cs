@@ -13,13 +13,28 @@ namespace Pirates_Nueva
     /// </summary>
     public class Renderer
     {
+        private UI.Texture _pixel;
+
         public Master Master { get; }
 
         private SpriteBatch SpriteBatch { get; }
 
+        private UI.Texture Pixel {
+            get => _pixel ?? (_pixel = CreateTexture(1, 1, Color.White));
+        }
+
         internal Renderer(Master master, SpriteBatch spriteBatch) {
             Master = master;
             SpriteBatch = spriteBatch;
+        }
+
+        /// <summary>
+        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
+        /// </summary>
+        public UI.Texture CreateTexture(int width, int height, params Color[] pixels) {
+            var tex = new Texture2D(Master.GraphicsDevice, width, height);
+            tex.SetData(pixels);
+            return new UI.Texture(tex);
         }
 
         /// <summary> Submit a sprite to be drawn this frame. </summary>
@@ -40,6 +55,14 @@ namespace Pirates_Nueva
         /// <summary> Submit a string to be drawn this frame. </summary>
         public void DrawString(UI.Font font, string text, PointI topLeft, Color color) {
             SpriteBatch.DrawString(font, text, (PointF)topLeft, color);
+        }
+
+        /// <summary> Submit a line between two points to be drawn this frame. </summary>
+        public void DrawLine(PointI start, PointI end, Color? tint = null) {
+            var edge = end - start;
+            var angle = (Angle)Math.Atan2(edge.Y, edge.X);
+
+            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0), tint);
         }
     }
 }

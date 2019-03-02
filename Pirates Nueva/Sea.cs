@@ -10,11 +10,18 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
+        public Archipelago Islands { get; }
+
         private Master Master { get; }
 
         const string MouseDebugID = "debug_mouse";
         public Sea(Master master) {
             Master = master;
+
+            // Generate the islands.
+            Islands = new Archipelago(this);
+            var isl = Islands as IArchiContract;
+            Task.Run(async () => await isl.GenerateAsync(new Random().Next(), master)).Wait();
 
             this.entities.Add(new PlayerShip(this, 10, 5));
 
@@ -33,6 +40,8 @@ namespace Pirates_Nueva
         }
 
         void IDrawable.Draw(Master master) {
+            (Islands as IDrawable).Draw(master);
+
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IDrawable d)          // If it is drawable,
                     d.Draw(master);             //     call its Draw() method.
@@ -90,5 +99,80 @@ namespace Pirates_Nueva
             return ((int)Math.Round(x *  Ship.Part.Pixels), (int)Math.Round(height - y * Ship.Part.Pixels));
         }
         #endregion
+
+        /// <summary> Allows some methods to be accessible only within the <see cref="Sea"/> class. </summary>
+        private interface IArchiContract
+        {
+            Task GenerateAsync(int seed, Master master);
+        }
+        public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
+        {
+            private Sea sea;
+            private Island[,] islands;
+
+            internal Archipelago(Sea sea) {
+                this.sea = sea;
+            }
+
+            /// <summary> Get the <see cref="Island"> at the specified index. </summary>
+            public Island this[int x, int y] {
+                get {
+                    if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
+                        return islands[x, y];
+                    else
+                        return null;
+                }
+            }
+
+            async Task IArchiContract.GenerateAsync(int seed, Master master) {
+                const int Width = 10;
+                const int Height = 10;
+                const int Chance = 25;
+
+                var r = new Random(seed);
+                var gens = new List<Task>(Width*Height * Chance/100); // A list of tasks for generating the shape of islands.
+                
+                /*
+                 * Begin generating all of the islands.
+                 */
+                this.islands = new Island[Width, Height];
+                for(int x = 0; x < Width; x++) {                                      // For every point in a square area:
+                    for(int y = 0; y < Height; y++) {                                 //
+                        if(r.Next(0, 100) < Chance) {                                 // If we roll a random chance:
+                            islands[x, y] = new Island(this.sea, x * 30, y * 30);     //     Create an island at this point,
+                            var gen = islands[x, y].GenerateAsync(r.Next(), master);  //     start to generate the island,
+                            gens.Add(gen);                                            //     and store the task for generating it.
+                        }
+                    }
+                }
+
+                /*
+                 * Wait until all of the islands finish generating.
+                 */
+                foreach(var gen in gens) { // For every island generation task:
+                    await gen;             // wait until the task finishes execution.
+                }
+            }
+
+            #region IEnumerable Implementation
+            public IEnumerator<Island> GetEnumerator() {
+                for(int x = 0; x < islands.GetLength(0); x++) {     // For every spot in the archipelago:
+                    for(int y = 0; y < islands.GetLength(1); y++) { //
+                        if(islands[x, y] != null)                   // If there is an island there,
+                            yield return islands[x, y];             //     return it.
+                    }
+                }
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+            #endregion
+
+            #region IDrawable Implementation
+            void IDrawable.Draw(Master master) {
+                foreach(IDrawable i in this) {  // For every island in this archipelago:
+                    i.Draw(master);             // Call its Draw() method.
+                }
+            }
+            #endregion
+        }
     }
 }

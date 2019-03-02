@@ -13,7 +13,7 @@
     <AssemblyName>Pirates Nueva</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -49,6 +49,7 @@
     <Compile Include="BoundingBox.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Island.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
     <Compile Include="PlayerController.cs" />
