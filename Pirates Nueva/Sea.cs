@@ -10,6 +10,9 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
+        /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
+        public int PPU => 32;
+
         public Archipelago Islands { get; }
 
         private Master Master { get; }
@@ -81,7 +84,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
             int height = Master.GUI.ScreenHeight;
-            return ((float)x / Ship.Part.Pixels, (float)(height - y) / Ship.Part.Pixels);
+            return ((float)x / PPU, (float)(height - y) / PPU);
         }
 
         /// <summary>
@@ -96,7 +99,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round(x *  Ship.Part.Pixels), (int)Math.Round(height - y * Ship.Part.Pixels));
+            return ((int)Math.Round(x *  PPU), (int)Math.Round(height - y * PPU));
         }
         #endregion
 

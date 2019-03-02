@@ -123,7 +123,7 @@ namespace Pirates_Nueva
 
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y+1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Part.Pixels, Ship.Part.Pixels, -Ship.Angle, (0, 0));
+            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Ship.Angle, (0, 0));
         }
         #endregion
 

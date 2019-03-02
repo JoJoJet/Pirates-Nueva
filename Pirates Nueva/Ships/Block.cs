@@ -57,7 +57,7 @@ namespace Pirates_Nueva
             
             (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of the Block's texture in sea-space.
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
-            master.Renderer.DrawRotated(tex, screenX, screenY, Pixels, Pixels, -Angle - Ship.Angle, (0, 0));
+            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Angle - Ship.Angle, (0, 0));
         }
 
         #region IScreenSpaceTarget Implementation
