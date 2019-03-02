@@ -17,6 +17,7 @@ namespace Pirates_Nueva
         public PointI MousePosition { get; private set; }
         public Button MouseLeft { get; private set; } = new Button();
         public Button MouseRight { get; private set; } = new Button();
+        public ScrollWheel MouseWheel { get; private set; } = new ScrollWheel();
 
         /// <summary> The Horizontal input axis. </summary>
         public Axis Horizontal => new Axis(AKey, DKey);
@@ -56,8 +57,10 @@ namespace Pirates_Nueva
 
             MousePosition = mouse.Position;
             
+            // Update mouse buttons.
             MouseLeft = updateButton(MouseLeft, mouse.LeftButton == ButtonState.Pressed);
             MouseRight = updateButton(MouseRight, mouse.RightButton == ButtonState.Pressed);
+            MouseWheel = updateWheel(MouseWheel, mouse.MiddleButton == ButtonState.Pressed);
 
             var keyboard = Keyboard.GetState();
 
@@ -73,13 +76,22 @@ namespace Pirates_Nueva
                 this._keys[key] = updateButton(this._keys[key], keyboard.IsKeyDown(key));
             }
 
-            Button updateButton(Button old, bool isPressed) {
-                var newb = new Button();
+            Button updateBase(Button old, Button newB, bool isPressed) {
+                (newB as IButtonContract).OldIsPressed = old.IsPressed;
+                (newB as IButtonContract).IsPressed = isPressed;
 
-                (newb as IButtonContract).OldIsPressed = old.IsPressed;
-                (newb as IButtonContract).IsPressed = isPressed;
+                return newB;
+            }
 
-                return newb;
+            Button updateButton(Button old, bool isPressed) => updateBase(old, new Button(), isPressed);
+
+            ScrollWheel updateWheel(ScrollWheel old, bool isPressed) {
+                var newb = updateBase(old, new ScrollWheel(), isPressed);
+
+                (newb as IScrollContract).OldScrollCumulative = old.ScrollCumulative;
+                (newb as IScrollContract).ScrollCumulative = mouse.ScrollWheelValue;
+
+                return newb as ScrollWheel;
             }
         }
 
@@ -107,6 +119,28 @@ namespace Pirates_Nueva
             bool IButtonContract.OldIsPressed { set => OldIsPressed = value; }
 
             internal Button() {  }
+        }
+
+        private interface IScrollContract {
+            float OldScrollCumulative { set; }
+            float ScrollCumulative { set; }
+        }
+        /// <summary>
+        /// An object representing the status of the mouse scrollwheel during this frame.
+        /// </summary>
+        public class ScrollWheel : Button, IScrollContract
+        {
+            /// <summary> Scrolling done during this frame. </summary>
+            public float Scroll => OldScrollCumulative - ScrollCumulative;
+            /// <summary> Scrolling since the start of the game. </summary>
+            public float ScrollCumulative { get; private set; }
+
+            private float OldScrollCumulative { get; set; }
+
+            float IScrollContract.OldScrollCumulative { set => OldScrollCumulative = value; }
+            float IScrollContract.ScrollCumulative { set => ScrollCumulative = value; }
+
+            internal ScrollWheel() {  }
         }
 
         /// <summary>
