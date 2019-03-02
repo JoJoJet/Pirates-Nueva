@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// A object that the <see cref="PlayerController"/> can focus on.
+    /// An object that the <see cref="PlayerController"/> can focus on.
     /// </summary>
     public interface IFocusable
     {
@@ -38,9 +38,12 @@ namespace Pirates_Nueva
         private int FocusIndex { get; set; }
         private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
+        const string MouseDebugID = "debug_mouse";
         internal PlayerController(Master master, Sea sea) {
             Master = master;
             Sea = sea;
+
+            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
@@ -80,6 +83,10 @@ namespace Pirates_Nueva
 
             if(Focused != null)        // If we're focusing on an object,
                 Focused.Focus(master); //     call its Focus() method
+
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
+                tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
+            }
         }
     }
 }

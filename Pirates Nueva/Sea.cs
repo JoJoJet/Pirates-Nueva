@@ -17,8 +17,7 @@ namespace Pirates_Nueva
 
         private Master Master { get; }
 
-        const string MouseDebugID = "debug_mouse";
-        public Sea(Master master) {
+        internal Sea(Master master) {
             Master = master;
 
             // Generate the islands.
@@ -27,18 +26,12 @@ namespace Pirates_Nueva
             Task.Run(async () => await isl.GenerateAsync(new Random().Next(), master)).Wait();
 
             this.entities.Add(new PlayerShip(this, 10, 5));
-
-            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
                     u.Update(master, delta);    //     call its Update() method.
-            }
-
-            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
-                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }
 
