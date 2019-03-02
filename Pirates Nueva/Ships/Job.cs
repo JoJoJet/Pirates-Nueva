@@ -141,6 +141,9 @@ namespace Pirates_Nueva
             protected Toil Toil { get; private set; }
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
+            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
+            protected Ship Ship => Toil.Ship;
+
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
             void IToilSegmentContract.Draw(Master master, Agent worker) => Draw(master, worker);
