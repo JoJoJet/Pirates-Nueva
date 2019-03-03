@@ -30,6 +30,9 @@ namespace Pirates_Nueva
     }
     public class PlayerController : IUpdatable
     {
+        private PointI mouseFirst;
+        private PointF cameraFirst;
+
         public Master Master { get; }
 
         private Sea Sea { get; }
@@ -83,6 +86,15 @@ namespace Pirates_Nueva
 
             if(Focused != null)        // If we're focusing on an object,
                 Focused.Focus(master); //     call its Focus() method
+
+            if(master.Input.MouseWheel.IsDown) {                  // When the user clicks the scrollwheel,
+                mouseFirst = master.Input.MousePosition;          //     store the position of the mouse
+                cameraFirst = (Sea.CameraLeft, Sea.CameraBottom); //     and of the camera.
+            }
+            if(master.Input.MouseWheel.IsPressed) {                                               // When the scrollwheel is held down,
+                var mouseChange = master.Input.MousePosition - mouseFirst;                        //
+                (Sea.CameraLeft, Sea.CameraBottom) = cameraFirst + (PointF)mouseChange / Sea.PPU; //     move the camera with the mouse.
+            }
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
                 tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
