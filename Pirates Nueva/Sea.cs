@@ -10,38 +10,18 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
-        private int _zoom = 32;
+        public Camera Camera { get; }
 
         /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
-        public int PPU => CameraZoom;
+        public int PPU => (int)Math.Round(Camera.Zoom);
 
         public Archipelago Islands { get; }
         
-        /// <summary> The left edge of the camera, in <see cref="Sea"/>-space. </summary>
-        public float CameraLeft { get; set; }
-        /// <summary> The bottom edge of the camera, in <see cref="Sea"/>-space. </summary>
-        public float CameraBottom { get; set; }
-        /// <summary> How much the camera is zoomed. </summary>
-        public int CameraZoom {
-            get => this._zoom;
-            internal set {
-                if(this._zoom != value) {
-                    var first = ScreenPointToSea(Master.Input.MousePosition);
-                    this._zoom = Math.Max(value, 1);
-                    var current = ScreenPointToSea(Master.Input.MousePosition);
-
-                    var (deltaX, deltaY) = first - current;
-
-                    CameraLeft += deltaX;
-                    CameraBottom += deltaY;
-                }
-            }
-        }
-
         private Master Master { get; }
 
         internal Sea(Master master) {
             Master = master;
+            Camera = new Camera(master, this);
 
             // Generate the islands.
             Islands = new Archipelago(this);
@@ -100,7 +80,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
             int height = Master.GUI.ScreenHeight;
-            return ((float)x / PPU + CameraLeft, (float)(height - y) / PPU + CameraBottom);
+            return ((float)x / PPU + Camera.Left, (float)(height - y) / PPU + Camera.Bottom);
         }
 
         /// <summary>
@@ -115,7 +95,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round((x - CameraLeft) * PPU), (int)Math.Round(height - (y - CameraBottom) * PPU));
+            return ((int)Math.Round((x - Camera.Left) * PPU), (int)Math.Round(height - (y - Camera.Bottom) * PPU));
         }
         #endregion
 

@@ -89,23 +89,23 @@ namespace Pirates_Nueva
             if(Focused != null)        // If we're focusing on an object,
                 Focused.Focus(master); //     call its Focus() method
 
-            if(master.Input.MouseWheel.IsDown) {                  // When the user clicks the scrollwheel,
-                mouseFirst = master.Input.MousePosition;          //     store the position of the mouse
-                cameraFirst = (Sea.CameraLeft, Sea.CameraBottom); //     and of the camera.
+            if(master.Input.MouseWheel.IsDown) {                    // When the user clicks the scrollwheel,
+                mouseFirst = master.Input.MousePosition;            //     store the position of the mouse
+                cameraFirst = (Sea.Camera.Left, Sea.Camera.Bottom); //     and of the camera.
             }
-            if(master.Input.MouseWheel.IsPressed) {                                          // When the scrollwheel is held down:
-                var mDelta = master.Input.MousePosition - mouseFirst;                        //     Find how much the mouse has moved,
-                mDelta.Y *= -1;                                                              //     and invert the y component of that value.
-                (Sea.CameraLeft, Sea.CameraBottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
+            if(master.Input.MouseWheel.IsPressed) {                                            // When the scrollwheel is held down:
+                var mDelta = master.Input.MousePosition - mouseFirst;                          //     Find how much the mouse has moved,
+                mDelta.Y *= -1;                                                                //     and invert the y component of that value.
+                (Sea.Camera.Left, Sea.Camera.Bottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
             }
 
-            Sea.CameraZoom += (int)(master.Input.MouseWheel.Scroll / 120 * (7f + Sea.CameraZoom)/8);
+            Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
                 tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
             }
             if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) {
-                edge.Text = "Camera Position: " + new PointF(Sea.CameraLeft, Sea.CameraBottom);
+                edge.Text = "Camera Position: " + new PointF(Sea.Camera.Left, Sea.Camera.Bottom);
             }
         }
     }

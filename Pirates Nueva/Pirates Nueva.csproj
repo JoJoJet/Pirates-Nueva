@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Angle.cs" />
     <Compile Include="BoundingBox.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Island.cs" />
