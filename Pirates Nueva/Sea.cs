@@ -10,7 +10,7 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
-        private int _ppu = 32;
+        private int _zoom = 32;
 
         /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
         public int PPU => CameraZoom;
@@ -23,8 +23,19 @@ namespace Pirates_Nueva
         public float CameraBottom { get; set; }
         /// <summary> How much the camera is zoomed. </summary>
         public int CameraZoom {
-            get => this._ppu;
-            internal set => this._ppu = Math.Max(value, 1);
+            get => this._zoom;
+            internal set {
+                if(this._zoom != value) {
+                    var first = ScreenPointToSea(Master.Input.MousePosition);
+                    this._zoom = Math.Max(value, 1);
+                    var current = ScreenPointToSea(Master.Input.MousePosition);
+
+                    var (deltaX, deltaY) = first - current;
+
+                    CameraLeft += deltaX;
+                    CameraBottom += deltaY;
+                }
+            }
         }
 
         private Master Master { get; }
