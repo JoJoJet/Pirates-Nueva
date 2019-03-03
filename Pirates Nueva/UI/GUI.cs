@@ -189,12 +189,12 @@ namespace Pirates_Nueva
                 return;                        //     exit the method.
 
             var mouse = master.Input.MousePosition;
-            foreach(EdgeElement edge in this._edgeElements.Values) {       // For every edge element:
-                var con = edge as IEdgeContract;                           //
-                if(edge is IButtonContract b && edge is IElementDrawable d // If the element is a button,
-                    && d.IsMouseOver(mouse)) {                             // and the mouse is over it,
-                    b.OnClick();                                           //     invoke its action,
-                    return;                                                //     and exit this method.
+            foreach(EdgeElement edge in this._edgeElements.Values) { // For every edge element:
+                var con = edge as IEdgeContract;                     //
+                if(edge is IButton b && edge is IElementDrawable d   // If the element is a button,
+                    && d.IsMouseOver(mouse)) {                       // and the mouse is over it,
+                    b.OnClick();                                     //     invoke its action,
+                    return;                                          //     and exit this method.
                 }
             }
 
@@ -231,7 +231,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Makes the OnClick property of a Button accessible only through this assembly.
         /// </summary>
-        internal interface IButtonContract
+        internal interface IButton
         {
             /// <summary> Action to invoke when this button is clicked. </summary>
             OnClick OnClick { get; }
@@ -398,11 +398,11 @@ namespace Pirates_Nueva
             }
 
             bool IMenuContract.QueryClicks(PointI mouse) {
-                foreach(MenuElement el in Elements) {                      // For every element in this menu:
-                    if(el is IButtonContract b && el is IElementDrawable d // If the element is a button,
-                        && d.IsMouseOver(mouse)) {                         // and the mouse is hovering over it,
-                        b.OnClick.Invoke();                                // invoke its action,
-                        return true;                                       // and return true.
+                foreach(MenuElement el in Elements) {              // For every element in this menu:
+                    if(el is IButton b && el is IElementDrawable d // If the element is a button,
+                        && d.IsMouseOver(mouse)) {                 // and the mouse is hovering over it,
+                        b.OnClick.Invoke();                        // invoke its action,
+                        return true;                               // and return true.
                     }
                 }
                 return false; // If we got this far without exiting the method, return false.
