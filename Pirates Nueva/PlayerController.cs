@@ -42,11 +42,13 @@ namespace Pirates_Nueva
         private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
         const string MouseDebugID = "debug_mouse";
+        const string CameraDebugID = "debug_cameraPosition";
         internal PlayerController(Master master, Sea sea) {
             Master = master;
             Sea = sea;
 
             master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
+            master.GUI.AddEdge(CameraDebugID, new UI.EdgeText("camera", master.Font, GUI.Edge.Top, GUI.Direction.Left));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
@@ -91,13 +93,17 @@ namespace Pirates_Nueva
                 mouseFirst = master.Input.MousePosition;          //     store the position of the mouse
                 cameraFirst = (Sea.CameraLeft, Sea.CameraBottom); //     and of the camera.
             }
-            if(master.Input.MouseWheel.IsPressed) {                                               // When the scrollwheel is held down,
-                var mouseChange = master.Input.MousePosition - mouseFirst;                        //
-                (Sea.CameraLeft, Sea.CameraBottom) = cameraFirst + (PointF)mouseChange / Sea.PPU; //     move the camera with the mouse.
+            if(master.Input.MouseWheel.IsPressed) {                                          // When the scrollwheel is held down:
+                var mDelta = master.Input.MousePosition - mouseFirst;                        //     Find how much the mouse has moved,
+                mDelta.Y *= -1;                                                              //     and invert the y component of that value.
+                (Sea.CameraLeft, Sea.CameraBottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
             }
 
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
                 tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
+            }
+            if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) {
+                edge.Text = "Camera Position: " + new PointF(Sea.CameraLeft, Sea.CameraBottom);
             }
         }
     }

@@ -89,7 +89,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
             int height = Master.GUI.ScreenHeight;
-            return ((float)x / PPU - CameraLeft, (float)(height - y) / PPU + CameraBottom);
+            return ((float)x / PPU + CameraLeft, (float)(height - y) / PPU + CameraBottom);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round((x + CameraLeft) * PPU), (int)Math.Round(height - (y - CameraBottom) * PPU));
+            return ((int)Math.Round((x - CameraLeft) * PPU), (int)Math.Round(height - (y - CameraBottom) * PPU));
         }
         #endregion
 
