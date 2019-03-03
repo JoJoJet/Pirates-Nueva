@@ -14,6 +14,11 @@ namespace Pirates_Nueva
         public int PPU => 32;
 
         public Archipelago Islands { get; }
+        
+        /// <summary> The left edge of the camera, in <see cref="Sea"/>-space. </summary>
+        public float CameraLeft { get; set; }
+        /// <summary> The bottom edge of the camera, in <see cref="Sea"/>-space. </summary>
+        public float CameraBottom { get; set; }
 
         private Master Master { get; }
 
@@ -77,11 +82,11 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
             int height = Master.GUI.ScreenHeight;
-            return ((float)x / PPU, (float)(height - y) / PPU);
+            return ((float)x / PPU - CameraLeft, (float)(height - y) / PPU + CameraBottom);
         }
 
         /// <summary>
-        /// Transform the input <see cref="PointF"/> from this <see cref="Sea"/> to <see cref="PointI"/> local to the screen.
+        /// Transform the input <see cref="PointF"/> from <see cref="Sea"/>- to screen-space.
         /// </summary>
         /// <param name="seaPoint">A pair of coordinates within this <see cref="Sea"/>.</param>
         public PointI SeaPointToScreen(PointF seaPoint) => SeaPointToScreen(seaPoint.X, seaPoint.Y);
@@ -92,7 +97,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round(x *  PPU), (int)Math.Round(height - y * PPU));
+            return ((int)Math.Round((x + CameraLeft) * PPU), (int)Math.Round(height - (y - CameraBottom) * PPU));
         }
         #endregion
 
