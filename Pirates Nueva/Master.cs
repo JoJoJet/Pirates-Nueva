@@ -156,11 +156,6 @@ namespace Pirates_Nueva
 
     public static class MasterExt
     {
-        /// <summary>
-        /// Gets the time, in seconds, since last frame.
-        /// </summary>
-        public static float DeltaSeconds(this GameTime gameTime) => (float)gameTime.ElapsedGameTime.TotalSeconds;
-
         /// <summary> Merges every collection of <see cref="T"/>s into a single collection. </summary>
         public static IEnumerable<T> Union<T>(this IEnumerable<IEnumerable<T>> list) {
             foreach(var l in list) {
