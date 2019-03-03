@@ -131,7 +131,7 @@ namespace Pirates_Nueva
         public class ScrollWheel : Button, IScrollContract
         {
             /// <summary> Scrolling done during this frame. </summary>
-            public float Scroll => OldScrollCumulative - ScrollCumulative;
+            public float Scroll => ScrollCumulative - OldScrollCumulative;
             /// <summary> Scrolling since the start of the game. </summary>
             public float ScrollCumulative { get; private set; }
 
