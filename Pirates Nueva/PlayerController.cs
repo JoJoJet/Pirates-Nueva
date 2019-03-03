@@ -99,6 +99,8 @@ namespace Pirates_Nueva
                 (Sea.CameraLeft, Sea.CameraBottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
             }
 
+            Sea.CameraZoom += (int)(master.Input.MouseWheel.Scroll / 120 * (7f + Sea.CameraZoom)/8);
+
             if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
                 tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
             }
