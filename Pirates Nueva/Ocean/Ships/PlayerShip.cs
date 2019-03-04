@@ -90,8 +90,8 @@ namespace Pirates_Nueva.Ocean
                         if(HasBlock(shipX, shipY) == false)
                             CreateJob(
                                 shipX, shipY,
-                                new Job.Toil(new IsAccessibleAdj(), new PathToAdjacent()),
-                                new Job.Toil(new IsAdjacentTo(), new PlaceBlock("wood"))
+                                new Job<Ship, Block>.Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
+                                new Job<Ship, Block>.Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
                                 );
                     }
                 }
