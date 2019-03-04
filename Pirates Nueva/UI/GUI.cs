@@ -18,14 +18,14 @@ namespace Pirates_Nueva
         private Dictionary<string, EdgeElement> _edgeElements = new Dictionary<string, EdgeElement>();
         private Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
-        public static Master Master { get; private set; }
-
-        static SpriteFont Font => Master.Font;
+        public Master Master { get; private set; }
 
         public int ScreenWidth => Master.GraphicsDevice.Viewport.Width;
         public int ScreenHeight => Master.GraphicsDevice.Viewport.Height;
 
         public string Tooltip { get; set; }
+
+        private Font Font => Master.Font;
 
         internal GUI(Master master) {
             Master = master;
@@ -189,12 +189,12 @@ namespace Pirates_Nueva
                 return;                        //     exit the method.
 
             var mouse = master.Input.MousePosition;
-            foreach(EdgeElement edge in this._edgeElements.Values) {       // For every edge element:
-                var con = edge as IEdgeContract;                           //
-                if(edge is IButtonContract b && edge is IElementDrawable d // If the element is a button,
-                    && d.IsMouseOver(mouse)) {                             // and the mouse is over it,
-                    b.OnClick();                                           //     invoke its action,
-                    return;                                                //     and exit this method.
+            foreach(EdgeElement edge in this._edgeElements.Values) { // For every edge element:
+                var con = edge as IEdgeContract;                     //
+                if(edge is IButton b && edge is IElementDrawable d   // If the element is a button,
+                    && d.IsMouseOver(mouse)) {                       // and the mouse is over it,
+                    b.OnClick();                                     //     invoke its action,
+                    return;                                          //     and exit this method.
                 }
             }
 
@@ -231,7 +231,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Makes the OnClick property of a Button accessible only through this assembly.
         /// </summary>
-        internal interface IButtonContract
+        internal interface IButton
         {
             /// <summary> Action to invoke when this button is clicked. </summary>
             OnClick OnClick { get; }
@@ -280,7 +280,7 @@ namespace Pirates_Nueva
                     Bounds = null; //     don't draw it, and set the bounds to null.
                 }
             }
-            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
+            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) ?? false;
         }
 
 
@@ -304,14 +304,16 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class EdgeElement : Element, IEdgeContract
         {
+            private GUI _gui;
+
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this edge element will stack towards. </summary>
             public virtual Direction StackDirection { get; }
 
-            private GUI GUI { get; set; }
+            private GUI GUI => _gui ?? throw new InvalidOperationException($"{nameof(EdgeElement)}s must be part of the GUI object!");
             #region Hidden Properties
-            GUI IEdgeContract.GUI { set => GUI = value; }
+            GUI IEdgeContract.GUI { set => _gui = value; }
 
             int IEdgeContract.Left { get; set; }
             int IEdgeContract.Top { get; set; }
@@ -323,7 +325,7 @@ namespace Pirates_Nueva
             }
 
             /// <summary> Call this when a property is changed after initialization. </summary>
-            protected void PropertyChanged() => GUI?.ArangeEdges();
+            protected void PropertyChanged() => GUI.ArangeEdges();
         }
 
         
@@ -396,11 +398,11 @@ namespace Pirates_Nueva
             }
 
             bool IMenuContract.QueryClicks(PointI mouse) {
-                foreach(MenuElement el in Elements) {                      // For every element in this menu:
-                    if(el is IButtonContract b && el is IElementDrawable d // If the element is a button,
-                        && d.IsMouseOver(mouse)) {                         // and the mouse is hovering over it,
-                        b.OnClick.Invoke();                                // invoke its action,
-                        return true;                                       // and return true.
+                foreach(MenuElement el in Elements) {              // For every element in this menu:
+                    if(el is IButton b && el is IElementDrawable d // If the element is a button,
+                        && d.IsMouseOver(mouse)) {                 // and the mouse is hovering over it,
+                        b.OnClick.Invoke();                        // invoke its action,
+                        return true;                               // and return true.
                     }
                 }
                 return false; // If we got this far without exiting the method, return false.
@@ -422,6 +424,7 @@ namespace Pirates_Nueva
         public abstract class MenuElement : Element, IMenuElementContract
         {
             private readonly bool autoAligned;
+            private Menu _menu;
 
             /// <summary> The position of the left edge of this element local to its menu. </summary>
             public int Left { get; private set; }
@@ -429,9 +432,9 @@ namespace Pirates_Nueva
             public int Top { get; private set; }
 
             /// <summary> The <see cref="GUI.Menu"/> that contains this <see cref="MenuElement"/>. </summary>
-            protected Menu Menu { get; private set; }
+            protected Menu Menu => _menu ?? throw new InvalidOperationException($"{nameof(MenuElement)}s must be part of a menu!");
             #region Hidden Properties
-            Menu IMenuElementContract.Menu { set => Menu = value; }
+            Menu IMenuElementContract.Menu { set => _menu = value; }
 
             bool IMenuElementContract.AutoAligned => this.autoAligned;
             (int, int) IMenuElementContract.Position { set => (Left, Top) = value; }

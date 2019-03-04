@@ -10,13 +10,21 @@ namespace Pirates_Nueva
     {
         private readonly List<Entity> entities = new List<Entity>();
 
+        public Camera Camera { get; }
+
+        /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
+        public int PPU => (int)Math.Round(Camera.Zoom);
+
         public Archipelago Islands { get; }
 
+        /// <summary> The position of the mouse, in <see cref="Sea"/>-space. </summary>
+        public PointF MousePosition => ScreenPointToSea(Master.Input.MousePosition);
+        
         private Master Master { get; }
 
-        const string MouseDebugID = "debug_mouse";
-        public Sea(Master master) {
+        internal Sea(Master master) {
             Master = master;
+            Camera = new Camera(this);
 
             // Generate the islands.
             Islands = new Archipelago(this);
@@ -24,18 +32,12 @@ namespace Pirates_Nueva
             Task.Run(async () => await isl.GenerateAsync(new Random().Next(), master)).Wait();
 
             this.entities.Add(new PlayerShip(this, 10, 5));
-
-            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
                     u.Update(master, delta);    //     call its Update() method.
-            }
-
-            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {
-                tex.Text = $"Mouse: {ScreenPointToSea(master.Input.MousePosition)}";
             }
         }
 
@@ -81,11 +83,11 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to the screen.</param>
         internal (float x, float y) ScreenPointToSea(int x, int y) {
             int height = Master.GUI.ScreenHeight;
-            return ((float)x / Ship.Part.Pixels, (float)(height - y) / Ship.Part.Pixels);
+            return ((float)x / PPU + Camera.Left, (float)(height - y) / PPU + Camera.Bottom);
         }
 
         /// <summary>
-        /// Transform the input <see cref="PointF"/> from this <see cref="Sea"/> to <see cref="PointI"/> local to the screen.
+        /// Transform the input <see cref="PointF"/> from <see cref="Sea"/>- to screen-space.
         /// </summary>
         /// <param name="seaPoint">A pair of coordinates within this <see cref="Sea"/>.</param>
         public PointI SeaPointToScreen(PointF seaPoint) => SeaPointToScreen(seaPoint.X, seaPoint.Y);
@@ -96,7 +98,7 @@ namespace Pirates_Nueva
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round(x *  Ship.Part.Pixels), (int)Math.Round(height - y * Ship.Part.Pixels));
+            return ((int)Math.Round((x - Camera.Left) * PPU), (int)Math.Round(height - (y - Camera.Bottom) * PPU));
         }
         #endregion
 

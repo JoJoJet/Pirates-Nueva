@@ -54,9 +54,9 @@ namespace Pirates_Nueva
             var def = BlockDef.Get(PlaceID);
             var tex = master.Resources.LoadTexture(def.TextureID);
             
-            (float seaX, float seaY) = Toil.Ship.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
-            (int screenX, int screenY) = Toil.Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
-            master.Renderer.DrawRotated(tex, screenX, screenY, Block.Pixels, Block.Pixels, -Toil.Ship.Angle, (0, 0), Color.Lime);
+            (float seaX, float seaY) = Ship.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
+            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
+            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Toil.Ship.Angle, (0, 0), Color.Lime);
         }
     }
     

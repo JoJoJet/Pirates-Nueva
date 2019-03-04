@@ -48,7 +48,7 @@ namespace Pirates_Nueva.UI
     /// <summary>
     /// A button that hugs an edge of the screen, not tied to any menu.
     /// </summary>
-    public class EdgeButton : GUI.EdgeElement, GUI.IButtonContract
+    public class EdgeButton : GUI.EdgeElement, GUI.IButton
     {
         const int Padding = 3;
 
@@ -64,7 +64,7 @@ namespace Pirates_Nueva.UI
 
         private GUI.OnClick OnClick { get; set; }
         #region Hidden Properties
-        GUI.OnClick GUI.IButtonContract.OnClick => OnClick;
+        GUI.OnClick GUI.IButton.OnClick => OnClick;
         #endregion
 
         public EdgeButton(string text, Font font, GUI.OnClick onClick, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {

@@ -39,7 +39,7 @@ namespace Pirates_Nueva.UI
     /// <summary>
     /// A button in a <see cref="GUI.Menu"/>.
     /// </summary>
-    public class MenuButton : GUI.MenuElement, GUI.IButtonContract
+    public class MenuButton : GUI.MenuElement, GUI.IButton
     {
         const int Padding = 4; // Padding on each edge of the button.
 
@@ -55,7 +55,7 @@ namespace Pirates_Nueva.UI
 
         private GUI.OnClick OnClick { get; }
         #region Hidden Properties
-        GUI.OnClick GUI.IButtonContract.OnClick => OnClick;
+        GUI.OnClick GUI.IButton.OnClick => OnClick;
         #endregion
 
         /// <summary>

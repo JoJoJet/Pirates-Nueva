@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// A object that the <see cref="PlayerController"/> can focus on.
+    /// An object that the <see cref="PlayerController"/> can focus on.
     /// </summary>
     public interface IFocusable
     {
@@ -30,6 +30,9 @@ namespace Pirates_Nueva
     }
     public class PlayerController : IUpdatable
     {
+        private PointI mouseFirst;
+        private PointF cameraFirst;
+
         public Master Master { get; }
 
         private Sea Sea { get; }
@@ -38,16 +41,21 @@ namespace Pirates_Nueva
         private int FocusIndex { get; set; }
         private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
+        const string MouseDebugID = "debug_mouse";
+        const string CameraDebugID = "debug_cameraPosition";
         internal PlayerController(Master master, Sea sea) {
             Master = master;
             Sea = sea;
+
+            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
+            master.GUI.AddEdge(CameraDebugID, new UI.EdgeText("camera", master.Font, GUI.Edge.Top, GUI.Direction.Left));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
-                && !(Focused?.IsLocked == true)) {                         // and if the current focus isn't locked:
+                && (!Focused?.IsLocked ?? true)) {                         // and if the current focus isn't locked:
 
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                var (seaX, seaY) = Sea.MousePosition;
                 var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
 
                 var oldFocused = Focused;        // Save a copy of the old focused object.
@@ -80,6 +88,25 @@ namespace Pirates_Nueva
 
             if(Focused != null)        // If we're focusing on an object,
                 Focused.Focus(master); //     call its Focus() method
+
+            if(master.Input.MouseWheel.IsDown) {                    // When the user clicks the scrollwheel,
+                mouseFirst = master.Input.MousePosition;            //     store the position of the mouse
+                cameraFirst = (Sea.Camera.Left, Sea.Camera.Bottom); //     and of the camera.
+            }
+            if(master.Input.MouseWheel.IsPressed) {                                            // When the scrollwheel is held down:
+                var mDelta = master.Input.MousePosition - mouseFirst;                          //     Find how much the mouse has moved,
+                mDelta.Y *= -1;                                                                //     and invert the y component of that value.
+                (Sea.Camera.Left, Sea.Camera.Bottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
+            }
+
+            Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
+
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) { // If there's a mouse debug GUI element,
+                tex.Text = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
+            }
+            if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) { // If there's a camera debug GUI element,
+                edge.Text = "Camera Position: " + Sea.Camera.Position;            //     update its text to display the camera position.
+            }
         }
     }
 }

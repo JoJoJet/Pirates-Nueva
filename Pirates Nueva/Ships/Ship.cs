@@ -513,9 +513,6 @@ namespace Pirates_Nueva
         /// </summary>
         public abstract class Part : IPartContract
         {
-            /// <summary> The number of pixels per unit of a <see cref="Part"/>. </summary>
-            protected internal const int Pixels = 32;
-
             /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
 

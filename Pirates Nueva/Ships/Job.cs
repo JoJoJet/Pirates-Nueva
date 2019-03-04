@@ -114,6 +114,9 @@ namespace Pirates_Nueva
             private Job Job { get; set; }
             Job IToilContract.Job { set => Job = value; }
 
+            /// <summary>
+            /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Pirates_Nueva.Job"/>.
+            /// </summary>
             public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
                 (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
@@ -121,6 +124,9 @@ namespace Pirates_Nueva
                 Requirement = req;
                 Action = action;
             }
+            /// <summary>
+            /// Create a <see cref="Toil"/> at the specified indices in the <see cref="Pirates_Nueva.Ship"/>.
+            /// </summary>
             public Toil(int x, int y, Requirement req, Action action) : this(req, action) {
                 nullableIndex = (x, y);
             }
@@ -141,18 +147,17 @@ namespace Pirates_Nueva
             protected Toil Toil { get; private set; }
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
+            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
+            protected Ship Ship => Toil.Ship;
+
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
             void IToilSegmentContract.Draw(Master master, Agent worker) => Draw(master, worker);
             /// <summary> Draw this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
-            protected abstract void Draw(Master master, Agent worker);
+            protected virtual void Draw(Master master, Agent worker) {  }
         }
-
-        /// <summary> Makes members of <see cref="Requirement"/> accessible only within the <see cref="Job"/> class. </summary>
-        private interface IReqContract
-        {
-            bool Qualify(Agent worker, out string reason);
-        }
+        
+        private interface IReqContract {  bool Qualify(Agent worker, out string reason);  } // Restricts access of some members to this class.
         /// <summary>
         /// Something that must be fulfilled before a <see cref="Toil"/> can be completed.
         /// </summary>
@@ -162,16 +167,9 @@ namespace Pirates_Nueva
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
             /// <param name="reason">The reason that this <see cref="Requirement"/> is not fulfilled.</param>
             protected abstract bool Qualify(Agent worker, out string reason);
-
-            /// <summary> Draw this <see cref="Requirement"/> to the screen. </summary>
-            protected override void Draw(Master master, Agent worker) {  }
         }
         
-        /// <summary> Makes members of <see cref="Action"/> accessible only within the <see cref="Job"/> class. </summary>
-        private interface IActionContract
-        {
-            bool Work(Agent worker, Time delta);
-        }
+        private interface IActionContract {  bool Work(Agent worker, Time delta);  } // Restricts the access of some members to this class.
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
@@ -181,9 +179,6 @@ namespace Pirates_Nueva
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
             protected abstract bool Work(Agent worker, Time delta);
-
-            /// <summary> Draw this <see cref="Action"/> to the screen. </summary>
-            protected override void Draw(Master master, Agent worker) {  }
         }
     }
 }
