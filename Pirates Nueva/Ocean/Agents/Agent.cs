@@ -9,8 +9,8 @@ namespace Pirates_Nueva.Ocean
 {
     public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
     public interface IAgentContainer<TSelf, TSpot>
-        where TSelf : IGraph<TSelf>
-        where TSpot : INode<TSpot>
+        where TSelf : IGraph<TSpot>
+        where TSpot : IAgentSpot<TSpot>, INode<TSpot>
     {
         
     }
@@ -20,6 +20,7 @@ namespace Pirates_Nueva.Ocean
         int X { get; }
         int Y { get; }
     }
+
     {
         private Stack<Block> _path;
 
