@@ -487,7 +487,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IGraph Implementation
-        IEnumerable<INode<Block>> IGraph<Block>.Nodes {
+        IEnumerable<Block> IGraph<Block>.Nodes {
             get {
                 // Return every block in this ship.
                 for(int x = 0; x < Width; x++) {

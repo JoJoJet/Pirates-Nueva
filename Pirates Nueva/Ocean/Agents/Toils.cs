@@ -82,7 +82,7 @@ namespace Pirates_Nueva.Ocean
                 return false;                               //     and return false.
             }
 
-            bool isAdjacent(Path.INode<TSpot> n) => PointI.SqrDistance((n as TSpot).Index, Toil.Index) == 1;
+            bool isAdjacent(TSpot n) => PointI.SqrDistance(n.Index, Toil.Index) == 1;
         }
     }
 
@@ -106,7 +106,7 @@ namespace Pirates_Nueva.Ocean
                 return false;                             //     Return false.
             }
             
-            bool isAdjacent(Path.INode<TSpot> n) => PointI.SqrDistance((n as TSpot).Index, Toil.Index) == 1;
+            bool isAdjacent(TSpot n) => PointI.SqrDistance(n.Index, Toil.Index) == 1;
         }
     }
 }
