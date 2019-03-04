@@ -31,6 +31,7 @@ namespace Pirates_Nueva.Ocean
     {
         int X { get; }
         int Y { get; }
+        PointI Index { get; }
     }
 
     /// <summary>

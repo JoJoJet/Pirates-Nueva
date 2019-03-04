@@ -51,6 +51,7 @@
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Ocean\Entity.cs" />
     <Compile Include="Ocean\Island.cs" />
+    <Compile Include="Ocean\Ships\ShipAgent.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
