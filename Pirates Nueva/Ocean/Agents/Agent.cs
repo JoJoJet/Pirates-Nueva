@@ -10,9 +10,9 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// An object that can contain Agents and Jobs.
     /// </summary>
-    public interface IAgentContainer<TSelf, TSpot>
-        where TSelf : class, IAgentContainer<TSelf, TSpot>, IGraph<TSpot>
-        where TSpot : class, IAgentSpot<TSpot>,             INode<TSpot>
+    public interface IContainer<TSelf, TSpot>
+        where TSelf : class, IContainer<TSelf, TSpot>, IGraph<TSpot>
+        where TSpot : class, ISpot<TSpot>,             INode<TSpot>
     {
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
@@ -26,7 +26,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// An object that an Agent can stand on.
     /// </summary>
-    public interface IAgentSpot<T>
+    public interface ISpot<T>
         where T : INode<T>
     {
         int X { get; }
@@ -38,8 +38,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// A character that exists in a container and can complete Jobs.
     /// </summary>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
-        where TC    : class, IAgentContainer<TC, TSpot>, IGraph<TSpot>
-        where TSpot : class, IAgentSpot<TSpot>,          INode<TSpot>
+        where TC    : class, IContainer<TC, TSpot>, IGraph<TSpot>
+        where TSpot : class, ISpot<TSpot>,          INode<TSpot>
     {
         private Stack<TSpot> _path;
 

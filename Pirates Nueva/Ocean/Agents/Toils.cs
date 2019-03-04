@@ -8,8 +8,8 @@ using Microsoft.Xna.Framework;
 namespace Pirates_Nueva.Ocean.Agents
 {
     public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
-        where TC    : class, IAgentContainer<TC, TSpot>, Path.IGraph<TSpot>
-        where TSpot : class, IAgentSpot<TSpot>,          Path.INode<TSpot>
+        where TC    : class, IContainer<TC, TSpot>, Path.IGraph<TSpot>
+        where TSpot : class, ISpot<TSpot>,          Path.INode<TSpot>
     {
         /// <summary>
         /// Check if the specified <see cref="Agent"/> is adjacent to the <see cref="Job.Toil"/>.
@@ -69,8 +69,8 @@ namespace Pirates_Nueva.Ocean.Agents
     }
     
     public class IsAccessibleAdj<TC, TSpot> : Job<TC, TSpot>.Requirement
-        where TC    : class, IAgentContainer<TC, TSpot>, Path.IGraph<TSpot>
-        where TSpot : class, IAgentSpot<TSpot>,          Path.INode<TSpot>
+        where TC    : class, IContainer<TC, TSpot>, Path.IGraph<TSpot>
+        where TSpot : class, ISpot<TSpot>,          Path.INode<TSpot>
     {
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
@@ -87,8 +87,8 @@ namespace Pirates_Nueva.Ocean.Agents
     }
 
     public class PathToAdjacent<TC, TSpot> : Job<TC, TSpot>.Action
-        where TC    : class, IAgentContainer<TC, TSpot>, Path.IGraph<TSpot>
-        where TSpot : class, IAgentSpot<TSpot>,          Path.INode<TSpot>
+        where TC    : class, IContainer<TC, TSpot>, Path.IGraph<TSpot>
+        where TSpot : class, ISpot<TSpot>,          Path.INode<TSpot>
     {
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             if(worker.PathingTo == null) {                // If the worker is currently still:
