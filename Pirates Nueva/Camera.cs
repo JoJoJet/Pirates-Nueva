@@ -7,10 +7,12 @@ namespace Pirates_Nueva
         private readonly Sea sea;
         private float _zoom = 32;
 
-        /// <summary> The left edge of this camera, in <see cref="Sea"/>-space. </summary>
+        /// <summary> The left edge of this <see cref="Camera"/>, in <see cref="Sea"/>-space. </summary>
         public float Left { get; internal set; }
-        /// <summary> The bottom edge of this camera, in <see cref="Sea"/>-space. </summary>
+        /// <summary> The bottom edge of this <see cref="Camera"/>, in <see cref="Sea"/>-space. </summary>
         public float Bottom { get; internal set; }
+        /// <summary> The bottom left corner of this <see cref="Camera"/>, in <see cref="Sea"/>-space. </summary>
+        public PointF Position => (Left, Bottom);
 
         /// <summary> How much this <see cref="Camera"/> is zoomed. </summary>
         public float Zoom {

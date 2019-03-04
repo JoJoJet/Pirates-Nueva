@@ -101,11 +101,11 @@ namespace Pirates_Nueva
 
             Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
 
-            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) { // If there's a mouse debug element,
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) { // If there's a mouse debug GUI element,
                 tex.Text = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
             }
-            if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) {
-                edge.Text = "Camera Position: " + new PointF(Sea.Camera.Left, Sea.Camera.Bottom);
+            if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) { // If there's a camera debug GUI element,
+                edge.Text = "Camera Position: " + Sea.Camera.Position;            //     update its text to display the camera position.
             }
         }
     }
