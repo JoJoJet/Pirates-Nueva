@@ -8,6 +8,18 @@ using Pirates_Nueva.Path;
 namespace Pirates_Nueva.Ocean
 {
     public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public interface IAgentContainer<TSelf, TSpot>
+        where TSelf : IGraph<TSelf>
+        where TSpot : INode<TSpot>
+    {
+        
+    }
+    public interface IAgentSpot<T>
+        where T : INode<T>
+    {
+        int X { get; }
+        int Y { get; }
+    }
     {
         private Stack<Block> _path;
 
