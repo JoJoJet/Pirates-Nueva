@@ -8,6 +8,9 @@ using Pirates_Nueva.Path;
 namespace Pirates_Nueva.Ocean
 {
     public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
+    /// <summary>
+    /// An object that can contain agents and <see cref="Job"/>s.
+    /// </summary>
     public interface IAgentContainer<TSelf, TSpot>
         where TSelf : class, IAgentContainer<TSelf, TSpot>, IGraph<TSpot>
         where TSpot : class, IAgentSpot<TSpot>,             INode<TSpot>
@@ -21,6 +24,9 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         Job RemoveJob(Job job);
     }
+    /// <summary>
+    /// An object that an agent can stand on.
+    /// </summary>
     public interface IAgentSpot<T>
         where T : INode<T>
     {
