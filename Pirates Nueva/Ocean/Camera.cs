@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.Ocean
 {
     public class Camera
     {

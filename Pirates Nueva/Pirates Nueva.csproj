@@ -47,22 +47,22 @@
   <ItemGroup>
     <Compile Include="Angle.cs" />
     <Compile Include="BoundingBox.cs" />
-    <Compile Include="Camera.cs" />
+    <Compile Include="Ocean\Camera.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Entity.cs" />
-    <Compile Include="Island.cs" />
+    <Compile Include="Ocean\Island.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
     <Compile Include="PlayerController.cs" />
     <Compile Include="Renderer.cs" />
-    <Compile Include="Ships\Agent.cs" />
-    <Compile Include="Ships\Block.cs" />
+    <Compile Include="Ocean\Ships\Agent.cs" />
+    <Compile Include="Ocean\Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
-    <Compile Include="Ships\Furniture.cs" />
-    <Compile Include="Ships\Job.cs" />
-    <Compile Include="Ships\Toils.cs" />
+    <Compile Include="Ocean\Ships\Furniture.cs" />
+    <Compile Include="Ocean\Ships\Job.cs" />
+    <Compile Include="Ocean\Ships\Toils.cs" />
     <Compile Include="Time.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />
@@ -70,13 +70,13 @@
     <Compile Include="UI\GUI.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Master.cs" />
-    <Compile Include="Ships\PlayerShip.cs" />
+    <Compile Include="Ocean\Ships\PlayerShip.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />
-    <Compile Include="Sea.cs" />
-    <Compile Include="Ships\Ship.cs" />
+    <Compile Include="Ocean\Sea.cs" />
+    <Compile Include="Ocean\Ships\Ship.cs" />
     <Compile Include="UI\MenuElements.cs" />
     <Compile Include="UI\Texture.cs" />
   </ItemGroup>

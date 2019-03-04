@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.UI;
+using Pirates_Nueva.Ocean;
 
 namespace Pirates_Nueva
 {
