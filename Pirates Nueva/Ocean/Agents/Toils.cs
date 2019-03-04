@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace Pirates_Nueva.Ocean
+namespace Pirates_Nueva.Ocean.Agents
 {
     public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
         where TC    : class, IAgentContainer<TC, TSpot>, Path.IGraph<TSpot>

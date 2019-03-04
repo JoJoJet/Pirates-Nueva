@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva.Ocean
 {
-    class ShipAgent : Agent<Ship, Block>
+    /// <summary>
+    /// A character that exists on a <see cref="Ocean.Ship"/> and can complete jobs.
+    /// </summary>
+    class ShipAgent : Agents.Agent<Ship, Block>
     {
         /// <summary>
         /// The <see cref="Ocean.Ship"/> that contains this <see cref="ShipAgent"/>.

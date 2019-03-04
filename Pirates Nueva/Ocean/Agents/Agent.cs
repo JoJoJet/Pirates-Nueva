@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Pirates_Nueva.Path;
 
-namespace Pirates_Nueva.Ocean
+namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
-    /// An object that can contain agents and <see cref="Job"/>s.
+    /// An object that can contain Agents and Jobs.
     /// </summary>
     public interface IAgentContainer<TSelf, TSpot>
         where TSelf : class, IAgentContainer<TSelf, TSpot>, IGraph<TSpot>
@@ -24,7 +24,7 @@ namespace Pirates_Nueva.Ocean
         void RemoveJob(Job<TSelf, TSpot> job);
     }
     /// <summary>
-    /// An object that an agent can stand on.
+    /// An object that an Agent can stand on.
     /// </summary>
     public interface IAgentSpot<T>
         where T : INode<T>
@@ -35,7 +35,7 @@ namespace Pirates_Nueva.Ocean
     }
 
     /// <summary>
-    /// A character that exists on a container and can complete Jobs.
+    /// A character that exists in a container and can complete Jobs.
     /// </summary>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>, IGraph<TSpot>

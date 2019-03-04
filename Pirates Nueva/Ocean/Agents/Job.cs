@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pirates_Nueva.Ocean
+namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
     /// Something that an <see cref="Agent"/> can do.
