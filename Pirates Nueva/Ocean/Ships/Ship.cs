@@ -7,14 +7,14 @@ using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public abstract class Ship : Entity, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
+    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
         private readonly Block[,] blocks;
-        private readonly List<Agent> agents = new List<Agent>();
+        private readonly List<Agent<Ship, Block>> agents = new List<Agent<Ship, Block>>();
         
-        private readonly List<Job> jobs = new List<Job>();
+        private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -320,7 +320,7 @@ namespace Pirates_Nueva.Ocean
         /// Get the <see cref="Agent"/> at index /x/, /y/, if it exists.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool TryGetAgent(int x, int y, out Agent agent) {
+        public bool TryGetAgent(int x, int y, out Agent<Ship, Block> agent) {
             ValidateIndices(nameof(TryGetAgent), x, y);
 
             foreach(var ag in this.agents) { // For each agent in this ship:
@@ -338,17 +338,17 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Agent AddAgent(int x, int y) {
+        public Agent<Ship, Block> AddAgent(int x, int y) {
             ValidateIndices(nameof(AddAgent), x, y);
             
-            if(unsafeGetBlock(x, y) is Block b) { // If there is a block at /x/, /y/,
-                var agent = new Agent(this, b);   //     create an agent on it,
-                this.agents.Add(agent);           //     add the agent to the list of agents,
-                return agent;                     //     and then return the agent.
+            if(unsafeGetBlock(x, y) is Block b) {   // If there is a block at /x/, /y/,
+                var agent = new ShipAgent(this, b); //     create an agent on it,
+                this.agents.Add(agent);             //     add the agent to the list of agents,
+                return agent;                       //     and then return the agent.
             }
             else {                                   // If there is no block at /x/, /y/,
                 throw new InvalidOperationException( //     throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the {nameof(Agent)} onto!"
+                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the agent onto!"
                     );
             }
         }
@@ -356,18 +356,18 @@ namespace Pirates_Nueva.Ocean
 
         #region Job Accessor Methods
         /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
-        public void CreateJob(int x, int y, params Job.Toil[] toils) {
-            this.jobs.Add(new Job(this, x, y, toils));
+        public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
+            this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
         }
         /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
-        public void AddJob(Job job) {
+        public void AddJob(Job<Ship, Block> job) {
             this.jobs.Add(job);
         }
 
         /// <summary>
         /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
-        public Job GetWorkableJob(Agent hiree) {
+        public Job<Ship, Block> GetWorkableJob(Agent<Ship, Block> hiree) {
             for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
                 var job = jobs[i];
                 if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
@@ -380,7 +380,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary> Remove the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
-        public void RemoveJob(Job job) => this.jobs.Remove(job);
+        public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
         #endregion
 
         #region Private Methods
