@@ -16,6 +16,9 @@ namespace Pirates_Nueva
         public int PPU => (int)Math.Round(Camera.Zoom);
 
         public Archipelago Islands { get; }
+
+        /// <summary> The position of the mouse, in <see cref="Sea"/>-space. </summary>
+        public PointF MousePosition => ScreenPointToSea(Master.Input.MousePosition);
         
         private Master Master { get; }
 
