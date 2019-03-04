@@ -55,14 +55,14 @@
     <Compile Include="Path\Structures.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
     <Compile Include="Controllers\Renderer.cs" />
-    <Compile Include="Ocean\Ships\Agent.cs" />
+    <Compile Include="Ocean\Agents\Agent.cs" />
     <Compile Include="Ocean\Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Ocean\Ships\Furniture.cs" />
-    <Compile Include="Ocean\Ships\Job.cs" />
-    <Compile Include="Ocean\Ships\Toils.cs" />
+    <Compile Include="Ocean\Agents\Job.cs" />
+    <Compile Include="Ocean\Agents\Toils.cs" />
     <Compile Include="Time.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />
