@@ -51,6 +51,18 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X}, {Y})";
 
+        public override bool Equals(object obj) {
+            switch(obj) {
+                case PointI p: return p == this;
+                case PointF f: return f.X == X && f.Y == Y;
+                case ValueTuple<int, int> ti: return ti.Item1 == X && ti.Item2 == Y;
+                case ValueTuple<float, float> tf: return tf.Item1 == X && tf.Item2 == Y;
+                case Point m: return m.X == X && m.Y == Y;
+                default: return false;
+            }
+        }
+        public override int GetHashCode() => X.GetHashCode() + 9 * Y.GetHashCode();
+
         public static explicit operator PointI(PointF p) => new PointI((int)Math.Round(p.X), (int)Math.Round(p.Y));
 
         public static implicit operator Microsoft.Xna.Framework.Point(PointI p) => new Point(p.X, p.Y);
@@ -143,6 +155,18 @@ namespace Pirates_Nueva
         }
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
+
+        public override bool Equals(object obj) {
+            switch(obj) {
+                case PointF p: return p == this;
+                case PointI i: return i.X == X && i.Y == Y;
+                case ValueTuple<float, float> tf: return tf.Item1 == X && tf.Item2 == Y;
+                case ValueTuple<int, int> ti: return ti.Item1 == X && ti.Item2 == Y;
+                case Vector2 v: return v.X == X && v.Y == Y;
+                default: return false;
+            }
+        }
+        public override int GetHashCode() => X.GetHashCode() + 6 * Y.GetHashCode();
 
         public static implicit operator PointF(PointI p) => new PointF(p.X, p.Y);
 

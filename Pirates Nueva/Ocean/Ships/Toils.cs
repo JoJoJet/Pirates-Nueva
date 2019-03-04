@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.Ocean
 {
     public class IsAdjacentTo : Job.Requirement
     {

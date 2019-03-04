@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Pirates_Nueva.Path;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.Ocean
 {
     public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
     {

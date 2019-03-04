@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.UI;
+using Pirates_Nueva.Ocean;
 
 namespace Pirates_Nueva
 {
@@ -34,9 +35,6 @@ namespace Pirates_Nueva
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Sea sea;
-
-        /// <summary> Prolly don't use this. Will likely be removed later. </summary>
-        public static Master Instance => _instance ?? throw new InvalidOperationException($"{nameof(Master)} is uninitialized!");
         
         public Font Font { get; private set; }
 

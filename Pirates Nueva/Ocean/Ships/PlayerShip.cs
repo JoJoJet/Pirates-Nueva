@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.Ocean
 {
     public class PlayerShip : Ship, IFocusable
     {

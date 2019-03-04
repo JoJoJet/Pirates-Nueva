@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.Ocean
 {
     public class Island : IDrawable
     {
@@ -15,9 +15,9 @@ namespace Pirates_Nueva
 
         public Sea Sea { get; }
 
-        /// <summary> The left edge of this <see cref="Island"/>, in <see cref="Pirates_Nueva.Sea"/>-space. </summary>
+        /// <summary> The left edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Left { get; }
-        /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Pirates_Nueva.Sea"/>-space. </summary>
+        /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
         public Island(Sea sea, int left, int bottom) {
