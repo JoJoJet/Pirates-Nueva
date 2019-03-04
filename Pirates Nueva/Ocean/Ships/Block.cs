@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget, Path.INode<Block>
+    public class Block : Ship.Part, IAgentSpot<Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
