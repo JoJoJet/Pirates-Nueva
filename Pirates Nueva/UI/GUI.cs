@@ -280,7 +280,7 @@ namespace Pirates_Nueva
                     Bounds = null; //     don't draw it, and set the bounds to null.
                 }
             }
-            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) == true;
+            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) ?? false;
         }
 
 

@@ -53,7 +53,7 @@ namespace Pirates_Nueva
 
         void IUpdatable.Update(Master master, Time delta) {
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
-                && !(Focused?.IsLocked == true)) {                         // and if the current focus isn't locked:
+                && (!Focused?.IsLocked ?? true)) {                         // and if the current focus isn't locked:
 
                 var (seaX, seaY) = Sea.MousePosition;
                 var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
