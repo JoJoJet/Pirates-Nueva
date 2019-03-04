@@ -46,10 +46,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Angle.cs" />
-    <Compile Include="BoundingBox.cs" />
+    <Compile Include="Ocean\BoundingBox.cs" />
     <Compile Include="Ocean\Camera.cs" />
     <Compile Include="Defs\SliceDef.cs" />
-    <Compile Include="Entity.cs" />
+    <Compile Include="Ocean\Entity.cs" />
     <Compile Include="Ocean\Island.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
