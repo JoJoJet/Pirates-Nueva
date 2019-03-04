@@ -9,10 +9,17 @@ namespace Pirates_Nueva.Ocean
 {
     public class Agent : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
     public interface IAgentContainer<TSelf, TSpot>
-        where TSelf : IGraph<TSpot>
-        where TSpot : IAgentSpot<TSpot>, INode<TSpot>
+        where TSelf : class, IAgentContainer<TSelf, TSpot>, IGraph<TSpot>
+        where TSpot : class, IAgentSpot<TSpot>,             INode<TSpot>
     {
-        
+        /// <summary>
+        /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
+        /// </summary>
+        Job GetWorkableJob(Agent<TSelf, TSpot> hiree);
+        /// <summary>
+        /// Removes the specified <see cref="Job"/> from this instance.
+        /// </summary>
+        Job RemoveJob(Job job);
     }
     public interface IAgentSpot<T>
         where T : INode<T>
