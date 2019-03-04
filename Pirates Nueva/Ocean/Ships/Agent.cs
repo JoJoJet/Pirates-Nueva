@@ -11,7 +11,7 @@ namespace Pirates_Nueva.Ocean
     {
         private Stack<Block> _path;
 
-        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Agent"/>. </summary>
+        /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Agent"/>. </summary>
         public Ship Ship { get; }
 
         /// <summary> The <see cref="Block"/> that this <see cref="Agent"/> is standing on or moving from. </summary>
@@ -23,9 +23,9 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public float MoveProgress { get; protected set; }
         
-        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public float X => Lerp(CurrentBlock.X, (NextBlock??CurrentBlock).X, MoveProgress);
-        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public float Y => Lerp(CurrentBlock.Y, (NextBlock??CurrentBlock).Y, MoveProgress);
 
         public Job Job { get; protected set; }

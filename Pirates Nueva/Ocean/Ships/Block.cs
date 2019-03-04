@@ -8,22 +8,22 @@ namespace Pirates_Nueva.Ocean
 {
     public class Block : Ship.Part, IFocusable, UI.IScreenSpaceTarget, Path.INode<Block>
     {
-        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Block"/>. </summary>
+        /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
         public BlockDef Def { get; private set; }
         public string ID => Def.ID;
 
-        /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public override int X { get; }
-        /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public override int Y { get; }
 
         /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
         public override Dir Direction => Dir.Right;
 
         /// <summary>
-        /// The <see cref="Pirates_Nueva.Furniture"/> placed on this block. Might be null.
+        /// The <see cref="Ocean.Furniture"/> placed on this block. Might be null.
         /// </summary>
         public Furniture Furniture { get; private set; }
 

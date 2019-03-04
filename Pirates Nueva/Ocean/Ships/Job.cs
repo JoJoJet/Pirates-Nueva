@@ -99,13 +99,13 @@ namespace Pirates_Nueva.Ocean
             public Ship Ship => Job.Ship;
 
             /// <summary>
-            /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>.
+            /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>.
             /// </summary>
             public PointI Index => this.nullableIndex ?? (Job.X, Job.Y); // If this toil has no position, default to the position of its job.
 
-            /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public int X => Index.X;
-            /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public int Y => Index.Y;
 
             public Requirement Requirement { get; }
@@ -115,7 +115,7 @@ namespace Pirates_Nueva.Ocean
             Job IToilContract.Job { set => Job = value; }
 
             /// <summary>
-            /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Pirates_Nueva.Job"/>.
+            /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Ocean.Job"/>.
             /// </summary>
             public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
@@ -125,7 +125,7 @@ namespace Pirates_Nueva.Ocean
                 Action = action;
             }
             /// <summary>
-            /// Create a <see cref="Toil"/> at the specified indices in the <see cref="Pirates_Nueva.Ship"/>.
+            /// Create a <see cref="Toil"/> at the specified indices in the <see cref="Ocean.Ship"/>.
             /// </summary>
             public Toil(int x, int y, Requirement req, Action action) : this(req, action) {
                 nullableIndex = (x, y);
@@ -147,7 +147,7 @@ namespace Pirates_Nueva.Ocean
             protected Toil Toil { get; private set; }
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
-            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
+            /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
             protected Ship Ship => Toil.Ship;
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.

@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean
     public enum Dir { Up, Right, Down, Left };
     public class Furniture : Ship.Part, IFocusable, UI.IScreenSpaceTarget
     {
-        /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Furniture"/>. </summary>
+        /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Furniture"/>. </summary>
         public override Ship Ship => Floor.Ship;
 
         public FurnitureDef Def { get; private set; }
@@ -23,9 +23,9 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Block Floor { get; private set; }
 
-        /// <summary> The X index of this <see cref="Furniture"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The X index of this <see cref="Furniture"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public override int X => Floor.X;
-        /// <summary> The Y index of this <see cref="Furniture"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+        /// <summary> The Y index of this <see cref="Furniture"/>, local to its <see cref="Ocean.Ship"/>. </summary>
         public override int Y => Floor.Y;
 
         /// <summary>

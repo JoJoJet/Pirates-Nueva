@@ -509,23 +509,23 @@ namespace Pirates_Nueva.Ocean
             void Draw(Master master);
         }
         /// <summary>
-        /// Part of a <see cref="Pirates_Nueva.Ship"/>.
+        /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
         public abstract class Part : IPartContract
         {
-            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Part"/>. </summary>
+            /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
 
-            /// <summary> The X index of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The X index of this <see cref="Part"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public abstract int X { get; }
-            /// <summary> The Y index of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The Y index of this <see cref="Part"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public abstract int Y { get; }
-            /// <summary> The X and Y indices of this <see cref="Part"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The X and Y indices of this <see cref="Part"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public virtual PointI Index => (X, Y);
 
             /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
             public virtual Dir Direction { get; protected set; }
-            /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Ocean.Ship"/>. </summary>
             public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
