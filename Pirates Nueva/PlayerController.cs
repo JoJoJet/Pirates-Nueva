@@ -55,7 +55,7 @@ namespace Pirates_Nueva
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
                 && !(Focused?.IsLocked == true)) {                         // and if the current focus isn't locked:
 
-                var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                var (seaX, seaY) = Sea.MousePosition;
                 var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
 
                 var oldFocused = Focused;        // Save a copy of the old focused object.
@@ -101,8 +101,8 @@ namespace Pirates_Nueva
 
             Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
 
-            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) {          // If there's a mouse debug element,
-                tex.Text = $"Mouse: {Sea.ScreenPointToSea(master.Input.MousePosition)}"; //     update its text to display the mouse position.
+            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) { // If there's a mouse debug element,
+                tex.Text = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
             }
             if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) {
                 edge.Text = "Camera Position: " + new PointF(Sea.Camera.Left, Sea.Camera.Bottom);

@@ -64,11 +64,11 @@ namespace Pirates_Nueva
                 IsFocusLocked = true;                             // Lock focus onto this object.
                 master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
 
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {   // When the user clicks:
-                    Destination = Sea.ScreenPointToSea(master.Input.MousePosition); //     Set the destination as the click point,
-                    focusOption = FocusOption.None;                                 //     unset the focus option,
-                    IsFocusLocked = false;                                          //     release focus from this object,
-                    master.GUI.Tooltip = "";                                        //     and unset the tooltip.
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // When the user clicks:
+                    Destination = Sea.MousePosition;                              //     Set the destination as the click point,
+                    focusOption = FocusOption.None;                               //     unset the focus option,
+                    IsFocusLocked = false;                                        //     release focus from this object,
+                    master.GUI.Tooltip = "";                                      //     and unset the tooltip.
                 }
             }
 
@@ -115,7 +115,7 @@ namespace Pirates_Nueva
                 // the position (local to the ship) as out paremters /x/ and /y/.
                 // Also: If the user clicked a GUI element, definitely return false.
                 bool isMouseValid(out int x, out int y) {
-                    var (seaX, seaY) = Sea.ScreenPointToSea(master.Input.MousePosition);
+                    var (seaX, seaY) = Sea.MousePosition;
                     (x, y) = SeaPointToShip(seaX, seaY);
                     
                     return AreIndicesValid(x, y) && !master.GUI.IsMouseOverGUI;

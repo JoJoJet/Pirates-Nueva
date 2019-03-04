@@ -24,7 +24,7 @@ namespace Pirates_Nueva
 
         internal Sea(Master master) {
             Master = master;
-            Camera = new Camera(master, this);
+            Camera = new Camera(this);
 
             // Generate the islands.
             Islands = new Archipelago(this);
