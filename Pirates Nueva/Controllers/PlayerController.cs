@@ -48,8 +48,8 @@ namespace Pirates_Nueva
             Master = master;
             Sea = sea;
 
-            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, GUI.Edge.Top, GUI.Direction.Right));
-            master.GUI.AddEdge(CameraDebugID, new UI.EdgeText("camera", master.Font, GUI.Edge.Top, GUI.Direction.Left));
+            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, UI.Edge.Top, UI.Direction.Right));
+            master.GUI.AddEdge(CameraDebugID, new UI.EdgeText("camera", master.Font, UI.Edge.Top, UI.Direction.Left));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
