@@ -7,7 +7,7 @@ using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public abstract class Ship : Entity, UI.IScreenSpaceTarget, IUpdatable, IDrawable, IFocusableParent, IGraph<Block>
+    public abstract class Ship : Entity, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
