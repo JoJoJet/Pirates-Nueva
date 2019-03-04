@@ -18,11 +18,11 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
         /// </summary>
-        Job GetWorkableJob(Agent<TSelf, TSpot> hiree);
+        Job<TSelf, TSpot> GetWorkableJob(Agent<TSelf, TSpot> hiree);
         /// <summary>
         /// Removes the specified <see cref="Job"/> from this instance.
         /// </summary>
-        Job RemoveJob(Job job);
+        void RemoveJob(Job<TSelf, TSpot> job);
     }
     /// <summary>
     /// An object that an agent can stand on.
