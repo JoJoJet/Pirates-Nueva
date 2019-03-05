@@ -591,10 +591,15 @@ namespace Pirates_Nueva.Ocean
             }
 
             void scaleOutline() {
-                float scale = (float)r.NextDouble() + r.Next(1, 3);
+                float scale = (float)r.NextDouble() + r.Next(1, 3); // Choose a random float between 1 and 3.
 
-                for(int i = 0; i < vertices.Length; i++) {
-                    vertices[i] *= scale;
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex,
+                    vertices[i] *= scale;                  //     multiply it by the scale.
+                }
+
+                if(scale > 1.5f) {      // If the island was scaled up a lot,
+                    subdivideOutline(); //     subdivide it,
+                    smoothOutline();    //     and then smooth it.
                 }
             }
 
