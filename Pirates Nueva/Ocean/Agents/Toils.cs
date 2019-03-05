@@ -7,6 +7,10 @@ using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva.Ocean.Agents
 {
+    /// <summary>
+    /// Requires that an Agent be adjacent to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
         where TC    : class, IContainer<TC, TSpot>
         where TSpot : class, ISpot<TSpot>
@@ -25,6 +29,9 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
     }
+    /// <summary>
+    /// Has an Agent place a <see cref="Block"/> in a <see cref="Ship"/>.
+    /// </summary>
     public class PlaceBlock : Job<Ship, Block>.Action
     {
         /// <summary> The ID of the <see cref="Block"/> to place. </summary>
@@ -68,6 +75,10 @@ namespace Pirates_Nueva.Ocean.Agents
         }
     }
     
+    /// <summary>
+    /// Requires that an Agent be able to path to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class IsAccessibleAdj<TC, TSpot> : Job<TC, TSpot>.Requirement
         where TC    : class, IContainer<TC, TSpot>
         where TSpot : class, ISpot<TSpot>
@@ -86,6 +97,10 @@ namespace Pirates_Nueva.Ocean.Agents
         }
     }
 
+    /// <summary>
+    /// Has an Agent path to a spot adjacent to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class PathToAdjacent<TC, TSpot> : Job<TC, TSpot>.Action
         where TC    : class, IContainer<TC, TSpot>
         where TSpot : class, ISpot<TSpot>
