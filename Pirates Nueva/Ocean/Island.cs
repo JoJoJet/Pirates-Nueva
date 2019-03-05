@@ -56,7 +56,9 @@ namespace Pirates_Nueva.Ocean
             await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
             await Task.Run(() => smoothOutline()); // Smooth the outline.
             await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
-            await Task.Run(() => scaleOutline());
+            await Task.Run(() => scaleOutline());  // Scale up the islands by a random amount.
+
+            await Task.Run(() => jitterOutline());
 
             /*
              * Local Methods.
@@ -618,6 +620,25 @@ namespace Pirates_Nueva.Ocean
 
                 this.vertices = vertices.ToArray();
                 this.edges = edges.ToArray();
+            }
+
+            void jitterOutline() {
+                float s = 0;                 // The extents of this island.
+                foreach(var v in vertices) { // For every vertex:
+                    s = Math.Max(s, v.X);    //     Update the extents if the x coord of the vertex is larger.
+                    s = Math.Max(s, v.Y);    //     Update the extents if the y coord of the vertex is larger.
+                }
+                s = (s + 25) / 2;
+
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
+                    var jitter = new PointF(j(), j());     // A vector; each component is between -1 & +1.
+                    if(jitter.SqrMagnitude > 1)            // If the vector is larger than 1,
+                        jitter = jitter.Normalized;        //     normalize it.
+                    vertices[i] += jitter * s / 100;       // Offset the vertex by the vector,
+                                                           //     multiplied by the island extents,
+                                                           //     and divided by 100.
+                }
+                float j() => (float)r.NextDouble() * (r.Next(0, 10) < 5 ? 1 : -1); // Get a # between -1 and +1.
             }
         }
 
