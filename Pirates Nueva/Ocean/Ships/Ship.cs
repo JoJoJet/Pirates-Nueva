@@ -8,7 +8,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public abstract class Ship : Entity, IContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
+    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 

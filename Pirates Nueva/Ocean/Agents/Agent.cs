@@ -12,9 +12,9 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TSelf">The type that is implementing this container.</typeparam>
     /// <typeparam name="TSpot">The type of spot that this instance contains.</typeparam>
-    public interface IContainer<TSelf, TSpot> : IGraph<TSpot>
-        where TSelf : class, IContainer<TSelf, TSpot>
-        where TSpot : class, ISpot<TSpot>
+    public interface IAgentContainer<TSelf, TSpot> : IGraph<TSpot>
+        where TSelf : class, IAgentContainer<TSelf, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
@@ -29,8 +29,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// An object that an Agent can stand on.
     /// </summary>
     /// <typeparam name="T">The type that is implementing this interface.</typeparam>
-    public interface ISpot<T> : INode<T>
-        where T : ISpot<T>
+    public interface IAgentSpot<T> : INode<T>
+        where T : IAgentSpot<T>
     {
         int X { get; }
         int Y { get; }
@@ -43,8 +43,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
-        where TC    : class, IContainer<TC, TSpot>
-        where TSpot : class, ISpot<TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
         private Stack<TSpot> _path;
 

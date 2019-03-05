@@ -12,8 +12,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that an Agent can rest on.</typeparam>
     public class Job<TC, TSpot> : IDrawable
-        where TC    : class, IContainer<TC, TSpot>
-        where TSpot : class, ISpot<TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
         private readonly Toil[] _toils;
 
