@@ -5,14 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
-namespace Pirates_Nueva.Ocean
+namespace Pirates_Nueva.Ocean.Agents
 {
-    public class IsAdjacentTo : Job.Requirement
+    /// <summary>
+    /// Requires that an Agent be adjacent to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
+    public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
         /// <summary>
-        /// Check if the specified <see cref="Agent"/> is adjacent to the <see cref="Job.Toil"/>.
+        /// Check if the specified Agent is adjacent to the <see cref="Job.Toil"/>.
         /// </summary>
-        protected override bool Qualify(Agent worker, out string reason) {
+        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1f) { // If the worker is adjacent to the toil,
                 reason = "";                                                 //     set the reason as an empty string,
                 return true;                                                 //     and return true.
@@ -23,7 +29,10 @@ namespace Pirates_Nueva.Ocean
             }
         }
     }
-    public class PlaceBlock : Job.Action
+    /// <summary>
+    /// Has an Agent place a <see cref="Block"/> in a <see cref="Ship"/>.
+    /// </summary>
+    public class PlaceBlock : Job<Ship, Block>.Action
     {
         /// <summary> The ID of the <see cref="Block"/> to place. </summary>
         public string PlaceID { get; }
@@ -38,11 +47,11 @@ namespace Pirates_Nueva.Ocean
         /// Have the specified <see cref="Agent"/> work at placing this block.
         /// </summary>
         /// <returns>Whether or not the action was just completed.</returns>
-        protected override bool Work(Agent worker, Time delta) {
+        protected override bool Work(Agent<Ship, Block> worker, Time delta) {
             Progress += delta;                                 // Increment the building progress.
 
             if(Progress >= 1) {                                // If the progress has reached '1',
-                Toil.Ship.PlaceBlock(PlaceID, Toil.X, Toil.Y); //     place a block at the toil's position,
+                Container.PlaceBlock(PlaceID, Toil.X, Toil.Y); //     place a block at the toil's position,
                 return true;                                   //     and return true.
             }                                                  //
             else {                                             // If the progress has yet to reach '1',
@@ -50,37 +59,55 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        protected override void Draw(Master master, Agent worker) {
+        protected override void Draw(Master master, Agent<Ship, Block> worker) {
             var def = BlockDef.Get(PlaceID);
             var tex = master.Resources.LoadTexture(def.TextureID);
             
-            (float seaX, float seaY) = Ship.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
-            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Toil.Ship.Angle, (0, 0), Color.Lime);
+            var (seaX, seaY) = Container.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
+            var (screenX, screenY) = Container.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
+            master.Renderer.DrawRotated(
+                tex,
+                screenX, screenY,
+                Container.Sea.PPU, Container.Sea.PPU,
+                -Container.Angle, (0, 0),
+                Color.Lime
+                );
         }
     }
     
-    public class IsAccessibleAdj : Job.Requirement
+    /// <summary>
+    /// Requires that an Agent be able to path to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
+    public class IsAccessibleAdj<TC, TSpot> : Job<TC, TSpot>.Requirement
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
-        protected override bool Qualify(Agent worker, out string reason) {
+        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
                 reason = "";                                //     set the reason as an empty string,
                 return true;                                //     and return true.
             }                                               //
             else {                                          // If a spot is NOT accessible to the worker,
-                reason = "Worker can't path to the block."; //     set that as the reason,
+                reason = "Worker can't path to the spot.";  //     set that as the reason,
                 return false;                               //     and return false.
             }
 
-            bool isAdjacent(Path.INode<Block> n) => PointI.SqrDistance((n as Block).Index, Toil.Index) == 1;
+            bool isAdjacent(TSpot n) => PointI.SqrDistance(n.Index, Toil.Index) == 1;
         }
     }
 
-    public class PathToAdjacent : Job.Action
+    /// <summary>
+    /// Has an Agent path to a spot adjacent to the Job or Toil.
+    /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
+    public class PathToAdjacent<TC, TSpot> : Job<TC, TSpot>.Action
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
-        protected override bool Work(Agent worker, Time delta) {
+        protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             if(worker.PathingTo == null) {                // If the worker is currently still:
-                if(isAdjacent(worker.CurrentBlock)) {     //     If its standing next to the toil,
+                if(isAdjacent(worker.CurrentSpot)) {      //     If its standing next to the toil,
                     return true;                          //         return true.
                 }                                         //
                 else {                                    //     If its standing away from the toil,
@@ -94,7 +121,7 @@ namespace Pirates_Nueva.Ocean
                 return false;                             //     Return false.
             }
             
-            bool isAdjacent(Path.INode<Block> n) => PointI.SqrDistance((n as Block).Index, Toil.Index) == 1;
+            bool isAdjacent(TSpot n) => PointI.SqrDistance(n.Index, Toil.Index) == 1;
         }
     }
 }

@@ -4,23 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Pirates_Nueva.Ocean
+namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
-    /// Something that an <see cref="Agent"/> can do in a <see cref="Ship"/>.
+    /// Something that an <see cref="Agent{TC, TSpot}"/> can do.
     /// </summary>
-    public class Job : IDrawable
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
+    /// <typeparam name="TSpot">The type of Spot that an Agent can rest on.</typeparam>
+    public class Job<TC, TSpot> : IDrawable
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TSpot>
     {
         private readonly Toil[] _toils;
 
-        public Ship Ship { get; }
-        public Agent Worker { get; set; }
+        public TC Container { get; }
+        public Agent<TC, TSpot> Worker { get; set; }
 
         public int X { get; }
         public int Y { get; }
 
-        public Job(Ship ship, int x, int y, params Toil[] toils) {
-            Ship = ship;
+        public Job(TC container, int x, int y, params Toil[] toils) {
+            Container = container;
             X = x;
             Y = y;
 
@@ -34,7 +38,7 @@ namespace Pirates_Nueva.Ocean
         /// Check if this <see cref="Job"/> can currently be completed by the specified <see cref="Agent"/>
         /// </summary>
         /// <param name="reason">The reason this job cannot be completed.</param>
-        public bool Qualify(Agent worker, out string reason) {
+        public bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             reason = "The job is empty!";                             // Set the default reason to be that the job is empty.
             for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil, working backwards from the end:
                 var req = _toils[i].Requirement as IReqContract;      //
@@ -49,7 +53,7 @@ namespace Pirates_Nueva.Ocean
         /// Have the specified <see cref="Agent"/> work this job.
         /// </summary>
         /// <returns>Whether or not the job was just completed.</returns>
-        public bool Work(Agent worker, Time delta) {
+        public bool Work(Agent<TC, TSpot> worker, Time delta) {
             if(_toils.Length == 0) { // If the job is empty,
                 return false;        //     return false.
             }
@@ -87,7 +91,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
         private interface IToilContract
         {
-            Job Job { set; }
+            Job<TC, TSpot> Job { set; }
         }
         /// <summary>
         /// An action paired with a requirement.
@@ -96,26 +100,26 @@ namespace Pirates_Nueva.Ocean
         {
             private PointI? nullableIndex;
 
-            public Ship Ship => Job.Ship;
+            public TC Container => Job.Container;
 
             /// <summary>
-            /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>.
+            /// The X and Y indices of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>.
             /// </summary>
             public PointI Index => this.nullableIndex ?? (Job.X, Job.Y); // If this toil has no position, default to the position of its job.
 
-            /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The X index of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public int X => Index.X;
-            /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Pirates_Nueva.Ship"/>. </summary>
+            /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public int Y => Index.Y;
 
             public Requirement Requirement { get; }
             public Action Action { get; }
             
-            private Job Job { get; set; }
-            Job IToilContract.Job { set => Job = value; }
+            private Job<TC, TSpot> Job { get; set; }
+            Job<TC, TSpot> IToilContract.Job { set => Job = value; }
 
             /// <summary>
-            /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Pirates_Nueva.Job"/>.
+            /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Ocean.Job"/>.
             /// </summary>
             public Toil(Requirement req, Action action) {
                 (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
@@ -125,7 +129,7 @@ namespace Pirates_Nueva.Ocean
                 Action = action;
             }
             /// <summary>
-            /// Create a <see cref="Toil"/> at the specified indices in the <see cref="Pirates_Nueva.Ship"/>.
+            /// Create a <see cref="Toil"/> at the specified indices in the <see cref="Ocean.Ship"/>.
             /// </summary>
             public Toil(int x, int y, Requirement req, Action action) : this(req, action) {
                 nullableIndex = (x, y);
@@ -136,7 +140,7 @@ namespace Pirates_Nueva.Ocean
         {
             Toil Toil { set; }
 
-            void Draw(Master master, Agent worker);
+            void Draw(Master master, Agent<TC, TSpot> worker);
         }
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : IToilSegmentContract
@@ -147,38 +151,44 @@ namespace Pirates_Nueva.Ocean
             protected Toil Toil { get; private set; }
             Toil IToilSegmentContract.Toil { set => Toil = value; }
 
-            /// <summary> The <see cref="Pirates_Nueva.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
-            protected Ship Ship => Toil.Ship;
+            /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Job.Toil"/>. </summary>
+            protected TC Container => Toil.Container;
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
-            void IToilSegmentContract.Draw(Master master, Agent worker) => Draw(master, worker);
+            void IToilSegmentContract.Draw(Master master, Agent<TC, TSpot> worker) => Draw(master, worker);
             /// <summary> Draw this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
-            protected virtual void Draw(Master master, Agent worker) {  }
+            protected virtual void Draw(Master master, Agent<TC, TSpot> worker) {  }
         }
         
-        private interface IReqContract {  bool Qualify(Agent worker, out string reason);  } // Restricts access of some members to this class.
+        private interface IReqContract // Restricts access of some members to this class.
+        {
+            bool Qualify(Agent<TC, TSpot> worker, out string reason);
+        }
         /// <summary>
         /// Something that must be fulfilled before a <see cref="Toil"/> can be completed.
         /// </summary>
         public abstract class Requirement : ToilSegment, IReqContract
         {
-            bool IReqContract.Qualify(Agent worker, out string reason) => Qualify(worker, out reason);
+            bool IReqContract.Qualify(Agent<TC, TSpot> worker, out string reason) => Qualify(worker, out reason);
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>
             /// <param name="reason">The reason that this <see cref="Requirement"/> is not fulfilled.</param>
-            protected abstract bool Qualify(Agent worker, out string reason);
+            protected abstract bool Qualify(Agent<TC, TSpot> worker, out string reason);
         }
         
-        private interface IActionContract {  bool Work(Agent worker, Time delta);  } // Restricts the access of some members to this class.
+        private interface IActionContract // Restricts the access of some members to this class.
+        {
+            bool Work(Agent<TC, TSpot> worker, Time delta);
+        }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
         public abstract class Action : ToilSegment, IActionContract
         {
-            bool IActionContract.Work(Agent worker, Time delta) => Work(worker, delta);
+            bool IActionContract.Work(Agent<TC, TSpot> worker, Time delta) => Work(worker, delta);
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
-            protected abstract bool Work(Agent worker, Time delta);
+            protected abstract bool Work(Agent<TC, TSpot> worker, Time delta);
         }
     }
 }

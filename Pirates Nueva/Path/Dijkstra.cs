@@ -9,7 +9,7 @@ namespace Pirates_Nueva.Path
     /// <summary>
     /// A function that checks whether or not the current node is at the destination.
     /// </summary>
-    public delegate bool IsAtDestination<T>(INode<T> currentNode);
+    public delegate bool IsAtDestination<T>(T currentNode);
     /// <summary>
     /// Pathfinding with Dijkstra's algorithm.
     /// <para />
@@ -20,24 +20,23 @@ namespace Pirates_Nueva.Path
         /// <summary>
         /// Find the shortest distance between nodes /source/ and /target/ on the specified graph.
         /// </summary>
-        public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, INode<T> target) where T : INode<T> {
-            return FindPath(graph, source, (n) => n == target);
+        public static Stack<T> FindPath<T>(IGraph<T> graph, T source, T target) where T : INode<T> {
+            return FindPath(graph, source, (n) => n.Equals(target));
         }
         /// <summary>
         /// Find the shortest path between /source/ and the first node to pass the destination check.
         /// </summary>
         /// <param name="dest">Returns whether or not the specified node is the destination.</param>
-        public static Stack<T> FindPath<T>(IGraph<T> graph, INode<T> source, IsAtDestination<T> dest) where T : INode<T> {
-            var dist = new Dictionary<INode<T>, float>();    // The squared distance from /source/ for each node.
-            var prev = new Dictionary<INode<T>, INode<T>>(); // The node before the key in the optimal path to /source/.
-            var Q = new List<INode<T>>();                    // Set of unvisited nodes.
+        public static Stack<T> FindPath<T>(IGraph<T> graph, T source, IsAtDestination<T> dest) where T : INode<T> {
+            var dist = new Dictionary<T, float>(); // The squared distance from /source/ for each node.
+            var prev = new Dictionary<T, T>();     // The node before the key in the optimal path to /source/.
+            var Q = new List<T>();                 // Set of unvisited nodes.
 
             foreach(var v in graph.Nodes) { // For every node in the graph:
                 dist[v] = float.MaxValue;   // Unkown distance from /source/ to the node.
                 Q.Add(v);                   // Add it to the list of unvisited nodes
             }
             dist[source] = 0;               // Distance from /source/ to itself is always 0;
-            prev[source] = null;            // There should never be node coming before the source.
 
             while(Q.Count > 0) {                        // While there are still unvisited nodes:
                 var u = (from n in Q                    // Get the node with lowest distance from /source/.
@@ -65,14 +64,12 @@ namespace Pirates_Nueva.Path
                                    //     that means there there is no possible path.
             return new Stack<T>(); //     Return an empty stack and let the caller figure it out.
             
-            Stack<T> reverse_iterate(INode<T> target) {
-                var S = new Stack<T>();   // Empty sequence.
-                var u = target;           // The current node, working backwards from /target/.
-                if(prev.ContainsKey(u)) {    // If the vertex is reachable:
-                    while(prev[u] != null) { // Construct the shortest path
-                        S.Push((T)u);        //     push the vertex onto the stack
-                        u = prev[u];         //     set /u/ as the previous node in the optimal path.
-                    }
+            Stack<T> reverse_iterate(T target) {
+                var S = new Stack<T>(); // Empty sequence.
+                var u = target;         // The current node, working backwards from /target/.
+                while(prev.ContainsKey(u)) { // If the vertex is reachable,
+                    S.Push(u);               //     push the vertex onto the stack, and
+                    u = prev[u];             //     set /u/ as the previous node in the optimal path.
                 }
                 return S;                    // Return the path we just constructed.
                                              // If the target was unreachable,
@@ -83,16 +80,16 @@ namespace Pirates_Nueva.Path
         /// <summary>
         /// Returns whether or not there exists a path between /source/ and /target/.
         /// </summary>
-        public static bool IsAccessible<T>(IGraph<T> graph, INode<T> source, INode<T> target) where T : INode<T> {
-            return IsAccessible(graph, source, (n) => n == target);
+        public static bool IsAccessible<T>(IGraph<T> graph, T source, T target) where T : INode<T> {
+            return IsAccessible(graph, source, (n) => n.Equals(target));
         }
         /// <summary>
         /// Returns whether or not there exists a path between /source/ and the first node to pass the destination check.
         /// </summary>
         /// <param name="dest">Returns whether or not the specified node is the destination.</param>
-        public static bool IsAccessible<T>(IGraph<T> graph, INode<T> source, IsAtDestination<T> dest) where T : INode<T> {
-            var unvisited = new List<INode<T>>(graph.Nodes);  // All unvisited nodes. Initially contains all nodes in the graph.
-            var accessible = new List<INode<T>>() { source }; // Nodes accessible from the source. Initiall only contains the source.
+        public static bool IsAccessible<T>(IGraph<T> graph, T source, IsAtDestination<T> dest) where T : INode<T> {
+            var unvisited = new List<T>(graph.Nodes);  // All unvisited nodes. Initially contains all nodes in the graph.
+            var accessible = new List<T>() { source }; // Nodes accessible from the source. Initiall only contains the source.
 
             while(accessible.Count > 0) {                       // Loop until there are no accessible nodes:
                 var u = (from n in accessible                   // Get the first accessible and unvisited node.

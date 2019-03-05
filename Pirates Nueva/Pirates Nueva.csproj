@@ -46,23 +46,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Angle.cs" />
+    <Compile Include="Ocean\Agents\Containers.cs" />
     <Compile Include="Ocean\BoundingBox.cs" />
     <Compile Include="Ocean\Camera.cs" />
     <Compile Include="Defs\SliceDef.cs" />
     <Compile Include="Ocean\Entity.cs" />
     <Compile Include="Ocean\Island.cs" />
+    <Compile Include="Ocean\Ships\ShipAgent.cs" />
     <Compile Include="Path\Dijkstra.cs" />
     <Compile Include="Path\Structures.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
     <Compile Include="Controllers\Renderer.cs" />
-    <Compile Include="Ocean\Ships\Agent.cs" />
+    <Compile Include="Ocean\Agents\Agent.cs" />
     <Compile Include="Ocean\Ships\Block.cs" />
     <Compile Include="Defs\BlockDef.cs" />
     <Compile Include="Defs\Def.cs" />
     <Compile Include="Defs\FurnitureDef.cs" />
     <Compile Include="Ocean\Ships\Furniture.cs" />
-    <Compile Include="Ocean\Ships\Job.cs" />
-    <Compile Include="Ocean\Ships\Toils.cs" />
+    <Compile Include="Ocean\Agents\Job.cs" />
+    <Compile Include="Ocean\Agents\Toils.cs" />
     <Compile Include="Time.cs" />
     <Compile Include="UI\EdgeElements.cs" />
     <Compile Include="UI\FloatingMenu.cs" />

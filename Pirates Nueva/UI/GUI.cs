@@ -8,8 +8,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.UI;
 
-namespace Pirates_Nueva
+namespace Pirates_Nueva.UI
 {
+    public enum Edge { Top, Right, Bottom, Left };
+    public enum Direction { Up, Right, Down, Left };
+
     /// <summary>
     /// Controls the user interface for <see cref="Pirates_Nueva"/>.
     /// </summary>
@@ -284,10 +287,8 @@ namespace Pirates_Nueva
         }
 
 
-        public enum Edge { Top, Right, Bottom, Left };
-        public enum Direction { Up, Right, Down, Left };
         /// <summary>
-        /// Makes some properties of an EdgeElement accessible only within <see cref="Pirates_Nueva.GUI"/>.
+        /// Makes some properties of an EdgeElement accessible only within <see cref="UI.GUI"/>.
         /// </summary>
         private interface IEdgeContract
         {

@@ -30,8 +30,6 @@ namespace Pirates_Nueva
     /// </summary>
     public sealed class Master : Game
     {
-        static Master _instance;
-
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Sea sea;
@@ -49,8 +47,6 @@ namespace Pirates_Nueva
 
         #region Initialization
         public Master() {
-            _instance = this;
-
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 

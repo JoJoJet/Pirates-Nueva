@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -46,9 +47,9 @@ namespace Pirates_Nueva.Ocean
             if(focusOption == FocusOption.Editing) {
                 // If there is no ship editing menu, add one.
                 if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => focusOption = FocusOption.None, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, GUI.Edge.Bottom, GUI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, GUI.Edge.Bottom, GUI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => focusOption = FocusOption.None, UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
                 }
                 updateEditing();
                 IsFocusLocked = true; // Lock focus onto this object.
@@ -90,8 +91,8 @@ namespace Pirates_Nueva.Ocean
                         if(HasBlock(shipX, shipY) == false)
                             CreateJob(
                                 shipX, shipY,
-                                new Job.Toil(new IsAccessibleAdj(), new PathToAdjacent()),
-                                new Job.Toil(new IsAdjacentTo(), new PlaceBlock("wood"))
+                                new Job<Ship, Block>.Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
+                                new Job<Ship, Block>.Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
                                 );
                     }
                 }

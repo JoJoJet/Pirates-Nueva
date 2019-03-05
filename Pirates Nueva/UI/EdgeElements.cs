@@ -34,7 +34,7 @@ namespace Pirates_Nueva.UI
         /// <summary> The height of this <see cref="EdgeText"/>, in pixels. </summary>
         public override int HeightPixels => (int)Font.MeasureString(Text).Y;
 
-        public EdgeText(string text, Font font, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
+        public EdgeText(string text, Font font, Edge edge, Direction direction) : base(edge, direction) {
             this._text = text;
             Font = font;
         }
@@ -67,7 +67,7 @@ namespace Pirates_Nueva.UI
         GUI.OnClick GUI.IButton.OnClick => OnClick;
         #endregion
 
-        public EdgeButton(string text, Font font, GUI.OnClick onClick, GUI.Edge edge, GUI.Direction direction) : base(edge, direction) {
+        public EdgeButton(string text, Font font, GUI.OnClick onClick, Edge edge, Direction direction) : base(edge, direction) {
             Text = text;
             Font = font;
             OnClick = onClick;
