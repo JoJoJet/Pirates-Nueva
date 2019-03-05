@@ -46,6 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Angle.cs" />
+    <Compile Include="Ocean\Agents\Containers.cs" />
     <Compile Include="Ocean\BoundingBox.cs" />
     <Compile Include="Ocean\Camera.cs" />
     <Compile Include="Defs\SliceDef.cs" />
