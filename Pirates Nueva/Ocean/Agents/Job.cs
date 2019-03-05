@@ -10,8 +10,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// Something that an <see cref="Agent"/> can do.
     /// </summary>
     public class Job<TC, TSpot> : IDrawable
-        where TC    : class, IContainer<TC, TSpot>, Path.IGraph<TSpot>
-        where TSpot : class, ISpot<TSpot>         , Path.INode<TSpot>
+        where TC    : class, IContainer<TC, TSpot>
+        where TSpot : class, ISpot<TSpot>
     {
         private readonly Toil[] _toils;
 
