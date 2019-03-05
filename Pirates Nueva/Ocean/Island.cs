@@ -56,6 +56,7 @@ namespace Pirates_Nueva.Ocean
             await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
             await Task.Run(() => smoothOutline()); // Smooth the outline.
             await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
+            await Task.Run(() => scaleOutline());
 
             /*
              * Local Methods.
@@ -587,6 +588,30 @@ namespace Pirates_Nueva.Ocean
                 for(int i = 0; i < vertices.Length; i++) {     // For every vertex:
                     vertices[i] -= (leftmost-1, bottommost-1); //     slide it to be aligned against the bottom left corner.
                 }
+            }
+
+            void scaleOutline() {
+                float scale = (float)r.NextDouble() + r.Next(1, 3);
+
+                for(int i = 0; i < vertices.Length; i++) {
+                    vertices[i] *= scale;
+                }
+            }
+
+            void subdivideOutline() {
+                var vertices = new List<PointF>(this.vertices);
+                var edges = new List<(int a, int b)>(this.edges.Length * 2);
+                foreach(var e in this.edges) {
+                    var v = (vertices[e.a] + vertices[e.b]) / 2;
+                    vertices.Add(v);
+
+                    var i = vertices.Count - 1;
+                    edges.Add((e.a, i));
+                    edges.Add((i, e.b));
+                }
+
+                this.vertices = vertices.ToArray();
+                this.edges = edges.ToArray();
             }
         }
 
