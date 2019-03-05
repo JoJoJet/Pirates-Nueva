@@ -606,13 +606,14 @@ namespace Pirates_Nueva.Ocean
             void subdivideOutline() {
                 var vertices = new List<PointF>(this.vertices);
                 var edges = new List<(int a, int b)>(this.edges.Length * 2);
-                foreach(var e in this.edges) {
-                    var v = (vertices[e.a] + vertices[e.b]) / 2;
-                    vertices.Add(v);
-
-                    var i = vertices.Count - 1;
-                    edges.Add((e.a, i));
-                    edges.Add((i, e.b));
+                foreach(var e in this.edges) {                   // For every edge:
+                    var v = (vertices[e.a] + vertices[e.b]) / 2; // Create a vertex in the middle of the edge.
+                                                                 //
+                    vertices.Add(v);                             // Add that vertex to the list of vertices.
+                    var i = vertices.Count - 1;                  //
+                                                                 //
+                    edges.Add((e.a, i));                         // Make an edge between the 1st vertex and the new one.
+                    edges.Add((i, e.b));                         // Make an edge between the 2nd vertex and the new one.
                 }
 
                 this.vertices = vertices.ToArray();
