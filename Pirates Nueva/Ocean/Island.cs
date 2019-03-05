@@ -426,8 +426,8 @@ namespace Pirates_Nueva.Ocean
                 // Run the Marching Squares algorithm on the pixels.
                 // https://en.wikipedia.org/wiki/Marching_squares.
                 //
-                for(int x = 0; x < Width - 1; x++) {
-                    for(int y = 0; y < Height - 1; y++) {
+                for(int x = -1; x < Width; x++) {
+                    for(int y = -1; y < Height; y++) {
                         var lookup = b(x, y+1) << 3 | b(x+1, y + 1) << 2 | b(x+1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
@@ -537,7 +537,7 @@ namespace Pirates_Nueva.Ocean
                             }
                         }
 
-                        int b(int g, int h) => ground[g, h] ? 1 : 0;
+                        int b(int g, int h) => g>=0 && g<Width && h>=0 && h < Height && ground[g, h] ? 1 : 0;
                     }
                 }
                 
