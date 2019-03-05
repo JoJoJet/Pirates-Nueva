@@ -55,6 +55,7 @@ namespace Pirates_Nueva.Ocean
 
             await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
             await Task.Run(() => smoothOutline()); // Smooth the outline.
+            await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
 
             /*
              * Local Methods.
@@ -573,6 +574,19 @@ namespace Pirates_Nueva.Ocean
                 }
 
                 this.vertices = verts;
+            }
+
+            void alignOutline() {
+                float leftmost = float.MaxValue;   // The furthest left position of any vertex.
+                float bottommost = float.MaxValue; // The lowest position of any vertex.
+                foreach(var v in vertices) {                // For every vertex:
+                    leftmost   = Math.Min(leftmost,   v.X); //     Set its x coord as the leftmost value if it's smaller than the current.
+                    bottommost = Math.Min(bottommost, v.Y); //     Set its y coord as the bottommost value if it's smaller than the current.
+                }
+
+                for(int i = 0; i < vertices.Length; i++) {     // For every vertex:
+                    vertices[i] -= (leftmost-1, bottommost-1); //     slide it to be aligned against the bottom left corner.
+                }
             }
         }
 
