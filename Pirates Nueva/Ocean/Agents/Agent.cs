@@ -10,6 +10,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// An object that can contain Agents and Jobs.
     /// </summary>
+    /// <typeparam name="TSelf">The type that is implementing this container.</typeparam>
+    /// <typeparam name="TSpot">The type of spot that this instance contains.</typeparam>
     public interface IContainer<TSelf, TSpot> : IGraph<TSpot>
         where TSelf : class, IContainer<TSelf, TSpot>
         where TSpot : class, ISpot<TSpot>
@@ -26,6 +28,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// An object that an Agent can stand on.
     /// </summary>
+    /// <typeparam name="T">The type that is implementing this interface.</typeparam>
     public interface ISpot<T> : INode<T>
         where T : ISpot<T>
     {
@@ -37,6 +40,8 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// A character that exists in a container and can complete Jobs.
     /// </summary>
+    /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
+    /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IContainer<TC, TSpot>
         where TSpot : class, ISpot<TSpot>

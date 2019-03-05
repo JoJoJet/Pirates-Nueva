@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, ISpot<TSpot>
     {
         /// <summary>
-        /// Check if the specified <see cref="Agent"/> is adjacent to the <see cref="Job.Toil"/>.
+        /// Check if the specified Agent is adjacent to the <see cref="Job.Toil"/>.
         /// </summary>
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1f) { // If the worker is adjacent to the toil,

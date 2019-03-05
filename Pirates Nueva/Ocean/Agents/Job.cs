@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
-    /// Something that an <see cref="Agent"/> can do.
+    /// Something that an <see cref="Agent{TC, TSpot}"/> can do.
     /// </summary>
+    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
+    /// <typeparam name="TSpot">The type of Spot that an Agent can rest on.</typeparam>
     public class Job<TC, TSpot> : IDrawable
         where TC    : class, IContainer<TC, TSpot>
         where TSpot : class, ISpot<TSpot>
