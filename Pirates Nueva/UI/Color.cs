@@ -70,9 +70,23 @@ namespace Pirates_Nueva.UI
         /// <param name="b">The blue component, 0.0f to 1.0f.</param>
         public Color(float r, float g, float b) : this(r, g, b, 1f) {  }
 
-        bool IEquatable<Color>.Equals(Color other) => R == other.R && G == other.G && B == other.B && A == other.A;
+        public override bool Equals(object obj) {
+            switch(obj) {
+                case Color c: return c == this;
+                case MonoColor m: return m == this;
+                case ValueTuple<byte, byte, byte, byte> tb: return tb.Item1 == R && tb.Item2 == G && tb.Item3 == B && tb.Item4 == A;
+                case ValueTuple<float, float, float, float> tf: return tf.Item1 == R && tf.Item2 == G && tf.Item3 == B && tf.Item4 == A;
+                default: return false;
+            }
+        }
+        public override int GetHashCode() => A.GetHashCode() + G.GetHashCode() * 3 + B.GetHashCode() * 7 + A.GetHashCode() * 14;
 
         public static explicit operator Color(MonoColor mono) => new Color(mono.R, mono.G, mono.B, mono.A);
         public static implicit operator MonoColor(Color col) => new MonoColor(col.R, col.G, col.B, col.A);
+
+        public static bool operator ==(Color a, Color b) => a.R == b.R && a.G == b.G && a.B == b.B && a.A == b.A;
+        public static bool operator !=(Color a, Color b) => a.R != b.R || a.G != b.G || a.B != b.B || a.A != b.A;
+
+        bool IEquatable<Color>.Equals(Color other) => R == other.R && G == other.G && B == other.B && A == other.A;
     }
 }
