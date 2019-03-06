@@ -12,6 +12,13 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public struct Color : IEquatable<Color>
     {
+        /// <summary> R: 0, G: 0, B: 0 </summary>
+        public static Color Black => new Color(0, 0, 0);
+        /// <summary> R: 255, G: 255, B: 255 </summary>
+        public static Color White => new Color(255, 255, 255);
+        /// <summary> R: 0, G: 255, B: 0 </summary>
+        public static Color Lime => new Color(0, 255, 0);
+
         /// <summary> The red component of this <see cref="Color"/>. </summary>
         public byte R { get; }
         /// <summary> The green component of this <see cref="Color"/>. </summary>
