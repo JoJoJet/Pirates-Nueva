@@ -4,8 +4,8 @@ namespace Pirates_Nueva
 {
     public static class Bresenham
     {
-        public static void line(PointI a, PointI b, Action<int, int> putpixel) => line(a.X, a.Y, b.X, b.Y, putpixel);
-        public static void line(int x, int y, int x2, int y2, Action<int, int> putpixel) {
+        public static void Line(PointI a, PointI b, Action<int, int> plot) => Line(a.X, a.Y, b.X, b.Y, plot);
+        public static void Line(int x, int y, int x2, int y2, Action<int, int> plot) {
             //
             // Taken from this stackoverflow answer by Frank Lioty:
             // https://web.archive.org/web/20130621071846/https://stackoverflow.com/questions/11678693/all-cases-covered-bresenhams-line-algorithm/11683720.
@@ -26,7 +26,7 @@ namespace Pirates_Nueva
             }
             int numerator = longest >> 1;
             for(int i = 0; i <= longest; i++) {
-                putpixel(x, y);
+                plot(x, y);
                 numerator += shortest;
                 if(!(numerator < longest)) {
                     numerator -= longest;
