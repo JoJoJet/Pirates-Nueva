@@ -92,10 +92,10 @@ namespace Pirates_Nueva
         /// Initialization performed after <see cref="LoadContent"/>.
         /// </summary>
         private void AfterContentLoad() {
+            Renderer = new Renderer(this, spriteBatch);
+
             // Initialize the Sea object.
             this.sea = new Sea(this);
-
-            Renderer = new Renderer(this, spriteBatch);
 
             Player = new PlayerController(this, this.sea);
         }
