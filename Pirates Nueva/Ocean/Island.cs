@@ -654,8 +654,6 @@ namespace Pirates_Nueva.Ocean
 
                 drawEdges();
 
-                doFloodFill((w / 2, h / 2), (x, y) => paint(x, y, UI.Color.Black));
-
                 void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
                 UI.Color get(int x, int y) => pixels[(h - y) * w + x];
 
@@ -682,22 +680,22 @@ namespace Pirates_Nueva.Ocean
                     void plot(int x, int y) => paint(x, y, UI.Color.Black);
                 }
 
-                void doFloodFill(PointI start, Action<int, int> plot) {
-
-                }
-
                 tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
             }
         }
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
+            if(this.edges == null)
+                return;
             foreach(var l in this.edges) {
                 var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a]);
                 var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b]);
                 master.Renderer.DrawLine(a, b);
             }
 
+            if(tex == null)
+                return;
             var (sx, sy) = Sea.SeaPointToScreen(Left, Bottom);
             var (w, h) = (PointI)(tex.Width * Sea.PPU, tex.Height * Sea.PPU) / PPU;
             master.Renderer.Draw(this.tex, sx, sy - h, w, h);
