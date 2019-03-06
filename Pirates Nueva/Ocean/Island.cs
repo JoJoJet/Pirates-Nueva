@@ -62,9 +62,8 @@ namespace Pirates_Nueva.Ocean
             await Task.Run(() => smoothOutline()); // Smooth the outline.
             await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
             await Task.Run(() => scaleOutline());  // Scale up the islands by a random amount.
-
-            await Task.Run(() => jitterOutline());
-
+            await Task.Run(() => jitterOutline()); // Roughen up the outline.
+            
             await Task.Run(() => makeTexture());
 
             /*
@@ -649,25 +648,36 @@ namespace Pirates_Nueva.Ocean
             }
 
             void makeTexture() {
-                float rightmost = 0; // The rightmost edge of this island.
-                float topmost = 0;   // The topmost edge of this island.
-                foreach(var v in this.vertices) {         // For every vertex:
-                    rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
-                    topmost   = Math.Max(topmost,   v.Y); // Update the topmost extent if the vertex if further up.
-                }
-
-                int w = (int)Math.Floor((rightmost+1) * PPU); // Width of the texture.
-                int h = (int)Math.Floor((topmost  +1) * PPU); // Height of the texture.
+                (int w, int h) = findExtents();
 
                 var pixels = new UI.Color[w * h]; // An array of colors
 
-                foreach(var e in this.edges) {             // For each edge:
-                    var a = (PointI)(vertices[e.a] * PPU); // Transform the first vertex to texture space.
-                    var b = (PointI)(vertices[e.b] * PPU); // Transform the 2nd vertex to texture space.
-                                                           //
-                    Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
+                drawEdges();
+
+                void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
+
+                (int, int) findExtents() {
+                    float rightmost = 0; // The rightmost edge of this island.
+                    float topmost = 0;   // The topmost edge of this island.
+                    foreach(var v in this.vertices) {         // For every vertex:
+                        rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
+                        topmost = Math.Max(topmost, v.Y); // Update the topmost extent if the vertex if further up.
+                    }
+
+                    var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
+                    var he = (int)Math.Floor((topmost + 1) * PPU); // Height of the texture.
+                    return (wi, he);
                 }
-                void plot(int x, int y) => pixels[(h - y) * w + x] = UI.Color.Black;
+
+                void drawEdges() {
+                    foreach(var e in this.edges) {             // For each edge:
+                        var a = (PointI)(vertices[e.a] * PPU); // Transform the first vertex to texture space.
+                        var b = (PointI)(vertices[e.b] * PPU); // Transform the 2nd vertex to texture space.
+                                                               //
+                        Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
+                    }
+                    void plot(int x, int y) => paint(x, y, UI.Color.Black);
+                }
 
                 tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
             }
