@@ -661,7 +661,7 @@ namespace Pirates_Nueva.Ocean
                     float topmost = 0;   // The topmost edge of this island.
                     foreach(var v in this.vertices) {         // For every vertex:
                         rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
-                        topmost = Math.Max(topmost, v.Y); // Update the topmost extent if the vertex if further up.
+                        topmost = Math.Max(topmost, v.Y);     // Update the topmost extent if the vertex if further up.
                     }
 
                     var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
