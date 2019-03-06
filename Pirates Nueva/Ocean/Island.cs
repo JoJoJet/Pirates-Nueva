@@ -692,6 +692,21 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
+        private bool IsCollidingPrecise(PointF p) {
+            int cn = 0;
+            foreach(var E in this.edges) {
+                var a = vertices[E.a];
+                var b = vertices[E.b];
+                if(a.Y <= p.Y && b.Y > p.Y
+                || a.Y > p.Y && b.Y <= p.Y) {
+                    float vt = (float)(p.Y - a.Y) / (b.Y - a.Y);
+                    if(p.X < a.X + vt * (b.X - a.X))
+                        ++cn;
+                }
+            }
+            return (cn & 1) == 1;
+        }
+
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
             if(this.edges == null)
