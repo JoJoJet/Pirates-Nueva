@@ -60,10 +60,11 @@ namespace Pirates_Nueva.Ocean
 
             await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
             await Task.Run(() => smoothOutline()); // Smooth the outline.
-            await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
             await Task.Run(() => scaleOutline());  // Scale up the islands by a random amount.
             await Task.Run(() => jitterOutline()); // Roughen up the outline.
-            
+            await Task.Run(() => superOutline());  // Scale the island up by four.
+            await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
+
             await Task.Run(() => makeTexture());
 
             /*
@@ -645,6 +646,13 @@ namespace Pirates_Nueva.Ocean
                                                            //     and divided by 100.
                 }
                 float j() => (float)r.NextDouble() * (r.Next(0, 10) < 5 ? 1 : -1); // Get a # between -1 and +1.
+            }
+
+            void superOutline() {
+                const float scale = 4f;
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
+                    vertices[i] *= scale;                  // Scale it up 4 times.
+                }
             }
 
             void makeTexture() {
