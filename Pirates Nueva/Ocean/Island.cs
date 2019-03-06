@@ -665,7 +665,7 @@ namespace Pirates_Nueva.Ocean
                     }
 
                     var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
-                    var he = (int)Math.Floor((topmost + 1) * PPU); // Height of the texture.
+                    var he = (int)Math.Floor((topmost   + 1) * PPU); // Height of the texture.
                     return (wi, he);
                 }
 
