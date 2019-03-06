@@ -659,7 +659,7 @@ namespace Pirates_Nueva.Ocean
                 int w = (int)Math.Floor((rightmost+1) * PPU); // Width of the texture.
                 int h = (int)Math.Floor((topmost  +1) * PPU); // Height of the texture.
 
-                var pixels = new Microsoft.Xna.Framework.Color[w * h]; // An array of colors
+                var pixels = new UI.Color[w * h]; // An array of colors
 
                 foreach(var e in this.edges) {             // For each edge:
                     var a = (PointI)(vertices[e.a] * PPU); // Transform the first vertex to texture space.
@@ -667,7 +667,7 @@ namespace Pirates_Nueva.Ocean
                                                            //
                     Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
                 }
-                void plot(int x, int y) => pixels[(h - y) * w + x] = Microsoft.Xna.Framework.Color.Black;
+                void plot(int x, int y) => pixels[(h - y) * w + x] = UI.Color.Black;
 
                 tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
             }
