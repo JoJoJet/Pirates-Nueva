@@ -13,6 +13,8 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Each element contains the indices of two connected vertices. </summary>
         private (int a, int b)[] edges;
 
+        private UI.Texture tex;
+
         public Sea Sea { get; }
 
         /// <summary> The left edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
@@ -25,6 +27,9 @@ namespace Pirates_Nueva.Ocean
             Left = left;
             Bottom = bottom;
         }
+
+        /// <summary> The number of texture pixels per whole number. </summary>
+        const int PPU = 16;
 
         public async Task GenerateAsync(int seed, Master master) {
             Random r = new Random(seed);
@@ -59,6 +64,8 @@ namespace Pirates_Nueva.Ocean
             await Task.Run(() => scaleOutline());  // Scale up the islands by a random amount.
 
             await Task.Run(() => jitterOutline());
+
+            await Task.Run(() => makeTexture());
 
             /*
              * Local Methods.
@@ -640,6 +647,30 @@ namespace Pirates_Nueva.Ocean
                 }
                 float j() => (float)r.NextDouble() * (r.Next(0, 10) < 5 ? 1 : -1); // Get a # between -1 and +1.
             }
+
+            void makeTexture() {
+                float rightmost = 0; // The rightmost edge of this island.
+                float topmost = 0;   // The topmost edge of this island.
+                foreach(var v in this.vertices) {         // For every vertex:
+                    rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
+                    topmost   = Math.Max(topmost,   v.Y); // Update the topmost extent if the vertex if further up.
+                }
+
+                int w = (int)Math.Floor((rightmost+1) * PPU); // Width of the texture.
+                int h = (int)Math.Floor((topmost  +1) * PPU); // Height of the texture.
+
+                var pixels = new Microsoft.Xna.Framework.Color[w * h]; // An array of colors
+
+                foreach(var e in this.edges) {             // For each edge:
+                    var a = (PointI)(vertices[e.a] * PPU); // Transform the first vertex to texture space.
+                    var b = (PointI)(vertices[e.b] * PPU); // Transform the 2nd vertex to texture space.
+                                                           //
+                    Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
+                }
+                void plot(int x, int y) => pixels[(h - y) * w + x] = Microsoft.Xna.Framework.Color.Black;
+
+                tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
+            }
         }
 
         #region IDrawable Implementation
@@ -649,6 +680,10 @@ namespace Pirates_Nueva.Ocean
                 var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b]);
                 master.Renderer.DrawLine(a, b);
             }
+
+            var (sx, sy) = Sea.SeaPointToScreen(Left, Bottom);
+            var (w, h) = (PointI)(tex.Width * Sea.PPU, tex.Height * Sea.PPU) / PPU;
+            master.Renderer.Draw(this.tex, sx, sy - h, w, h);
         }
         #endregion
     }
