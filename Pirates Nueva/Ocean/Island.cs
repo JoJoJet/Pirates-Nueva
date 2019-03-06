@@ -654,7 +654,10 @@ namespace Pirates_Nueva.Ocean
 
                 drawEdges();
 
+                doFloodFill((w / 2, h / 2), (x, y) => paint(x, y, UI.Color.Black));
+
                 void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
+                UI.Color get(int x, int y) => pixels[(h - y) * w + x];
 
                 (int, int) findExtents() {
                     float rightmost = 0; // The rightmost edge of this island.
@@ -677,6 +680,10 @@ namespace Pirates_Nueva.Ocean
                         Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
                     }
                     void plot(int x, int y) => paint(x, y, UI.Color.Black);
+                }
+
+                void doFloodFill(PointI start, Action<int, int> plot) {
+
                 }
 
                 tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
