@@ -31,20 +31,29 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The number of texture pixels per whole number. </summary>
         const int PPU = 16;
 
+        const int _width = 15, _height = 15;
         public async Task GenerateAsync(int seed, Master master) {
             Random r = new Random(seed);
 
-            const int Width = 15;
-            const int Height = 15;
+            var shape = await generateShape(r);
+
+            await Task.Run(() => FindOutline(shape, r));
+
+            tex = await Task.Run(() => CreateTexture(master, this.vertices, this.edges));
+        }
+
+        static async Task<bool[,]> generateShape(Random r) {
+            const int Width = _width, Height = _height;
+
             var ground = new bool[Width, Height];
-            
+
             await Task.Run(() => placeBlobs());    // Scatter shapes around the canvas.
             await Task.Run(() => connectEdges());  // Connect separated but close blocks.
             await floodFill();                     // Fill in the entire terrain.
 
             await Task.Run(() => decimate());      // Randomly kill 20% of the blocks.
             await floodFill();                     // Fill in the terrain.
-            
+
             await Task.Run(() => breakNecks());    // Break any thin connectors.
             await slideSeperates();                // Combine any stray islands into one shape.
 
@@ -58,14 +67,7 @@ namespace Pirates_Nueva.Ocean
             await Task.Run(() => connectEdges());  // Connect separated but close blocks.
             await floodFill();                     // Fill in the terrain.
 
-            await Task.Run(() => findOutline());   // Generate an outline surrounding the island.
-            await Task.Run(() => smoothOutline()); // Smooth the outline.
-            await Task.Run(() => scaleOutline());  // Scale up the islands by a random amount.
-            await Task.Run(() => jitterOutline()); // Roughen up the outline.
-            await Task.Run(() => superOutline());  // Scale the island up by four.
-            await Task.Run(() => alignOutline());  // Align the outline to the bottom left of this island.
-
-            await Task.Run(() => makeTexture());
+            return ground;
 
             /*
              * Local Methods.
@@ -85,7 +87,7 @@ namespace Pirates_Nueva.Ocean
                     int x = r.Next(Radius, Width - Radius);  // Choose a random /x/ coordinate in the island.
                     int y = r.Next(Radius, Height - Radius); // Choose a random /y/ coordinate in the island.
                     foreach(var s in shape)                  // Place a blob centered at /x/, /y/.
-                        ground[x+s.X, y+s.Y] = true;
+                        ground[x + s.X, y + s.Y] = true;
                 }
             }
 
@@ -222,7 +224,7 @@ namespace Pirates_Nueva.Ocean
                     await Task.Run(() => doSlide(seperates.First()));  // Slide the first separated chunk into the mainland.
                     seperates = await Task.Run(() => findSeperates()); // Re-compute the seperated chunks of the island.
                 }
-                
+
                 List<List<PointI>> findSeperates() {
                     var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
                     for(int x = 0; x < Width; x++) {      // For every point in the island:
@@ -231,7 +233,7 @@ namespace Pirates_Nueva.Ocean
                                 fragments.Add((x, y));    //     add the point to the list.
                         }
                     }
-                    
+
                     var chunks = new List<List<PointI>>();
                     while(fragments.Count > 0) {
                         var frontier = new Queue<PointI>(new[] { fragments.Last() }); // Coordinates to be searched.
@@ -255,7 +257,7 @@ namespace Pirates_Nueva.Ocean
                                 frontier.Enqueue((x, y));  //     mark it to be searched later on.
                         }
                     }
-                    
+
                     return (from s in chunks
                             orderby s.Count ascending
                             select s).ToList();
@@ -263,7 +265,7 @@ namespace Pirates_Nueva.Ocean
 
                 void doSlide(List<PointI> isolated) {
                     PointI? slide = null; // The direction and amount of sliding.
-                    
+
                     var order = from n in new[] { 0, 1, 2, 3 } orderby r.Next() select n;
                     foreach(int n in order) {
                         switch(n) {
@@ -285,7 +287,7 @@ namespace Pirates_Nueva.Ocean
                                 break;
                         }
                     }
-                    
+
                     if(slide is PointI s) {                       // If the isolated chunk can be slid,
                         for(int i = 0; i < isolated.Count; i++) { //     draw the chunk to the ground pixels,
                             var (x, y) = isolated[i] + s;         //         offset by the slide amount.
@@ -428,7 +430,21 @@ namespace Pirates_Nueva.Ocean
 
                 bool q(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height && ground[x, y];
             }
+        }
 
+        void FindOutline(bool[,] shape, Random r) {
+            const int Width = _width, Height = _height;
+
+            findOutline();   // Generate an outline surrounding the island.
+            smoothOutline(); // Smooth the outline.
+            scaleOutline();  // Scale up the islands by a random amount.
+            jitterOutline(); // Roughen up the outline.
+            superOutline();  // Scale the island up by four.
+            alignOutline();  // Align the outline to the bottom left of this island.
+            
+            /*
+             * Local Methods.
+             */
             void findOutline() {
                 var vertices = new List<PointF>();      // Initialize a list of vertices.
                 var edges = new List<(int a, int b)>(); // Initialize a list of edges.
@@ -439,7 +455,7 @@ namespace Pirates_Nueva.Ocean
                 //
                 for(int x = -1; x < Width; x++) {
                     for(int y = -1; y < Height; y++) {
-                        var lookup = b(x, y+1) << 3 | b(x+1, y + 1) << 2 | b(x+1, y) << 1 | b(x, y);
+                        var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
                         const float Half = Whole / 2f; // Half the width of a cell.
@@ -548,10 +564,10 @@ namespace Pirates_Nueva.Ocean
                             }
                         }
 
-                        int b(int g, int h) => g>=0 && g<Width && h>=0 && h < Height && ground[g, h] ? 1 : 0;
+                        int b(int g, int h) => g >= 0 && g < Width && h >= 0 && h < Height && shape[g, h] ? 1 : 0;
                     }
                 }
-                
+
                 this.vertices = vertices.ToArray();
                 this.edges = edges.ToArray();
             }
@@ -590,7 +606,7 @@ namespace Pirates_Nueva.Ocean
                 float leftmost = float.MaxValue;   // The furthest left position of any vertex.
                 float bottommost = float.MaxValue; // The lowest position of any vertex.
                 foreach(var v in vertices) {                // For every vertex:
-                    leftmost   = Math.Min(leftmost,   v.X); //     Set its x coord as the leftmost value if it's smaller than the current.
+                    leftmost =   Math.Min(leftmost, v.X); //     Set its x coord as the leftmost value if it's smaller than the current.
                     bottommost = Math.Min(bottommost, v.Y); //     Set its y coord as the bottommost value if it's smaller than the current.
                 }
 
@@ -654,62 +670,65 @@ namespace Pirates_Nueva.Ocean
                     vertices[i] *= scale;                  // Scale it up 4 times.
                 }
             }
+        }
 
-            void makeTexture() {
-                (int w, int h) = findExtents();
+        static UI.Texture CreateTexture(Master master, PointF[] vertices, (int a, int b)[] edges) {
 
-                var pixels = new UI.Color[w * h]; // An array of colors
+            (int w, int h) = findExtents();
 
-                scanlineFill();
+            var pixels = new UI.Color[w * h]; // An array of colors
 
-                void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
-                UI.Color get(int x, int y) => pixels[(h - y) * w + x];
+            scanlineFill();
 
-                (int, int) findExtents() {
-                    float rightmost = 0; // The rightmost edge of this island.
-                    float topmost = 0;   // The topmost edge of this island.
-                    foreach(var v in this.vertices) {         // For every vertex:
-                        rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
-                        topmost = Math.Max(topmost, v.Y);     // Update the topmost extent if the vertex if further up.
-                    }
+            return master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
 
-                    var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
-                    var he = (int)Math.Floor((topmost   + 1) * PPU); // Height of the texture.
-                    return (wi, he);
+            /*
+             * Local Methods
+             */
+            void paint(int x, int y, UI.Color color) => pixels[(h - y - 1) * w + x] = color;
+
+            (int, int) findExtents() {
+                float rightmost = 0; // The rightmost edge of this island.
+                float topmost = 0;   // The topmost edge of this island.
+                foreach(var v in vertices) {         // For every vertex:
+                    rightmost = Math.Max(rightmost, v.X); // Update the rightmost extent if the vertex if further right.
+                    topmost = Math.Max(topmost, v.Y);     // Update the topmost extent if the vertex if further up.
                 }
-                
-                void scanlineFill() {
-                    //
-                    // Fills the island using the scanline algorithm described here:
-                    // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
-                    //
-                    for(int y = h; y > 0; y--) {
-                        var iss = getIntersections(new PointF(0, (float)y / PPU));
-                        if(iss.Length >= 2) {
-                            for(int i = 0; i < iss.Length; i += 2) {
-                                var a = iss[i] * PPU;
-                                var b = iss[i + 1] * PPU;
-                                for(int x = (int)a.X; x <= b.X; x++)
-                                    paint(x, y, UI.Color.Black);
-                            }
-                        }
-                    }
 
-                    PointF[] getIntersections(PointF rayOrigin) {
-                        return getInters().OrderBy(p => p.X).ToArray();
+                var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
+                var he = (int)Math.Floor((topmost + 1) * PPU); // Height of the texture.
+                return (wi, he);
+            }
 
-                        IEnumerable<PointF> getInters() {
-                            PointF end = rayOrigin + new PointF(w + 100, 0);
-                            (float x, float y) i;
-                            foreach(var e in this.edges) {
-                                if(GetLineIntersection(rayOrigin, end, vertices[e.a], vertices[e.b], out i))
-                                    yield return i;
-                            }
+            void scanlineFill() {
+                //
+                // Fills the island using the scanline algorithm described here:
+                // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
+                //
+                for(int y = 0; y < h; y++) {
+                    var iss = getIntersections(new PointF(0, (float)y / PPU));
+                    if(iss.Length >= 2) {
+                        for(int i = 0; i < iss.Length; i += 2) {
+                            var a = iss[i] * PPU;
+                            var b = iss[i + 1] * PPU;
+                            for(int x = (int)a.X; x <= b.X; x++)
+                                paint(x, y, UI.Color.Black);
                         }
                     }
                 }
 
-                tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
+                PointF[] getIntersections(PointF rayOrigin) {
+                    return getInters().OrderBy(p => p.X).ToArray();
+
+                    IEnumerable<PointF> getInters() {
+                        PointF end = rayOrigin + new PointF(w + 100, 0);
+                        (float x, float y) i;
+                        foreach(var e in edges) {
+                            if(GetLineIntersection(rayOrigin, end, vertices[e.a], vertices[e.b], out i))
+                                yield return i;
+                        }
+                    }
+                }
             }
         }
 
