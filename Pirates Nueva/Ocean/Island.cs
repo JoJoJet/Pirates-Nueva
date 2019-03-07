@@ -660,8 +660,6 @@ namespace Pirates_Nueva.Ocean
 
                 var pixels = new UI.Color[w * h]; // An array of colors
 
-                drawEdges();
-
                 void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
                 UI.Color get(int x, int y) => pixels[(h - y) * w + x];
 
@@ -677,15 +675,30 @@ namespace Pirates_Nueva.Ocean
                     var he = (int)Math.Floor((topmost   + 1) * PPU); // Height of the texture.
                     return (wi, he);
                 }
-
-                void drawEdges() {
-                    foreach(var e in this.edges) {             // For each edge:
-                        var a = (PointI)(vertices[e.a] * PPU); // Transform the first vertex to texture space.
-                        var b = (PointI)(vertices[e.b] * PPU); // Transform the 2nd vertex to texture space.
-                                                               //
-                        Bresenham.Line(a, b, plot);            // Draw a line on the texture, between both vertices.
+                
+                for(int y = h; y > 0; y--) {
+                    var iss = getIntersections(new PointF(0, (float)y / PPU));
+                    if(iss.Length >= 2) {
+                        for(int i = 0; i < iss.Length; i += 2) {
+                            var a = iss[i] * PPU;
+                            var b = iss[i + 1] * PPU;
+                            for(int x = (int)a.X; x <= b.X; x++)
+                                paint(x, y, UI.Color.Black);
+                        }
                     }
-                    void plot(int x, int y) => paint(x, y, UI.Color.Black);
+                }
+
+                PointF[] getIntersections(PointF rayOrigin) {
+                    return getInters().OrderBy(p => p.X).ToArray();
+
+                    IEnumerable<PointF> getInters() {
+                        PointF end = rayOrigin + new PointF(w + 100, 0);
+                        (float x, float y) i;
+                        foreach(var e in this.edges) {
+                            if(GetLineIntersection(rayOrigin, end, vertices[e.a], vertices[e.b], out i))
+                                yield return i;
+                        }
+                    }
                 }
 
                 tex = master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
@@ -705,6 +718,33 @@ namespace Pirates_Nueva.Ocean
                 }
             }
             return (cn & 1) == 1;
+        }
+        
+        static bool GetLineIntersection(PointF a, PointF b, PointF c, PointF d, out (float x, float y) i) {
+            return get_line_intersection(a.X, a.Y, b.X, b.Y, c.X, c.Y, d.X, d.Y, out i.x, out i.y) == '1';
+        }
+        // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
+        // intersect the intersection point may be stored in the floats i_x and i_y.
+        static char get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y,
+            float p2_x, float p2_y, float p3_x, float p3_y, out float i_x, out float i_y) {
+            float s1_x, s1_y, s2_x, s2_y;
+            s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
+            s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
+
+            float s, t;
+            s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+            t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+            if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                // Collision detected
+                i_x = p0_x + (t * s1_x);
+                i_y = p0_y + (t * s1_y);
+                return '1';
+            }
+            else {
+                i_x = i_y = 0;
+                return '0'; // No collision
+            }
         }
 
         #region IDrawable Implementation
