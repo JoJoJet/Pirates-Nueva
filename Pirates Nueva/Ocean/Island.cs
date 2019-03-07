@@ -676,27 +676,33 @@ namespace Pirates_Nueva.Ocean
                     return (wi, he);
                 }
                 
-                for(int y = h; y > 0; y--) {
-                    var iss = getIntersections(new PointF(0, (float)y / PPU));
-                    if(iss.Length >= 2) {
-                        for(int i = 0; i < iss.Length; i += 2) {
-                            var a = iss[i] * PPU;
-                            var b = iss[i + 1] * PPU;
-                            for(int x = (int)a.X; x <= b.X; x++)
-                                paint(x, y, UI.Color.Black);
+                void scanlineFill() {
+                    //
+                    // Fills the island using the scanline algorithm described here:
+                    // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
+                    //
+                    for(int y = h; y > 0; y--) {
+                        var iss = getIntersections(new PointF(0, (float)y / PPU));
+                        if(iss.Length >= 2) {
+                            for(int i = 0; i < iss.Length; i += 2) {
+                                var a = iss[i] * PPU;
+                                var b = iss[i + 1] * PPU;
+                                for(int x = (int)a.X; x <= b.X; x++)
+                                    paint(x, y, UI.Color.Black);
+                            }
                         }
                     }
-                }
 
-                PointF[] getIntersections(PointF rayOrigin) {
-                    return getInters().OrderBy(p => p.X).ToArray();
+                    PointF[] getIntersections(PointF rayOrigin) {
+                        return getInters().OrderBy(p => p.X).ToArray();
 
-                    IEnumerable<PointF> getInters() {
-                        PointF end = rayOrigin + new PointF(w + 100, 0);
-                        (float x, float y) i;
-                        foreach(var e in this.edges) {
-                            if(GetLineIntersection(rayOrigin, end, vertices[e.a], vertices[e.b], out i))
-                                yield return i;
+                        IEnumerable<PointF> getInters() {
+                            PointF end = rayOrigin + new PointF(w + 100, 0);
+                            (float x, float y) i;
+                            foreach(var e in this.edges) {
+                                if(GetLineIntersection(rayOrigin, end, vertices[e.a], vertices[e.b], out i))
+                                    yield return i;
+                            }
                         }
                     }
                 }
