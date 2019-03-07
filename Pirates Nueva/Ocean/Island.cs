@@ -660,6 +660,8 @@ namespace Pirates_Nueva.Ocean
 
                 var pixels = new UI.Color[w * h]; // An array of colors
 
+                scanlineFill();
+
                 void paint(int x, int y, UI.Color color) => pixels[(h - y) * w + x] = color;
                 UI.Color get(int x, int y) => pixels[(h - y) * w + x];
 
