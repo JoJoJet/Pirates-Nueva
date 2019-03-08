@@ -693,11 +693,11 @@ namespace Pirates_Nueva.Ocean
                 // Calculate normals for the vertices.
                 for(int i = 0; i < this.vertices.Length; i++) { // For each vertex:
                     var es = from n in this.edges               // Find the edges connecting to the vertex.
-                             where n.a == i || n.b == i
-                             select n;
+                             where n.a == i || n.b == i         //
+                             select n;                          //
                     var a = es.First();                         // The first edge connected to this vertex.
                     var b = es.Last();                          // The second edge connected to this vertex.
-
+                                                                //
                     this.vertices[i].normal =                   // Set the vertex's normal as
                         ((a.normal + b.normal) / 2).Normalized; //     the medium of each edge's normal.
                 }
