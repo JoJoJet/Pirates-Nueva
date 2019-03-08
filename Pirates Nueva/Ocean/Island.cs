@@ -710,7 +710,9 @@ namespace Pirates_Nueva.Ocean
 
             var pixels = new UI.Color[w * h]; // An array of colors
 
-            scanlineFill();
+            scanlineFill(vertices, edges, UI.Color.Black);
+
+            drawShore();
 
             return master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
 
@@ -718,6 +720,7 @@ namespace Pirates_Nueva.Ocean
              * Local Methods
              */
             void paint(int x, int y, UI.Color color) => pixels[(h - y - 1) * w + x] = color;
+            UI.Color get(int x, int y) => pixels[(h - y - 1) * w + x];
 
             (int, int) findExtents() {
                 float rightmost = 0; // The rightmost edge of this island.
@@ -732,7 +735,7 @@ namespace Pirates_Nueva.Ocean
                 return (wi, he);
             }
 
-            void scanlineFill() {
+            void scanlineFill(IList<Vertex> _verts, IEnumerable<Edge> _edges, UI.Color fillColor) {
                 //
                 // Fills the island using the scanline algorithm described here:
                 // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
@@ -744,7 +747,7 @@ namespace Pirates_Nueva.Ocean
                             var a = iss[i] * PPU;
                             var b = iss[i + 1] * PPU;
                             for(int x = (int)a.X; x <= b.X; x++)
-                                paint(x, y, UI.Color.Black);
+                                paint(x, y, fillColor);
                         }
                     }
                 }
@@ -755,12 +758,29 @@ namespace Pirates_Nueva.Ocean
                     IEnumerable<PointF> getInters() {
                         PointF end = rayOrigin + new PointF(w + 100, 0);
                         (float x, float y) i;
-                        foreach(var e in edges) {
-                            if(GetLineIntersection(rayOrigin, end, vertices[e.a].Pos, vertices[e.b].Pos, out i))
+                        foreach(var e in _edges) {
+                            if(GetLineIntersection(rayOrigin, end, _verts[e.a].Pos, _verts[e.b].Pos, out i))
                                 yield return i;
                         }
                     }
                 }
+            }
+
+            void drawShore() {
+
+                var verts = new List<Vertex>(vertices.Length * 2);
+                    verts.AddRange(vertices);
+                var edgs = new List<Edge>(edges.Length * 2);
+                    edgs.AddRange(edges);
+
+                foreach(var v in vertices) {
+                    verts.Add(new Vertex(v.x - v.normal.X*3, v.y - v.normal.Y*3, v.normal));
+                }
+                foreach(var e in edges) {
+                    edgs.Add(new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal));
+                }
+
+                scanlineFill(verts, edgs, UI.Color.Lime);
             }
         }
 
