@@ -673,34 +673,33 @@ namespace Pirates_Nueva.Ocean
                 this.edges = edges.Select(e => new Edge() { a = e.a, b = e.b }).ToArray();
 
                 // Calculate normals for the edges.
-                for(int i = 0; i < this.edges.Length; i++) {
-                    var a = this.vertices[edges[i].a];
-                    var b = this.vertices[edges[i].b];
-
-                    var center = (a.Pos + b.Pos) / 2;
-
-                    var dx = b.x - a.x;
-                    var dy = b.y - a.y;
-
-                    var v1 = new PointF(-dy, dx).Normalized;
-                    
-                    if(IsCollidingPrecise(center + v1/10f)) {
-                        this.edges[i].normal = -v1;
-                    }
-                    else {
-                        this.edges[i].normal = v1;
-                    }
+                for(int i = 0; i < this.edges.Length; i++) { // For every edge:
+                    var a = this.vertices[edges[i].a];       // The first vertex of this edge.
+                    var b = this.vertices[edges[i].b];       // The second vertex of this edge.
+                                                             //
+                    var center = (a.Pos + b.Pos) / 2;        // The midpoint of both vertices.
+                                                             //
+                    var dx = b.x - a.x;                      // Slope, rise.
+                    var dy = b.y - a.y;                      // Slope, run.
+                                                             //
+                    var v1 = new PointF(-dy, dx).Normalized; // A vector perpendicular to this edge.
+                                                             //
+                    if(IsCollidingPrecise(center + v1/10f))  // If the vector points inwards,
+                        this.edges[i].normal = -v1;          //     set the edge's normal as the opposite of that vector.
+                    else                                     // If the vector points outwards,
+                        this.edges[i].normal = v1;           //     set the edge's normal as that vector.
                 }
 
                 // Calculate normals for the vertices.
-                for(int i = 0; i < this.vertices.Length; i++) {
-                    var es = from n in this.edges
+                for(int i = 0; i < this.vertices.Length; i++) { // For each vertex:
+                    var es = from n in this.edges               // Find the edges connecting to the vertex.
                              where n.a == i || n.b == i
                              select n;
-                    var a = es.First(); // The first edge connected to this vertex.
-                    var b = es.Last();  // The second edge connected to this vertex.
+                    var a = es.First();                         // The first edge connected to this vertex.
+                    var b = es.Last();                          // The second edge connected to this vertex.
 
-                    this.vertices[i].normal = ((a.normal + b.normal) / 2).Normalized;
+                    this.vertices[i].normal =                   // Set the vertex's normal as
+                        ((a.normal + b.normal) / 2).Normalized; //     the medium of each edge's normal.
                 }
             }
         }
