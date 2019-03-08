@@ -39,5 +39,39 @@ namespace Pirates_Nueva
                 }
             }
         }
+
+        public static void Circle(int xc, int yc, int r, Action<int, int> putpixel) {
+            //
+            // Taken from geeksforgeeks.org:
+            // https://www.geeksforgeeks.org/bresenhams-circle-drawing-algorithm/
+            //
+            int x = 0, y = r;
+            int d = 3 - 2 * r;
+
+            do {
+                // for each pixel we will 
+                // draw all eight pixels 
+                putpixel(xc + x, yc + y);
+                putpixel(xc - x, yc + y);
+                putpixel(xc + x, yc - y);
+                putpixel(xc - x, yc - y);
+                putpixel(xc + y, yc + x);
+                putpixel(xc - y, yc + x);
+                putpixel(xc + y, yc - x);
+                putpixel(xc - y, yc - x);
+                
+                ++x;
+
+                // check for decision parameter 
+                // and correspondingly  
+                // update d, x, y 
+                if(d > 0) {
+                    --y;
+                    d = d + 4 * (x - y) + 10;
+                }
+                else
+                    d = d + 4 * x + 6;
+            } while(y >= x);
+        }
     }
 }
