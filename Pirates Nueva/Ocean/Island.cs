@@ -570,7 +570,7 @@ namespace Pirates_Nueva.Ocean
                     }
                 }
 
-                var vertsAry = new Vertex[vertices.Count];
+                this.vertices = new Vertex[vertices.Count];
                 // Calculate the normals of each vertex.
                 for(int i = 0; i < vertices.Count; i++) {
                     var es = from e in edges
@@ -584,10 +584,9 @@ namespace Pirates_Nueva.Ocean
                         ++eCount;
                     }
 
-                    vertsAry[i] = new Vertex(vertices[i].X, vertices[i].Y, normal / eCount);
+                    this.vertices[i] = new Vertex(vertices[i].X, vertices[i].Y, normal / eCount);
                 }
-
-                this.vertices = vertsAry;
+                
                 this.edges = edges.ToArray();
             }
 
@@ -627,7 +626,7 @@ namespace Pirates_Nueva.Ocean
                 float leftmost = float.MaxValue;   // The furthest left position of any vertex.
                 float bottommost = float.MaxValue; // The lowest position of any vertex.
                 foreach(var v in vertices) {                // For every vertex:
-                    leftmost =   Math.Min(leftmost, v.x); //     Set its x coord as the leftmost value if it's smaller than the current.
+                    leftmost =   Math.Min(leftmost, v.x);   //     Set its x coord as the leftmost value if it's smaller than the current.
                     bottommost = Math.Min(bottommost, v.y); //     Set its y coord as the bottommost value if it's smaller than the current.
                 }
 
