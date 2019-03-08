@@ -441,6 +441,7 @@ namespace Pirates_Nueva.Ocean
             jitterOutline(); // Roughen up the outline.
             superOutline();  // Scale the island up by four.
             alignOutline();  // Align the outline to the bottom left of this island.
+            calcNormals();
             
             /*
              * Local Methods.
@@ -694,6 +695,39 @@ namespace Pirates_Nueva.Ocean
                     vertices[i].Pos *= scale;              // Scale it up 4 times.
                 }
             }
+
+            void calcNormals() {
+                // Calculate normals for the edges.
+                for(int i = 0; i < edges.Length; i++) {
+                    var a = vertices[edges[i].a];
+                    var b = vertices[edges[i].b];
+
+                    var center = (a.Pos + b.Pos) / 2;
+
+                    var dx = b.x - a.x;
+                    var dy = b.y - a.y;
+
+                    var v1 = new PointF(-dy, dx).Normalized;
+                    
+                    if(IsCollidingPrecise(center + v1/10f)) {
+                        edges[i].normal = -v1;
+                    }
+                    else {
+                        edges[i].normal = v1;
+                    }
+                }
+
+                // Calculate normals for the vertices.
+                for(int i = 0; i < vertices.Length; i++) {
+                    var es = from n in edges
+                             where n.a == i || n.b == i
+                             select n;
+                    var a = es.First(); // The first edge connected to this vertex.
+                    var b = es.Last();  // The second edge connected to this vertex.
+
+                    vertices[i].normal = ((a.normal + b.normal) / 2).Normalized;
+                }
+            }
         }
 
         static UI.Texture CreateTexture(Master master, Vertex[] vertices, Edge[] edges) {
@@ -806,6 +840,14 @@ namespace Pirates_Nueva.Ocean
                 var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a].Pos);
                 var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b].Pos);
                 master.Renderer.DrawLine(a, b);
+
+                var lCenter = (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
+                var lEnd = lCenter + l.normal;
+                master.Renderer.DrawLine(Sea.SeaPointToScreen(lCenter), Sea.SeaPointToScreen(lEnd));
+            }
+
+            foreach(var v in this.vertices) {
+                master.Renderer.DrawLine(Sea.SeaPointToScreen(v.Pos), Sea.SeaPointToScreen(v.Pos + v.normal), UI.Color.Black);
             }
 
             if(tex == null)
