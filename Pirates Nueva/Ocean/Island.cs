@@ -435,21 +435,21 @@ namespace Pirates_Nueva.Ocean
         void FindOutline(bool[,] shape, Random r) {
             const int Width = _width, Height = _height;
 
+            var vertices = new List<PointF>();
+            var edges = new List<(int a, int b)>();
+
             findOutline();   // Generate an outline surrounding the island.
             smoothOutline(); // Smooth the outline.
             scaleOutline();  // Scale up the islands by a random amount.
             jitterOutline(); // Roughen up the outline.
             superOutline();  // Scale the island up by four.
             alignOutline();  // Align the outline to the bottom left of this island.
-            calcNormals();
+            compile();
             
             /*
              * Local Methods.
              */
             void findOutline() {
-                var vertices = new List<PointF>();      // Initialize a list of vertices.
-                var edges = new List<Edge>(); // Initialize a list of edges.
-
                 //
                 // Run the Marching Squares algorithm on the pixels.
                 // https://en.wikipedia.org/wiki/Marching_squares.
@@ -547,12 +547,7 @@ namespace Pirates_Nueva.Ocean
                         }
 
                         void addEdge(PointF alpha, PointF beta, float normalX, float normalY) {
-                            var indices = new Edge() {
-                                a = makeIndex((x, y) + alpha),
-                                b = makeIndex((x, y) + beta),
-                                normal = new PointF(normalX, normalY)
-                            };
-
+                            var indices = (makeIndex((x, y) + alpha), makeIndex((x, y) + beta));
                             edges.Add(indices);
 
                             int makeIndex(PointF v) {
@@ -570,56 +565,37 @@ namespace Pirates_Nueva.Ocean
                         int b(int g, int h) => g >= 0 && g < Width && h >= 0 && h < Height && shape[g, h] ? 1 : 0;
                     }
                 }
-
-                this.vertices = new Vertex[vertices.Count];
-                // Calculate the normals of each vertex.
-                for(int i = 0; i < vertices.Count; i++) {
-                    var es = from e in edges
-                             where e.a == i || e.b == i
-                             select e;
-
-                    var normal = new PointF();
-                    var eCount = 0;
-                    foreach(var e in es) {
-                        normal += e.normal;
-                        ++eCount;
-                    }
-
-                    this.vertices[i] = new Vertex(vertices[i].X, vertices[i].Y, normal / eCount);
-                }
-                
-                this.edges = edges.ToArray();
             }
 
             void smoothOutline() {
-                PointF[] verts = new PointF[this.vertices.Length];
+                PointF[] verts = new PointF[vertices.Count];
 
                 //
                 // Apply Laplacian smoothing to the outline.
                 // https://en.wikipedia.org/wiki/Laplacian_smoothing.
                 //
-                for(int i = 0; i < this.vertices.Length; i++) { // For every vertex in this island's outline:
-                    var neighbors = from n in this.edges        // Get each neighbor of the vertex.
+                for(int i = 0; i < vertices.Count; i++) {       // For every vertex in this island's outline:
+                    var neighbors = from n in edges             // Get each neighbor of the vertex.
                                     where n.a == i || n.b == i  //
-                                    select this.vertices[       //
+                                    select vertices[            //
                                         n.a == i ? n.b : n.a    //
                                         ];                      //
                                                                 //
                     var xi = PointF.Zero;                       // The smoothed position of the vertex.
                     int length = 0;                             // How many neighbors it has.
                     foreach(var n in neighbors) {               // For every neighbor:
-                        xi += n.Pos;                            //     Add its position to the smoothed position,
+                        xi += n;                                //     Add its position to the smoothed position,
                         length++;                               //     and increment the neighbor count.
                     }                                           //
                     xi /= length;                               // Divide the smoothed position by the number of neighbors.
                                                                 //
                     verts[i] = PointF.Lerp(                     // Set the new position of the vertex
-                        this.vertices[i].Pos, xi, 0.5f          //     as the midpoint between the smoothed
+                        vertices[i], xi, 0.5f                   //     as the midpoint between the smoothed
                         );                                      //     position & its original position.
                 }
 
                 for(int i = 0; i < verts.Length; i++) {
-                    this.vertices[i].Pos = verts[i];
+                    vertices[i] = verts[i];
                 }
             }
 
@@ -627,20 +603,20 @@ namespace Pirates_Nueva.Ocean
                 float leftmost = float.MaxValue;   // The furthest left position of any vertex.
                 float bottommost = float.MaxValue; // The lowest position of any vertex.
                 foreach(var v in vertices) {                // For every vertex:
-                    leftmost =   Math.Min(leftmost, v.x);   //     Set its x coord as the leftmost value if it's smaller than the current.
-                    bottommost = Math.Min(bottommost, v.y); //     Set its y coord as the bottommost value if it's smaller than the current.
+                    leftmost =   Math.Min(leftmost, v.X);   //     Set its x coord as the leftmost value if it's smaller than the current.
+                    bottommost = Math.Min(bottommost, v.Y); //     Set its y coord as the bottommost value if it's smaller than the current.
                 }
 
-                for(int i = 0; i < vertices.Length; i++) {         // For every vertex:
-                    vertices[i].Pos -= (leftmost-1, bottommost-1); //     slide it to be aligned against the bottom left corner.
+                for(int i = 0; i < vertices.Count; i++) {      // For every vertex:
+                    vertices[i] -= (leftmost-1, bottommost-1); //     slide it to be aligned against the bottom left corner.
                 }
             }
 
             void scaleOutline() {
                 float scale = (float)r.NextDouble() + r.Next(1, 3); // Choose a random float between 1 and 3.
 
-                for(int i = 0; i < vertices.Length; i++) { // For every vertex,
-                    vertices[i].Pos *= scale;              //     multiply it by the scale.
+                for(int i = 0; i < vertices.Count; i++) { // For every vertex,
+                    vertices[i] *= scale;                 //     multiply it by the scale.
                 }
 
                 if(scale > 1.5f) {      // If the island was scaled up a lot,
@@ -650,39 +626,35 @@ namespace Pirates_Nueva.Ocean
             }
 
             void subdivideOutline() {
-                var vertices = new List<Vertex>(this.vertices);
-                var edges = new List<Edge>(this.edges.Length * 2);
-                foreach(var e in this.edges) {                   // For every edge:
-                    var v = new Vertex() {                       // Create a vertex in the middle of the edge.
-                        Pos = vertices[e.a].Pos +                //
-                            vertices[e.b].Pos / 2,               //
-                        normal = e.normal                        //
-                    };                                           //
+                var _vertices = new List<PointF>(vertices);
+                var _edges = new List<(int a, int b)>(edges.Count * 2);
+                foreach(var e in edges) {                        // For every edge:
+                    var v = (vertices[e.a] + vertices[e.b]) / 2; //
                                                                  //
-                    vertices.Add(v);                             // Add that vertex to the list of vertices.
-                    var i = vertices.Count - 1;                  //
+                    _vertices.Add(v);                            // Add that vertex to the list of vertices.
+                    var i = _vertices.Count - 1;                 //
                                                                  //
-                    edges.Add(new Edge(e.a, i, e.normal));       // Make an edge between the 1st vertex and the new one.
-                    edges.Add(new Edge(i, e.b, e.normal));       // Make an edge between the 2nd vertex and the new one.
+                    _edges.Add((e.a, i));                        // Make an edge between the 1st vertex and the new one.
+                    _edges.Add((i, e.b));                        // Make an edge between the 2nd vertex and the new one.
                 }
 
-                this.vertices = vertices.ToArray();
-                this.edges = edges.ToArray();
+                vertices = _vertices;
+                edges = _edges;
             }
 
             void jitterOutline() {
                 float s = 0;                 // The extents of this island.
                 foreach(var v in vertices) { // For every vertex:
-                    s = Math.Max(s, v.x);    //     Update the extents if the x coord of the vertex is larger.
-                    s = Math.Max(s, v.x);    //     Update the extents if the y coord of the vertex is larger.
+                    s = Math.Max(s, v.X);    //     Update the extents if the x coord of the vertex is larger.
+                    s = Math.Max(s, v.X);    //     Update the extents if the y coord of the vertex is larger.
                 }
                 s = (s + 25) / 2;
 
-                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
+                for(int i = 0; i < vertices.Count; i++) {  // For every vertex:
                     var jitter = new PointF(j(), j());     // A vector; each component is between -1 & +1.
                     if(jitter.SqrMagnitude > 1)            // If the vector is larger than 1,
                         jitter = jitter.Normalized;        //     normalize it.
-                    vertices[i].Pos += jitter * s / 100;   // Offset the vertex by the vector,
+                    vertices[i] += jitter * s / 100;       // Offset the vertex by the vector,
                                                            //     multiplied by the island extents,
                                                            //     and divided by 100.
                 }
@@ -691,16 +663,19 @@ namespace Pirates_Nueva.Ocean
 
             void superOutline() {
                 const float scale = 4f;
-                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
-                    vertices[i].Pos *= scale;              // Scale it up 4 times.
+                for(int i = 0; i < vertices.Count; i++) { // For every vertex:
+                    vertices[i] *= scale;                 // Scale it up 4 times.
                 }
             }
 
-            void calcNormals() {
+            void compile() {
+                this.vertices = vertices.Select(v => new Vertex() { x = v.X, y = v.Y }).ToArray();
+                this.edges = edges.Select(e => new Edge() { a = e.a, b = e.b }).ToArray();
+
                 // Calculate normals for the edges.
-                for(int i = 0; i < edges.Length; i++) {
-                    var a = vertices[edges[i].a];
-                    var b = vertices[edges[i].b];
+                for(int i = 0; i < this.edges.Length; i++) {
+                    var a = this.vertices[edges[i].a];
+                    var b = this.vertices[edges[i].b];
 
                     var center = (a.Pos + b.Pos) / 2;
 
@@ -710,22 +685,22 @@ namespace Pirates_Nueva.Ocean
                     var v1 = new PointF(-dy, dx).Normalized;
                     
                     if(IsCollidingPrecise(center + v1/10f)) {
-                        edges[i].normal = -v1;
+                        this.edges[i].normal = -v1;
                     }
                     else {
-                        edges[i].normal = v1;
+                        this.edges[i].normal = v1;
                     }
                 }
 
                 // Calculate normals for the vertices.
-                for(int i = 0; i < vertices.Length; i++) {
-                    var es = from n in edges
+                for(int i = 0; i < this.vertices.Length; i++) {
+                    var es = from n in this.edges
                              where n.a == i || n.b == i
                              select n;
                     var a = es.First(); // The first edge connected to this vertex.
                     var b = es.Last();  // The second edge connected to this vertex.
 
-                    vertices[i].normal = ((a.normal + b.normal) / 2).Normalized;
+                    this.vertices[i].normal = ((a.normal + b.normal) / 2).Normalized;
                 }
             }
         }
