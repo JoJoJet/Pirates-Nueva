@@ -742,18 +742,16 @@ namespace Pirates_Nueva.Ocean
                 //
                 for(int y = 0; y < h; y++) {
                     var iss = getIntersections(new PointF(0, (float)y / PPU));
-                    if(iss.Length >= 2) {
-                        for(int i = 0; i < iss.Length; i += 2) {
-                            var a = iss[i] * PPU;
-                            var b = iss[i + 1] * PPU;
-                            for(int x = (int)a.X; x <= b.X; x++)
-                                paint(x, y, fillColor);
-                        }
+                    for(int i = 0; i < iss.Count - 1; i += 2) {
+                        var a = iss[i] * PPU;
+                        var b = iss[i + 1] * PPU;
+                        for(int x = (int)a.X; x <= b.X; x++)
+                            paint(x, y, fillColor);
                     }
                 }
 
-                PointF[] getIntersections(PointF rayOrigin) {
-                    return getInters().OrderBy(p => p.X).ToArray();
+                List<PointF> getIntersections(PointF rayOrigin) {
+                    return getInters().OrderBy(p => p.X).ToList();
 
                     IEnumerable<PointF> getInters() {
                         PointF end = rayOrigin + new PointF(w + 100, 0);
@@ -830,18 +828,25 @@ namespace Pirates_Nueva.Ocean
         void IDrawable.Draw(Master master) {
             if(this.edges == null)
                 return;
+            
             foreach(var l in this.edges) {
+                //
+                // Draw each edge.
                 var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a].Pos);
                 var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b].Pos);
                 master.Renderer.DrawLine(a, b);
-
-                var lCenter = (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
+                //
+                // Draw the normal of each EDGE.
+                var lCenter = (Left, Bottom) + (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
                 var lEnd = lCenter + l.normal;
                 master.Renderer.DrawLine(Sea.SeaPointToScreen(lCenter), Sea.SeaPointToScreen(lEnd));
             }
-
+            //
+            // Draw the normal of each VERTEX.
             foreach(var v in this.vertices) {
-                master.Renderer.DrawLine(Sea.SeaPointToScreen(v.Pos), Sea.SeaPointToScreen(v.Pos + v.normal), UI.Color.Black);
+                var vCenter = (Left, Bottom) + v.Pos;
+                var nEnd = vCenter + v.normal;
+                master.Renderer.DrawLine(Sea.SeaPointToScreen(vCenter), Sea.SeaPointToScreen(nEnd), UI.Color.Black);
             }
 
             if(tex == null)
