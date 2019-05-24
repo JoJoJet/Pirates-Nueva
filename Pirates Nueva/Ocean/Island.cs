@@ -710,7 +710,7 @@ namespace Pirates_Nueva.Ocean
 
             var pixels = new UI.Color[w * h]; // An array of colors
 
-            scanlineFill(vertices, edges, UI.Color.Black);
+            scanlineFill(vertices, edges, UI.Color.DarkLime);
 
             drawShore();
 
@@ -778,7 +778,7 @@ namespace Pirates_Nueva.Ocean
                     edgs.Add(new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal));
                 }
 
-                scanlineFill(verts, edgs, UI.Color.Lime);
+                scanlineFill(verts, edgs, UI.Color.PaleYellow);
             }
         }
 

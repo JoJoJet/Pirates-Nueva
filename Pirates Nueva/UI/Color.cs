@@ -20,6 +20,10 @@ namespace Pirates_Nueva.UI
         public static Color White { get; } = new Color(255, 255, 255);
         /// <summary> R: 0, G: 255, B: 0 </summary>
         public static Color Lime { get; } = new Color(0, 255, 0);
+        /// <summary> R: 0, G: 155, B: 0 </summary>
+        public static Color DarkLime { get; } = new Color(0, 155, 0);
+        /// <summary> R: 255, G: 255, B: 153 </summary>
+        public static Color PaleYellow { get; } = new Color(255, 255, 153);
 
         /// <summary> The red component of this <see cref="Color"/>. </summary>
         public byte R { get; }
