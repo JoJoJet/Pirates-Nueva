@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Pirates_Nueva.UI;
 using Pirates_Nueva.Ocean;
 
 namespace Pirates_Nueva
@@ -34,12 +33,12 @@ namespace Pirates_Nueva
         SpriteBatch spriteBatch;
         Sea sea;
         
-        public Font Font { get; private set; }
+        public UI.Font Font { get; private set; }
 
         public Input Input { get; }
 
         public Renderer Renderer { get; private set; }
-        public GUI GUI { get; private set; }
+        public UI.GUI GUI { get; private set; }
 
         public PlayerController Player { get; private set; }
 
@@ -50,7 +49,7 @@ namespace Pirates_Nueva
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            GUI = new GUI(this);
+            GUI = new UI.GUI(this);
 
             Resources = new Resources(this);
             Input = new Input(this);
@@ -92,10 +91,10 @@ namespace Pirates_Nueva
         /// Initialization performed after <see cref="LoadContent"/>.
         /// </summary>
         private void AfterContentLoad() {
+            Renderer = new Renderer(this, spriteBatch);
+
             // Initialize the Sea object.
             this.sea = new Sea(this);
-
-            Renderer = new Renderer(this, spriteBatch);
 
             Player = new PlayerController(this, this.sea);
         }

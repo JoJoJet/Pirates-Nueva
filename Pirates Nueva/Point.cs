@@ -63,7 +63,7 @@ namespace Pirates_Nueva
         }
         public override int GetHashCode() => X.GetHashCode() + 9 * Y.GetHashCode();
 
-        public static explicit operator PointI(PointF p) => new PointI((int)Math.Round(p.X), (int)Math.Round(p.Y));
+        public static explicit operator PointI(PointF p) => new PointI((int)p.X, (int)p.Y);
 
         public static implicit operator Microsoft.Xna.Framework.Point(PointI p) => new Point(p.X, p.Y);
         public static implicit operator PointI(Microsoft.Xna.Framework.Point p) => new PointI(p.X, p.Y);
@@ -78,6 +78,7 @@ namespace Pirates_Nueva
         public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
 
         public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
+        public static PointI operator /(PointI p, int scalar) => new PointI(p.X / scalar, p.Y / scalar);
 
         public static bool operator ==(PointI a, PointI b) => a.X == b.X && a.Y == b.Y;
         public static bool operator !=(PointI a, PointI b) => a.X != b.X || a.Y != b.Y;
