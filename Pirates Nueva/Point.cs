@@ -10,7 +10,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// A point in 2D space, composed of 2 <see cref="int"/>s. Implicitly converts to and from MonoGame.Point.
     /// </summary>
-    public struct PointI
+    public struct PointI : IEquatable<PointI>
     {
         public static PointI Zero => new PointI(0);
 
@@ -51,16 +51,10 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X}, {Y})";
 
-        public override bool Equals(object obj) {
-            switch(obj) {
-                case PointI p: return p == this;
-                case PointF f: return f.X == X && f.Y == Y;
-                case ValueTuple<int, int> ti: return ti.Item1 == X && ti.Item2 == Y;
-                case ValueTuple<float, float> tf: return tf.Item1 == X && tf.Item2 == Y;
-                case Point m: return m.X == X && m.Y == Y;
-                default: return false;
-            }
-        }
+        public override bool Equals(object obj) => obj is PointI p
+                                                   ? p.Equals(this)
+                                                   : false;
+        public bool Equals(PointI other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 9 * Y.GetHashCode();
 
         public static explicit operator PointI(PointF p) => new PointI((int)p.X, (int)p.Y);
@@ -87,7 +81,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// A point in 2D space, composed of 2 <see cref="float"/>s. Implicitly converts to and from MonoGame.Vector2.
     /// </summary>
-    public struct PointF
+    public struct PointF : IEquatable<PointF>
     {
         public static PointF Zero => new PointF(0);
 
@@ -157,16 +151,10 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
 
-        public override bool Equals(object obj) {
-            switch(obj) {
-                case PointF p: return p == this;
-                case PointI i: return i.X == X && i.Y == Y;
-                case ValueTuple<float, float> tf: return tf.Item1 == X && tf.Item2 == Y;
-                case ValueTuple<int, int> ti: return ti.Item1 == X && ti.Item2 == Y;
-                case Vector2 v: return v.X == X && v.Y == Y;
-                default: return false;
-            }
-        }
+        public override bool Equals(object obj) => obj is PointF p
+                                                   ? p.Equals(this)
+                                                   : false;
+        public bool Equals(PointF other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 6 * Y.GetHashCode();
 
         public static implicit operator PointF(PointI p) => new PointF(p.X, p.Y);
