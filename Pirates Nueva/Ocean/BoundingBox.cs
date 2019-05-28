@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Pirates_Nueva.Ocean
 {
-    public struct BoundingBox
+    public readonly struct BoundingBox
     {
         /// <summary> The left edge of this <see cref="BoundingBox"/>, in <see cref="Sea"/>-space. </summary>
         public float Left { get; }
