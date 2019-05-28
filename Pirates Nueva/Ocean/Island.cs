@@ -134,7 +134,7 @@ namespace Pirates_Nueva.Ocean
                     var box = new BoundingBox(0, 0, Width-1, Height-1);
 
                     var frontier = new Stack<PointI>(new[] { start }); // List of pixels to be searched.
-                    var known = new List<PointI>();                    // Pixels that have already been searched.
+                    var known = new HashSet<PointI>();                 // Pixels that have already been searched.
 
                     while(frontier.Count > 0) {      // While there are coordinates to be searched:
                         var (x, y) = frontier.Pop(); // Get a coordinate to search, /x/, /y/.
@@ -226,7 +226,7 @@ namespace Pirates_Nueva.Ocean
                 }
 
                 List<List<PointI>> findSeperates() {
-                    var fragments = new List<PointI>();   // A list of points corresponding to ground pixels.
+                    var fragments = new HashSet<PointI>();
                     for(int x = 0; x < Width; x++) {      // For every point in the island:
                         for(int y = 0; y < Height; y++) { //
                             if(ground[x, y])              // If there is a ground pixel there,
@@ -236,31 +236,31 @@ namespace Pirates_Nueva.Ocean
 
                     var chunks = new List<List<PointI>>();
                     while(fragments.Count > 0) {
-                        var frontier = new Queue<PointI>(new[] { fragments.Last() }); // Coordinates to be searched.
-                        var known = new List<PointI>();                               // Coordinates that have already been searched.
+                        var frontier = new Queue<PointI>();     // Coordinates to be searched.
+                            frontier.Enqueue(fragments.Last()); //
+                        var known = new List<PointI>();         // Coordinates that have already been searched.
 
-                        while(frontier.Count > 0) {          // While there are coordinates to be searched:
-                            var (x, y) = frontier.Dequeue(); // Get a coordinate to search, /x/, /y/.
-                            fragments.Remove((x, y));        // Remove it from the list of loose fragments,
-                            known.Add((x, y));               // and add it to the list of searched coordinates.
-                                                             //
-                            peripheral(x - 1, y);            // Mark its left adjacent neighbor to be searched, if it wansn't already.
-                            peripheral(x, y + 1);            // Do the same for its upward neighbor,
-                            peripheral(x + 1, y);            // its rightward neighbor,
-                            peripheral(x, y - 1);            // and its downward neighbor.
+                        while(frontier.Count > 0) {       // While there are coordinates to be searched:
+                            var c = frontier.Dequeue();   // Get a coordinate to search.
+                            fragments.Remove(c);          // Remove it from the list of loose fragments,
+                            known.Add(c);                 // and add it to the list of searched coordinates.
+                            //
+                            // Mark its neighbors to be searched, if they haven't been searched already.
+                            peripheral(new PointI(c.X - 1, c.Y));
+                            peripheral(new PointI(c.X, c.Y + 1));
+                            peripheral(new PointI(c.X + 1, c.Y));
+                            peripheral(new PointI(c.X, c.Y - 1));
                         }
 
                         chunks.Add(known);
 
-                        void peripheral(int x, int y) {
-                            if(fragments.Contains((x, y))) // If the specified point is still loose,
-                                frontier.Enqueue((x, y));  //     mark it to be searched later on.
+                        void peripheral(PointI p) {
+                            if(fragments.Contains(p)) // If the specified point is still loose,
+                                frontier.Enqueue(p);  //     mark it to be searched later on.
                         }
                     }
 
-                    return (from s in chunks
-                            orderby s.Count ascending
-                            select s).ToList();
+                    return chunks.OrderBy(s => s.Count).ToList();
                 }
 
                 void doSlide(List<PointI> isolated) {
