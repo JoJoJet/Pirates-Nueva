@@ -35,14 +35,14 @@ namespace Pirates_Nueva.Ocean
         public void Generate(int seed, Master master) {
             Random r = new Random(seed);
 
-            var shape = generateShape(r);
+            var shape = GenerateShape(r);
 
             FindOutline(shape, r);
 
             tex = CreateTexture(master, this.vertices, this.edges);
         }
 
-        static bool[,] generateShape(Random r) {
+        static bool[,] GenerateShape(Random r) {
             const int Width = _width, Height = _height;
 
             var ground = new bool[Width, Height];
@@ -133,8 +133,9 @@ namespace Pirates_Nueva.Ocean
                 void doFloodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
                     var box = new BoundingBox(0, 0, Width-1, Height-1);
 
-                    var frontier = new Stack<PointI>(new[] { start }); // List of pixels to be searched.
-                    var known = new HashSet<PointI>();                 // Pixels that have already been searched.
+                    var frontier = new Stack<PointI>(); // List of pixels to be searched.
+                        frontier.Push(start);
+                    var known = new HashSet<PointI>();  // Pixels that have already been searched.
 
                     while(frontier.Count > 0) {      // While there are coordinates to be searched:
                         var (x, y) = frontier.Pop(); // Get a coordinate to search, /x/, /y/.
@@ -715,19 +716,18 @@ namespace Pirates_Nueva.Ocean
 
             (int w, int h) = findExtents();
 
-            var pixels = new UI.Color[w * h]; // An array of colors
+            var pixelsFlat = new UI.Color[w * h]; // An array of colors
 
             scanlineFill(vertices, edges, UI.Color.DarkLime);
 
             drawShore();
 
-            return master.Renderer.CreateTexture(w, h, pixels); // Create a texture using the array of colors we just made.
+            return master.Renderer.CreateTexture(w, h, pixelsFlat); // Create a texture using the array of colors we just made.
 
             /*
              * Local Methods
              */
-            void paint(int x, int y, UI.Color color) => pixels[(h - y - 1) * w + x] = color;
-            UI.Color get(int x, int y) => pixels[(h - y - 1) * w + x];
+            ref UI.Color pixels(int x, int y) => ref pixelsFlat[(h - y - 1) * w + x];
 
             (int, int) findExtents() {
                 float rightmost = 0; // The rightmost edge of this island.
@@ -753,7 +753,7 @@ namespace Pirates_Nueva.Ocean
                         var a = iss[i] * PPU;
                         var b = iss[i + 1] * PPU;
                         for(int x = (int)a.X; x <= b.X; x++)
-                            paint(x, y, fillColor);
+                            pixels(x, y) = fillColor;
                     }
                 }
 
