@@ -109,7 +109,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Returns the squared distance between two points. Faster than <see cref="Distance(PointF, PointF)"/>/
+        /// Returns the squared distance between two points. Faster than <see cref="Distance(PointF, PointF)"/>.
         /// </summary>
         public static float SqrDistance(PointF a, PointF b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
