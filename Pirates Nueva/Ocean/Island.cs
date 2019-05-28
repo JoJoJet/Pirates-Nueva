@@ -726,8 +726,8 @@ namespace Pirates_Nueva.Ocean
                 float rightmost = 0; // The rightmost edge of this island.
                 float topmost = 0;   // The topmost edge of this island.
                 foreach(var v in vertices) {              // For every vertex:
-                    rightmost = Math.Max(rightmost, v.x); // Update the rightmost extent if the vertex if further right.
-                    topmost = Math.Max(topmost, v.y);     // Update the topmost extent if the vertex if further up.
+                    rightmost = Math.Max(rightmost, v.x); // Update the rightmost extent if the vertex is further right.
+                    topmost = Math.Max(topmost, v.y);     // Update the topmost extent if the vertex is further up.
                 }
 
                 var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
@@ -751,16 +751,18 @@ namespace Pirates_Nueva.Ocean
                 }
 
                 List<PointF> getIntersections(PointF rayOrigin) {
-                    return getInters().OrderBy(p => p.X).ToList();
+                    var lst = new List<PointF>();
 
-                    IEnumerable<PointF> getInters() {
-                        PointF end = rayOrigin + new PointF(w + 100, 0);
-                        (float x, float y) i;
-                        foreach(var e in _edges) {
-                            if(GetLineIntersection(rayOrigin, end, _verts[e.a].Pos, _verts[e.b].Pos, out i))
-                                yield return i;
-                        }
+                    var end = rayOrigin + new PointF(w + 100, 0);
+                    (float x, float y) i;
+                    foreach(var e in _edges) {
+                        if(GetLineIntersection(rayOrigin, end, _verts[e.a], _verts[e.b], out i))
+                            lst.Add(i);
                     }
+
+                    lst.Sort((a, b) => (int)(a.X - b.X));
+
+                    return lst;
                 }
             }
 
@@ -797,30 +799,31 @@ namespace Pirates_Nueva.Ocean
             return (cn & 1) == 1;
         }
         
-        static bool GetLineIntersection(PointF a, PointF b, PointF c, PointF d, out (float x, float y) i) {
-            return get_line_intersection(a.X, a.Y, b.X, b.Y, c.X, c.Y, d.X, d.Y, out i.x, out i.y) == '1';
-        }
-        // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
-        // intersect the intersection point may be stored in the floats i_x and i_y.
-        static char get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y,
-            float p2_x, float p2_y, float p3_x, float p3_y, out float i_x, out float i_y) {
-            float s1_x, s1_y, s2_x, s2_y;
-            s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
-            s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
+        static bool GetLineIntersection(PointF a1, PointF a2, Vertex b1, Vertex b2, out (float x, float y) i) {
+            return get_line_intersection(a1.X, a1.Y, a2.X, a2.Y, b1.x, b1.y, b2.x, b2.y, out i.x, out i.y) == '1';
 
-            float s, t;
-            s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-            t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+            // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
+            // intersect the intersection point may be stored in the floats i_x and i_y.
+            char get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y,
+                float p2_x, float p2_y, float p3_x, float p3_y, out float i_x, out float i_y) {
+                float s1_x, s1_y, s2_x, s2_y;
+                s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
+                s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
 
-            if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                // Collision detected
-                i_x = p0_x + (t * s1_x);
-                i_y = p0_y + (t * s1_y);
-                return '1';
-            }
-            else {
-                i_x = i_y = 0;
-                return '0'; // No collision
+                float s, t;
+                s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+                t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+                if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                    // Collision detected
+                    i_x = p0_x + (t * s1_x);
+                    i_y = p0_y + (t * s1_y);
+                    return '1';
+                }
+                else {
+                    i_x = i_y = 0;
+                    return '0'; // No collision
+                }
             }
         }
 
@@ -884,10 +887,12 @@ namespace Pirates_Nueva.Ocean
 
             public PointF Pos {
                 get => new PointF(x, y);
-                set => (x, y) = value;
             }
 
-            public Vertex(float x, float y, PointF normal) => this = new Vertex() { x = x, y = y, normal = normal };
+            public Vertex(float x, float y, PointF normal) {
+                this.x = x; this.y = y;
+                this.normal = normal;
+            }
         }
     }
 }
