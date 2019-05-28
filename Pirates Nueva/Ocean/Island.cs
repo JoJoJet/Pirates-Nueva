@@ -767,13 +767,13 @@ namespace Pirates_Nueva.Ocean
             }
 
             void drawShore() {
-                var verts = new Vertex[vertices.Length * 2];
+                Span<Vertex> verts = stackalloc Vertex[vertices.Length * 2];
                 for(int i = 0; i < vertices.Length; i++) {
                     var v = verts[i] = vertices[i];
                     verts[vertices.Length + i] = new Vertex(v.x - v.normal.X * 3, v.y - v.normal.Y * 3, v.normal);
                 }
 
-                var edgs = new Edge[edges.Length * 2];
+                Span<Edge> edgs = stackalloc Edge[edges.Length * 2];
                 for(int i = 0; i < edges.Length; i++) {
                     var e = edgs[i] = edges[i];
                     edgs[edges.Length + i] = new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal);
