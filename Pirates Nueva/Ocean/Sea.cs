@@ -29,7 +29,7 @@ namespace Pirates_Nueva.Ocean
             // Generate the islands.
             Islands = new Archipelago(this);
             var isl = Islands as IArchiContract;
-            Task.Run(async () => await isl.GenerateAsync(new Random().Next(), master)).Wait();
+            isl.Generate(new Random().Next(), master);
 
             this.entities.Add(new PlayerShip(this, 10, 5));
         }
@@ -105,7 +105,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Allows some methods to be accessible only within the <see cref="Sea"/> class. </summary>
         private interface IArchiContract
         {
-            Task GenerateAsync(int seed, Master master);
+            void Generate(int seed, Master master);
         }
         public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
         {
@@ -126,33 +126,24 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            async Task IArchiContract.GenerateAsync(int seed, Master master) {
+            void IArchiContract.Generate(int seed, Master master) {
                 const int Width = 10;
                 const int Height = 10;
                 const int Chance = 45;
 
                 var r = new Random(seed);
-                var gens = new List<Task>(Width*Height * Chance/100); // A list of tasks for generating the shape of islands.
                 
                 /*
                  * Begin generating all of the islands.
                  */
                 this.islands = new Island[Width, Height];
-                for(int x = 0; x < Width; x++) {                                      // For every point in a square area:
-                    for(int y = 0; y < Height; y++) {                                 //
-                        if(r.Next(0, 100) < Chance) {                                 // If we roll a random chance:
-                            islands[x, y] = new Island(this.sea, x * 180, y * 180);     //     Create an island at this point,
-                            var gen = islands[x, y].GenerateAsync(r.Next(), master);  //     start to generate the island,
-                            gens.Add(gen);                                            //     and store the task for generating it.
+                for(int x = 0; x < Width; x++) {                                    // For every point in a square area:
+                    for(int y = 0; y < Height; y++) {                               //
+                        if(r.Next(0, 100) < Chance) {                               // If we roll a random chance:
+                            islands[x, y] = new Island(this.sea, x * 180, y * 180); //     Create an island at this point,
+                            islands[x, y].Generate(r.Next(), master);               //     start to generate the island,
                         }
                     }
-                }
-
-                /*
-                 * Wait until all of the islands finish generating.
-                 */
-                foreach(var gen in gens) { // For every island generation task:
-                    await gen;             // wait until the task finishes execution.
                 }
             }
 

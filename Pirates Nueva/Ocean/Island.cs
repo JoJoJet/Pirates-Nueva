@@ -32,40 +32,40 @@ namespace Pirates_Nueva.Ocean
         const int PPU = 16;
 
         const int _width = 15, _height = 15;
-        public async Task GenerateAsync(int seed, Master master) {
+        public void Generate(int seed, Master master) {
             Random r = new Random(seed);
 
-            var shape = await generateShape(r);
+            var shape = generateShape(r);
 
-            await Task.Run(() => FindOutline(shape, r));
+            FindOutline(shape, r);
 
-            tex = await Task.Run(() => CreateTexture(master, this.vertices, this.edges));
+            tex = CreateTexture(master, this.vertices, this.edges);
         }
 
-        static async Task<bool[,]> generateShape(Random r) {
+        static bool[,] generateShape(Random r) {
             const int Width = _width, Height = _height;
 
             var ground = new bool[Width, Height];
 
-            await Task.Run(() => placeBlobs());    // Scatter shapes around the canvas.
-            await Task.Run(() => connectEdges());  // Connect separated but close blocks.
-            await floodFill();                     // Fill in the entire terrain.
+            placeBlobs();     // Scatter shapes around the canvas.
+            connectEdges();   // Connect separated but close blocks.
+            floodFill();      // Fill in the entire terrain.
 
-            await Task.Run(() => decimate());      // Randomly kill 20% of the blocks.
-            await floodFill();                     // Fill in the terrain.
+            decimate();       // Randomly kill 20% of the blocks.
+            floodFill();      // Fill in the terrain.
 
-            await Task.Run(() => breakNecks());    // Break any thin connectors.
-            await slideSeperates();                // Combine any stray islands into one shape.
+            breakNecks();     // Break any thin connectors.
+            slideSeperates(); // Combine any stray islands into one shape.
 
-            await Task.Run(() => connectEdges());  // Connnect separated but close blocks.
-            await floodFill();                     // Fill in the terrain.
+            connectEdges();   // Connnect separated but close blocks.
+            floodFill();      // Fill in the terrain.
 
-            await Task.Run(() => extraneous());    // Delete unnatural extrusions.
-            await Task.Run(() => breakNecks());    // Break any thin connectors.
-            await slideSeperates();                // Combine any stray shapes into one.
+            extraneous();     // Delete unnatural extrusions.
+            breakNecks();     // Break any thin connectors.
+            slideSeperates(); // Combine any stray shapes into one.
 
-            await Task.Run(() => connectEdges());  // Connect separated but close blocks.
-            await floodFill();                     // Fill in the terrain.
+            connectEdges();   // Connect separated but close blocks.
+            floodFill();      // Fill in the terrain.
 
             return ground;
 
@@ -120,14 +120,14 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            async Task floodFill() {
+            void floodFill() {
                 var fill = new bool[Width, Height];   // An empty 2D array.
                 for(int x = 0; x < Width; x++) {      // For every point in the array:
                     for(int y = 0; y < Height; y++) { //
                         fill[x, y] = true;            // Default its to be filled in.
                     }
                 }
-                await Task.Run(() => doFloodFill(ground, (0, Height-1), (x, y) => fill[x, y] = false));
+                doFloodFill(ground, (0, Height-1), (x, y) => fill[x, y] = false);
                 ground = fill;
 
                 void doFloodFill(bool[,] canvas, PointI start, Action<int, int> paint) {
@@ -148,7 +148,7 @@ namespace Pirates_Nueva.Ocean
                         neighbor(x, y - 1);          // and its downward neighbor.
                     }
                     void neighbor(int x, int y) {
-                        if(box.Contains(x, y) && !ground[x, y] && !known.Contains((x, y))) // If the point is empty & not yet searched,
+                        if(box.Contains(x, y) && !canvas[x, y] && !known.Contains((x, y))) // If the point is empty & not yet searched,
                             frontier.Push((x, y));                                         //     mark it to be searched later on.
                     }
                 }
@@ -214,15 +214,15 @@ namespace Pirates_Nueva.Ocean
                 bool q(int x, int y) => ground[x, y];
             }
 
-            async Task slideSeperates() {
-                var seperates = await Task.Run(() => findSeperates()); // Find the separated chunks of the island.
-                while(seperates.Count > 1) {                           // Loop until there is only one island:
-                    ground = new bool[Width, Height];                  // Clear the ground pixels,
-                    foreach(var p in seperates.Skip(1).Union())        //     and populate them with
-                        ground[p.X, p.Y] = true;                       //         the seperate chunks, except the first one.
-                                                                       //
-                    await Task.Run(() => doSlide(seperates.First()));  // Slide the first separated chunk into the mainland.
-                    seperates = await Task.Run(() => findSeperates()); // Re-compute the seperated chunks of the island.
+            void slideSeperates() {
+                var seperates = findSeperates();                // Find the separated chunks of the island.
+                while(seperates.Count > 1) {                    // Loop until there is only one island:
+                    ground = new bool[Width, Height];           // Clear the ground pixels,
+                    foreach(var p in seperates.Skip(1).Union()) //     and populate them with
+                        ground[p.X, p.Y] = true;                //         the seperate chunks, except the first one.
+                                                                //
+                    doSlide(seperates.First());                 // Slide the first separated chunk into the mainland.
+                    seperates = findSeperates();                // Re-compute the seperated chunks of the island.
                 }
 
                 List<List<PointI>> findSeperates() {

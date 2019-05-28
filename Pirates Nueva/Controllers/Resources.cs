@@ -20,7 +20,7 @@ namespace Pirates_Nueva
 
     internal class Resources
     {
-        private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates Nueva\Pirates Nueva\Resources\";
+        private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates-Nueva\Pirates Nueva\Resources\";
 
         private readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
 
