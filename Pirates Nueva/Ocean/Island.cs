@@ -673,7 +673,7 @@ namespace Pirates_Nueva.Ocean
                 // Project each edge into a specialized struct,
                 // and calculate its normal.
                 this.edges = new Edge[edges.Count];
-                for(int i = 0; i < edges.Count; i++) {                    // For every edge:
+                for(int i = 0; i < this.edges.Length; i++) {              // For every edge:
                     var e = edges[i];                                     //
                     var a = vertices[e.a];                                // The first vertex of this edge.
                     var b = vertices[e.b];                                // The second vertex of this edge.
@@ -691,18 +691,18 @@ namespace Pirates_Nueva.Ocean
                                                                           //
                     this.edges[i] = new Edge(e.a, e.b, v1);               // Create an Edge struct with the info.
                 }
+                //
+                // Project each vertex into a specialized struct,
+                // and calculate its normal/
+                this.vertices = new Vertex[vertices.Count];
+                for(int i = 0; i < this.vertices.Length; i++) {           // For each vertex:
+                    var es = this.edges.Where(n => n.a == i || n.b == i); // Find the edges connnecting to this vertex.
+                    var a = es.First();                                   // The first edge connecting.
+                    var b = es.Last();                                    // The second edge connecting.
 
-                this.vertices = vertices.Select(v => new Vertex() { x = v.X, y = v.Y }).ToArray();
-                // Calculate normals for the vertices.
-                for(int i = 0; i < this.vertices.Length; i++) { // For each vertex:
-                    var es = from n in this.edges               // Find the edges connecting to the vertex.
-                             where n.a == i || n.b == i         //
-                             select n;                          //
-                    var a = es.First();                         // The first edge connected to this vertex.
-                    var b = es.Last();                          // The second edge connected to this vertex.
-                                                                //
-                    this.vertices[i].normal =                   // Set the vertex's normal as
-                        ((a.normal + b.normal) / 2).Normalized; //     the medium of each edge's normal.
+                    var v = vertices[i];                                  // Store the vertex's position.
+                    var normal = ((a.normal + b.normal) / 2).Normalized;  // Find the vertex's normal.
+                    this.vertices[i] = new Vertex(v.X, v.Y, normal);      // Create a Vertex struct with the info.
                 }
             }
         }
@@ -900,13 +900,13 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        struct Vertex
+        readonly struct Vertex
         {
             /// <summary>
             /// The value of the corresponding coordinate of this <see cref="Vertex"/>.
             /// </summary>
-            public float x, y;
-            public PointF normal;
+            public readonly float x, y;
+            public readonly PointF normal;
 
             public PointF Pos => new PointF(x, y);
 
