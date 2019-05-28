@@ -735,13 +735,13 @@ namespace Pirates_Nueva.Ocean
                 return (wi, he);
             }
 
-            void scanlineFill(IList<Vertex> _verts, IEnumerable<Edge> _edges, UI.Color fillColor) {
+            void scanlineFill(Span<Vertex> _verts, Span<Edge> _edges, UI.Color fillColor) {
                 //
                 // Fills the island using the scanline algorithm described here:
                 // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
                 //
                 for(int y = 0; y < h; y++) {
-                    var iss = getIntersections(new PointF(0, (float)y / PPU));
+                    var iss = getIntersections(_verts, _edges, new PointF(0, (float)y / PPU));
                     for(int i = 0; i < iss.Count - 1; i += 2) {
                         var a = iss[i] * PPU;
                         var b = iss[i + 1] * PPU;
@@ -750,13 +750,13 @@ namespace Pirates_Nueva.Ocean
                     }
                 }
 
-                List<PointF> getIntersections(PointF rayOrigin) {
+                List<PointF> getIntersections(Span<Vertex> vrts, Span<Edge> edgs, PointF rayOrigin) {
                     var lst = new List<PointF>();
 
                     var end = rayOrigin + new PointF(w + 100, 0);
                     (float x, float y) i;
-                    foreach(var e in _edges) {
-                        if(GetLineIntersection(rayOrigin, end, _verts[e.a], _verts[e.b], out i))
+                    foreach(var e in edgs) {
+                        if(GetLineIntersection(rayOrigin, end, vrts[e.a], vrts[e.b], out i))
                             lst.Add(i);
                     }
 
@@ -767,17 +767,16 @@ namespace Pirates_Nueva.Ocean
             }
 
             void drawShore() {
-
-                var verts = new List<Vertex>(vertices.Length * 2);
-                    verts.AddRange(vertices);
-                var edgs = new List<Edge>(edges.Length * 2);
-                    edgs.AddRange(edges);
-
-                foreach(var v in vertices) {
-                    verts.Add(new Vertex(v.x - v.normal.X*3, v.y - v.normal.Y*3, v.normal));
+                var verts = new Vertex[vertices.Length * 2];
+                for(int i = 0; i < vertices.Length; i++) {
+                    var v = verts[i] = vertices[i];
+                    verts[vertices.Length + i] = new Vertex(v.x - v.normal.X * 3, v.y - v.normal.Y * 3, v.normal);
                 }
-                foreach(var e in edges) {
-                    edgs.Add(new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal));
+
+                var edgs = new Edge[edges.Length * 2];
+                for(int i = 0; i < edges.Length; i++) {
+                    var e = edgs[i] = edges[i];
+                    edgs[edges.Length + i] = new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal);
                 }
 
                 scanlineFill(verts, edgs, UI.Color.PaleYellow);
