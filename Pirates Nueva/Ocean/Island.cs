@@ -767,7 +767,7 @@ namespace Pirates_Nueva.Ocean
                             lst.Add(i);
                     }
 
-                    lst.Sort((a, b) => (int)(a.X - b.X));
+                    lst.Sort((a, b) => a.X - b.X < 0 ? -1 : 1);
 
                     return lst;
                 }
