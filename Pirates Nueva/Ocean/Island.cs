@@ -568,7 +568,7 @@ namespace Pirates_Nueva.Ocean
             }
 
             void smoothOutline() {
-                PointF[] verts = new PointF[vertices.Count];
+                Span<PointF> verts = stackalloc PointF[vertices.Count];
 
                 //
                 // Apply Laplacian smoothing to the outline.
@@ -582,12 +582,12 @@ namespace Pirates_Nueva.Ocean
                                         ];                      //
                                                                 //
                     var xi = PointF.Zero;                       // The smoothed position of the vertex.
-                    int length = 0;                             // How many neighbors it has.
+                    int count = 0;                              // How many neighbors it has.
                     foreach(var n in neighbors) {               // For every neighbor:
                         xi += n;                                //     Add its position to the smoothed position,
-                        length++;                               //     and increment the neighbor count.
+                        count++;                                //     and increment the neighbor count.
                     }                                           //
-                    xi /= length;                               // Divide the smoothed position by the number of neighbors.
+                    xi /= count;                                // Divide the smoothed position by the number of neighbors.
                                                                 //
                     verts[i] = PointF.Lerp(                     // Set the new position of the vertex
                         vertices[i], xi, 0.5f                   //     as the midpoint between the smoothed
