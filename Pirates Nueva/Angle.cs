@@ -3,20 +3,20 @@
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps. Immutable.
+    /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps.
     /// <para />
     /// Range: [0, 2π) radians, [0, 360°)
     /// </summary>
     public readonly struct Angle
     {
-        /// <summary> A half rotation around a circle. </summary>
-        private const float HalfTurn = (float)Math.PI;
-        /// <summary> A full rotation around a circle. </summary>
+        /// <summary> A half rotation around a circle, in radians. </summary>
+        public const float HalfTurn = (float)Math.PI;
+        /// <summary> A full rotation around a circle, in radians. </summary>
         private const float FullTurn = 2*HalfTurn;
         /// <summary> Converts radians to degrees. </summary>
-        private const float Rad2Deg  = 180f / HalfTurn;
+        public const float Rad2Deg  = 180f / HalfTurn;
         /// <summary> Converts degrees to radians. </summary>
-        private const float Deg2Rad  = HalfTurn / 180f;
+        public const float Deg2Rad  = HalfTurn / 180f;
 
         private Angle(float radians) {
             Radians = radians % FullTurn;
