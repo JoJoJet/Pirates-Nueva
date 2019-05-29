@@ -272,16 +272,27 @@ namespace Pirates_Nueva.Ocean
 
         #region Furniture Accessor Methods
         /// <summary>
-        /// Get the <see cref="Furniture"/> at index /x/, /y/.
+        /// Gets the <see cref="Furniture"/> at index /x/, /y/, if it exists.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Furniture GetFurniture(int x, int y) {
-            ValidateIndices(nameof(GetFurniture), x, y);
-
-            return unsafeGetBlock(x, y)?.Furniture;
+        public bool TryGetFurniture(int x, int y, out Furniture furniture) {
+            if(GetBlockOrNull(x, y)?.Furniture is Furniture f) {
+                furniture = f;
+                return true;
+            }
+            else {
+                furniture = null;
+                return false;
+            }
         }
         /// <summary>
-        /// Whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
+        /// Gets the <see cref="Furniture"/> at indices /x/, /y/, or <see cref="null"/> if it does not exist.
+        /// </summary>
+        public Furniture GetFurnitureOrNull(int x, int y)
+            => GetBlockOrNull(x, y)?.Furniture;
+
+        /// <summary>
+        /// Returns whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasFurniture(int x, int y) {
@@ -291,13 +302,15 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Place a <see cref="Furniture"/>, with <see cref="Def"/> /def/, at index /x/, /y/.
+        /// Places a <see cref="Furniture"/>, with specified <see cref="Def"/>, at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
         /// <exception cref="InvalidOperationException">
         /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
         /// </exception>
         public Furniture PlaceFurniture(FurnitureDef def, int x, int y, Dir dir) {
+            const string Sig = nameof(Ship) + "." + nameof(PlaceFurniture) + "()";
+
             ValidateIndices(nameof(PlaceFurniture), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
@@ -305,18 +318,18 @@ namespace Pirates_Nueva.Ocean
                     return SetBlockFurniture(b, new Furniture(def, b, dir)); //         place a Furniture there and return it.
                 else                                                         //     If the block is occupied,
                     throw new InvalidOperationException(                     //         throw an InvalidOperationException.
-                        $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
+                        $"{Sig}: There is already a {nameof(Furniture)} at index ({x}, {y})!"
                         );
             }
             else {                                                           // If there is no block at /x/, /y/,
                 throw new InvalidOperationException(                         //     throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
+                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
                     );
             }
         }
 
         /// <summary>
-        /// Remove the <see cref="Furniture"/> at index /x/, /y/.
+        /// Removes the <see cref="Furniture"/> at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Furniture"/> at /x/, /y/.</exception>
@@ -337,12 +350,9 @@ namespace Pirates_Nueva.Ocean
 
         #region Agent Accessor Methods
         /// <summary>
-        /// Get the <see cref="Agent"/> at index /x/, /y/, if it exists.
+        /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool TryGetAgent(int x, int y, out Agent<Ship, Block> agent) {
-            ValidateIndices(nameof(TryGetAgent), x, y);
-
             foreach(var ag in this.agents) { // For each agent in this ship:
                 if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
                     agent = ag;              //     set it as the out parameter,
@@ -352,6 +362,16 @@ namespace Pirates_Nueva.Ocean
 
             agent = null; // If we got this far, set the out parameter as null,
             return false; // and return false.
+        }
+        /// <summary>
+        /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
+        /// </summary>
+        public Agent<Ship, Block> GetAgentOrNull(int x, int y) {
+            foreach(var agent in this.agents) {
+                if(agent.X == x && agent.Y == y)
+                    return agent;
+            }
+            return null;
         }
         /// <summary>
         /// Add an <see cref="Agent"/> at index /x/, /y/.
@@ -375,17 +395,17 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region Job Accessor Methods
-        /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
+        /// <summary> Creates a job with the specified <see cref="Job.Toil"/>s. </summary>
         public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
             this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
         }
-        /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
+        /// <summary> Adds the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
         public void AddJob(Job<Ship, Block> job) {
             this.jobs.Add(job);
         }
 
         /// <summary>
-        /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
+        /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
         public Job<Ship, Block> GetWorkableJob(Agent<Ship, Block> hiree) {
             for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
@@ -399,7 +419,7 @@ namespace Pirates_Nueva.Ocean
             return null; //     Return null.
         }
 
-        /// <summary> Remove the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
+        /// <summary> Removes the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
         public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
         #endregion
 
@@ -462,7 +482,7 @@ namespace Pirates_Nueva.Ocean
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is Furniture f)
+                    if(GetFurnitureOrNull(x, y) is Furniture f)
                         DrawPart(f, master);
                 }
             }
@@ -495,7 +515,7 @@ namespace Pirates_Nueva.Ocean
             if(TryGetAgent(shipX, shipY, out var agent)) {
                 focusable.Add(agent);
             }
-            if(GetFurniture(shipX, shipY) is Furniture f) {
+            if(GetFurnitureOrNull(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }
             if(GetBlockOrNull(shipX, shipY) is Block b) {
