@@ -43,17 +43,31 @@ namespace Pirates_Nueva
         /// Return an angle, moving from /a/ towards /b/, with a maximum change of /step/.
         /// </summary>
         public static Angle MoveTowards(Angle a, Angle b, float step) {
-            float difference = b - a; // Get the difference between the two angles.
-
-            if(abs(difference) > HalfTurn) // If the difference is greater than a half turn, normalize it.
+            //
+            // If the angles are equal, we can exit early.
+            if(a == b)
+                return b;
+            //
+            // Get the difference between the two angles.
+            float difference = b - a;
+            //
+            // If the difference is greater than a half turn, normalize it.
+            if(abs(difference) > HalfTurn)
                 difference = HalfTurn - difference;
-
-            if(abs(difference) > step) // Make sure that the magnitude of /difference/ is no larger than /step/.
+            //
+            // If the difference is smaller than the step,
+            // we can snap to the 2nd and return early.
+            if(abs(difference) <= step)
+                return b;
+            //
+            // Make sure that /difference/ is no larger than /step/.
+            if(abs(difference) > step)
                 difference = step * sign(difference);
-
+            //
+            // Add /difference/ to the first angle.
             return FromRadians(a + difference); // Add /difference/ to the first angle.
 
-            float abs(float f) => Math.Abs(f); float sign(float f) => Math.Sign(f);
+            float abs(float f) => Math.Abs(f);    float sign(float f) => Math.Sign(f);
         }
 
         public override string ToString() => Radians != 0 ? $"{Radians/Math.PI:0.##}π" : "0";
