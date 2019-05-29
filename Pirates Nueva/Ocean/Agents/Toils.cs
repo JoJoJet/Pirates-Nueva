@@ -50,7 +50,8 @@ namespace Pirates_Nueva.Ocean.Agents
             Progress += delta;                                 // Increment the building progress.
 
             if(Progress >= 1) {                                // If the progress has reached '1',
-                Container.PlaceBlock(PlaceID, Toil.X, Toil.Y); //     place a block at the toil's position,
+                var def = BlockDef.Get(PlaceID);               //
+                Container.PlaceBlock(def, Toil.X, Toil.Y);     //     place a block at the toil's position,
                 return true;                                   //     and return true.
             }                                                  //
             else {                                             // If the progress has yet to reach '1',

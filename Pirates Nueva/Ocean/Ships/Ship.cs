@@ -73,16 +73,21 @@ namespace Pirates_Nueva.Ocean
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
-            Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
+            PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.
 
             AddAgent(RootX, RootY); // Add an agent to the center.
         }
 
         /// <summary>
-        /// Get the block at index (/x/, /y/).
+        /// Gets the block at index (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block this[int x, int y] => GetBlock(x, y);
+        public Block this[int x, int y] {
+            get {
+                ValidateIndices("Indexer", x, y);
+                return unsafeGetBlock(x, y);
+            }
+        }
         
         /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
         protected override BoundingBox GetBounds() {
@@ -116,12 +121,11 @@ namespace Pirates_Nueva.Ocean
         }
 
         protected override bool IsCollidingPrecise(PointF point) {
-            var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
-            
-            if(AreIndicesValid(shipX, shipY))  // If the index is valid,
-                return HasBlock(shipX, shipY); //     return whether or not there is a block there.
-            else                               // Otherwise:
-                return false;                  //     just return false.
+            //
+            // Convert the point to an index on the ship,
+            // and return whether or not there is a block there.
+            var (shipX, shipY) = SeaPointToShip(point);
+            return HasBlock(shipX, shipY);
         }
 
         #region Space Transformation
@@ -154,7 +158,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
+        /// Transforms the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
         /// into a <see cref="PointF"/> local to the <see cref="Ocean.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
@@ -163,7 +167,7 @@ namespace Pirates_Nueva.Ocean
         /// <param name="shipPoint">A pair of coordinates within this <see cref="Ship"/>.</param>
         public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from coords local to this <see cref="Ship"/> into
+        /// Transforms the input coordinates from coords local to this <see cref="Ship"/> into
         /// a pair of coordinates local to the <see cref="Ocean.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
@@ -195,44 +199,52 @@ namespace Pirates_Nueva.Ocean
 
         #region Block Accessor Methods
         /// <summary>
-        /// Get the <see cref="Block"/> at position (/x/, /y/).
+        /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block GetBlock(int x, int y) {
-            ValidateIndices(nameof(GetBlock), x, y);
-            
-            return unsafeGetBlock(x, y);
+        public bool TryGetBlock(int x, int y, out Block block) {
+            if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
+                block = b;
+                return true;
+            }
+            else {
+                block = null;
+                return false;
+            }
         }
         /// <summary>
-        /// Whether or not there is a <see cref="Block"/> at position (/x/, /y/).
+        /// Gets the <see cref="Block"/> at indices (/x/, /y/), or <see cref="null"/> if it does not exist.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasBlock(int x, int y) {
-            ValidateIndices(nameof(HasBlock), x, y);
-
-            return unsafeGetBlock(x, y) != null;
+        public Block GetBlockOrNull(int x, int y) {
+            if(AreIndicesValid(x, y))
+                return unsafeGetBlock(x, y);
+            else
+                return null;
         }
+        /// <summary>
+        /// Returns whether or not there is a <see cref="Block"/> at position (/x/, /y/).
+        /// </summary>
+        public bool HasBlock(int x, int y)
+            => AreIndicesValid(x, y) && unsafeGetBlock(x, y) != null;
+
 
         /// <summary>
-        /// Place a <see cref="Block"/> of type /id/ at position (/x/, /y/).
+        /// Places a <see cref="Block"/> with specified <see cref="Def"/> at position /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
-        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
-        public Block PlaceBlock(string id, int x, int y) {
+        public Block PlaceBlock(BlockDef def, int x, int y) {
             ValidateIndices(nameof(PlaceBlock), x, y);
             
-            if(unsafeGetBlock(x, y) == null)                                        // If there is NOT a Block at /x/, /y/,
-                return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y); //     place a Block there and return it.
-            else                                                                    // If there IS a Block at /x/, /y/,
-                throw new InvalidOperationException(                                //     throw an InvalidOperationException.
+            if(unsafeGetBlock(x, y) == null)                           // If there is NOT a Block at /x/, /y/,
+                return this.blocks[x, y] = new Block(this, def, x, y); //     place a Block there and return it.
+            else                                                       // If there IS a Block at /x/, /y/,
+                throw new InvalidOperationException(                   //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
         }
 
         /// <summary>
-        /// Remove the block at position (/x/, /y/).
+        /// Removes the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
@@ -253,32 +265,41 @@ namespace Pirates_Nueva.Ocean
 
         #region Furniture Accessor Methods
         /// <summary>
-        /// Get the <see cref="Furniture"/> at index /x/, /y/.
+        /// Gets the <see cref="Furniture"/> at index /x/, /y/, if it exists.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Furniture GetFurniture(int x, int y) {
-            ValidateIndices(nameof(GetFurniture), x, y);
-
-            return unsafeGetBlock(x, y)?.Furniture;
+        public bool TryGetFurniture(int x, int y, out Furniture furniture) {
+            if(GetBlockOrNull(x, y)?.Furniture is Furniture f) {
+                furniture = f;
+                return true;
+            }
+            else {
+                furniture = null;
+                return false;
+            }
         }
         /// <summary>
-        /// Whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
+        /// Gets the <see cref="Furniture"/> at indices /x/, /y/, or <see cref="null"/> if it does not exist.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasFurniture(int x, int y) {
-            ValidateIndices(nameof(HasFurniture), x, y);
-
-            return unsafeGetBlock(x, y)?.Furniture != null; // Return true if there is a Block at /x/, /y/ AND that block has a Furniture.
-        }
+        public Furniture GetFurnitureOrNull(int x, int y)
+            => GetBlockOrNull(x, y)?.Furniture;
 
         /// <summary>
-        /// Place a <see cref="Furniture"/>, with <see cref="Def"/> /def/, at index /x/, /y/.
+        /// Returns whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
+        /// </summary>
+        public bool HasFurniture(int x, int y)
+            => GetBlockOrNull(x, y)?.Furniture != null;
+
+        /// <summary>
+        /// Places a <see cref="Furniture"/>, with specified <see cref="Def"/>, at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
         /// <exception cref="InvalidOperationException">
         /// Thrown if there is no <see cref="Block"/> at /x/, /y/, or if there is already a <see cref="Furniture"/> there.
         /// </exception>
         public Furniture PlaceFurniture(FurnitureDef def, int x, int y, Dir dir) {
+            const string Sig = nameof(Ship) + "." + nameof(PlaceFurniture) + "()";
+
             ValidateIndices(nameof(PlaceFurniture), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
@@ -286,18 +307,18 @@ namespace Pirates_Nueva.Ocean
                     return SetBlockFurniture(b, new Furniture(def, b, dir)); //         place a Furniture there and return it.
                 else                                                         //     If the block is occupied,
                     throw new InvalidOperationException(                     //         throw an InvalidOperationException.
-                        $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is already a {nameof(Furniture)} at index ({x}, {y})!"
+                        $"{Sig}: There is already a {nameof(Furniture)} at index ({x}, {y})!"
                         );
             }
             else {                                                           // If there is no block at /x/, /y/,
                 throw new InvalidOperationException(                         //     throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(PlaceFurniture)}(): There is no {nameof(Block)} at index ({x}, {y})!"
+                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
                     );
             }
         }
 
         /// <summary>
-        /// Remove the <see cref="Furniture"/> at index /x/, /y/.
+        /// Removes the <see cref="Furniture"/> at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Furniture"/> at /x/, /y/.</exception>
@@ -318,12 +339,9 @@ namespace Pirates_Nueva.Ocean
 
         #region Agent Accessor Methods
         /// <summary>
-        /// Get the <see cref="Agent"/> at index /x/, /y/, if it exists.
+        /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool TryGetAgent(int x, int y, out Agent<Ship, Block> agent) {
-            ValidateIndices(nameof(TryGetAgent), x, y);
-
             foreach(var ag in this.agents) { // For each agent in this ship:
                 if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
                     agent = ag;              //     set it as the out parameter,
@@ -333,6 +351,16 @@ namespace Pirates_Nueva.Ocean
 
             agent = null; // If we got this far, set the out parameter as null,
             return false; // and return false.
+        }
+        /// <summary>
+        /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
+        /// </summary>
+        public Agent<Ship, Block> GetAgentOrNull(int x, int y) {
+            foreach(var agent in this.agents) {
+                if(agent.X == x && agent.Y == y)
+                    return agent;
+            }
+            return null;
         }
         /// <summary>
         /// Add an <see cref="Agent"/> at index /x/, /y/.
@@ -356,17 +384,13 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region Job Accessor Methods
-        /// <summary> Create a job with the specified <see cref="Job.Toil"/>s. </summary>
+        /// <summary> Creates a job with the specified <see cref="Job.Toil"/>s. </summary>
         public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
             this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
         }
-        /// <summary> Add the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
-        public void AddJob(Job<Ship, Block> job) {
-            this.jobs.Add(job);
-        }
 
         /// <summary>
-        /// Get a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
+        /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
         public Job<Ship, Block> GetWorkableJob(Agent<Ship, Block> hiree) {
             for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
@@ -380,7 +404,7 @@ namespace Pirates_Nueva.Ocean
             return null; //     Return null.
         }
 
-        /// <summary> Remove the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
+        /// <summary> Removes the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
         public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
         #endregion
 
@@ -435,7 +459,7 @@ namespace Pirates_Nueva.Ocean
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
+                    if(GetBlockOrNull(x, y) is Block b)
                         DrawPart(b, master);
                 }
             }
@@ -443,7 +467,7 @@ namespace Pirates_Nueva.Ocean
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurniture(x, y) is Furniture f)
+                    if(GetFurnitureOrNull(x, y) is Furniture f)
                         DrawPart(f, master);
                 }
             }
@@ -476,10 +500,10 @@ namespace Pirates_Nueva.Ocean
             if(TryGetAgent(shipX, shipY, out var agent)) {
                 focusable.Add(agent);
             }
-            if(GetFurniture(shipX, shipY) is Furniture f) {
+            if(GetFurnitureOrNull(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }
-            if(GetBlock(shipX, shipY) is Block b) {
+            if(GetBlockOrNull(shipX, shipY) is Block b) {
                 focusable.Add(b);
             }
 
@@ -493,7 +517,7 @@ namespace Pirates_Nueva.Ocean
                 // Return every block in this ship.
                 for(int x = 0; x < Width; x++) {
                     for(int y = 0; y < Height; y++) {
-                        if(GetBlock(x, y) is Block b)
+                        if(GetBlockOrNull(x, y) is Block b)
                             yield return b;
                     }
                 }

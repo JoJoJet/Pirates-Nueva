@@ -82,7 +82,7 @@ namespace Pirates_Nueva.Ocean
                     // If the place mode is 'Furniture', try to place a furniture.
                     if(placeMode == PlaceMode.Furniture) {
                         // If the place the user clicked has a Block but no Furniture.
-                        if(HasBlock(shipX, shipY) && HasFurniture(shipX, shipY) == false)
+                        if(HasBlock(shipX, shipY) && !HasFurniture(shipX, shipY))
                             PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY, placeDir);
                     }
                     // If the place mode is 'Block', try to place a block.
@@ -107,7 +107,7 @@ namespace Pirates_Nueva.Ocean
                     // If the place mode is 'Block', try to remove a Block.
                     if(placeMode == PlaceMode.Block) {
                         // If the place that the user clicked has a block, and that block is not the Root.
-                        if(GetBlock(shipX, shipY) is Block b && b.ID != RootID)
+                        if(GetBlockOrNull(shipX, shipY) is Block b && b.ID != RootID)
                             RemoveBlock(shipX, shipY);
                     }
                 }
