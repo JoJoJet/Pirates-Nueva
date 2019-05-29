@@ -139,11 +139,6 @@ namespace Pirates_Nueva
             return new PointF(p.X * cosine - p.Y * sine, p.X * sine + p.Y * cosine);
         }
 
-        /// <summary>
-        /// Get the angle between the input <see cref="PointF"/>s, assuming they are vectors.
-        /// </summary>
-        public static Angle Angle(PointF a, PointF b) => (Angle)((float)Math.Atan2(b.Y, b.X) - (float)Math.Atan2(a.Y, a.X));
-
         public void Deconstruct(out float x, out float y) {
             x = X;
             y = Y;

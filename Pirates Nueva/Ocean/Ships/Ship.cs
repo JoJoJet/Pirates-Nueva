@@ -52,7 +52,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Ocean.Sea"/>-space.
         /// </summary>
-        public PointF Right => PointF.Rotate((1, 0), Angle);
+        public Vector Right => Angle.Vector;
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private int RootX => Width/2;
@@ -431,15 +431,15 @@ namespace Pirates_Nueva.Ocean
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
         protected virtual void Update(Master master, Time delta) {
-            if(Destination is PointF dest) {                                     // If there is a destination:
-                if(PointF.Distance(Center, dest) > 0.25f) {                      // If the destination is more than half a block away,
-                    Angle newAngle = PointF.Angle((1, 0), dest - Center);        //    Get the angle towards the destination, 
-                    this.Angle = Angle.MoveTowards(this.Angle, newAngle, delta); //    and slowly rotate the ship towards that angle.
-                                                                                 //
-                    Center += Right * 3 * delta;                                 //    Slowly move the ship to the right.
-                }                                                                //
-                else {                                                           // If the destination is within half a block,
-                    Destination = null;                                          //     unassign the destination (we're there!)
+            if(Destination is PointF dest) {                            // If there is a destination:
+                if(PointF.Distance(Center, dest) > 0.25f) {             // If the destination is more than half a block away,
+                    var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
+                    Angle = Angle.MoveTowards(Angle, newAngle, delta);  //    and slowly rotate the ship towards that angle.
+                                                                        //
+                    Center += Right * 3 * delta;                        //    Slowly move the ship to the right.
+                }                                                       //
+                else {                                                  // If the destination is within half a block,
+                    Destination = null;                                 //     unassign the destination (we're there!)
                 }
             }
 
