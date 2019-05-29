@@ -73,7 +73,7 @@ namespace Pirates_Nueva.Ocean
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
-            Block root = PlaceBlock(RootID, RootX, RootY); // Place the root block.
+            PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.
 
             AddAgent(RootX, RootY); // Add an agent to the center.
         }
@@ -121,12 +121,11 @@ namespace Pirates_Nueva.Ocean
         }
 
         protected override bool IsCollidingPrecise(PointF point) {
-            var (shipX, shipY) = SeaPointToShip(point); // Convert the point to an index in this ship.
-            
-            if(AreIndicesValid(shipX, shipY))  // If the index is valid,
-                return HasBlock(shipX, shipY); //     return whether or not there is a block there.
-            else                               // Otherwise:
-                return false;                  //     just return false.
+            //
+            // Convert the point to an index on the ship,
+            // and return whether or not there is a block there.
+            var (shipX, shipY) = SeaPointToShip(point);
+            return HasBlock(shipX, shipY);
         }
 
         #region Space Transformation
@@ -159,7 +158,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Transform the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
+        /// Transforms the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
         /// into a <see cref="PointF"/> local to the <see cref="Ocean.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
@@ -168,7 +167,7 @@ namespace Pirates_Nueva.Ocean
         /// <param name="shipPoint">A pair of coordinates within this <see cref="Ship"/>.</param>
         public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from coords local to this <see cref="Ship"/> into
+        /// Transforms the input coordinates from coords local to this <see cref="Ship"/> into
         /// a pair of coordinates local to the <see cref="Ocean.Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
@@ -224,28 +223,22 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Returns whether or not there is a <see cref="Block"/> at position (/x/, /y/).
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasBlock(int x, int y) {
-            ValidateIndices(nameof(HasBlock), x, y);
-
-            return unsafeGetBlock(x, y) != null;
-        }
+        public bool HasBlock(int x, int y)
+            => AreIndicesValid(x, y) && unsafeGetBlock(x, y) != null;
 
 
         /// <summary>
-        /// Places a <see cref="Block"/> with <see cref="Def"/> identified by /id/ at position /x/, /y/.
+        /// Places a <see cref="Block"/> with specified <see cref="Def"/> at position /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
-        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
-        public Block PlaceBlock(string id, int x, int y) {
+        public Block PlaceBlock(BlockDef def, int x, int y) {
             ValidateIndices(nameof(PlaceBlock), x, y);
             
-            if(unsafeGetBlock(x, y) == null)                                        // If there is NOT a Block at /x/, /y/,
-                return this.blocks[x, y] = new Block(this, BlockDef.Get(id), x, y); //     place a Block there and return it.
-            else                                                                    // If there IS a Block at /x/, /y/,
-                throw new InvalidOperationException(                                //     throw an InvalidOperationException.
+            if(unsafeGetBlock(x, y) == null)                           // If there is NOT a Block at /x/, /y/,
+                return this.blocks[x, y] = new Block(this, def, x, y); //     place a Block there and return it.
+            else                                                       // If there IS a Block at /x/, /y/,
+                throw new InvalidOperationException(                   //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
                     );
         }
@@ -294,12 +287,8 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Returns whether or not there is a <see cref="Furniture"/> at position (/x/, /y/).
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool HasFurniture(int x, int y) {
-            ValidateIndices(nameof(HasFurniture), x, y);
-
-            return unsafeGetBlock(x, y)?.Furniture != null; // Return true if there is a Block at /x/, /y/ AND that block has a Furniture.
-        }
+        public bool HasFurniture(int x, int y)
+            => GetBlockOrNull(x, y)?.Furniture != null;
 
         /// <summary>
         /// Places a <see cref="Furniture"/>, with specified <see cref="Def"/>, at index /x/, /y/.
@@ -398,10 +387,6 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Creates a job with the specified <see cref="Job.Toil"/>s. </summary>
         public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
             this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
-        }
-        /// <summary> Adds the specified <see cref="Job"/> to this <see cref="Ship"/>. </summary>
-        public void AddJob(Job<Ship, Block> job) {
-            this.jobs.Add(job);
         }
 
         /// <summary>
