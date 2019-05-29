@@ -430,8 +430,10 @@ namespace Pirates_Nueva.Ocean
 
         #region Job Accessor Methods
         /// <summary> Creates a job with the specified <see cref="Job.Toil"/>s. </summary>
-        public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
-            this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
+        public Job<Ship, Block> CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
+            var j = new Job<Ship, Block>(this, x, y, toils);
+            this.jobs.Add(j);
+            return j;
         }
 
         /// <summary>
