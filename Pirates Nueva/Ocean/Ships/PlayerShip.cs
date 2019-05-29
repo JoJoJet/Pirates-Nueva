@@ -7,6 +7,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
+    using Toil = Job<Ship, Block>.Toil;
     public class PlayerShip : Ship, IFocusable
     {
         enum FocusOption { None, Movement, Editing };
@@ -92,8 +93,8 @@ namespace Pirates_Nueva.Ocean
                         if(HasBlock(shipX, shipY) == false)
                             CreateJob(
                                 shipX, shipY,
-                                new Job<Ship, Block>.Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
-                                new Job<Ship, Block>.Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
+                                new Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
+                                new Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
                                 );
                     }
                     if(placeMode == PlaceMode.Gunpowder) {
