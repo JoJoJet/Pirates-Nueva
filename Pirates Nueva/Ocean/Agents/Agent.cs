@@ -28,9 +28,9 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         public float MoveProgress { get; protected set; }
         
-        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
+        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float X => Lerp(CurrentSpot.X, (NextSpot ?? CurrentSpot).X, MoveProgress);
-        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
+        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
 
         public Job<TC, TSpot> Job { get; protected set; }
@@ -122,7 +122,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) => Draw(master);
-        /// <summary> Draw this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
+        /// <summary> Draws this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
         protected abstract void Draw(Master master);
         #endregion
 
