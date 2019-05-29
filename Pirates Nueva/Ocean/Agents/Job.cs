@@ -41,9 +41,19 @@ namespace Pirates_Nueva.Ocean.Agents
         public bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             reason = "The job is empty!";                             // Set the default reason to be that the job is empty.
             for(int i = _toils.Length-1; i >= 0; i--) {               // For every toil, working backwards from the end:
-                var req = _toils[i].Requirement as IReqContract;      //
-                if(req.Qualify(worker, out reason))                   // If the toil's requirement is fulfilled,
-                    return true;                                      //     return true;
+                //
+                // If all of the toil's requirements are fulfilled,
+                // return true.
+                var reqs = _toils[i].Requirements;
+                var all = true;
+                foreach(IReqContract r in reqs) {
+                    if(!r.Qualify(worker, out reason)) {
+                        all = false;
+                        break;
+                    }
+                }
+                if(all)
+                    return true;
             }
                           // If we got this far without leaving the method,
             return false; //     return false.
@@ -58,15 +68,15 @@ namespace Pirates_Nueva.Ocean.Agents
                 return false;        //     return false.
             }
 
-            for(int i = _toils.Length-1; i >= 0; i--) {                  // For every toil, working backwards from the end:
-                var t = _toils[i];                                       //
-                var req = t.Requirement as IReqContract;                 //
-                if(req.Qualify(worker, out _)) {                         // If the toil's requirement is met:
-                    var act = t.Action as IActionContract;               //     Work the action.
-                    if(act.Work(worker, delta) && i == _toils.Length-1)  //     If the last toil was just completed,
-                        return true;                                     //         return true.
-                    else                                                 //     If the toil still has more work,
-                        return false;                                    //         return false.
+            for(int i = _toils.Length-1; i >= 0; i--) {                   // For every toil, working backwards from the end:
+                var t = _toils[i];                                        //
+                var reqs = t.Requirements as IReadOnlyList<IReqContract>; //                  
+                if(reqs.All(r => r.Qualify(worker, out _))) {             // If the toil's requirements are met:
+                    var act = t.Action as IActionContract;                //     Work the action.
+                    if(act.Work(worker, delta) && i == _toils.Length-1)   //     If the last toil was just completed,
+                        return true;                                      //         return true.
+                    else                                                  //     If the toil still has more work,
+                        return false;                                     //         return false.
                 }
             }
                           // If we got this far without leaving the method,
@@ -75,15 +85,17 @@ namespace Pirates_Nueva.Ocean.Agents
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) {
-            for(int i = _toils.Length-1; i >= 0; i--) {                             // For each toil, working backwards from the end:
-                var act = _toils[i].Action as IToilSegmentContract;                 //
-                var req = _toils[i].Requirement as IToilSegmentContract;            //
-                                                                                    //
-                act.Draw(master, Worker);                                           // Draw its action,
-                req.Draw(master, Worker);                                           // then draw its requirement on top.
-                                                                                    //
-                if(Worker != null && (req as IReqContract).Qualify(Worker, out _))  // If this job's worker qualifies for this toil,
-                    break;                                                          //     break from this loop.
+            for(int i = _toils.Length-1; i >= 0; i--) {             // For each toil, working backwards from the end:
+                var act = _toils[i].Action as IToilSegmentContract; //
+                var reqs = _toils[i].Requirements;                  //
+                act.Draw(master, Worker);                           // Draw its action,
+                foreach(IToilSegmentContract req in reqs)           // then draw its requirements on top.
+                    req.Draw(master, Worker);
+                //
+                // If this job's worker qualifies for this toil,
+                // break from this loop.
+                if(Worker != null && reqs.All((IReqContract r) => r.Qualify(Worker, out _))) 
+                    break;
             }
         }
         #endregion
@@ -112,7 +124,7 @@ namespace Pirates_Nueva.Ocean.Agents
             /// <summary> The Y index of this <see cref="Toil"/>, local to its <see cref="Ocean.Ship"/>. </summary>
             public int Y => Index.Y;
 
-            public Requirement Requirement { get; }
+            public IReadOnlyList<Requirement> Requirements { get; }
             public Action Action { get; }
             
             private Job<TC, TSpot> Job { get; set; }
@@ -121,11 +133,13 @@ namespace Pirates_Nueva.Ocean.Agents
             /// <summary>
             /// Create a <see cref="Toil"/>, adopting the index of its parent <see cref="Ocean.Job"/>.
             /// </summary>
-            public Toil(Requirement req, Action action) {
-                (req as IToilSegmentContract).Toil = this;    // Set the requirement's reference to its Toil.
-                (action as IToilSegmentContract).Toil = this; // Set the action's reference to its Toil.
+            public Toil(Requirement req, Action action) : this(new[] { req }, action) {  }
+            public Toil(Requirement[] reqs, Action action) {
+                foreach(var req in reqs)
+                    (req as IToilSegmentContract).Toil = this;
+                (action as IToilSegmentContract).Toil = this;
 
-                Requirement = req;
+                Requirements = reqs;
                 Action = action;
             }
             /// <summary>
