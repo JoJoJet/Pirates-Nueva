@@ -29,6 +29,11 @@ namespace Pirates_Nueva
         /// <summary> The value of this <see cref="Angle"/>, in degrees. Range: [0, 360°) </summary>
         public float Degrees => Radians * Rad2Deg;
 
+        /// <summary>
+        /// The <see cref="Pirates_Nueva.Vector"/> that represents this <see cref="Angle"/>.
+        /// </summary>
+        public Vector Vector => new Vector((float)Math.Cos(Radians), (float)Math.Sin(Radians));
+
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
         public static Angle FromRadians(float rads) => new Angle(rads);
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in degrees. </summary>
