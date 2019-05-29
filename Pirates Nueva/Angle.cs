@@ -12,17 +12,20 @@ namespace Pirates_Nueva
         /// <summary> A half rotation around a circle, in radians. </summary>
         public const float HalfTurn = (float)Math.PI;
         /// <summary> A full rotation around a circle, in radians. </summary>
-        private const float FullTurn = 2*HalfTurn;
+        public const float FullTurn = 2*HalfTurn;
         /// <summary> Converts radians to degrees. </summary>
         public const float Rad2Deg  = 180f / HalfTurn;
         /// <summary> Converts degrees to radians. </summary>
         public const float Deg2Rad  = HalfTurn / 180f;
 
-        private Angle(float radians) {
-            Radians = radians % FullTurn;
-            if(Radians < 0)
-                Radians += FullTurn;
-        }
+        /// <summary> 0π </summary>
+        public static Angle Right { get; } = FromRadians(0);
+        /// <summary> 1/2π </summary>
+        public static Angle Up { get; } = FromRadians(HalfTurn * 1 / 2);
+        /// <summary> π </summary>
+        public static Angle Left { get; } = FromRadians(HalfTurn);
+        /// <summary> 3/4π </summary>
+        public static Angle Down { get; } = FromRadians(FullTurn * 3 / 4);
 
         /// <summary> The value of this <see cref="Angle"/>, in radians. Range: [0, 2π) </summary>
         public float Radians { get; }
@@ -33,6 +36,12 @@ namespace Pirates_Nueva
         /// The <see cref="Pirates_Nueva.Vector"/> that represents this <see cref="Angle"/>.
         /// </summary>
         public Vector Vector => new Vector((float)Math.Cos(Radians), (float)Math.Sin(Radians));
+
+        private Angle(float radians) {
+            Radians = radians % FullTurn;
+            if(Radians < 0)
+                Radians += FullTurn;
+        }
 
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
         public static Angle FromRadians(float rads) => new Angle(rads);
