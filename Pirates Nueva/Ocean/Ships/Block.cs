@@ -91,19 +91,14 @@ namespace Pirates_Nueva.Ocean
         #region Path.INode Implementation
         IEnumerable<Path.Edge<Block>> Path.INode<Block>.Edges {
             get {
-                // Return an edge connecting to every neighboring block that exists.
-                if(Ship.AreIndicesValid(X-1, Y) && Ship.GetBlock(X-1, Y) is Block b1) { // If there's a block to the left,
-                    yield return new Path.Edge<Block>(1, b1);                           //     return an edge connecting to it.
-                }
-                if(Ship.AreIndicesValid(X, Y+1) && Ship.GetBlock(X, Y+1) is Block b2) { // If there's a block to the top,
-                    yield return new Path.Edge<Block>(1, b2);                           //     return an edge connecting to it.
-                }
-                if(Ship.AreIndicesValid(X+1, Y) && Ship.GetBlock(X+1, Y) is Block b3) { // If there's a block to the right,
-                    yield return new Path.Edge<Block>(1, b3);                           //     return an edge connecting to it.
-                }
-                if(Ship.AreIndicesValid(X, Y-1) && Ship.GetBlock(X, Y-1) is Block b4) { // If there's a block downwards,
-                    yield return new Path.Edge<Block>(1, b4);                           //     return an edge connecting to it.
-                }
+                if(Ship.TryGetBlock(X - 1, Y, out var b))    // If there's a block to the left,
+                    yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
+                if(Ship.TryGetBlock(X, Y+1, out b))          // If there's a block upwards,
+                    yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
+                if(Ship.TryGetBlock(X+1, Y, out b))          // If there's a block to the right,
+                    yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
+                if(Ship.TryGetBlock(X, Y-1, out b))          // If there's a block downwards,
+                    yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
             }
         }
         #endregion

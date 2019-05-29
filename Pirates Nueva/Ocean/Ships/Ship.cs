@@ -79,10 +79,15 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Get the block at index (/x/, /y/).
+        /// Gets the block at index (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block this[int x, int y] => GetBlock(x, y);
+        public Block this[int x, int y] {
+            get {
+                ValidateIndices("Indexer", x, y);
+                return unsafeGetBlock(x, y);
+            }
+        }
         
         /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
         protected override BoundingBox GetBounds() {
@@ -195,16 +200,29 @@ namespace Pirates_Nueva.Ocean
 
         #region Block Accessor Methods
         /// <summary>
-        /// Get the <see cref="Block"/> at position (/x/, /y/).
+        /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block GetBlock(int x, int y) {
-            ValidateIndices(nameof(GetBlock), x, y);
-            
-            return unsafeGetBlock(x, y);
+        public bool TryGetBlock(int x, int y, out Block block) {
+            if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
+                block = b;
+                return true;
+            }
+            else {
+                block = null;
+                return false;
+            }
         }
         /// <summary>
-        /// Whether or not there is a <see cref="Block"/> at position (/x/, /y/).
+        /// Gets the <see cref="Block"/> at indices (/x/, /y/), or <see cref="null"/> if it does not exist.
+        /// </summary>
+        public Block GetBlockOrNull(int x, int y) {
+            if(AreIndicesValid(x, y))
+                return unsafeGetBlock(x, y);
+            else
+                return null;
+        }
+        /// <summary>
+        /// Returns whether or not there is a <see cref="Block"/> at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         public bool HasBlock(int x, int y) {
@@ -213,8 +231,9 @@ namespace Pirates_Nueva.Ocean
             return unsafeGetBlock(x, y) != null;
         }
 
+
         /// <summary>
-        /// Place a <see cref="Block"/> of type /id/ at position (/x/, /y/).
+        /// Places a <see cref="Block"/> with <see cref="Def"/> identified by /id/ at position /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
@@ -232,7 +251,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Remove the block at position (/x/, /y/).
+        /// Removes the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
@@ -435,7 +454,7 @@ namespace Pirates_Nueva.Ocean
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlock(x, y) is Block b)
+                    if(GetBlockOrNull(x, y) is Block b)
                         DrawPart(b, master);
                 }
             }
@@ -479,7 +498,7 @@ namespace Pirates_Nueva.Ocean
             if(GetFurniture(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }
-            if(GetBlock(shipX, shipY) is Block b) {
+            if(GetBlockOrNull(shipX, shipY) is Block b) {
                 focusable.Add(b);
             }
 
@@ -493,7 +512,7 @@ namespace Pirates_Nueva.Ocean
                 // Return every block in this ship.
                 for(int x = 0; x < Width; x++) {
                     for(int y = 0; y < Height; y++) {
-                        if(GetBlock(x, y) is Block b)
+                        if(GetBlockOrNull(x, y) is Block b)
                             yield return b;
                     }
                 }

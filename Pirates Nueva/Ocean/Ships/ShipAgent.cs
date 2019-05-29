@@ -62,9 +62,8 @@ namespace Pirates_Nueva.Ocean
                     var (seaX, seaY) = Ship.Sea.MousePosition;                    //
                     var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);         // The point the user clicked,
                                                                                   //     local to the ship.
-                    if(Ship.AreIndicesValid(shipX, shipY) &&                      // If the spot is a valid index,
-                        Ship.GetBlock(shipX, shipY) is Block target) {            // and it has a block,
-                        PathTo(target);                                           //     have the agent path to that block.
+                    if(Ship.GetBlockOrNull(shipX, shipY) is Block target) {       // If the spot has a block,
+                        PathTo(target);                                           //     have the agent path to it.
                     }
 
                     this.focusMode = FocusOption.None; // Unset the focus mode,
