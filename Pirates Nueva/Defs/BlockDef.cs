@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Pirates_Nueva.Ocean;
 
 namespace Pirates_Nueva
 {
@@ -18,7 +19,7 @@ namespace Pirates_Nueva
         public string TextureID { get; protected set; }
 
         /// <summary>
-        /// Get the <see cref="BlockDef"/> with identifier /id/.
+        /// Gets the <see cref="BlockDef"/> with identifier /id/.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="BlockDef"/> identified by /id/.</exception>
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
