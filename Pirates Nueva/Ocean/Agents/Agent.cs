@@ -33,6 +33,9 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
 
+        /// <summary> The item that this instance is currently holding. Might be null. </summary>
+        public Stock<TC, TSpot> Holding { get; set; }
+
         public Job<TC, TSpot> Job { get; protected set; }
 
         /// <summary> Linearly interpolate between two values, by amount /f/. </summary>

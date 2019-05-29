@@ -29,6 +29,11 @@ namespace Pirates_Nueva.Ocean
         public Furniture Furniture { get; private set; }
 
         /// <summary>
+        /// The stock that is resting on this <see cref="Block"/>, if it exists.
+        /// </summary>
+        public Stock<Ship, Block> Stock { get; set; }
+
+        /// <summary>
         /// Static constructor. Is called the first time that this class is mentioned.
         /// </summary>
         static Block() {

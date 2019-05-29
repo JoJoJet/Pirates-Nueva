@@ -27,6 +27,8 @@ namespace Pirates_Nueva.Ocean
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y + 1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
             master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Ship.Angle, (0, 0));
+
+            (Holding as IDrawable)?.Draw(master);
         }
 
         #region IFocusable Implementation

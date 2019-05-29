@@ -8,6 +8,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
+    using Stock = Stock<Ship, Block>;
     public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
@@ -337,6 +338,27 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
+        #region Stock Accessor Methods
+        /// <summary>
+        /// Gets the <see cref="Stock"/> at /x/, /y/, if it exists.
+        /// </summary>
+        public bool TryGetStock(int x, int y, out Stock stock) {
+            if(GetBlockOrNull(x, y)?.Stock is Stock s) {
+                stock = s;
+                return true;
+            }
+            else {
+                stock = null;
+                return false;
+            }
+        }
+        /// <summary>
+        /// Gets the <see cref="Stock"/> at /x/, /y/, or null if it does not exist.
+        /// </summary>
+        public Stock GetStockOrNull(int x, int y)
+            => GetBlockOrNull(x, y)?.Stock;
+        #endregion
+
         #region Agent Accessor Methods
         /// <summary>
         /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
@@ -469,6 +491,14 @@ namespace Pirates_Nueva.Ocean
                 for(int y = 0; y < Height; y++) {
                     if(GetFurnitureOrNull(x, y) is Furniture f)
                         DrawPart(f, master);
+                }
+            }
+
+            // Draw each stock.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetStockOrNull(x, y) is Stock s)
+                        (s as IDrawable).Draw(master);
                 }
             }
 
