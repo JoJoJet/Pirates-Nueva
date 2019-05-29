@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean
     public class PlayerShip : Ship, IFocusable
     {
         enum FocusOption { None, Movement, Editing };
-        enum PlaceMode { Block, Furniture };
+        enum PlaceMode { Block, Furniture, Gunpowder };
 
         private FocusOption focusOption;
         private PlaceMode placeMode;
@@ -47,16 +47,17 @@ namespace Pirates_Nueva.Ocean
             if(focusOption == FocusOption.Editing) {
                 // If there is no ship editing menu, add one.
                 if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_quit", new UI.EdgeButton("Quit", master.Font, () => focusOption = FocusOption.None, UI.Edge.Bottom, UI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_block", new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, UI.Edge.Bottom, UI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_quit",      new UI.EdgeButton("Quit",      master.Font, () => focusOption = FocusOption.None,    UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_block",     new UI.EdgeButton("Block",     master.Font, () => placeMode   = PlaceMode.Block,     UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode   = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
+                    master.GUI.AddEdge("shipediting_gunpowder", new UI.EdgeButton("Gunpowder", master.Font, () => placeMode   = PlaceMode.Gunpowder, UI.Edge.Bottom, UI.Direction.Left));
                 }
                 updateEditing();
                 IsFocusLocked = true; // Lock focus onto this object.
             }
             // If the mode is not 'Editing', remove the associated menu.
             else if(master.GUI.HasEdge("shipediting_block")) {
-                master.GUI.RemoveEdges("shipediting_quit", "shipediting_block", "shipediting_furniture");
+                master.GUI.RemoveEdges("shipediting_quit", "shipediting_block", "shipediting_furniture", "shipediting_gunpowder");
 
                 IsFocusLocked = false; // Release focus from this object.
             }
@@ -94,6 +95,10 @@ namespace Pirates_Nueva.Ocean
                                 new Job<Ship, Block>.Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
                                 new Job<Ship, Block>.Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
                                 );
+                    }
+                    if(placeMode == PlaceMode.Gunpowder) {
+                        if(GetBlockOrNull(shipX, shipY) is Block b && b.Stock is null)
+                            PlaceStock(ItemDef.Get("gunpowder"), shipX, shipY);
                     }
                 }
                 // If the user right clicks, remove a Block or Furniture.

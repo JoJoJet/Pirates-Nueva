@@ -357,6 +357,29 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Stock GetStockOrNull(int x, int y)
             => GetBlockOrNull(x, y)?.Stock;
+
+        /// <summary>
+        /// Places <see cref="Stock"/> with specified <see cref="ItemDef"/> at indices /x/, /y/.
+        /// </summary>
+        public Stock PlaceStock(ItemDef def, int x, int y) {
+            const string Sig = nameof(Ship) + "." + nameof(PlaceStock) + "()";
+
+            ValidateIndices(nameof(PlaceStock), x, y);
+
+            if(unsafeGetBlock(x, y) is Block b) {
+                if(b.Stock == null)
+                    return b.Stock = new ShipStock(def, this, b);
+                else
+                    throw new InvalidOperationException(
+                        $"{Sig}: There is already a {nameof(Stock)} at index ({x}, {y})!"
+                        ); ;
+            }
+            else {
+                throw new InvalidOperationException(
+                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
+                    );
+            }
+        }
         #endregion
 
         #region Agent Accessor Methods
