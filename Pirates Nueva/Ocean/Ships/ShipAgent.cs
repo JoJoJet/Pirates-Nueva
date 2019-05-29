@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
     /// <summary>
     /// A character that exists on a <see cref="Ocean.Ship"/> and can complete jobs.
     /// </summary>
-    class ShipAgent : Agents.Agent<Ship, Block>
+    internal class ShipAgent : Agent<Ship, Block>
     {
         /// <summary>
         /// The <see cref="Ocean.Ship"/> that contains this <see cref="ShipAgent"/>.
