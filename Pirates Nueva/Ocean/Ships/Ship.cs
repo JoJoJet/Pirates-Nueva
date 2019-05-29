@@ -305,7 +305,7 @@ namespace Pirates_Nueva.Ocean
             
             if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
                 if(b.Furniture == null)                                      //     If the block is empty,
-                    return SetBlockFurniture(b, new Furniture(def, b, dir)); //         place a Furniture there and return it.
+                    return SetBlockFurniture(b, def.Construct(b, dir));      //         place a Furniture there and return it.
                 else                                                         //     If the block is occupied,
                     throw new InvalidOperationException(                     //         throw an InvalidOperationException.
                         $"{Sig}: There is already a {nameof(Furniture)} at index ({x}, {y})!"
