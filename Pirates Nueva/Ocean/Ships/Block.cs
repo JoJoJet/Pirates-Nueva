@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
-        public BlockDef Def { get; private set; }
+        public BlockDef Def { get; }
         public string ID => Def.ID;
 
         /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
