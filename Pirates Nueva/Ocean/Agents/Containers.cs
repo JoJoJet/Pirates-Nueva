@@ -9,7 +9,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TSpot">The type of spot that this instance contains.</typeparam>
     public interface IAgentContainer<TSelf, TSpot> : IGraph<TSpot>
         where TSelf : class, IAgentContainer<TSelf, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TSelf, TSpot>
     {
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
@@ -23,9 +23,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// An object that an Agent can stand on.
     /// </summary>
-    /// <typeparam name="T">The type that is implementing this interface.</typeparam>
-    public interface IAgentSpot<T> : INode<T>
-        where T : IAgentSpot<T>
+    /// <typeparam name="TC">The container type.</typeparam>
+    /// <typeparam name="TSelf">The type that is implementing this interface</typeparam>
+    public interface IAgentSpot<TC, TSelf> : INode<TSelf>
+        where TC    : class, IAgentContainer<TC, TSelf>
+        where TSelf : class, IAgentSpot<TC, TSelf>
     {
         int X { get; }
         int Y { get; }

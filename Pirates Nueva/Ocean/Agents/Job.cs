@@ -13,7 +13,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TSpot">The type of Spot that an Agent can rest on.</typeparam>
     public class Job<TC, TSpot> : IDrawable
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         private readonly Toil[] _toils;
 

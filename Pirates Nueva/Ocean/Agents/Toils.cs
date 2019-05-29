@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         /// <summary>
         /// Check if the specified Agent is adjacent to the <see cref="Job.Toil"/>.
@@ -81,7 +81,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class IsAccessibleAdj<TC, TSpot> : Job<TC, TSpot>.Requirement
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
@@ -103,7 +103,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class PathToAdjacent<TC, TSpot> : Job<TC, TSpot>.Action
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             if(worker.PathingTo == null) {                // If the worker is currently still:

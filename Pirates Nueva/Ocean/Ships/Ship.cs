@@ -291,7 +291,7 @@ namespace Pirates_Nueva.Ocean
             => GetBlockOrNull(x, y)?.Furniture != null;
 
         /// <summary>
-        /// Places a <see cref="Furniture"/>, with specified <see cref="Def"/>, at index /x/, /y/.
+        /// Places a <see cref="Furniture"/> with specified <see cref="Def"/>, at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
         /// <exception cref="InvalidOperationException">

@@ -7,7 +7,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }

@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         private Stack<TSpot> _path;
 
