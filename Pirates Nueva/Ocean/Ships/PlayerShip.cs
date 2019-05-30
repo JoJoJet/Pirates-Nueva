@@ -10,142 +10,170 @@ namespace Pirates_Nueva.Ocean
     using Toil = Job<Ship, Block>.Toil;
     public class PlayerShip : Ship, IFocusable
     {
-        enum FocusOption { None, Movement, Editing };
-        enum PlaceMode { Block, Furniture, Gunpowder };
-
-        private FocusOption focusOption;
-        private PlaceMode placeMode;
-        private Dir placeDir;
-
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
         #region IFocusable Implementation
-        private bool IsFocusLocked { get; set; }
-        bool IFocusable.IsLocked => IsFocusLocked;
+        IFocusMenuProvider IFocusable.GetProvider() => new PlayerShipMenuProvider(this);
 
-        const string FocusMenuID = "playershipfloating";
-        void IFocusable.StartFocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID) == false) { // If there is NOT a floating menu for this ship,
-                master.GUI.AddMenu(                        //     create one.
-                    FocusMenuID,
-                    new UI.FloatingMenu(
-                        this, (0, -0.025f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("Edit", master.Font, () => focusOption = FocusOption.Editing),
-                        new UI.MenuButton("Move", master.Font, () => focusOption = FocusOption.Movement)
+        private sealed class PlayerShipMenuProvider : IFocusMenuProvider
+        {
+            enum FocusState { None, Movement, Editing };
+            enum PlaceMode { None, Block, Furniture, Gunpowder };
+
+            const string MenuID = "playerShipFloating";
+
+            private FocusState state;
+            private PlaceMode placeMode;
+            private Dir placeDir;
+
+            public bool IsLocked { get; private set; }
+            public PlayerShip Ship { get; }
+
+            private UI.FloatingMenu Menu { get; set; }
+
+            public PlayerShipMenuProvider(PlayerShip ship) {
+                Ship = ship;
+            }
+            public void Start(Master master) {
+                //
+                // Create a GUI menu.
+                master.GUI.AddMenu(
+                    MenuID,
+                    Menu = new UI.FloatingMenu(
+                        Ship, (0, -0.025f), UI.Corner.BottomLeft,
+                        new UI.MenuButton("Edit", master.Font, () => SetState(FocusState.Editing)),
+                        new UI.MenuButton("Move", master.Font, () => SetState(FocusState.Movement))
                         )
                     );
             }
-        }
+            const string QuitID = "playerShipEditing_quit",
+                         BlockID = "playerShipEditing_placeBlock",
+                         FurnID = "playerShipEditing_placeFurniture",
+                         GunpID = "playerShipEditing_placeGunpowder";
+            public void Update(Master master) {
+                switch(this.state) {
+                    //
+                    // Editing the ship's layout.
+                    case FocusState.Editing:
+                        //
+                        // If there's no ship editing menu, add one.
+                        if(!master.GUI.HasEdge(QuitID)) {
+                            master.GUI.AddEdge(QuitID, new UI.EdgeButton("Quit", master.Font, () => unsetEditing(), UI.Edge.Bottom, UI.Direction.Left));
+                            master.GUI.AddEdge(BlockID, new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, UI.Edge.Bottom, UI.Direction.Left));
+                            master.GUI.AddEdge(FurnID, new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
+                            master.GUI.AddEdge(GunpID, new UI.EdgeButton("Gunpowder", master.Font, () => placeMode = PlaceMode.Gunpowder, UI.Edge.Bottom, UI.Direction.Left));
+                        }
+                        //
+                        // Lock focus & call the editing method.
+                        IsLocked = true;
+                        updateEditing();
 
-        void IFocusable.Focus(Master master) {
-            if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is an options menu:
-                if(focusOption == FocusOption.None)                // If an option is NOT selected,
-                    menu.Unhide();                                 //     show the menu.
-                else                                               // If an option IS selected,
-                    menu.Hide();                                   //     hide the menu.
-            }
+                        void unsetEditing() {
+                            //
+                            // Remove the ship editing menu.
+                            if(master.GUI.HasEdge(QuitID))
+                                master.GUI.RemoveEdges(QuitID, BlockID, FurnID, GunpID);
+                            //
+                            // Release the lock.
+                            this.placeMode = PlaceMode.None;
+                            IsLocked = false;
+                            SetState(FocusState.None);
+                        }
+                        break;
+                    //
+                    // Sailing.
+                    case FocusState.Movement:
+                        IsLocked = true;                             // Lock focus onto this object.
+                        master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
 
-            if(focusOption == FocusOption.Editing) {
-                // If there is no ship editing menu, add one.
-                if(master.GUI.HasEdge("shipediting_block") == false) {
-                    master.GUI.AddEdge("shipediting_quit",      new UI.EdgeButton("Quit",      master.Font, () => focusOption = FocusOption.None,    UI.Edge.Bottom, UI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_block",     new UI.EdgeButton("Block",     master.Font, () => placeMode   = PlaceMode.Block,     UI.Edge.Bottom, UI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_furniture", new UI.EdgeButton("Furniture", master.Font, () => placeMode   = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
-                    master.GUI.AddEdge("shipediting_gunpowder", new UI.EdgeButton("Gunpowder", master.Font, () => placeMode   = PlaceMode.Gunpowder, UI.Edge.Bottom, UI.Direction.Left));
+                        if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // When the user clicks:
+                            Ship.Destination = Ship.Sea.MousePosition;                    //     Set the destination as the click point,
+                            SetState(FocusState.None);                                    //     unset the focus option,
+                            IsLocked = false;                                             //     release focus from this object,
+                            master.GUI.Tooltip = "";                                      //     and unset the tooltip.
+                        }
+                        break;
                 }
-                updateEditing();
-                IsFocusLocked = true; // Lock focus onto this object.
-            }
-            // If the mode is not 'Editing', remove the associated menu.
-            else if(master.GUI.HasEdge("shipediting_block")) {
-                master.GUI.RemoveEdges("shipediting_quit", "shipediting_block", "shipediting_furniture", "shipediting_gunpowder");
 
-                IsFocusLocked = false; // Release focus from this object.
-            }
 
-            if(focusOption == FocusOption.Movement) {
-                IsFocusLocked = true;                             // Lock focus onto this object.
-                master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
+                void updateEditing() {
+                    placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down + 4) % 4); // Cycle through place directions.
 
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // When the user clicks:
-                    Destination = Sea.MousePosition;                              //     Set the destination as the click point,
-                    focusOption = FocusOption.None;                               //     unset the focus option,
-                    IsFocusLocked = false;                                        //     release focus from this object,
-                    master.GUI.Tooltip = "";                                      //     and unset the tooltip.
-                }
-            }
+                    // If the user left clicks, place a Block or Furniture.
+                    if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
 
-            void updateEditing() {
-                placeDir = (Dir)(((int)placeDir + (int)master.Input.Horizontal.Down + 4) % 4); // Cycle through place directions.
-
-                // If the user left clicks, place a Block or Furniture.
-                if(master.Input.MouseLeft.IsDown && isMouseValid(out int shipX, out int shipY)) {
-
-                    // If the place mode is 'Furniture', try to place a furniture.
-                    if(placeMode == PlaceMode.Furniture) {
-                        // If the place the user clicked has a Block but no Furniture.
-                        if(HasBlock(shipX, shipY) && !HasFurniture(shipX, shipY))
-                            PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY, placeDir);
-                    }
-                    // If the place mode is 'Block', try to place a block.
-                    if(placeMode == PlaceMode.Block) {
-                        // If the place that the user clicked is not occupied.
-                        if(HasBlock(shipX, shipY) == false)
-                            CreateJob(
-                                shipX, shipY,
-                                new Toil(
-                                    //
-                                    // Place a block if next to the job.
-                                    action: new PlaceBlock("wood"),
-                                    new IsAdjacentTo<Ship, Block>(
-                                        new Toil(
-                                            //
-                                            // Path to the job if it's accessible.
-                                            action: new PathToAdjacent<Ship, Block>(),
-                                            new IsAccessibleAdj<Ship, Block>()
+                        // If the place mode is 'Furniture', try to place a furniture.
+                        if(placeMode == PlaceMode.Furniture) {
+                            // If the place the user clicked has a Block but no Furniture.
+                            if(Ship.HasBlock(shipX, shipY) && !Ship.HasFurniture(shipX, shipY))
+                                Ship.PlaceFurniture(FurnitureDef.Get("cannon"), shipX, shipY, placeDir);
+                        }
+                        // If the place mode is 'Block', try to place a block.
+                        if(placeMode == PlaceMode.Block) {
+                            // If the place that the user clicked is not occupied.
+                            if(Ship.HasBlock(shipX, shipY) == false)
+                                Ship.CreateJob(
+                                    shipX, shipY,
+                                    new Toil(
+                                        //
+                                        // Place a block if next to the job.
+                                        action: new PlaceBlock("wood"),
+                                        new IsAdjacentTo<Ship, Block>(
+                                            new Toil(
+                                                //
+                                                // Path to the job if it's accessible.
+                                                action: new PathToAdjacent<Ship, Block>(),
+                                                new IsAccessibleAdj<Ship, Block>()
+                                                )
                                             )
                                         )
-                                    )
-                                );
+                                    );
+                        }
+                        if(placeMode == PlaceMode.Gunpowder) {
+                            if(Ship.GetBlockOrNull(shipX, shipY) is Block b && b.Stock is null)
+                                Ship.PlaceStock(ItemDef.Get("gunpowder"), shipX, shipY);
+                        }
                     }
-                    if(placeMode == PlaceMode.Gunpowder) {
-                        if(GetBlockOrNull(shipX, shipY) is Block b && b.Stock is null)
-                            PlaceStock(ItemDef.Get("gunpowder"), shipX, shipY);
-                    }
-                }
-                // If the user right clicks, remove a Block or Furniture.
-                if(master.Input.MouseRight.IsDown && isMouseValid(out shipX, out shipY)) {
+                    // If the user right clicks, remove a Block or Furniture.
+                    if(master.Input.MouseRight.IsDown && isMouseValid(out shipX, out shipY)) {
 
-                    // If the place mode is 'Furniture', try to remove a Furniture.
-                    if(placeMode == PlaceMode.Furniture) {
-                        if(HasFurniture(shipX, shipY))
-                            RemoveFurniture(shipX, shipY);
+                        // If the place mode is 'Furniture', try to remove a Furniture.
+                        if(placeMode == PlaceMode.Furniture) {
+                            if(Ship.HasFurniture(shipX, shipY))
+                                Ship.RemoveFurniture(shipX, shipY);
+                        }
+                        // If the place mode is 'Block', try to remove a Block.
+                        if(placeMode == PlaceMode.Block) {
+                            // If the place that the user clicked has a block, and that block is not the Root.
+                            if(Ship.GetBlockOrNull(shipX, shipY) is Block b && b.ID != RootID)
+                                Ship.RemoveBlock(shipX, shipY);
+                        }
                     }
-                    // If the place mode is 'Block', try to remove a Block.
-                    if(placeMode == PlaceMode.Block) {
-                        // If the place that the user clicked has a block, and that block is not the Root.
-                        if(GetBlockOrNull(shipX, shipY) is Block b && b.ID != RootID)
-                            RemoveBlock(shipX, shipY);
-                    }
-                }
 
-                // Return whether or not the user clicked within the ship, and give
-                // the position (local to the ship) as out paremters /x/ and /y/.
-                // Also: If the user clicked a GUI element, definitely return false.
-                bool isMouseValid(out int x, out int y) {
-                    var (seaX, seaY) = Sea.MousePosition;
-                    (x, y) = SeaPointToShip(seaX, seaY);
-                    
-                    return AreIndicesValid(x, y) && !master.GUI.IsMouseOverGUI;
+                    // Return whether or not the user clicked within the ship, and give
+                    // the position (local to the ship) as out paremters /x/ and /y/.
+                    // Also: If the user clicked a GUI element, definitely return false.
+                    bool isMouseValid(out int x, out int y) {
+                        var (seaX, seaY) = Ship.Sea.MousePosition;
+                        (x, y) = Ship.SeaPointToShip(seaX, seaY);
+
+                        return Ship.AreIndicesValid(x, y) && !master.GUI.IsMouseOverGUI;
+                    }
                 }
             }
-        }
+            public void Close(Master master)
+                => master.GUI.RemoveMenu(MenuID);
 
-        void IFocusable.Unfocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID)) {   // If there IS a floating menu for this ship,
-                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
+            /// <summary> Sets the current state to the specified value. </summary>
+            private void SetState(FocusState state) {
+                this.state = state;
+                if(state == FocusState.None)
+                    Menu.Unhide();
+                else
+                    Menu.Hide();
             }
         }
         #endregion
     }
+
 }

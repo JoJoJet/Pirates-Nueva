@@ -12,15 +12,10 @@ namespace Pirates_Nueva
     /// </summary>
     public interface IFocusable
     {
-        /// <summary> Whether or not the focus should be locked onto this object. </summary>
-        bool IsLocked { get; }
-
-        /// <summary> Called when <see cref="PlayerController"/> starts focusing on this object. </summary>
-        void StartFocus(Master master);
-        /// <summary> Called when <see cref="PlayerController"/> is focusing on this object. </summary>
-        void Focus(Master master);
-        /// <summary> Called when <see cref="PlayerController"/> stops focusing on this object. </summary>
-        void Unfocus(Master master);
+        /// <summary>
+        /// Gets an object that provides a menu for focusing on this object.
+        /// </summary>
+        IFocusMenuProvider GetProvider();
     }
     /// <summary>
     /// An object that contains <see cref="IFocusable"/>s.
@@ -29,6 +24,30 @@ namespace Pirates_Nueva
     {
         List<IFocusable> GetFocusable(PointF seaPoint);
     }
+
+    /// <summary>
+    /// An object that displays a menu for an <see cref="IFocusable"/> object.
+    /// </summary>
+    public interface IFocusMenuProvider
+    {
+        /// <summary>
+        /// Whether or not the focus should be locked onto this menu.
+        /// </summary>
+        bool IsLocked { get; }
+        /// <summary>
+        /// Performs any necessary initialization for this provider.
+        /// </summary>
+        void Start(Master master);
+        /// <summary>
+        /// Is called every frame while this menu is displayed.
+        /// </summary>
+        void Update(Master master);
+        /// <summary>
+        /// Is called when the menu is unfocused.
+        /// </summary>
+        void Close(Master master);
+    }
+
     public class PlayerController : IUpdatable
     {
         private PointI mouseFirst;
@@ -42,6 +61,8 @@ namespace Pirates_Nueva
         private int FocusIndex { get; set; }
         private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
+        IFocusMenuProvider FocusProvider { get; set; }
+
         const string MouseDebugID = "debug_mouse";
         const string CameraDebugID = "debug_cameraPosition";
         internal PlayerController(Master master, Sea sea) {
@@ -54,7 +75,7 @@ namespace Pirates_Nueva
 
         void IUpdatable.Update(Master master, Time delta) {
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
-                && (!Focused?.IsLocked ?? true)) {                         // and if the current focus isn't locked:
+                && (!FocusProvider?.IsLocked ?? true)) {                   // and if the current focus isn't locked:
 
                 var (seaX, seaY) = Sea.MousePosition;
                 var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
@@ -81,14 +102,15 @@ namespace Pirates_Nueva
                 else                                // If the set of focusable elements IS empty,
                     FocusIndex = 0;                 //     set the index of focus to be zero.
 
-                if(Focused != oldFocused) {      // If the focused object has changed,
-                    oldFocused?.Unfocus(master); //    call Unfocus() on the old one,
-                    Focused?.StartFocus(master); //    and StartFocus() on the new one.
+                if(Focused != oldFocused) {                 // If the focused object has changed,
+                    FocusProvider?.Close(master);           //     close the old menu,
+                    FocusProvider = Focused?.GetProvider(); //     and create a new one.
+                    FocusProvider?.Start(master);           //
                 }
             }
 
-            if(Focused != null)        // If we're focusing on an object,
-                Focused.Focus(master); //     call its Focus() method
+            FocusProvider?.Update(master); // If there's a focus provider, update it.
+
 
             if(master.Input.MouseWheel.IsDown) {                    // When the user clicks the scrollwheel,
                 mouseFirst = master.Input.MousePosition;            //     store the position of the mouse
