@@ -7,28 +7,48 @@ using System.Threading.Tasks;
 namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
+    /// A requirement with only 2 cases; a binary requirement.
+    /// </summary>
+    public abstract class SimpleRequirement<TC, TSpot> : Job<TC, TSpot>.Requirement
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        /// <param name="executor">A Toil that, when completed, should fulfill the current Requirement.</param>
+        protected SimpleRequirement(Job<TC, TSpot>.Toil executor) : base(executor) {  }
+
+        protected sealed override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
+            if(Check(worker)) {  // If the requirement is met,
+                reason = "";     //     output no reason,
+                return true;     //     and return true.
+            }                    //
+            else {               // If the requirement is NOT met,
+                reason = Reason; //     output the reason,
+                return false;    //     and return true.
+            }
+        }
+
+        /// <summary>
+        /// Checks if the specified Agent meets this requirement.
+        /// </summary>
+        protected abstract bool Check(Agent<TC, TSpot> worker);
+        /// <summary>
+        /// The reason that this requirement is not met, if applicable.
+        /// </summary>
+        protected abstract string Reason { get; }
+    }
+
+    /// <summary>
     /// Requires that an Agent be adjacent to the Job or Toil.
     /// </summary>
-    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
-    public class IsAdjacentTo<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsAdjacentTo<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public IsAdjacentTo(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
 
-        /// <summary>
-        /// Check if the specified Agent is adjacent to the <see cref="Job.Toil"/>.
-        /// </summary>
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1f) { // If the worker is adjacent to the toil,
-                reason = "";                                                 //     set the reason as an empty string,
-                return true;                                                 //     and return true.
-            }                                                                //
-            else {                                                           // If the worker is NOT adjacent to the toil,
-                reason = "Worker is not adjacent to the job.";               //     set that as the reason,
-                return false;                                                //     and return false.
-            }
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1;
+        protected override string Reason => "Worker is not adjacent to the job.";
     }
     /// <summary>
     /// Has an Agent place a <see cref="Block"/> in a <see cref="Ship"/>.
@@ -80,25 +100,15 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be able to path to the Job or Toil.
     /// </summary>
-    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
-    public class IsAccessibleAdj<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsAccessibleAdj<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public IsAccessibleAdj(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
-                reason = "";                                //     set the reason as an empty string,
-                return true;                                //     and return true.
-            }                                               //
-            else {                                          // If a spot is NOT accessible to the worker,
-                reason = "Worker can't path to the spot.";  //     set that as the reason,
-                return false;                               //     and return false.
-            }
-
-            bool isAdjacent(TSpot n) => PointI.SqrDistance(n.Index, Toil.Index) == 1;
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => worker.IsAccessible(n => PointI.SqrDistance(n.Index, Toil.Index) == 1);
+        protected override string Reason => "Worker can't path to the spot.";
     }
 
     /// <summary>
@@ -130,7 +140,6 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Has an Agent path to a spot adjacent to the Job or Toil.
     /// </summary>
-    /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     public class PathToAdjacent<TC, TSpot> : PathTo<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
@@ -144,27 +153,20 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an agent be at the job or toil.
     /// </summary>
-    public class IsAtToil<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsAtToil<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public IsAtToil(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(PointI.SqrDistance(worker.CurrentSpot.Index, (Toil.Index)) == 0) {
-                reason = "";
-                return true;
-            }
-            else {
-                reason = "Worker is not at the job.";
-                return false;
-            }
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => PointI.SqrDistance(worker.CurrentSpot.Index, Toil.Index) == 0;
+        protected override string Reason => "Worker is noto at the job.";
     }
     /// <summary>
     /// Requires that an agent be holding a specific type of <see cref="Stock{TC, TSpot}"/>.
     /// </summary>
-    public class IsHolding<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsHolding<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -174,20 +176,10 @@ namespace Pirates_Nueva.Ocean.Agents
             : base(executor)
             => Holding = holding;
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(worker.Holding?.Def == Holding) {
-                reason = "";
-                return true;
-            }
-            else if(Holding != null) {
-                reason = "Worker is not holding the correct item.";
-                return false;
-            }
-            else {
-                reason = "Worker's hands must be empty.";
-                return false;
-            }
-        }
+        protected override bool Check(Agent<TC, TSpot> worker) => worker.Holding?.Def == Holding;
+        protected override string Reason => Holding != null
+                                            ? "Worker is not holding the correct item."
+                                            : "Worker's hands must be empty.";
     }
 
     /// <summary>
@@ -207,22 +199,15 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an agent be able to path to the Job or Toil.
     /// </summary>
-    public class IsAccessible<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public IsAccessible(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(worker.IsAccessible(sp => sp.Index == Toil.Index)) {
-                reason = "";
-                return true;
-            }
-            else {
-                reason = "Worker can't path to the job.";
-                return false;
-            }
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => worker.IsAccessible(sp => sp.Index == Toil.Index);
+        protected override string Reason => "Worker can't path to the job.";
     }
 
     /// <summary>
@@ -239,7 +224,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be standing on a Stock of specified type.
     /// </summary>
-    public class IsStandingAtStock<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsStandingAtStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -249,16 +234,9 @@ namespace Pirates_Nueva.Ocean.Agents
             : base(executor)
             => StockType = stockType;
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(worker.CurrentSpot.Stock?.Def == StockType) {
-                reason = "";
-                return true;
-            }
-            else {
-                reason = "Worker is not standing at the correct item.";
-                return false;
-            }
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => worker.CurrentSpot.Stock?.Def == StockType;
+        protected override string Reason => "Worker is not standing at the correct item.";
     }
 
     /// <summary>
@@ -277,7 +255,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that a specific type of Stock be accessible to an Agent.
     /// </summary>
-    public class IsStockAcesible<TC, TSpot> : Job<TC, TSpot>.Requirement
+    public class IsStockAcesible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -287,18 +265,9 @@ namespace Pirates_Nueva.Ocean.Agents
             : base(executor)
             => StockType = stockType;
 
-        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
-            if(worker.IsAccessible(at)) {
-                reason = "";
-                return true;
-            }
-            else {
-                reason = "Worker cannot path to the correct item.";
-                return false;
-            }
-
-            bool at(TSpot spot) => spot.Stock?.Def == StockType;
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => worker.IsAccessible(sp => sp.Stock?.Def == StockType);
+        protected override string Reason => "Worker cannot path to the correct item.";
     }
 
     /// <summary>
