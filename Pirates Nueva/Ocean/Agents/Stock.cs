@@ -37,6 +37,7 @@ namespace Pirates_Nueva.Ocean.Agents
             Def = def;
             Container = container;
             Holder = holder;
+            holder.Holding = this;
         }
 
         /// <summary>
