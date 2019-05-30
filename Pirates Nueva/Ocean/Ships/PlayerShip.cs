@@ -93,8 +93,19 @@ namespace Pirates_Nueva.Ocean
                         if(HasBlock(shipX, shipY) == false)
                             CreateJob(
                                 shipX, shipY,
-                                new Toil(new IsAccessibleAdj<Ship, Block>(), new PathToAdjacent<Ship, Block>()),
-                                new Toil(new IsAdjacentTo<Ship, Block>(), new PlaceBlock("wood"))
+                                new Toil(
+                                    //
+                                    // Place a block if next to the job.
+                                    action: new PlaceBlock("wood"),
+                                    new IsAdjacentTo<Ship, Block>(
+                                        new Toil(
+                                            //
+                                            // Path to the job if it's accessible.
+                                            action: new PathToAdjacent<Ship, Block>(),
+                                            new IsAccessibleAdj<Ship, Block>()
+                                            )
+                                        )
+                                    )
                                 );
                     }
                     if(placeMode == PlaceMode.Gunpowder) {
