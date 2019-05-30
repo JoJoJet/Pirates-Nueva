@@ -6,7 +6,6 @@ using Pirates_Nueva.Ocean.Agents;
 namespace Pirates_Nueva.Ocean
 {
     using Toil = Job<Ship, Block>.Toil;
-    using Requirement = Job<Ship, Block>.Requirement;
     public class Cannon : Furniture
     {
         private Job<Ship, Block> haulJob;
