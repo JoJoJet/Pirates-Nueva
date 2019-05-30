@@ -14,6 +14,8 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        public IsAdjacentTo(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+
         /// <summary>
         /// Check if the specified Agent is adjacent to the <see cref="Job.Toil"/>.
         /// </summary>
@@ -83,6 +85,8 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        public IsAccessibleAdj(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(isAdjacent)) {           // If a spot adjacent to the toil is accessible to the worker,
                 reason = "";                                //     set the reason as an empty string,
@@ -144,6 +148,8 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        public IsAtToil(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(PointI.SqrDistance(worker.CurrentSpot.Index, (Toil.Index)) == 0) {
                 reason = "";
@@ -164,7 +170,9 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef Holding { get; }
 
-        public IsHolding(ItemDef holding) => Holding = holding;
+        public IsHolding(ItemDef holding, Job<TC, TSpot>.Toil executor = null)
+            : base(executor)
+            => Holding = holding;
 
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.Holding?.Def == Holding) {
@@ -203,6 +211,8 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        public IsAccessible(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(sp => sp.Index == Toil.Index)) {
                 reason = "";
@@ -235,7 +245,9 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef StockType { get; }
 
-        public IsStandingAtStock(ItemDef stockType) => StockType = stockType;
+        public IsStandingAtStock(ItemDef stockType, Job<TC, TSpot>.Toil executor = null)
+            : base(executor)
+            => StockType = stockType;
 
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.CurrentSpot.Stock?.Def == StockType) {
@@ -271,7 +283,9 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef StockType { get; }
 
-        public IsStockAcesible(ItemDef stockType) => StockType = stockType;
+        public IsStockAcesible(ItemDef stockType, Job<TC, TSpot>.Toil executor = null)
+            : base(executor)
+            => StockType = stockType;
 
         protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(worker.IsAccessible(at)) {
