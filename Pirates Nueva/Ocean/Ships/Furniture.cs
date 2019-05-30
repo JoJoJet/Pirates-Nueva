@@ -61,23 +61,28 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
-        bool IFocusable.IsLocked => false;
+        IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
 
-        const string FocusMenuID = "furniturefloating";
-        void IFocusable.StartFocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID) == false) // If there's no GUI menu for this furniture,
-                master.GUI.AddMenu(                      //     add one.
-                    FocusMenuID,
-                    new UI.FloatingMenu(this, (0f, -0.1f), UI.Corner.BottomLeft,
-                    new UI.MenuText("ID: " + ID, master.Font))
+        private sealed class FocusProvider : IFocusMenuProvider
+        {
+            const string MenuID = "furnitureFocusFloating";
+
+            public bool IsLocked => false;
+            private Furniture Furn { get; }
+
+            public FocusProvider(Furniture furniture) => Furn = furniture;
+
+            public void Start(Master master) {
+                master.GUI.AddMenu(
+                    MenuID, new UI.FloatingMenu(
+                        Furn, (0f, -0.1f), UI.Corner.BottomLeft,
+                        new UI.MenuText("ID: " + Furn.ID, master.Font)
+                        )
                     );
-        }
-        void IFocusable.Focus(Master master) {
-
-        }
-        void IFocusable.Unfocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this furniture,
-                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
+            }
+            public void Update(Master master) {  }
+            public void Close(Master master)
+                => master.GUI.RemoveMenu(MenuID);
         }
         #endregion
     }

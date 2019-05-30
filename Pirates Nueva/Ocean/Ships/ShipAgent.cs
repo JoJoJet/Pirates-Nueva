@@ -31,53 +31,58 @@ namespace Pirates_Nueva.Ocean
             (Holding as IDrawable)?.Draw(master);
         }
 
-        #region IFocusable Implementation
-        enum FocusOption { None, ChoosePath };
-        private FocusOption focusMode;
+        protected override IFocusMenuProvider GetFocusProvider() => new ShipAgentFocusMenuProvider(this);
+    }
 
-        bool _isFocusLocked;
-        protected override bool IsFocusLocked => _isFocusLocked;
+    internal sealed class ShipAgentFocusMenuProvider : IFocusMenuProvider
+    {
+        const string MenuID = "agentFocusFloating";
 
-        const string FocusMenuID = "agentfocusfloating";
-        protected override void StartFocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID) == false) // If there is no GUI menu for this Agent,
-                master.GUI.AddMenu(                      //     create one.
-                    FocusMenuID,
-                    new UI.FloatingMenu(
-                        this, (0, -0.05f), UI.Corner.BottomLeft,
-                        new UI.MenuText("Agent", master.Font),
-                        new UI.MenuButton("Path", master.Font, () => this.focusMode = FocusOption.ChoosePath)
+        enum FocusState { None, ChoosePath };
+
+        private FocusState state;
+
+        public bool IsLocked { get; private set; }
+        public ShipAgent Agent { get; }
+        private UI.FloatingMenu Menu { get; set; }
+
+        public ShipAgentFocusMenuProvider(ShipAgent agent) => Agent = agent;
+
+        public void Start(Master master) {
+            master.GUI.AddMenu(
+                MenuID,
+                Menu = new UI.FloatingMenu(
+                    Agent, (0, -0.05f), UI.Corner.BottomLeft,
+                    new UI.MenuText("Agent", master.Font),
+                    new UI.MenuButton("Path", master.Font, () => this.state = FocusState.ChoosePath)
                     )
                 );
         }
-        protected override void Focus(Master master) {
-            if(master.GUI.TryGetMenu(FocusMenuID, out var menu)) { // If there is a menu:
-                if(focusMode == FocusOption.None)                  //     If the focus mode is unset,
-                    menu.Unhide();                                 //         unhide the menu.
-                else                                               //     If the focus mode IS set.
-                    menu.Hide();                                   //         hide the menu.
-            }
+        public void Update(Master master) {
+            //
+            // Toggle the menu on/off depending on the current state.
+            if(this.state == FocusState.None)
+                Menu.Unhide();
+            else
+                Menu.Hide();
 
-            if(this.focusMode == FocusOption.ChoosePath) { // If we are currently choosing a path,
-                _isFocusLocked = true;                     //     lock the focus onto this agent.
+            if(this.state == FocusState.ChoosePath) { // If we are currently choosing a path,
+                IsLocked = true;                     //     lock the focus onto this agent.
 
                 if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // If the user clicked, but not on GUI:
-                    var (seaX, seaY) = Ship.Sea.MousePosition;                    //
-                    var (shipX, shipY) = Ship.SeaPointToShip(seaX, seaY);         // The point the user clicked,
+                    var (seaX, seaY) = Agent.Ship.Sea.MousePosition;              //
+                    var (shipX, shipY) = Agent.Ship.SeaPointToShip(seaX, seaY);   // The point the user clicked,
                                                                                   //     local to the ship.
-                    if(Ship.GetBlockOrNull(shipX, shipY) is Block target) {       // If the spot has a block,
-                        PathTo(target);                                           //     have the agent path to it.
+                    if(Agent.Ship.GetBlockOrNull(shipX, shipY) is Block target) { // If the spot has a block,
+                        Agent.PathTo(target);                                     //     have the agent path to it.
                     }
 
-                    this.focusMode = FocusOption.None; // Unset the focus mode,
-                    _isFocusLocked = false;            // and release the focus.
+                    this.state = FocusState.None; // Unset the focus mode,
+                    IsLocked = false;            // and release the focus.
                 }
             }
         }
-        protected override void Unfocus(Master master) {
-            if(master.GUI.HasMenu(FocusMenuID))     // If there is a GUI menu for this block,
-                master.GUI.RemoveMenu(FocusMenuID); //     remove it.
-        }
-        #endregion
+        public void Close(Master master)
+            => master.GUI.RemoveMenu(MenuID);
     }
 }

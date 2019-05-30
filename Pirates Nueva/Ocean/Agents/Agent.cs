@@ -141,17 +141,8 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region IFocusable Implementation
-        bool IFocusable.IsLocked => IsFocusLocked;
-        protected abstract bool IsFocusLocked { get; }
-
-        void IFocusable.StartFocus(Master master) => StartFocus(master);
-        protected abstract void StartFocus(Master master);
-
-        void IFocusable.Focus(Master master) => Focus(master);
-        protected abstract void Focus(Master master);
-
-        void IFocusable.Unfocus(Master master) => Unfocus(master);
-        protected abstract void Unfocus(Master master);
+        IFocusMenuProvider IFocusable.GetProvider() => GetFocusProvider();
+        protected abstract IFocusMenuProvider GetFocusProvider();
         #endregion
     }
 }
