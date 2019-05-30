@@ -7,6 +7,7 @@
 		<TextureID>woodBlock</TextureID>
 	</BlockDef>
 	<FurnitureDef ID="cannon">
+		<ClassName>Pirates_Nueva.Ocean.Furniture</ClassName>
 		<TextureID>cannon</TextureID>
 		<!-- Counted in number of blocks it takes up -->
 		<TextureSize>2, 1</TextureSize>
