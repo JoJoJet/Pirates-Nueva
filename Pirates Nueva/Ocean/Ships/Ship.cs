@@ -489,7 +489,21 @@ namespace Pirates_Nueva.Ocean
                     Destination = null;                                 //     unassign the destination (we're there!)
                 }
             }
-
+            //
+            // Update every part in the ship.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlockOrNull(x, y) is IPartContract b)
+                        b.Update(master);
+                }
+            }
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetFurnitureOrNull(x, y) is IPartContract f)
+                        f.Update(master);
+                }
+            }
+            //
             // Update every agent in the ship.
             foreach(var agent in this.agents) {
                 (agent as IUpdatable).Update(master, delta);
