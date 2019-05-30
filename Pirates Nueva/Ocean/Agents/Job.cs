@@ -20,6 +20,8 @@ namespace Pirates_Nueva.Ocean.Agents
         public TC Container { get; }
         public Agent<TC, TSpot> Worker { get; set; }
 
+        public bool IsCancelled { get; private set; }
+
         public int X { get; }
         public int Y { get; }
 
@@ -33,6 +35,11 @@ namespace Pirates_Nueva.Ocean.Agents
             }
             this._toils = toils;
         }
+
+        /// <summary>
+        /// Cancels this job.
+        /// </summary>
+        public void Cancel() => IsCancelled = true;
 
         /// <summary>
         /// Check if this <see cref="Job"/> can currently be completed by the specified <see cref="Agent"/>

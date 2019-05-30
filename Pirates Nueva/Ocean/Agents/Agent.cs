@@ -89,6 +89,10 @@ namespace Pirates_Nueva.Ocean.Agents
             }
 
             if(Job != null) {                     // If there is a job:
+                if(Job.IsCancelled) {             //     If the job has been cancelled,
+                    Container.RemoveJob(Job);     //         remove it from the ship,
+                    Job = null;                   //         and unassign it.
+                }                                 //
                 if(Job.Qualify(this, out _)) {    //     If the job is workable,
                     if(Job.Work(this, delta)) {   //         work it. If it's done,
                         Container.RemoveJob(Job); //             remove the job from the ship,
