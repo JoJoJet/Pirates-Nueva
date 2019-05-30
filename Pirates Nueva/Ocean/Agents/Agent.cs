@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
     public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         private Stack<TSpot> _path;
 
@@ -28,10 +28,13 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         public float MoveProgress { get; protected set; }
         
-        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
+        /// <summary> The X coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float X => Lerp(CurrentSpot.X, (NextSpot ?? CurrentSpot).X, MoveProgress);
-        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its <see cref="Ocean.Ship"/>. </summary>
+        /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
+
+        /// <summary> The item that this instance is currently holding. Might be null. </summary>
+        public Stock<TC, TSpot> Holding { get; set; }
 
         public Job<TC, TSpot> Job { get; protected set; }
 
@@ -86,6 +89,10 @@ namespace Pirates_Nueva.Ocean.Agents
             }
 
             if(Job != null) {                     // If there is a job:
+                if(Job.IsCancelled) {             //     If the job has been cancelled,
+                    Container.RemoveJob(Job);     //         remove it from the ship,
+                    Job = null;                   //         and unassign it.
+                }                                 //
                 if(Job.Qualify(this, out _)) {    //     If the job is workable,
                     if(Job.Work(this, delta)) {   //         work it. If it's done,
                         Container.RemoveJob(Job); //             remove the job from the ship,
@@ -122,7 +129,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) => Draw(master);
-        /// <summary> Draw this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
+        /// <summary> Draws this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
         protected abstract void Draw(Master master);
         #endregion
 

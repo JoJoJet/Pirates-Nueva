@@ -13,6 +13,9 @@
 		<!-- The point on the texture (from 0 to 1) from which the texture will be drawn. You can think of it as (1 - offset) -->
 		<TextureOrigin>0.75, 0.5</TextureOrigin>
 	</FurnitureDef>
+	<ItemDef ID="gunpowder">
+		<TextureID>gunpowder</TextureID>
+	</ItemDef>
 	<SliceDef ID="panel">
 		<!-- The name of the source texture. -->
 		<TextureID>panel</TextureID>

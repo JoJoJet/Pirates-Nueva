@@ -7,12 +7,12 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
-        public BlockDef Def { get; private set; }
+        public BlockDef Def { get; }
         public string ID => Def.ID;
 
         /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
@@ -27,6 +27,11 @@ namespace Pirates_Nueva.Ocean
         /// The <see cref="Ocean.Furniture"/> placed on this block. Might be null.
         /// </summary>
         public Furniture Furniture { get; private set; }
+
+        /// <summary>
+        /// The stock that is resting on this <see cref="Block"/>, if it exists.
+        /// </summary>
+        public Stock<Ship, Block> Stock { get; set; }
 
         /// <summary>
         /// Static constructor. Is called the first time that this class is mentioned.

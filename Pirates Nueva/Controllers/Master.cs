@@ -156,5 +156,11 @@ namespace Pirates_Nueva
                     yield return element;
             }
         }
+
+        /// <summary>
+        /// Determines whether the current <see cref="Type"/> derives from or is equal to the specified <see cref="Type"/>.
+        /// </summary>
+        public static bool IsSameOrSubclass(this Type type, Type other)
+            => type == other || type.IsSubclassOf(other);
     }
 }

@@ -8,6 +8,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
+    using Stock = Stock<Ship, Block>;
     public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
@@ -291,7 +292,7 @@ namespace Pirates_Nueva.Ocean
             => GetBlockOrNull(x, y)?.Furniture != null;
 
         /// <summary>
-        /// Places a <see cref="Furniture"/>, with specified <see cref="Def"/>, at index /x/, /y/.
+        /// Places a <see cref="Furniture"/> with specified <see cref="Def"/>, at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="ship"/>.</exception>
         /// <exception cref="InvalidOperationException">
@@ -304,7 +305,7 @@ namespace Pirates_Nueva.Ocean
             
             if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
                 if(b.Furniture == null)                                      //     If the block is empty,
-                    return SetBlockFurniture(b, new Furniture(def, b, dir)); //         place a Furniture there and return it.
+                    return SetBlockFurniture(b, def.Construct(b, dir));      //         place a Furniture there and return it.
                 else                                                         //     If the block is occupied,
                     throw new InvalidOperationException(                     //         throw an InvalidOperationException.
                         $"{Sig}: There is already a {nameof(Furniture)} at index ({x}, {y})!"
@@ -332,6 +333,50 @@ namespace Pirates_Nueva.Ocean
             else {                                   // If there is no furniture at /x/, /y/,
                 throw new InvalidOperationException( //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(RemoveFurniture)}(): There is no {nameof(Furniture)} at index ({x}, {y})!"
+                    );
+            }
+        }
+        #endregion
+
+        #region Stock Accessor Methods
+        /// <summary>
+        /// Gets the <see cref="Stock"/> at /x/, /y/, if it exists.
+        /// </summary>
+        public bool TryGetStock(int x, int y, out Stock stock) {
+            if(GetBlockOrNull(x, y)?.Stock is Stock s) {
+                stock = s;
+                return true;
+            }
+            else {
+                stock = null;
+                return false;
+            }
+        }
+        /// <summary>
+        /// Gets the <see cref="Stock"/> at /x/, /y/, or null if it does not exist.
+        /// </summary>
+        public Stock GetStockOrNull(int x, int y)
+            => GetBlockOrNull(x, y)?.Stock;
+
+        /// <summary>
+        /// Places <see cref="Stock"/> with specified <see cref="ItemDef"/> at indices /x/, /y/.
+        /// </summary>
+        public Stock PlaceStock(ItemDef def, int x, int y) {
+            const string Sig = nameof(Ship) + "." + nameof(PlaceStock) + "()";
+
+            ValidateIndices(nameof(PlaceStock), x, y);
+
+            if(unsafeGetBlock(x, y) is Block b) {
+                if(b.Stock == null)
+                    return b.Stock = new ShipStock(def, this, b);
+                else
+                    throw new InvalidOperationException(
+                        $"{Sig}: There is already a {nameof(Stock)} at index ({x}, {y})!"
+                        ); ;
+            }
+            else {
+                throw new InvalidOperationException(
+                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
                     );
             }
         }
@@ -385,8 +430,10 @@ namespace Pirates_Nueva.Ocean
 
         #region Job Accessor Methods
         /// <summary> Creates a job with the specified <see cref="Job.Toil"/>s. </summary>
-        public void CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
-            this.jobs.Add(new Job<Ship, Block>(this, x, y, toils));
+        public Job<Ship, Block> CreateJob(int x, int y, params Job<Ship, Block>.Toil[] toils) {
+            var j = new Job<Ship, Block>(this, x, y, toils);
+            this.jobs.Add(j);
+            return j;
         }
 
         /// <summary>
@@ -442,7 +489,21 @@ namespace Pirates_Nueva.Ocean
                     Destination = null;                                 //     unassign the destination (we're there!)
                 }
             }
-
+            //
+            // Update every part in the ship.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlockOrNull(x, y) is IPartContract b)
+                        b.Update(master);
+                }
+            }
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetFurnitureOrNull(x, y) is IPartContract f)
+                        f.Update(master);
+                }
+            }
+            //
             // Update every agent in the ship.
             foreach(var agent in this.agents) {
                 (agent as IUpdatable).Update(master, delta);
@@ -469,6 +530,14 @@ namespace Pirates_Nueva.Ocean
                 for(int y = 0; y < Height; y++) {
                     if(GetFurnitureOrNull(x, y) is Furniture f)
                         DrawPart(f, master);
+                }
+            }
+
+            // Draw each stock.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetStockOrNull(x, y) is Stock s)
+                        (s as IDrawable).Draw(master);
                 }
             }
 
@@ -551,7 +620,10 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
             public virtual Dir Direction { get; protected set; }
             /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Ocean.Ship"/>. </summary>
-            public virtual Angle Angle => Angle.FromDegrees(Direction == Dir.Up ? 90 : (Direction == Dir.Right ? 0 : (Direction == Dir.Down ? 270 : 180)));
+            public virtual Angle Angle => Direction == Dir.Up    ? Angle.Up
+                                        : Direction == Dir.Right ? Angle.Right
+                                        : Direction == Dir.Down  ? Angle.Down
+                                        :                          Angle.Left;
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
