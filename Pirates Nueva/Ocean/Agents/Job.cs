@@ -231,6 +231,9 @@ namespace Pirates_Nueva.Ocean.Agents
             /// </summary>
             public Toil Executor { get; }
 
+            /// <param name="executor">
+            /// A Toil that, when completed, should fulfill the current Requirement.
+            /// </param>
             protected Requirement(Toil executor = null) => Executor = executor;
 
             bool IReq.Qualify(Agent<TC, TSpot> worker, out string reason) => Qualify(worker, out reason);
