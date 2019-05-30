@@ -13,9 +13,9 @@ namespace Pirates_Nueva.Ocean
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
         #region IFocusable Implementation
-        IFocusMenuProvider IFocusable.GetProvider() => new PlayerShipMenuProvider(this);
+        IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
 
-        private sealed class PlayerShipMenuProvider : IFocusMenuProvider
+        private sealed class FocusProvider : IFocusMenuProvider
         {
             enum FocusState { None, Movement, Editing };
             enum PlaceMode { None, Block, Furniture, Gunpowder };
@@ -31,7 +31,7 @@ namespace Pirates_Nueva.Ocean
 
             private UI.FloatingMenu Menu { get; set; }
 
-            public PlayerShipMenuProvider(PlayerShip ship) {
+            public FocusProvider(PlayerShip ship) {
                 Ship = ship;
             }
             public void Start(Master master) {
