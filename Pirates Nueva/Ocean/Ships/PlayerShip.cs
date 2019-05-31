@@ -13,6 +13,8 @@ namespace Pirates_Nueva.Ocean
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
         #region IFocusable Implementation
+        protected bool IsFocused { get; private set; }
+        bool IFocusable.IsFocused { set => IsFocused = value; }
         IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
 
         private sealed class FocusProvider : IFocusMenuProvider
@@ -175,5 +177,4 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
     }
-
 }

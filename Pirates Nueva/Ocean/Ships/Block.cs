@@ -73,6 +73,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
+        bool IFocusable.IsFocused { set {  } }
         IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
 
         private sealed class FocusProvider : IFocusMenuProvider
