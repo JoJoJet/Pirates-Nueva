@@ -605,7 +605,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IPartContract
+        public abstract class Part : IFocusable, IPartContract
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -635,6 +635,33 @@ namespace Pirates_Nueva.Ocean
             void IPartContract.Draw(Master master) => Draw(master);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
             protected abstract void Draw(Master master);
+            #endregion
+
+            #region IFocusable Implementation
+            bool IFocusable.IsFocused { set => IsFocused = value; }
+            protected bool IsFocused { get; private set; }
+
+            IFocusMenuProvider IFocusable.GetProvider() => GetFocusProvider();
+            /// <summary> Gets a focus menu for a Ship Part. </summary>
+            protected abstract IFocusMenuProvider GetFocusProvider();
+
+            /// <summary>
+            /// A class that provides a focus menu for a Ship Part.
+            /// </summary>
+            protected abstract class FocusProvider<TPart> : IFocusMenuProvider
+                where TPart : Part
+            {
+                protected const string MenuID = "shipPartFocusFloating";
+
+                public virtual bool IsLocked => false;
+                protected TPart Part { get; }
+
+                public FocusProvider(TPart part) => Part = part;
+
+                public virtual void Start(Master master) {  }
+                public virtual void Update(Master master) {  }
+                public virtual void Close(Master master) {  }
+            }
             #endregion
         }
     }

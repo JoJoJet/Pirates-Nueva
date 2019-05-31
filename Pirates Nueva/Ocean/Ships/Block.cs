@@ -7,7 +7,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, IFocusable, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, UI.IScreenSpaceTarget
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
@@ -73,28 +73,21 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
-        bool IFocusable.IsFocused { set {  } }
-        IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
+        protected override IFocusMenuProvider GetFocusProvider() => new BlockFocusProvider<Block>(this);
 
-        private sealed class FocusProvider : IFocusMenuProvider
+        protected class BlockFocusProvider<TBlock> : FocusProvider<TBlock>
+            where TBlock : Block
         {
-            const string MenuID = "blockFocusFloating";
+            public BlockFocusProvider(TBlock block) : base(block) {  }
 
-            public bool IsLocked => false;
-            private Block Block { get; }
-
-            public FocusProvider(Block block) => Block = block;
-
-            public void Start(Master master) {
-                master.GUI.AddMenu(
-                    MenuID, new UI.FloatingMenu(
-                        Block, (0f, -0.1f), UI.Corner.BottomLeft,
-                        new UI.MenuText("ID: " + Block.ID, master.Font)
-                        )
-                    );
-            }
-            public void Update(Master master) { }
-            public void Close(Master master)
+            public override void Start(Master master)
+                => master.GUI.AddMenu(
+                      MenuID, new UI.FloatingMenu(
+                          Part, (0f, -0.1f), UI.Corner.BottomLeft,
+                          new UI.MenuText("ID: " + Part.ID, master.Font)
+                          )
+                      );
+            public override void Close(Master master)
                 => master.GUI.RemoveMenu(MenuID);
         }
         #endregion
