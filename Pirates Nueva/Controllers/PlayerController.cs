@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Pirates_Nueva.Ocean;
+#nullable enable
 
 namespace Pirates_Nueva
 {
@@ -63,9 +64,9 @@ namespace Pirates_Nueva
 
         private IFocusable[] Focusable { get; set; } = new IFocusable[0];
         private int FocusIndex { get; set; }
-        private IFocusable Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
+        private IFocusable? Focused => Focusable.Length > 0 ? Focusable[FocusIndex] : null;
 
-        IFocusMenuProvider FocusProvider { get; set; }
+        IFocusMenuProvider? FocusProvider { get; set; }
 
         const string MouseDebugID = "debug_mouse";
         const string CameraDebugID = "debug_cameraPosition";
