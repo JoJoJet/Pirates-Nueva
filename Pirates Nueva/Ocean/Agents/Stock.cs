@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean.Agents
 {
@@ -14,18 +13,17 @@ namespace Pirates_Nueva.Ocean.Agents
         public ItemDef Def { get; }
 
         /// <summary> The spot that this instance is resting on. </summary>
-        public TSpot Spot { get; private set; }
+        public TSpot? Spot { get; private set; }
         /// <summary> The agent that is holding this instance. </summary>
-        public Agent<TC, TSpot> Holder { get; private set; }
+        public Agent<TC, TSpot>? Holder { get; private set; }
 
         /// <summary> The X coordinate of this instance, local to its container. </summary>
-        public float X => Holder != null
-                          ? Holder.X
-                          : Spot.X;
+        public float X => Holder?.X ?? Spot!.X; // We can assume that the spot is not null,
+                                                //     because it is guaranteed that either
+                                                //     /Holder/ or /Spot/ will always have a value.
+                                                //     (But never both at once).
         /// <summary> The Y coordinate of this instance, local to its container. </summary>
-        public float Y => Holder != null
-                          ? Holder.Y
-                          : Spot.Y;
+        public float Y => Holder?.Y ?? Spot!.Y;
 
         protected Stock(ItemDef def, TC container, TSpot spot) {
             Def = def;

@@ -33,6 +33,6 @@ namespace Pirates_Nueva.Ocean.Agents
         int X { get; }
         int Y { get; }
         PointI Index { get; }
-        Stock<TC, TSelf> Stock { get; set; }
+        Stock<TC, TSelf>? Stock { get; set; }
     }
 }
