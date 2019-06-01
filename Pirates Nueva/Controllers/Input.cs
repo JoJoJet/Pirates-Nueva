@@ -60,7 +60,7 @@ namespace Pirates_Nueva
             // Update mouse buttons.
             MouseLeft = updateButton(MouseLeft, mouse.LeftButton == ButtonState.Pressed);
             MouseRight = updateButton(MouseRight, mouse.RightButton == ButtonState.Pressed);
-            MouseWheel = updateWheel(MouseWheel, mouse.MiddleButton == ButtonState.Pressed);
+            MouseWheel = updateWheel(MouseWheel, mouse.MiddleButton == ButtonState.Pressed, mouse);
 
             var keyboard = Keyboard.GetState();
 
@@ -76,29 +76,33 @@ namespace Pirates_Nueva
                 this._keys[key] = updateButton(this._keys[key], keyboard.IsKeyDown(key));
             }
 
-            Button updateBase(Button old, Button newB, bool isPressed) {
-                (newB as IButtonContract).OldIsPressed = old.IsPressed;
-                (newB as IButtonContract).IsPressed = isPressed;
 
-                return newB;
+            static TButton updateBase<TButton>(TButton old, TButton @new, bool isPressed)
+                where TButton : Button, IButtonContract
+            {
+                @new.SetOldIsPressed(old.IsPressed);
+                @new.SetIsPressed(isPressed);
+
+                return @new;
             }
 
-            Button updateButton(Button old, bool isPressed) => updateBase(old, new Button(), isPressed);
+            static Button updateButton(Button old, bool isPressed) => updateBase(old, new Button(), isPressed);
 
-            ScrollWheel updateWheel(ScrollWheel old, bool isPressed) {
-                var newb = updateBase(old, new ScrollWheel(), isPressed);
+            static ScrollWheel updateWheel(ScrollWheel old, bool isPressed, MouseState mouse) {
+                var @new = updateBase(old, new ScrollWheel(), isPressed);
 
-                (newb as IScrollContract).OldScrollCumulative = old.ScrollCumulative;
-                (newb as IScrollContract).ScrollCumulative = mouse.ScrollWheelValue;
-
-                return newb as ScrollWheel;
+                var con = @new as IScrollContract;
+                con.SetOldScrollCumulative(old.ScrollCumulative);
+                con.SetScrollCumulative(mouse.ScrollWheelValue);
+                
+                return @new;
             }
         }
 
         private interface IButtonContract
         {
-            bool IsPressed { set; }
-            bool OldIsPressed { set; }
+            void SetIsPressed(bool value);
+            void SetOldIsPressed(bool value);
         }
 
         /// <summary>
@@ -115,15 +119,15 @@ namespace Pirates_Nueva
 
             private bool OldIsPressed { get; set; }
 
-            bool IButtonContract.IsPressed { set => IsPressed = value; }
-            bool IButtonContract.OldIsPressed { set => OldIsPressed = value; }
+            void IButtonContract.SetIsPressed(bool value) => IsPressed = value;
+            void IButtonContract.SetOldIsPressed(bool value) => OldIsPressed = value;
 
             internal Button() {  }
         }
 
         private interface IScrollContract {
-            float OldScrollCumulative { set; }
-            float ScrollCumulative { set; }
+            void SetOldScrollCumulative(float value);
+            void SetScrollCumulative(float value);
         }
         /// <summary>
         /// An object representing the status of the mouse scrollwheel during this frame.
@@ -137,8 +141,8 @@ namespace Pirates_Nueva
 
             private float OldScrollCumulative { get; set; }
 
-            float IScrollContract.OldScrollCumulative { set => OldScrollCumulative = value; }
-            float IScrollContract.ScrollCumulative { set => ScrollCumulative = value; }
+            void IScrollContract.SetOldScrollCumulative(float value) => OldScrollCumulative = value;
+            void IScrollContract.SetScrollCumulative(float value) => ScrollCumulative = value;
 
             internal ScrollWheel() {  }
         }
