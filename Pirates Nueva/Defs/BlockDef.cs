@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Pirates_Nueva.Ocean;
+#nullable enable
 
 namespace Pirates_Nueva
 {
@@ -13,10 +11,12 @@ namespace Pirates_Nueva
     /// </summary>
     public class BlockDef : Def
     {
+        private string? texId;
+
         /// <summary>
         /// The name of the Texture to display onscreen for a <see cref="Block"/> with this <see cref="BlockDef"/>.
         /// </summary>
-        public string TextureID { get; protected set; }
+        public string TextureID => this.texId ?? ThrowNotInitialized<string>();
 
         /// <summary>
         /// Gets the <see cref="BlockDef"/> with identifier /id/.
@@ -26,9 +26,9 @@ namespace Pirates_Nueva
         public static BlockDef Get(string id) => Get<BlockDef>(id);
 
         protected override void ReadXml(XmlReader parentReader) {
-            using(XmlReader reader = parentReader.ReadSubtree()) {
+            using(var reader = parentReader.ReadSubtree()) {
                 reader.ReadToDescendant("TextureID");
-                TextureID = reader.ReadElementContentAsString();
+                this.texId = reader.ReadElementContentAsString();
             }
         }
     }
