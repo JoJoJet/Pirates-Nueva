@@ -1,4 +1,5 @@
 ﻿using Pirates_Nueva.Path;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean.Agents
 {

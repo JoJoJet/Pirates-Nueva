@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean.Agents
 {
@@ -14,7 +11,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         /// <param name="executor">A Toil that, when completed, should fulfill the current Requirement.</param>
-        protected SimpleRequirement(Job<TC, TSpot>.Toil executor) : base(executor) {  }
+        protected SimpleRequirement(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected sealed override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
             if(Check(worker)) {  // If the requirement is met,
@@ -44,7 +41,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAdjacentTo(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+        public IsAdjacentTo(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1;
@@ -81,7 +78,7 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
 
-        protected override void Draw(Master master, Agent<Ship, Block> worker) {
+        protected override void Draw(Master master, Agent<Ship, Block>? worker) {
             var def = BlockDef.Get(PlaceID);
             var tex = master.Resources.LoadTexture(def.TextureID);
             
@@ -104,7 +101,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessibleAdj(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+        public IsAccessibleAdj(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(n => PointI.SqrDistance(n.Index, Toil.Index) == 1);
@@ -157,7 +154,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAtToil(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+        public IsAtToil(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => PointI.SqrDistance(worker.CurrentSpot.Index, Toil.Index) == 0;
@@ -172,7 +169,7 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef Holding { get; }
 
-        public IsHolding(ItemDef holding, Job<TC, TSpot>.Toil executor = null)
+        public IsHolding(ItemDef holding, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
             => Holding = holding;
 
@@ -190,6 +187,10 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
+            //
+            // Throw an exception if the worker's hands are empty.
+            if(worker.Holding == null)
+                throw new InvalidOperationException("The worker is not holding anything!");
             worker.Holding.Place(worker.CurrentSpot);
             return true;
         }
@@ -203,7 +204,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessible(Job<TC, TSpot>.Toil executor = null) : base(executor) {  }
+        public IsAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(sp => sp.Index == Toil.Index);
@@ -230,7 +231,7 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef StockType { get; }
 
-        public IsStandingAtStock(ItemDef stockType, Job<TC, TSpot>.Toil executor = null)
+        public IsStandingAtStock(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
             => StockType = stockType;
 
@@ -261,7 +262,7 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         public ItemDef StockType { get; }
 
-        public IsStockAcesible(ItemDef stockType, Job<TC, TSpot>.Toil executor = null)
+        public IsStockAcesible(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
             => StockType = stockType;
 
