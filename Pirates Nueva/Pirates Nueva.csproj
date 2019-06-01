@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>Pirates_Nueva</RootNamespace>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
