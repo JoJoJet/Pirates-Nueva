@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Pirates_Nueva.Ocean.Agents;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean
 {
@@ -28,7 +29,7 @@ namespace Pirates_Nueva.Ocean
         #region IFocusable Implementation
         protected bool IsFocused { get; private set; }
         bool IFocusable.IsFocused { set => IsFocused = value; }
-        IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => new FocusProvider(this, master);
 
         private sealed class FocusProvider : IFocusMenuProvider
         {
@@ -44,12 +45,10 @@ namespace Pirates_Nueva.Ocean
             public bool IsLocked { get; private set; }
             public PlayerShip Ship { get; }
 
-            private UI.FloatingMenu Menu { get; set; }
+            private UI.FloatingMenu Menu { get; }
 
-            public FocusProvider(PlayerShip ship) {
+            public FocusProvider(PlayerShip ship, Master master) {
                 Ship = ship;
-            }
-            public void Start(Master master) {
                 //
                 // Create a GUI menu.
                 master.GUI.AddMenu(

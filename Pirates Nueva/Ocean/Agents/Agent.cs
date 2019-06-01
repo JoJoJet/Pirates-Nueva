@@ -144,8 +144,8 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IFocusable Implementation
         protected bool IsFocused { get; private set; }
         bool IFocusable.IsFocused { set => IsFocused = value; }
-        IFocusMenuProvider IFocusable.GetProvider() => GetFocusProvider();
-        protected abstract IFocusMenuProvider GetFocusProvider();
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
+        protected abstract IFocusMenuProvider GetFocusProvider(Master master);
         #endregion
     }
 }

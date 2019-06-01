@@ -73,14 +73,13 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
-        protected override IFocusMenuProvider GetFocusProvider() => new BlockFocusProvider<Block>(this);
+        protected override IFocusMenuProvider GetFocusProvider(Master master)
+            => new BlockFocusProvider<Block>(this, master);
 
         protected class BlockFocusProvider<TBlock> : FocusProvider<TBlock>
             where TBlock : Block
         {
-            public BlockFocusProvider(TBlock block) : base(block) {  }
-
-            public override void Start(Master master)
+            public BlockFocusProvider(TBlock block, Master master) : base(block)
                 => master.GUI.AddMenu(
                       MenuID, new UI.FloatingMenu(
                           Part, (0f, -0.1f), UI.Corner.BottomLeft,

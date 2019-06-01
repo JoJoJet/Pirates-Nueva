@@ -17,7 +17,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Gets an object that provides a menu for focusing on this object.
         /// </summary>
-        IFocusMenuProvider GetProvider();
+        IFocusMenuProvider GetProvider(Master master);
     }
     /// <summary>
     /// An object that contains <see cref="IFocusable"/>s.
@@ -36,10 +36,6 @@ namespace Pirates_Nueva
         /// Whether or not the focus should be locked onto this menu.
         /// </summary>
         bool IsLocked { get; }
-        /// <summary>
-        /// Performs any necessary initialization for this provider.
-        /// </summary>
-        void Start(Master master);
         /// <summary>
         /// Is called every frame while this menu is displayed.
         /// </summary>
@@ -104,14 +100,13 @@ namespace Pirates_Nueva
                 else                                // If the set of focusable elements IS empty,
                     FocusIndex = 0;                 //     set the index of focus to be zero.
 
-                if(Focused != oldFocused) {                 // If the focused object has changed,
-                    if(oldFocused != null)                  //
-                        oldFocused.IsFocused = false;       //
-                    FocusProvider?.Close(master);           //     close the old menu,
-                    if(Focused != null)                     //
-                        Focused.IsFocused = true;           //
-                    FocusProvider = Focused?.GetProvider(); //     and create a new one.
-                    FocusProvider?.Start(master);           //
+                if(Focused != oldFocused) {                       // If the focused object has changed,
+                    if(oldFocused != null)                        //
+                        oldFocused.IsFocused = false;             //
+                    FocusProvider?.Close(master);                 //     close the old menu,
+                    if(Focused != null)                           //
+                        Focused.IsFocused = true;                 //
+                    FocusProvider = Focused?.GetProvider(master); //     and create a new one.
                 }
             }
 

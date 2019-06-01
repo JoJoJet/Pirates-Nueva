@@ -61,14 +61,13 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
-        protected override IFocusMenuProvider GetFocusProvider() => new FurnitureFocusProvider<Furniture>(this);
+        protected override IFocusMenuProvider GetFocusProvider(Master master)
+            => new FurnitureFocusProvider<Furniture>(this, master);
 
         protected class FurnitureFocusProvider<TFurn> : FocusProvider<TFurn>
             where TFurn : Furniture
         {
-            public FurnitureFocusProvider(TFurn furniture) : base(furniture) {  }
-
-            public override void Start(Master master)
+            public FurnitureFocusProvider(TFurn furniture, Master master) : base(furniture)
                 => master.GUI.AddMenu(
                       MenuID, new UI.FloatingMenu(
                           Part, (0f, -0.1f), UI.Corner.BottomLeft,
