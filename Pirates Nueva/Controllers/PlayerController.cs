@@ -13,6 +13,10 @@ namespace Pirates_Nueva
     public interface IFocusable
     {
         /// <summary>
+        /// Whether or not the current instance is being focused on.
+        /// </summary>
+        bool IsFocused { set; }
+        /// <summary>
         /// Gets an object that provides a menu for focusing on this object.
         /// </summary>
         IFocusMenuProvider GetProvider();
@@ -103,7 +107,11 @@ namespace Pirates_Nueva
                     FocusIndex = 0;                 //     set the index of focus to be zero.
 
                 if(Focused != oldFocused) {                 // If the focused object has changed,
+                    if(oldFocused != null)                  //
+                        oldFocused.IsFocused = false;       //
                     FocusProvider?.Close(master);           //     close the old menu,
+                    if(Focused != null)                     //
+                        Focused.IsFocused = true;           //
                     FocusProvider = Focused?.GetProvider(); //     and create a new one.
                     FocusProvider?.Start(master);           //
                 }

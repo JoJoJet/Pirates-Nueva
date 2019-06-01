@@ -12,7 +12,22 @@ namespace Pirates_Nueva.Ocean
     {
         public PlayerShip(Sea sea, int width, int height) : base(sea, width, height) {  }
 
+        protected override void Draw(Master master) {
+            base.Draw(master);
+            //
+            // If we're being focused on,
+            // draw a line to the destination.
+            if(IsFocused && Destination is PointF dest) {
+                var screenCenter = Sea.SeaPointToScreen(Center);
+                var screenDest = Sea.SeaPointToScreen(dest);
+
+                master.Renderer.DrawLine(screenCenter, screenDest, UI.Color.Black);
+            }
+        }
+
         #region IFocusable Implementation
+        protected bool IsFocused { get; private set; }
+        bool IFocusable.IsFocused { set => IsFocused = value; }
         IFocusMenuProvider IFocusable.GetProvider() => new FocusProvider(this);
 
         private sealed class FocusProvider : IFocusMenuProvider
@@ -175,5 +190,4 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
     }
-
 }
