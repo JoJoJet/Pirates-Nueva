@@ -27,7 +27,7 @@ namespace Pirates_Nueva
         /// Example: <para />
         /// <code>string SomeProperty => this.backingField ?? ThrowNotInitalized&lt;string&gt;();</code>
         /// </summary>
-        protected T ThrowNotInitialized<T>() => throw new InvalidOperationException($"This {nameof(Def)} has not been initialized!");
+        protected T ThrowNotInitialized<T>() => NullableUtil.ThrowNotInitialized<T>(nameof(Def));
 
         /// <summary>
         /// Initialize the <see cref="Def"/> class. Can only be called once.

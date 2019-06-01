@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Pirates_Nueva.NullableUtil;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean
 {
@@ -110,17 +112,21 @@ namespace Pirates_Nueva.Ocean
         public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
         {
             private Sea sea;
-            private Island[,] islands;
+            private Island[,]? islands;
 
             internal Archipelago(Sea sea) {
                 this.sea = sea;
             }
 
-            /// <summary> Get the <see cref="Island"> at the specified index. </summary>
-            public Island this[int x, int y] {
+            /// <summary> Gets the <see cref="Island"> at the specified index. </summary>
+            public Island? this[int x, int y] {
                 get {
+                    if(islands == null) {
+                        ThrowNotInitialized();
+                        return null;
+                    }
                     if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
-                        return islands[x, y];
+                        return this.islands[x, y];
                     else
                         return null;
                 }
@@ -149,6 +155,10 @@ namespace Pirates_Nueva.Ocean
 
             #region IEnumerable Implementation
             public IEnumerator<Island> GetEnumerator() {
+                if(islands == null) {
+                    ThrowNotInitialized();
+                    yield break;
+                }
                 for(int x = 0; x < islands.GetLength(0); x++) {     // For every spot in the archipelago:
                     for(int y = 0; y < islands.GetLength(1); y++) { //
                         if(islands[x, y] != null)                   // If there is an island there,
