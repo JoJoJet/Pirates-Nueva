@@ -1,23 +1,24 @@
 ﻿using System;
+#nullable enable
 
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// An immutable value containing the time since the last frame.
+    /// An value containing the time since the previous frame.
     /// </summary>
     public readonly struct Time
     {
-        private readonly TimeSpan time;
-
         /// <summary>
-        /// The number of seconds since last frame. This instance can implicitly convert to a <see cref="float"/> with this value.
+        /// The number of seconds since last frame. <see cref="Time"/> can implicitly convert to a <see cref="float"/> with this value.
         /// </summary>
-        public float Seconds => (float)time.TotalSeconds;
+        public float Seconds { get; }
         /// <summary> The number of miliseconds since last frame. </summary>
-        public float Miliseconds => (float)time.TotalMilliseconds;
+        public float Miliseconds { get; }
 
         internal Time(Microsoft.Xna.Framework.GameTime time) {
-            this.time = time.ElapsedGameTime;
+            var span = time.ElapsedGameTime;
+            Seconds     = (float)span.TotalSeconds;
+            Miliseconds = (float)span.TotalMilliseconds;
         }
 
         public static implicit operator float(Time t) => t.Seconds;

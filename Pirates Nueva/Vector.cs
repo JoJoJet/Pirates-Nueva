@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#nullable enable
 
 namespace Pirates_Nueva
 {
@@ -47,9 +48,11 @@ namespace Pirates_Nueva
         public static Angle MeasureAngle(Vector a, Vector b)
             => (Angle)((float)Math.Atan2(b.Y, b.X) - (float)Math.Atan2(a.Y, a.X));
 
-        public override bool Equals(object obj) => obj is Vector v
-                                                   ? v.Equals(this)
-                                                   : false;
+        public override bool Equals(object obj) => obj switch {
+            Vector v           => Equals(v),
+            (float x, float y) => x == X && y == Y,
+            _                  => false
+        };
         public bool Equals(Vector other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + Y.GetHashCode() * 17;
 
@@ -61,7 +64,7 @@ namespace Pirates_Nueva
         public static bool operator ==(Vector a, Vector b) => a.X == b.X && a.Y == b.Y;
         public static bool operator !=(Vector a, Vector b) => a.X != b.X || a.Y != b.Y;
 
-        /// <summary> Sets the magnitude of the <see cref="Vector"/> to the specified scalar. </summary>
+        /// <summary> Returns the <see cref="Vector"/> with its magnitude being the specified scalar value. </summary>
         public static PointF operator *(Vector v, float scalar) => new PointF(v.X * scalar, v.Y * scalar);
     }
 }
