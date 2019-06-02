@@ -8,18 +8,25 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public readonly struct Color : IEquatable<Color>
     {
+        private static Color clear = new Color(),
+                             black = new Color(0, 0, 0),
+                             white = new Color(255, 255, 255),
+                             lime = new Color(0, 255, 0),
+                             darkLime = new Color(0, 155, 0),
+                             paleYellow = new Color(255, 255, 153);
+
         /// <summary> R: 0, G: 0, B: 0, A: 0 </summary>
-        public static Color Empty { get; } = new Color();
+        public static ref readonly Color Clear => ref clear;
         /// <summary> R: 0, G: 0, B: 0 </summary>
-        public static Color Black { get; } = new Color(0, 0, 0);
+        public static ref readonly Color Black => ref black;
         /// <summary> R: 255, G: 255, B: 255 </summary>
-        public static Color White { get; } = new Color(255, 255, 255);
+        public static ref readonly Color White => ref white;
         /// <summary> R: 0, G: 255, B: 0 </summary>
-        public static Color Lime { get; } = new Color(0, 255, 0);
+        public static ref readonly Color Lime => ref lime;
         /// <summary> R: 0, G: 155, B: 0 </summary>
-        public static Color DarkLime { get; } = new Color(0, 155, 0);
+        public static ref readonly Color DarkLime => ref darkLime;
         /// <summary> R: 255, G: 255, B: 153 </summary>
-        public static Color PaleYellow { get; } = new Color(255, 255, 153);
+        public static ref readonly Color PaleYellow => ref paleYellow;
 
         /// <summary> The red component of this <see cref="Color"/>. </summary>
         public byte R { get; }

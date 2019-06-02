@@ -33,32 +33,36 @@ namespace Pirates_Nueva
             return new UI.Texture(tex);
         }
 
-        /// <summary> Submit a sprite to be drawn this frame. </summary>
-        public void Draw(UI.Texture texture, int left, int top, int width, int height, UI.Color? tint = null) {
-            var color = tint ?? Color.White;
-            SpriteBatch.Draw(texture, new Rectangle(left, top, width, height), color);
-        }
-        /// <summary> Submit a rotated sprite to be drawn this frame. </summary>
-        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin, UI.Color? tint = null) {
-            var color = tint ?? Color.White;
-            SpriteBatch.Draw(texture, new Rectangle(x, y, width, height), null, color, angle, origin, SpriteEffects.None, 0f);
-        }
+        /// <summary> Draws a texture this frame with the specified tint value. </summary>
+        public void Draw(UI.Texture texture, int left, int top, int width, int height, in UI.Color tint)
+            => SpriteBatch.Draw(texture, new Rectangle(left, top, width, height), tint);
+        /// <summary> Draws the specified texture this frame. </summary>
+        public void Draw(UI.Texture texture, int left, int top, int width, int height)
+            => Draw(texture, left, top, width, height, in UI.Color.White);
 
-        /// <summary> Submit a string to be drawn this frame. </summary>
-        public void DrawString(UI.Font font, string text, int left, int top, UI.Color color) {
-            SpriteBatch.DrawString(font, text, new PointF(left, top), color);
-        }
-        /// <summary> Submit a string to be drawn this frame. </summary>
-        public void DrawString(UI.Font font, string text, PointI topLeft, UI.Color color) {
-            SpriteBatch.DrawString(font, text, (PointF)topLeft, color);
-        }
+        /// <summary> Draws a rotated texture this frame with the specified tint value. </summary>
+        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin, in UI.Color tint)
+            => SpriteBatch.Draw(texture, new Rectangle(x, y, width, height), null, tint, angle, origin, SpriteEffects.None, 0f);
+        /// <summary> Draws the specified texture this frame. </summary>
+        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin)
+            => DrawRotated(texture, x, y, width, height, angle, origin, in UI.Color.White);
 
-        /// <summary> Submit a line between two points to be drawn this frame. </summary>
-        public void DrawLine(PointI start, PointI end, UI.Color? tint = null) {
+        /// <summary> Draws the specified text this frame. </summary>
+        public void DrawString(UI.Font font, string text, int left, int top, in UI.Color color)
+            => SpriteBatch.DrawString(font, text, new PointF(left, top), color);
+        /// <summary> Draws the specified text this frame, in black. </summary>
+        public void DrawString(UI.Font font, string text, int left, int top)
+            => DrawString(font, text, left, top, in UI.Color.Black);
+
+        /// <summary> Draws a line this frame with the specified color. </summary>
+        public void DrawLine(PointI start, PointI end, in UI.Color color) {
             var edge = end - start;
             var angle = (Angle)Math.Atan2(edge.Y, edge.X);
 
-            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0), tint);
+            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0), in color);
         }
+        /// <summary> Draws a white line this frame. </summary>
+        public void DrawLine(PointI start, PointI end)
+            => DrawLine(start, end, in UI.Color.White);
     }
 }
