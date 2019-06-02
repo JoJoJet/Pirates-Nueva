@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Xml;
 using Texture2D = Microsoft.Xna.Framework.Graphics.Texture2D;
-#nullable enable
 
 namespace Pirates_Nueva
 {

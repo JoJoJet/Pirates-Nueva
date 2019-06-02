@@ -1,7 +1,4 @@
-﻿using System;
-#nullable enable
-
-namespace Pirates_Nueva
+﻿namespace Pirates_Nueva
 {
     /// <summary>
     /// An value containing the time since the previous frame.

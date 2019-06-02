@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using Microsoft.Xna.Framework.Graphics;
-#nullable enable
 
 namespace Pirates_Nueva
 {

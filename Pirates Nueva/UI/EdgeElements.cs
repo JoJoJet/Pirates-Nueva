@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Pirates_Nueva.UI
+﻿namespace Pirates_Nueva.UI
 {
     /// <summary>
     /// A bit of text that hugs an edge of the screen, not tied to any menu.

@@ -1,5 +1,4 @@
 ﻿using MonoFont = Microsoft.Xna.Framework.Graphics.SpriteFont;
-#nullable enable
 
 namespace Pirates_Nueva.UI
 {

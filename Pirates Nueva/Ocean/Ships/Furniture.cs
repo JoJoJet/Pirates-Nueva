@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Pirates_Nueva.Ocean
+﻿namespace Pirates_Nueva.Ocean
 {
     /// <summary>
     /// A relative direction.

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Xml;
 using Pirates_Nueva.Ocean;
-#nullable enable
 
 namespace Pirates_Nueva
 {

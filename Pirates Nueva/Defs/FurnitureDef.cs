@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Xml;
 using Pirates_Nueva.Ocean;
 using CtorInfo = System.Reflection.ConstructorInfo;
-#nullable enable
 
 namespace Pirates_Nueva
 {

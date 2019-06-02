@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.Ocean;
-#nullable enable
 
 namespace Pirates_Nueva
 {

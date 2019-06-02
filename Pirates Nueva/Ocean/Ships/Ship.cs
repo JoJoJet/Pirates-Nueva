@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Pirates_Nueva.Path;
 using Pirates_Nueva.Ocean.Agents;
-#nullable enable
 
 namespace Pirates_Nueva.Ocean
 {

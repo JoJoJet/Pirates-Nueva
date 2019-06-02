@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-#nullable enable
 
 namespace Pirates_Nueva
 {

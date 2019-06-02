@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Pirates_Nueva.UI
+﻿namespace Pirates_Nueva.UI
 {
     /// <summary>
     /// A bit of text in a <see cref="GUI.Menu"/>.

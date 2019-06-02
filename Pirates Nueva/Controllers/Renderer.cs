@@ -1,14 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#nullable enable
 
 namespace Pirates_Nueva
 {
     /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    public class Renderer : IDrawable
+    public class Renderer
     {
         private Lazy<UI.Texture> pixelLazy;
 
