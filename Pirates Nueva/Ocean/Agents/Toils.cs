@@ -158,7 +158,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => PointI.SqrDistance(worker.CurrentSpot.Index, Toil.Index) == 0;
-        protected override string Reason => "Worker is noto at the job.";
+        protected override string Reason => "Worker is not at the job.";
     }
     /// <summary>
     /// Requires that an agent be holding a specific type of <see cref="Stock{TC, TSpot}"/>.
@@ -248,8 +248,17 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
-            worker.CurrentSpot.Stock.PickUp(worker);
-            return true;
+            //
+            // If there's stock, pick it up.
+            if(worker.CurrentSpot.Stock is Stock<TC, TSpot> stock) {
+                stock.PickUp(worker);
+                return true;
+            }
+            //
+            // If there's no stock, throw an exception.
+            else {
+                throw new InvalidOperationException("There is nothing for the worker to pick up!");
+            }
         }
     }
 

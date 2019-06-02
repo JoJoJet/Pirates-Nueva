@@ -90,7 +90,7 @@ namespace Pirates_Nueva.Ocean.Agents
             }
 
             if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
-                Container.RemoveJob(Job);   //     remove it from the container,
+                Container.RemoveJob(Job!);  //     remove it from the container,
                 Job = null;                 //     and unassign it.
             }
             if(Job != null) {                     // If there is a job:

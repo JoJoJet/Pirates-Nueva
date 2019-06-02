@@ -15,7 +15,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
         /// </summary>
-        Job<TSelf, TSpot> GetWorkableJob(Agent<TSelf, TSpot> hiree);
+        Job<TSelf, TSpot>? GetWorkableJob(Agent<TSelf, TSpot> hiree);
         /// <summary>
         /// Removes the specified <see cref="Job"/> from this instance.
         /// </summary>
