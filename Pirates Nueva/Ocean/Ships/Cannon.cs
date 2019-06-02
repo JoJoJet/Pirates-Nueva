@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using Pirates_Nueva.Ocean.Agents;
+#nullable enable
 
 namespace Pirates_Nueva.Ocean
 {
     using Toil = Job<Ship, Block>.Toil;
     public class Cannon : Furniture
     {
-        private Job<Ship, Block> haulJob;
+        private Job<Ship, Block>? haulJob;
 
         public ItemDef FuelType { get; } = ItemDef.Get("gunpowder");
 
@@ -19,7 +20,7 @@ namespace Pirates_Nueva.Ocean
             //
             // If the job has been cancelled, unassign it.
             if(this.haulJob?.IsCancelled ?? false) {
-                Ship.RemoveJob(this.haulJob);
+                Ship.RemoveJob(this.haulJob!);
                 this.haulJob = null;
             }
             //
