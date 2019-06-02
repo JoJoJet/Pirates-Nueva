@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+#nullable enable
 
 namespace Pirates_Nueva.Path
 {
