@@ -7,8 +7,19 @@ namespace Pirates_Nueva
     /// </summary>
     public readonly struct Vector : IEquatable<Vector>
     {
+        private static readonly Vector up    = new Vector(0, 1),
+                                       right = new Vector(1, 0),
+                                       down  = new Vector(0, -1),
+                                       left  = new Vector(-1, 1);
+
+        /// <summary> X: 0, Y: 1 </summary>
+        public static ref readonly Vector Up => ref up;
         /// <summary> X: 1, Y: 0 </summary>
-        public static Vector Right { get; } = new Vector(1, 0);
+        public static ref readonly Vector Right => ref right;
+        /// <summary> X: 0, Y: -1 </summary>
+        public static ref readonly Vector Down => ref down;
+        /// <summary> X: -1, Y: 0 </summary>
+        public static ref readonly Vector Left => ref left;
 
         /// <summary> The X component of this vector. [0, 1]. </summary>
         public float X { get; }
@@ -18,7 +29,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Gets the <see cref="Pirates_Nueva.Angle"/> between this instance and <see cref="Right"/>.
         /// </summary>
-        public Angle Angle => MeasureAngle(Right, this);
+        public Angle Angle => MeasureAngle(in Right, in this);
 
         /// <summary>
         /// Creates a normalized <see cref="Vector"/> pointing in the specified direction.
@@ -42,7 +53,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Gets the <see cref="Pirates_Nueva.Angle"/> between the specified <see cref="Vector"/>s.
         /// </summary>
-        public static Angle MeasureAngle(Vector a, Vector b)
+        public static Angle MeasureAngle(in Vector a, in Vector b)
             => (Angle)((float)Math.Atan2(b.Y, b.X) - (float)Math.Atan2(a.Y, a.X));
 
         public override bool Equals(object obj) => obj switch {
