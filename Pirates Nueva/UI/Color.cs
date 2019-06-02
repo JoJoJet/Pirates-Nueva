@@ -53,7 +53,7 @@ namespace Pirates_Nueva.UI
             R = c(r);    G = c(g);
             B = c(b);    A = c(a);
 
-            byte c(float f) => (byte)((f > 1f ? 1f : (f < 0 ? 0 : f)) * 255);
+            static byte c(float f) => (byte)((f > 1f ? 1f : (f < 0 ? 0 : f)) * 255);
         }
 
         public override bool Equals(object obj) => obj switch {

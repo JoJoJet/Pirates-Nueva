@@ -110,7 +110,7 @@ namespace Pirates_Nueva
         /// </summary>
         public static float SqrDistance(PointF a, PointF b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
-            float sqr(float val) => val*val;
+            static float sqr(float val) => val*val;
         }
         /// <summary>
         /// Returns the euclidean distance between two points.

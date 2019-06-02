@@ -76,7 +76,7 @@ namespace Pirates_Nueva
             // Add /difference/ to the first angle.
             return FromRadians(a + difference); // Add /difference/ to the first angle.
 
-            float abs(float f) => Math.Abs(f);    float sign(float f) => Math.Sign(f);
+            static float abs(float f) => Math.Abs(f);    static float sign(float f) => Math.Sign(f);
         }
 
         public override string ToString() => Radians != 0 ? $"{Radians/Math.PI:0.##}π" : "0";
