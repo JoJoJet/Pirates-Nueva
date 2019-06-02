@@ -6,12 +6,12 @@ namespace Pirates_Nueva
     /// <summary>
     /// A point in 2D space, composed of 2 <see cref="int"/>s. Implicitly converts to and from MonoGame.Point.
     /// </summary>
-    public struct PointI : IEquatable<PointI>
+    public readonly struct PointI : IEquatable<PointI>
     {
         public static PointI Zero => new PointI(0);
 
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int X { get; }
+        public int Y { get; }
 
         /// <summary>
         /// Gets the squared magnitude of this <see cref="PointI"/>. Faster than <see cref="Magnitude"/>.
@@ -24,8 +24,7 @@ namespace Pirates_Nueva
 
         public PointI(int value) : this(value, value) {  }
         public PointI(int x, int y) {
-            X = x;
-            Y = y;
+            X = x;   Y = y;
         }
 
         /// <summary>
@@ -39,6 +38,12 @@ namespace Pirates_Nueva
         /// Returns the euclidean distance between two points.
         /// </summary>
         public static float Distance(PointI a, PointI b) => (float)Math.Sqrt(SqrDistance(a, b));
+
+        /// <summary>
+        /// Returns a copy of the current <see cref="PointI"/> with the specified properties modified.
+        /// </summary>
+        public PointI With(int? X = null, int? Y = null)
+            => new PointI(X ?? this.X, Y ?? this.Y);
 
         public void Deconstruct(out int x, out int y) {
             x = X;   y = Y;
@@ -78,12 +83,12 @@ namespace Pirates_Nueva
     /// <summary>
     /// A point in 2D space, composed of 2 <see cref="float"/>s. Implicitly converts to and from MonoGame.Vector2.
     /// </summary>
-    public struct PointF : IEquatable<PointF>
+    public readonly struct PointF : IEquatable<PointF>
     {
         public static PointF Zero => new PointF(0);
 
-        public float X { get; set; }
-        public float Y { get; set; }
+        public float X { get; }
+        public float Y { get; }
 
         /// <summary>
         /// The squared magnitude of this point. Faster than <see cref="Magnitude"/>.
@@ -101,8 +106,7 @@ namespace Pirates_Nueva
 
         public PointF(float value) : this(value, value) {  }
         public PointF(float x, float y) {
-            X = x;
-            Y = y;
+            X = x;   Y = y;
         }
 
         /// <summary>
@@ -123,7 +127,7 @@ namespace Pirates_Nueva
         public static PointF Lerp(PointF first, PointF second, float factor) {
             return (l(first.X, second.X, factor), l(first.Y, second.Y, factor));
 
-            float l(float a, float b, float f) => a * (1 - f) + b * f;
+            static float l(float a, float b, float f) => a * (1 - f) + b * f;
         }
 
         /// <summary>
@@ -135,6 +139,12 @@ namespace Pirates_Nueva
 
             return new PointF(p.X * cosine - p.Y * sine, p.X * sine + p.Y * cosine);
         }
+
+        /// <summary>
+        /// Returns a copy of the current <see cref="PointF"/> with the specifed properties modified.
+        /// </summary>
+        public PointF With(float? X = null, float? Y = null)
+            => new PointF(X ?? this.X, Y ?? this.Y);
 
         public void Deconstruct(out float x, out float y) {
             x = X;   y = Y;
