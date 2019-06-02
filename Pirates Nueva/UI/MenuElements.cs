@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-
-namespace Pirates_Nueva.UI
+﻿namespace Pirates_Nueva.UI
 {
     /// <summary>
     /// A bit of text in a <see cref="GUI.Menu"/>.

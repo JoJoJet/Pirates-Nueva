@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MonoColor = Microsoft.Xna.Framework.Color;
 
 namespace Pirates_Nueva.UI
@@ -60,13 +56,11 @@ namespace Pirates_Nueva.UI
             byte c(float f) => (byte)((f > 1f ? 1f : (f < 0 ? 0 : f)) * 255);
         }
 
-        public override bool Equals(object obj) {
-            switch(obj) {
-                case Color c:     return Equals(c);
-                case MonoColor m: return R == m.R && G == m.G && B == m.B && A == m.A;
-                default:          return false;
-            }
-        }
+        public override bool Equals(object obj) => obj switch {
+            Color c     => Equals(c),
+            MonoColor m => m.R == R && m.G == G && m.B == B && m.A == A,
+            _           => false
+        };
         public bool Equals(Color other) => R == other.R && G == other.G && B == other.B && A == other.A;
         public override int GetHashCode() => A.GetHashCode() + G.GetHashCode() * 3 + B.GetHashCode() * 7 + A.GetHashCode() * 14;
 

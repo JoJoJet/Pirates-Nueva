@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Pirates_Nueva.Ocean;
+using CtorInfo = System.Reflection.ConstructorInfo;
 
 namespace Pirates_Nueva
 {
@@ -13,13 +11,16 @@ namespace Pirates_Nueva
     /// </summary>
     public class FurnitureDef : Def
     {
-        private System.Reflection.ConstructorInfo ctor;
+        private CtorInfo? ctor;
 
-        public Type Type { get; protected set; }
+        private Type? type;
+        private string? texId;
+
+        public Type Type => this.type ?? ThrowNotInitialized<Type>();
         /// <summary>
         /// The name of the Texture to display onscreen for a <see cref="Furniture"/> with this <see cref="Def"/>.
         /// </summary>
-        public string TextureID { get; protected set; }
+        public string TextureID => this.texId ?? ThrowNotInitialized<string>();
         /// <summary>
         /// The number of blocks that the Texture of a <see cref="Furniture"/> with this <see cref="Def"/> takes up.
         /// </summary>
@@ -39,35 +40,36 @@ namespace Pirates_Nueva
         /// <summary>
         /// Creates a <see cref="Furniture"/> using this <see cref="Def"/>.
         /// </summary>
-        public Furniture Construct(Block floor, Dir direction)
-            => (Furniture)this.ctor.Invoke(new object[] { this, floor, direction });
+        public Furniture Construct(Block floor, Dir direction) {
+            var ctor = this.ctor ?? ThrowNotInitialized<CtorInfo>();
+            return (Furniture)ctor.Invoke(new object[] { this, floor, direction });
+        }
 
         //
         // Parameters for a furniture constructor.
         private static readonly Type[] ctorParams = { typeof(FurnitureDef), typeof(Block), typeof(Dir) };
         protected override void ReadXml(XmlReader parentReader) {
-            using(XmlReader reader = parentReader.ReadSubtree()) {
-                //
-                // Read the type of the furniture def.
-                reader.ReadToDescendant("ClassName");
-                var className = reader.ReadElementContentAsString();
-                var type = Type.GetType(className);
-                if(!type.IsSameOrSubclass(typeof(Furniture)))
-                    throw new InvalidCastException($"Class {type.FullName} does not descend from {typeof(Furniture).FullName}!");
-                this.ctor = type.GetConstructor(ctorParams)
-                    ?? throw new MissingMethodException($"Class {type.FullName} must have a constructor with " +
-                                                         "the following parameters: (FurnitureDef, Block, Dir)!");
-                Type = type;
+            using var reader = parentReader.ReadSubtree();
+            //
+            // Read the type of the furniture def.
+            reader.ReadToDescendant("ClassName");
+            var className = reader.ReadElementContentAsString();
+            var type = Type.GetType(className);
+            if(!type.IsSameOrSubclass(typeof(Furniture)))
+                throw new InvalidCastException($"Class {type.FullName} does not descend from {typeof(Furniture).FullName}!");
+            this.ctor = type.GetConstructor(ctorParams)
+                ?? throw new MissingMethodException($"Class {type.FullName} must have a constructor with " +
+                                                     "the following parameters: (FurnitureDef, Block, Dir)!");
+            this.type = type;
 
-                reader.ReadToNextSibling("TextureID");
-                TextureID = reader.ReadElementContentAsString();
+            reader.ReadToNextSibling("TextureID");
+            this.texId = reader.ReadElementContentAsString();
 
-                reader.ReadToNextSibling("TextureSize");
-                TextureSize = reader.ReadPointI();
+            reader.ReadToNextSibling("TextureSize");
+            TextureSize = reader.ReadPointI();
 
-                reader.ReadToNextSibling("TextureOrigin");
-                TextureOrigin = reader.ReadPointF();
-            } 
+            reader.ReadToNextSibling("TextureOrigin");
+            TextureOrigin = reader.ReadPointF();
         }
     }
 }

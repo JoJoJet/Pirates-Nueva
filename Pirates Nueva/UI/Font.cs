@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MonoFont = Microsoft.Xna.Framework.Graphics.SpriteFont;
+﻿using MonoFont = Microsoft.Xna.Framework.Graphics.SpriteFont;
 
 namespace Pirates_Nueva.UI
 {

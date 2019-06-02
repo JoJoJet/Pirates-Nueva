@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-
-namespace Pirates_Nueva.UI
+﻿namespace Pirates_Nueva.UI
 {
     /// <summary>
     /// A bit of text that hugs an edge of the screen, not tied to any menu.

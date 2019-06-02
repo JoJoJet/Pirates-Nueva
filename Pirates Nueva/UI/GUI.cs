@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva.UI
 {
@@ -32,6 +26,7 @@ namespace Pirates_Nueva.UI
 
         internal GUI(Master master) {
             Master = master;
+            Tooltip = "";
         }
 
         /// <summary> Whether or not the mouse is currently hovering over any GUI elements. </summary>
@@ -64,7 +59,7 @@ namespace Pirates_Nueva.UI
             if(TryGetEdge(id, out EdgeElement med) && med is T last) // If there's an edge of type /T/ identified by /id/,
                 edge = last;                                         //     return it.
             else                                                     // If there is no edge element of type /T/ and identified by /id/,
-                edge = default;                                      //     return false;
+                edge = null!;                                        //     return false;
                                                                      //
             return edge != default;                                  // Return whether or not we found /edge/.
         }
@@ -305,7 +300,7 @@ namespace Pirates_Nueva.UI
         /// </summary>
         public abstract class EdgeElement : Element, IEdgeContract
         {
-            private GUI _gui;
+            private GUI? _gui;
 
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
@@ -425,7 +420,7 @@ namespace Pirates_Nueva.UI
         public abstract class MenuElement : Element, IMenuElementContract
         {
             private readonly bool autoAligned;
-            private Menu _menu;
+            private Menu? _menu;
 
             /// <summary> The position of the left edge of this element local to its menu. </summary>
             public int Left { get; private set; }

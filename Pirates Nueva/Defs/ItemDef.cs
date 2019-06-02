@@ -7,7 +7,9 @@ namespace Pirates_Nueva
 {
     public class ItemDef : Def
     {
-        public string TextureID { get; protected set; }
+        private string? texId;
+
+        public string TextureID => this.texId ?? ThrowNotInitialized<string>();
 
         /// <summary>
         /// Gets the <see cref="ItemDef"/> identified by the specified <see cref="string"/>.
@@ -19,7 +21,7 @@ namespace Pirates_Nueva
         protected override void ReadXml(XmlReader reader) {
             using(var r = reader.ReadSubtree()) {
                 r.ReadToDescendant("TextureID");
-                TextureID = r.ReadElementContentAsString();
+                this.texId = r.ReadElementContentAsString();
             }
         }
     }

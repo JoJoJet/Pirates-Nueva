@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Pirates_Nueva.Ocean.Agents;
+﻿using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -15,7 +10,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// The <see cref="Ocean.Ship"/> that contains this <see cref="ShipAgent"/>.
         /// </summary>
-        public Ship Ship => base.Container;
+        public Ship Ship => Container;
 
         protected override PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X + 0.5f, Y + 0.5f));
 
@@ -31,7 +26,8 @@ namespace Pirates_Nueva.Ocean
             (Holding as IDrawable)?.Draw(master);
         }
 
-        protected override IFocusMenuProvider GetFocusProvider() => new ShipAgentFocusMenuProvider(this);
+        protected override IFocusMenuProvider GetFocusProvider(Master master)
+            => new ShipAgentFocusMenuProvider(this, master);
     }
 
     internal sealed class ShipAgentFocusMenuProvider : IFocusMenuProvider
@@ -46,9 +42,8 @@ namespace Pirates_Nueva.Ocean
         public ShipAgent Agent { get; }
         private UI.FloatingMenu Menu { get; set; }
 
-        public ShipAgentFocusMenuProvider(ShipAgent agent) => Agent = agent;
-
-        public void Start(Master master) {
+        public ShipAgentFocusMenuProvider(ShipAgent agent, Master master) {
+            Agent = agent;
             master.GUI.AddMenu(
                 MenuID,
                 Menu = new UI.FloatingMenu(
@@ -58,6 +53,7 @@ namespace Pirates_Nueva.Ocean
                     )
                 );
         }
+
         public void Update(Master master) {
             //
             // Toggle the menu on/off depending on the current state.

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Pirates_Nueva.Path;
 using Pirates_Nueva.Ocean.Agents;
 
@@ -13,7 +10,7 @@ namespace Pirates_Nueva.Ocean
     {
         protected const string RootID = "root";
 
-        private readonly Block[,] blocks;
+        private readonly Block?[,] blocks;
         private readonly List<Agent<Ship, Block>> agents = new List<Agent<Ship, Block>>();
         
         private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
@@ -21,7 +18,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
-        internal static Func<Block, Furniture, Furniture> SetBlockFurniture { private protected get; set; }
+        internal static Func<Block, Furniture?, Furniture?> SetBlockFurniture { private protected get; set; }
 
         public Sea Sea { get; }
 
@@ -83,7 +80,7 @@ namespace Pirates_Nueva.Ocean
         /// Gets the block at index (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block this[int x, int y] {
+        public Block? this[int x, int y] {
             get {
                 ValidateIndices("Indexer", x, y);
                 return unsafeGetBlock(x, y);
@@ -208,14 +205,18 @@ namespace Pirates_Nueva.Ocean
                 return true;
             }
             else {
-                block = null;
+                //
+                // We're putting `null` into a non-nullable reference type.
+                // This seems bad, but as long as the 'try' pattern is used
+                // correctly, users will never experience any null-reference-exceptions.
+                block = null!;
                 return false;
             }
         }
         /// <summary>
         /// Gets the <see cref="Block"/> at indices (/x/, /y/), or <see cref="null"/> if it does not exist.
         /// </summary>
-        public Block GetBlockOrNull(int x, int y) {
+        public Block? GetBlockOrNull(int x, int y) {
             if(AreIndicesValid(x, y))
                 return unsafeGetBlock(x, y);
             else
@@ -275,14 +276,14 @@ namespace Pirates_Nueva.Ocean
                 return true;
             }
             else {
-                furniture = null;
+                furniture = null!;
                 return false;
             }
         }
         /// <summary>
         /// Gets the <see cref="Furniture"/> at indices /x/, /y/, or <see cref="null"/> if it does not exist.
         /// </summary>
-        public Furniture GetFurnitureOrNull(int x, int y)
+        public Furniture? GetFurnitureOrNull(int x, int y)
             => GetBlockOrNull(x, y)?.Furniture;
 
         /// <summary>
@@ -305,7 +306,7 @@ namespace Pirates_Nueva.Ocean
             
             if(unsafeGetBlock(x, y) is Block b) {                            // If there is a block at /x/, /y/:
                 if(b.Furniture == null)                                      //     If the block is empty,
-                    return SetBlockFurniture(b, def.Construct(b, dir));      //         place a Furniture there and return it.
+                    return SetBlockFurniture(b, def.Construct(b, dir))!;     //         place a Furniture there and return it.
                 else                                                         //     If the block is occupied,
                     throw new InvalidOperationException(                     //         throw an InvalidOperationException.
                         $"{Sig}: There is already a {nameof(Furniture)} at index ({x}, {y})!"
@@ -348,14 +349,14 @@ namespace Pirates_Nueva.Ocean
                 return true;
             }
             else {
-                stock = null;
+                stock = null!;
                 return false;
             }
         }
         /// <summary>
         /// Gets the <see cref="Stock"/> at /x/, /y/, or null if it does not exist.
         /// </summary>
-        public Stock GetStockOrNull(int x, int y)
+        public Stock? GetStockOrNull(int x, int y)
             => GetBlockOrNull(x, y)?.Stock;
 
         /// <summary>
@@ -394,13 +395,13 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            agent = null; // If we got this far, set the out parameter as null,
-            return false; // and return false.
+            agent = null!; // If we got this far, set the out parameter as null,
+            return false;  // and return false.
         }
         /// <summary>
         /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
         /// </summary>
-        public Agent<Ship, Block> GetAgentOrNull(int x, int y) {
+        public Agent<Ship, Block>? GetAgentOrNull(int x, int y) {
             foreach(var agent in this.agents) {
                 if(agent.X == x && agent.Y == y)
                     return agent;
@@ -439,7 +440,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
-        public Job<Ship, Block> GetWorkableJob(Agent<Ship, Block> hiree) {
+        public Job<Ship, Block>? GetWorkableJob(Agent<Ship, Block> hiree) {
             for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
                 var job = jobs[i];
                 if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
@@ -457,7 +458,7 @@ namespace Pirates_Nueva.Ocean
 
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
-        private Block unsafeGetBlock(int x, int y) => this.blocks[x, y];
+        private Block? unsafeGetBlock(int x, int y) => this.blocks[x, y];
 
         /// <summary> Throw an exception if either index is out of range. </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
@@ -641,9 +642,9 @@ namespace Pirates_Nueva.Ocean
             bool IFocusable.IsFocused { set => IsFocused = value; }
             protected bool IsFocused { get; private set; }
 
-            IFocusMenuProvider IFocusable.GetProvider() => GetFocusProvider();
+            IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
             /// <summary> Gets a focus menu for a Ship Part. </summary>
-            protected abstract IFocusMenuProvider GetFocusProvider();
+            protected abstract IFocusMenuProvider GetFocusProvider(Master master);
 
             /// <summary>
             /// A class that provides a focus menu for a Ship Part.
@@ -658,7 +659,6 @@ namespace Pirates_Nueva.Ocean
 
                 public FocusProvider(TPart part) => Part = part;
 
-                public virtual void Start(Master master) {  }
                 public virtual void Update(Master master) {  }
                 public virtual void Close(Master master) {  }
             }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva.Ocean.Agents
 {
@@ -20,7 +18,7 @@ namespace Pirates_Nueva.Ocean.Agents
         private readonly Toil top;
 
         public TC Container { get; }
-        public Agent<TC, TSpot> Worker { get; set; }
+        public Agent<TC, TSpot>? Worker { get; set; }
 
         public bool IsCancelled { get; private set; }
 
@@ -74,6 +72,8 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         public sealed class Toil : IToil
         {
+            private Job<TC, TSpot>? _job;
+
             #region Properties
             private PointI? nullableIndex;
 
@@ -91,13 +91,13 @@ namespace Pirates_Nueva.Ocean.Agents
 
             public Action Action { get; }
             public IReadOnlyList<Requirement> Requirements { get; }
-            
-            private Job<TC, TSpot> Job { get; set; }
+
+            private Job<TC, TSpot> Job => this._job ?? ThrowNotInitialized<Job<TC, TSpot>>(nameof(Toil));
             Job<TC, TSpot> IToil.Job {
                 set {
                     //
                     // Set this job and each child toil's reference to the parent Job.
-                    Job = value;
+                    this._job = value;
                     foreach(var req in Requirements) {
                         if(req.Executor is IToil exec)
                             exec.Job = value;
@@ -196,25 +196,27 @@ namespace Pirates_Nueva.Ocean.Agents
         {
             Toil Toil { set; }
 
-            void Draw(Master master, Agent<TC, TSpot> worker);
+            void Draw(Master master, Agent<TC, TSpot>? worker);
         }
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : ISegment
         {
+            private Toil? toil;
+
             /// <summary>
             /// The <see cref="Job.Toil"/> that contains this <see cref="Requirement"/> or <see cref="Action"/>.
             /// </summary>
-            protected Toil Toil { get; private set; }
-            Toil ISegment.Toil { set => Toil = value; }
+            protected Toil Toil => this.toil ?? ThrowNotInitialized<Toil>(nameof(ToilSegment));
+            Toil ISegment.Toil { set => this.toil = value; }
 
             /// <summary> The object that contains this <see cref="Requirement"/> or <see cref="Action"/>. </summary>
             protected TC Container => Toil.Container;
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
-            void ISegment.Draw(Master master, Agent<TC, TSpot> worker) => Draw(master, worker);
+            void ISegment.Draw(Master master, Agent<TC, TSpot>? worker) => Draw(master, worker);
             /// <summary> Draws this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
-            protected virtual void Draw(Master master, Agent<TC, TSpot> worker) {  }
+            protected virtual void Draw(Master master, Agent<TC, TSpot>? worker) {  }
         }
         
         private interface IReq // Restricts access of some members to this class.
@@ -229,12 +231,12 @@ namespace Pirates_Nueva.Ocean.Agents
             /// <summary>
             /// A <see cref="Toil"/> that fulfills this requirement when it is completed.
             /// </summary>
-            public Toil Executor { get; }
+            public Toil? Executor { get; }
 
             /// <param name="executor">
             /// A Toil that, when completed, should fulfill the current Requirement.
             /// </param>
-            protected Requirement(Toil executor = null) => Executor = executor;
+            protected Requirement(Toil? executor = null) => Executor = executor;
 
             bool IReq.Qualify(Agent<TC, TSpot> worker, out string reason) => Qualify(worker, out reason);
             /// <summary> Check if this <see cref="Requirement"/> has been fulfilled. </summary>

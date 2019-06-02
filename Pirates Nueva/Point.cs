@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
@@ -37,7 +33,7 @@ namespace Pirates_Nueva
         /// </summary>
         public static int SqrDistance(PointI a, PointI b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
-            int sqr(int val) => val*val;
+            static int sqr(int val) => val*val;
         }
         /// <summary>
         /// Returns the euclidean distance between two points.
@@ -45,15 +41,16 @@ namespace Pirates_Nueva
         public static float Distance(PointI a, PointI b) => (float)Math.Sqrt(SqrDistance(a, b));
 
         public void Deconstruct(out int x, out int y) {
-            x = X;
-            y = Y;
+            x = X;   y = Y;
         }
 
         public override string ToString() => $"({X}, {Y})";
 
-        public override bool Equals(object obj) => obj is PointI p
-                                                   ? p.Equals(this)
-                                                   : false;
+        public override bool Equals(object obj) => obj switch {
+            PointI p       => Equals(p),
+            (int x, int y) => x == X && y == Y,
+            _              => false
+        };
         public bool Equals(PointI other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 9 * Y.GetHashCode();
 
@@ -140,15 +137,16 @@ namespace Pirates_Nueva
         }
 
         public void Deconstruct(out float x, out float y) {
-            x = X;
-            y = Y;
+            x = X;   y = Y;
         }
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
 
-        public override bool Equals(object obj) => obj is PointF p
-                                                   ? p.Equals(this)
-                                                   : false;
+        public override bool Equals(object obj) => obj switch {
+            PointF p           => Equals(p),
+            (float x, float y) => x == X && y == Y,
+            _                  => false
+        };
         public bool Equals(PointF other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 6 * Y.GetHashCode();
 

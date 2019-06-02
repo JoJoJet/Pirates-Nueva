@@ -14,7 +14,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        private Stack<TSpot> _path;
+        private Stack<TSpot>? _path;
 
         /// <summary> The object that contains this <see cref="Agent{TC, TSpot}"/>. </summary>
         protected TC Container { get; }
@@ -22,7 +22,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The <see cref="TSpot"/> that this <see cref="Agent"/> is standing on or moving from. </summary>
         public TSpot CurrentSpot { get; protected set; }
         /// <summary> The <see cref="TSpot"/> that this <see cref="Agent"/> is moving to. </summary>
-        public TSpot NextSpot { get; protected set; }
+        public TSpot? NextSpot { get; protected set; }
         /// <summary>
         /// This <see cref="Agent"/>'s progress in moving between <see cref="CurrentSpot"/> and <see cref="NextSpot"/>.
         /// </summary>
@@ -33,16 +33,16 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
 
-        /// <summary> The item that this instance is currently holding. Might be null. </summary>
-        public Stock<TC, TSpot> Holding { get; set; }
+        /// <summary> The item that this instance is currently holding. </summary>
+        public Stock<TC, TSpot>? Holding { get; set; }
 
-        public Job<TC, TSpot> Job { get; protected set; }
+        public Job<TC, TSpot>? Job { get; protected set; }
 
         /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
         private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
-        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Is null if there is no path. </summary>
-        public TSpot PathingTo => Path.Count > 0 ? Path.Last() : null;
+        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Null if there is no path. </summary>
+        public TSpot? PathingTo => Path.Count > 0 ? Path.Last() : null;
 
         protected Stack<TSpot> Path {
             get => this._path ?? (this._path = new Stack<TSpot>());
@@ -88,11 +88,11 @@ namespace Pirates_Nueva.Ocean.Agents
                     Job.Worker = this;                //         assign this agent to it.
             }
 
+            if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
+                Container.RemoveJob(Job!);  //     remove it from the container,
+                Job = null;                 //     and unassign it.
+            }
             if(Job != null) {                     // If there is a job:
-                if(Job.IsCancelled) {             //     If the job has been cancelled,
-                    Container.RemoveJob(Job);     //         remove it from the ship,
-                    Job = null;                   //         and unassign it.
-                }                                 //
                 if(Job.Qualify(this, out _)) {    //     If the job is workable,
                     if(Job.Work(this, delta)) {   //         work it. If it's done,
                         Container.RemoveJob(Job); //             remove the job from the ship,
@@ -143,8 +143,8 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IFocusable Implementation
         protected bool IsFocused { get; private set; }
         bool IFocusable.IsFocused { set => IsFocused = value; }
-        IFocusMenuProvider IFocusable.GetProvider() => GetFocusProvider();
-        protected abstract IFocusMenuProvider GetFocusProvider();
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
+        protected abstract IFocusMenuProvider GetFocusProvider(Master master);
         #endregion
     }
 }

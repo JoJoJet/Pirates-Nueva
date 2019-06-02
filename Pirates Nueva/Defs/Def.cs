@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Pirates_Nueva
@@ -18,11 +15,19 @@ namespace Pirates_Nueva
         private static readonly Dictionary<string, Def> _defs = new Dictionary<string, Def>();
         private static bool isInitialized = false;
 
+        private string? id;
+
         /// <summary>
         /// The unique identifier of this <see cref="Def"/>. 
         /// </summary>
-        public string ID { get; private set; }
-        
+        public string ID => this.id ?? ThrowNotInitialized<string>();
+        /// <summary>
+        /// Throws an exception declaring that the current object is not initialized.
+        /// Example: <para />
+        /// <code>string SomeProperty => this.backingField ?? ThrowNotInitalized&lt;string&gt;();</code>
+        /// </summary>
+        protected T ThrowNotInitialized<T>() => NullableUtil.ThrowNotInitialized<T>(nameof(Def));
+
         /// <summary>
         /// Initialize the <see cref="Def"/> class. Can only be called once.
         /// </summary>
@@ -64,7 +69,7 @@ namespace Pirates_Nueva
              * Create a Def of type /T/ from an XmlReader position on the Def's parent node.
              */
             void readDef<T>(XmlReader reader) where T : Def, new() {
-                T def = new T() { ID = reader.GetAttribute("ID") };
+                T def = new T() { id = reader.GetAttribute("ID") };
                 def.ReadXml(reader);
                 _defs[def.ID] = def;
             }

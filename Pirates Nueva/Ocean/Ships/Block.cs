@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
@@ -24,14 +21,14 @@ namespace Pirates_Nueva.Ocean
         public override Dir Direction => Dir.Right;
 
         /// <summary>
-        /// The <see cref="Ocean.Furniture"/> placed on this block. Might be null.
+        /// The <see cref="Ocean.Furniture"/> placed on this block.
         /// </summary>
-        public Furniture Furniture { get; private set; }
+        public Furniture? Furniture { get; private set; }
 
         /// <summary>
         /// The stock that is resting on this <see cref="Block"/>, if it exists.
         /// </summary>
-        public Stock<Ship, Block> Stock { get; set; }
+        public Stock<Ship, Block>? Stock { get; set; }
 
         /// <summary>
         /// Static constructor. Is called the first time that this class is mentioned.
@@ -73,14 +70,13 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IFocusable Implementation
-        protected override IFocusMenuProvider GetFocusProvider() => new BlockFocusProvider<Block>(this);
+        protected override IFocusMenuProvider GetFocusProvider(Master master)
+            => new BlockFocusProvider<Block>(this, master);
 
         protected class BlockFocusProvider<TBlock> : FocusProvider<TBlock>
             where TBlock : Block
         {
-            public BlockFocusProvider(TBlock block) : base(block) {  }
-
-            public override void Start(Master master)
+            public BlockFocusProvider(TBlock block, Master master) : base(block)
                 => master.GUI.AddMenu(
                       MenuID, new UI.FloatingMenu(
                           Part, (0f, -0.1f), UI.Corner.BottomLeft,

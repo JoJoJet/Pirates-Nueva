@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,19 +9,19 @@ namespace Pirates_Nueva
     /// </summary>
     public class Renderer
     {
-        private UI.Texture _pixel;
+        private Lazy<UI.Texture> pixelLazy;
 
         public Master Master { get; }
 
         private SpriteBatch SpriteBatch { get; }
 
-        private UI.Texture Pixel {
-            get => _pixel ?? (_pixel = CreateTexture(1, 1, UI.Color.White));
-        }
+        private UI.Texture Pixel => this.pixelLazy.Value;
 
         internal Renderer(Master master, SpriteBatch spriteBatch) {
             Master = master;
             SpriteBatch = spriteBatch;
+
+            this.pixelLazy = new Lazy<UI.Texture>(() => CreateTexture(1, 1, UI.Color.White));
         }
 
         /// <summary>

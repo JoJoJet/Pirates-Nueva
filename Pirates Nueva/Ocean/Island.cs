@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pirates_Nueva.Ocean
 {
     public class Island : IDrawable
     {
         /// <summary> The outline of this island. </summary>
-        private Vertex[] vertices;
+        private Vertex[]? vertices;
         /// <summary> Each element contains the indices of two connected vertices. </summary>
-        private Edge[] edges;
+        private Edge[]? edges;
 
-        private UI.Texture tex;
+        private UI.Texture? tex;
 
         public Sea Sea { get; }
 
@@ -39,7 +37,7 @@ namespace Pirates_Nueva.Ocean
 
             FindOutline(shape, r);
 
-            tex = CreateTexture(master, this.vertices, this.edges);
+            this.tex = CreateTexture(master, this.vertices!, this.edges!);
         }
 
         static bool[,] GenerateShape(Random r) {
@@ -297,11 +295,11 @@ namespace Pirates_Nueva.Ocean
                     }
 
                     IEnumerable<PointI> findEdge(Func<PointI, int> indexer, Func<PointI, PointI, bool> isFurther) {
-                        var ed = new PointI?[Math.Max(Width, Height)];      // An array of edge blocks.
-                        foreach(var p in isolated) {                        // For every block in the chunk:
-                            int i = indexer(p);                             //
-                            if(ed[i] == null || isFurther(ed[i].Value, p))  // If it is the closest block to the edge in this axis,
-                                ed[i] = p;                                  //     add it to the array of edges.
+                        var ed = new PointI?[Math.Max(Width, Height)]; // An array of edge blocks.
+                        foreach(var p in isolated) {                   // For every block in the chunk:
+                            ref var ep = ref ed[indexer(p)];           //
+                            if(ep == null || isFurther(ep.Value, p))   // If it is the closest block to the edge in this axis,
+                                ep = p;                                //     add it to the array of edges.
                         }
                         return from e in ed where e != null select e.Value; // Return an array of (initialized) edge blocks.
                     }
@@ -791,6 +789,8 @@ namespace Pirates_Nueva.Ocean
         }
 
         private bool IsCollidingPrecise(PointF p) {
+            if(this.edges == null || this.vertices == null)
+                return false;
             int cn = 0;
             foreach(var E in this.edges) {
                 var a = vertices[E.a];
@@ -863,8 +863,8 @@ namespace Pirates_Nueva.Ocean
 
             void drawOutline() {
                 //
-                // Return early if the edges have not generated yet.
-                if(this.edges == null)
+                // Return early if the shape has not been generated yet.
+                if(this.edges == null || this.vertices == null)
                     return;
 
                 foreach(var l in this.edges) {
