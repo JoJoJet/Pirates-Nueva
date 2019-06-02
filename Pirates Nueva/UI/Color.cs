@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MonoColor = Microsoft.Xna.Framework.Color;
+#nullable enable
 
 namespace Pirates_Nueva.UI
 {

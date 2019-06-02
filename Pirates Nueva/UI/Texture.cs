@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+#nullable enable
 
 namespace Pirates_Nueva.UI
 {
@@ -12,18 +10,20 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class Texture
     {
+        private readonly Texture2D? _drawable;
+
         /// <summary> The width of this <see cref="Texture"/>. </summary>
         public virtual int Width => Drawable.Width;
         /// <summary> The height of this <see cref="Texture"/>. </summary>
         public virtual int Height => Drawable.Height;
 
-        protected virtual Texture2D Drawable { get; }
+        protected virtual Texture2D Drawable => this._drawable ?? NullableUtil.ThrowNotInitialized<Texture2D>(nameof(Texture));
 
         /// <summary>
         /// Create a new <see cref="Texture"/> from a MonoGame <see cref="Texture2D"/>.
         /// </summary>
         public Texture(Texture2D inner) {
-            Drawable = inner;
+            this._drawable = inner;
         }
         /// <summary>
         /// Create a blank <see cref="Texture2D"/>; only usable from derived classes.
