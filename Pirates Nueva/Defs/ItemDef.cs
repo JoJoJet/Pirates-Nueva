@@ -7,9 +7,7 @@ namespace Pirates_Nueva
 {
     public class ItemDef : Def
     {
-        private string? texId;
-
-        public string TextureID => this.texId ?? ThrowNotInitialized<string>();
+        public string TextureID { get; }
 
         /// <summary>
         /// Gets the <see cref="ItemDef"/> identified by the specified <see cref="string"/>.
@@ -18,11 +16,12 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="ItemDef"/>.</exception>
         public static ItemDef Get(string id) => Get<ItemDef>(id);
 
-        protected override void ReadXml(XmlReader reader) {
-            using(var r = reader.ReadSubtree()) {
-                r.ReadToDescendant("TextureID");
-                this.texId = r.ReadElementContentAsString();
-            }
+        protected override Def Construct(XmlReader reader) => new ItemDef(reader);
+        protected ItemDef(XmlReader reader) : base(reader) {
+            using var r = reader.ReadSubtree();
+
+            r.ReadToDescendant("TextureID");
+            TextureID = r.ReadElementContentAsString();
         }
     }
 }

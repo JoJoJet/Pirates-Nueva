@@ -7,37 +7,36 @@ namespace Pirates_Nueva
     /// <summary>
     /// An immutable object containing the definition of a <see cref="UI.NineSlice"/> texture.
     /// </summary>
-    public class SliceDef : Def
+    public sealed class SliceDef : Def
     {
-        private string? texId;
-
         /// <summary>
         /// The identifier for the source <see cref="Texture2D"/> of a <see cref="UI.NineSlice"/> defined with this <see cref="Def"/>.
         /// </summary>
-        internal string TextureID => this.texId ?? ThrowNotInitialized<string>();
+        internal string TextureID { get; }
         internal (int left, int right, int top, int bottom) Slices { get; private set; }
 
-        protected override void ReadXml(XmlReader parentReader) {
-            using(var reader = parentReader.ReadSubtree()) {
-                reader.ReadToDescendant("TextureID");
-                this.texId = reader.ReadElementContentAsString();
+        protected override Def Construct(XmlReader reader) => new SliceDef(reader);
+        private SliceDef(XmlReader parentReader) : base(parentReader) {
+            using var r = parentReader.ReadSubtree();
 
-                reader.ReadToNextSibling("Slices");
+            r.ReadToDescendant("TextureID");
+            TextureID = r.ReadElementContentAsString();
 
-                reader.ReadToDescendant("Left");
-                int left = reader.ReadElementContentAsInt();
+            r.ReadToNextSibling("Slices");
 
-                reader.ReadToNextSibling("Right");
-                int right = reader.ReadElementContentAsInt();
+            r.ReadToDescendant("Left");
+            int left = r.ReadElementContentAsInt();
 
-                reader.ReadToNextSibling("Top");
-                int top = reader.ReadElementContentAsInt();
+            r.ReadToNextSibling("Right");
+            int right = r.ReadElementContentAsInt();
 
-                reader.ReadToNextSibling("Bottom");
-                int bottom = reader.ReadElementContentAsInt();
+            r.ReadToNextSibling("Top");
+            int top = r.ReadElementContentAsInt();
 
-                this.Slices = (left, right, top, bottom);
-            }
+            r.ReadToNextSibling("Bottom");
+            int bottom = r.ReadElementContentAsInt();
+
+            Slices = (left, right, top, bottom);
         }
     }
 }

@@ -9,24 +9,22 @@ namespace Pirates_Nueva
     /// </summary>
     public abstract class Def
     {
+        private static class DummyHolder<T>
+            where T : Def
+        {
+            public static readonly T dummy = (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
+        }
+
         // An object to lock onto when initializing this class.
         private static readonly object padlock = new object();
 
         private static readonly Dictionary<string, Def> _defs = new Dictionary<string, Def>();
         private static bool isInitialized = false;
 
-        private string? id;
-
         /// <summary>
         /// The unique identifier of this <see cref="Def"/>. 
         /// </summary>
-        public string ID => this.id ?? ThrowNotInitialized<string>();
-        /// <summary>
-        /// Throws an exception declaring that the current object is not initialized.
-        /// Example: <para />
-        /// <code>string SomeProperty => this.backingField ?? ThrowNotInitalized&lt;string&gt;();</code>
-        /// </summary>
-        protected T ThrowNotInitialized<T>() => NullableUtil.ThrowNotInitialized<T>(nameof(Def));
+        public string ID { get; }
 
         /// <summary>
         /// Initialize the <see cref="Def"/> class. Can only be called once.
@@ -68,14 +66,16 @@ namespace Pirates_Nueva
             /*
              * Create a Def of type /T/ from an XmlReader position on the Def's parent node.
              */
-            void readDef<T>(XmlReader reader) where T : Def, new() {
-                T def = new T() { id = reader.GetAttribute("ID") };
-                def.ReadXml(reader);
+            void readDef<T>(XmlReader reader) where T : Def {
+                var def = DummyHolder<T>.dummy.Construct(reader);
                 _defs[def.ID] = def;
             }
         }
 
-        protected Def() { }
+        /// <summary>
+        /// Reads the ID attribute of the <see cref="XmlReader"/>. Does not consume any elements.
+        /// </summary>
+        protected Def(XmlReader reader) => ID = reader.GetAttribute("ID");
 
         /// <summary>
         /// Get the <see cref="Def"/> with identifier /id/ and of type /T/.
@@ -99,6 +99,11 @@ namespace Pirates_Nueva
             }
         }
 
-        protected abstract void ReadXml(XmlReader reader);
+        /// <summary>
+        /// Constructs a new instance of the current type of <see cref="Def"/>,
+        /// reading from the specified <see cref="XmlReader"/>. <para />
+        /// Should behave like a static method.
+        /// </summary>
+        protected abstract Def Construct(XmlReader reader);
     }
 }
