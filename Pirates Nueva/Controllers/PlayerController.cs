@@ -118,7 +118,7 @@ namespace Pirates_Nueva
             }
             if(master.Input.MouseWheel.IsPressed) {                                            // When the scrollwheel is held down:
                 var mDelta = master.Input.MousePosition - mouseFirst;                          //     Find how much the mouse has moved,
-                mDelta.Y *= -1;                                                                //     and invert the y component of that value.
+                mDelta = mDelta.With(Y: -mDelta.Y);                                            //     and invert the y componenet of that value.
                 (Sea.Camera.Left, Sea.Camera.Bottom) = cameraFirst - (PointF)mDelta / Sea.PPU; //     Move the camera according to that value.
             }
 

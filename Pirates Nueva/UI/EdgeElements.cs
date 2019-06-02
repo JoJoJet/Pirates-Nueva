@@ -33,7 +33,7 @@
 
         /// <summary> Draw this <see cref="EdgeText"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            master.Renderer.DrawString(Font, Text, left, top, Color.Black);
+            master.Renderer.DrawString(Font, Text, left, top);
         }
     }
     
@@ -70,8 +70,7 @@
             var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master); // Make a panel.
             master.Renderer.Draw(panel, left, top, WidthPixels, HeightPixels);                        // Draw a panel behind the text.
             
-            master.Renderer.DrawString(Font, Text, left+Padding, top+Padding, Color.Black);           // Draw the text.
-
+            master.Renderer.DrawString(Font, Text, left+Padding, top+Padding);                        // Draw the text.
         }
     }
 }

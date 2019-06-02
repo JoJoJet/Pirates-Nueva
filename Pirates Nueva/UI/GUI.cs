@@ -215,9 +215,9 @@ namespace Pirates_Nueva.UI
             }
 
             // Draw the tooltip.
-            if(!string.IsNullOrEmpty(Tooltip)) {                              // If there is a tooltip:
-                var (x, y) = master.Input.MousePosition;                      //
-                master.Renderer.DrawString(Font, Tooltip, x, y, Color.Black); //     Draw it next to the mouse cursor.
+            if(!string.IsNullOrEmpty(Tooltip)) {                 // If there is a tooltip:
+                var (x, y) = master.Input.MousePosition;         //
+                master.Renderer.DrawString(Font, Tooltip, x, y); //     Draw it next to the mouse cursor.
             }
         }
 
