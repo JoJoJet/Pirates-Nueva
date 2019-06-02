@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.Ocean;
+#nullable enable
 
 namespace Pirates_Nueva
 {
@@ -29,10 +27,11 @@ namespace Pirates_Nueva
     /// </summary>
     public sealed class Master : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        Sea sea;
-        
+        private Sea? _sea;
+
+        private GraphicsDeviceManager graphics;
+        private SpriteBatch spriteBatch;
+
         public UI.Font Font { get; private set; }
 
         public Input Input { get; }
@@ -44,6 +43,8 @@ namespace Pirates_Nueva
 
         internal Resources Resources { get; }
 
+        private Sea Sea => this._sea ?? NullableUtil.ThrowNotInitialized<Sea>(nameof(Master));
+
         #region Initialization
         public Master() {
             graphics = new GraphicsDeviceManager(this);
@@ -53,6 +54,13 @@ namespace Pirates_Nueva
 
             Resources = new Resources(this);
             Input = new Input(this);
+
+            //
+            // Satisfying the nullable reference types flow analysis.
+            this.spriteBatch = null!;
+            Renderer = null!;
+            Font = null!;
+            Player = null!;
         }
 
         /// <summary>
@@ -80,7 +88,7 @@ namespace Pirates_Nueva
         /// </summary>
         protected override void LoadContent() {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            this.spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Font = Content.Load<SpriteFont>("font");
 
@@ -94,9 +102,9 @@ namespace Pirates_Nueva
             Renderer = new Renderer(this, spriteBatch);
 
             // Initialize the Sea object.
-            this.sea = new Sea(this);
+            this._sea = new Sea(this);
 
-            Player = new PlayerController(this, this.sea);
+            Player = new PlayerController(this, Sea);
         }
 
         /// <summary>
@@ -123,7 +131,7 @@ namespace Pirates_Nueva
             (GUI as IUpdatable).Update(this, delta);
 
             (Player as IUpdatable).Update(this, delta);
-            (this.sea as IUpdatable).Update(this, delta);
+            (Sea as IUpdatable).Update(this, delta);
 
             base.Update(gameTime);
         }
@@ -137,8 +145,7 @@ namespace Pirates_Nueva
 
             spriteBatch.Begin();
 
-            // TODO: Add your drawing code here
-            (this.sea as IDrawable).Draw(this);
+            (Sea as IDrawable).Draw(this);
             (GUI as IDrawable).Draw(this);
 
             spriteBatch.End();

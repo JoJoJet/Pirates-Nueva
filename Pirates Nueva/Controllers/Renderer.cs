@@ -8,7 +8,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    public class Renderer
+    public class Renderer : IDrawable
     {
         private Lazy<UI.Texture> pixelLazy;
 
