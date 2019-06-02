@@ -10,12 +10,10 @@ namespace Pirates_Nueva
     /// </summary>
     public class BlockDef : Def
     {
-        private string? texId;
-
         /// <summary>
         /// The name of the Texture to display onscreen for a <see cref="Block"/> with this <see cref="BlockDef"/>.
         /// </summary>
-        public string TextureID => this.texId ?? ThrowNotInitialized<string>();
+        public string TextureID { get; }
 
         /// <summary>
         /// Gets the <see cref="BlockDef"/> with identifier /id/.
@@ -24,11 +22,12 @@ namespace Pirates_Nueva
         /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="BlockDef"/>.</exception>
         public static BlockDef Get(string id) => Get<BlockDef>(id);
 
-        protected override void ReadXml(XmlReader parentReader) {
-            using(var reader = parentReader.ReadSubtree()) {
-                reader.ReadToDescendant("TextureID");
-                this.texId = reader.ReadElementContentAsString();
-            }
+        protected override Def Construct(XmlReader reader) => new BlockDef(reader);
+        protected BlockDef(XmlReader reader) : base(reader) {
+            using var r = reader.ReadSubtree();
+
+            r.ReadToDescendant("TextureID");
+            TextureID = r.ReadElementContentAsString();
         }
     }
 }
