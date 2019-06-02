@@ -8,7 +8,9 @@ namespace Pirates_Nueva
     /// </summary>
     public readonly struct PointI : IEquatable<PointI>
     {
-        public static PointI Zero => new PointI(0);
+        private static readonly PointI zero = new PointI(0);
+
+        public static ref readonly PointI Zero => ref zero;
 
         public int X { get; }
         public int Y { get; }
@@ -30,14 +32,14 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns the squared distance between two points. Faster than <see cref="Distance(PointI, PointI)"/>.
         /// </summary>
-        public static int SqrDistance(PointI a, PointI b) {
+        public static int SqrDistance(in PointI a, in PointI b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
             static int sqr(int val) => val*val;
         }
         /// <summary>
         /// Returns the euclidean distance between two points.
         /// </summary>
-        public static float Distance(PointI a, PointI b) => (float)Math.Sqrt(SqrDistance(a, b));
+        public static float Distance(in PointI a, in PointI b) => (float)Math.Sqrt(SqrDistance(in a, in b));
 
         /// <summary>
         /// Returns a copy of the current <see cref="PointI"/> with the specified properties modified.
@@ -85,7 +87,9 @@ namespace Pirates_Nueva
     /// </summary>
     public readonly struct PointF : IEquatable<PointF>
     {
-        public static PointF Zero => new PointF(0);
+        private static readonly PointF zero = new PointF(0);
+
+        public static ref readonly PointF Zero => ref zero;
 
         public float X { get; }
         public float Y { get; }
@@ -112,19 +116,19 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns the squared distance between two points. Faster than <see cref="Distance(PointF, PointF)"/>.
         /// </summary>
-        public static float SqrDistance(PointF a, PointF b) {
+        public static float SqrDistance(in PointF a, in PointF b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
             static float sqr(float val) => val*val;
         }
         /// <summary>
         /// Returns the euclidean distance between two points.
         /// </summary>
-        public static float Distance(PointF a, PointF b) => (float)Math.Sqrt(SqrDistance(a, b));
+        public static float Distance(in PointF a, in PointF b) => (float)Math.Sqrt(SqrDistance(in a, in b));
 
         /// <summary>
         /// Linearly interpolate between the specified points, by the specified factor.
         /// </summary>
-        public static PointF Lerp(PointF first, PointF second, float factor) {
+        public static PointF Lerp(in PointF first, in PointF second, float factor) {
             return (l(first.X, second.X, factor), l(first.Y, second.Y, factor));
 
             static float l(float a, float b, float f) => a * (1 - f) + b * f;
@@ -133,7 +137,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
-        public static PointF Rotate(PointF p, Angle theta) {
+        public static PointF Rotate(in PointF p, in Angle theta) {
             float sine = (float)Math.Sin(theta);
             float cosine = (float)Math.Cos(theta);
 
