@@ -27,7 +27,7 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF TextureOrigin { get; }
 
-        protected override string ResourcePath => "furniture";
+        protected sealed override ResourceInfo Resources => new ResourceInfo("furniture", "FurnitureDefs");
 
         /// <summary>
         /// Creates a <see cref="Furniture"/> using this <see cref="Def"/>.

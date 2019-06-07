@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Defs>
-	<Def ID="panel">
+<SliceDefs>
+	<SliceDef ID="panel">
 		<!-- The name of the source texture. -->
 		<TextureID>panel</TextureID>
 		<Slices>
@@ -9,5 +9,5 @@
 			<Top>10</Top>
 			<Bottom>10</Bottom>
 		</Slices>
-	</Def>
-</Defs>
+	</SliceDef>
+</SliceDefs>

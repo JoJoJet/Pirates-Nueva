@@ -15,7 +15,7 @@ namespace Pirates_Nueva
         internal string TextureID { get; }
         internal (int left, int right, int top, int bottom) Slices { get; private set; }
 
-        protected override string ResourcePath => "nineSlices";
+        protected sealed override ResourceInfo Resources => new ResourceInfo("nineSlices", "SliceDefs");
 
         protected override SliceDef Construct(XmlReader reader) => new SliceDef(reader);
         private SliceDef(XmlReader parentReader) : base(parentReader) {

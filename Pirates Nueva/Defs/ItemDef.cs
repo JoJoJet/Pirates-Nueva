@@ -9,9 +9,9 @@ namespace Pirates_Nueva
     {
         public string TextureID { get; }
 
-        protected override string ResourcePath => "items";
+        protected override ResourceInfo Resources => new ResourceInfo("items", "ItemDefs");
 
-        protected override ItemDef Construct(XmlReader reader) => new ItemDef(reader);
+        protected sealed override ItemDef Construct(XmlReader reader) => new ItemDef(reader);
         protected ItemDef(XmlReader reader) : base(reader) {
             using var r = reader.ReadSubtree();
 
