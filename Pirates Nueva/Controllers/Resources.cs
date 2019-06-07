@@ -18,7 +18,7 @@ namespace Pirates_Nueva
     {
         private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates-Nueva\Pirates Nueva\Resources\";
 
-        private readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
+        private readonly Dictionary<string, UI.Texture> _textures = new Dictionary<string, UI.Texture>();
 
         public Master Master { get; }
 
@@ -39,12 +39,12 @@ namespace Pirates_Nueva
             try {
                 // Get the texture named /name/ out of this instance's dictionary.
                 // If there is no texture with that name, load the texture with that name from file.
-                if(this._textures.TryGetValue(name, out Texture2D tex) == false) {
-                    tex = Content.Load<Texture2D>(name);
+                if(this._textures.TryGetValue(name, out var tex) == false) {
+                    tex = new UI.Texture(Content.Load<Texture2D>(name));
                     this._textures[name] = tex;
                 }
 
-                return new UI.Texture(tex);
+                return tex;
             }
             catch(Microsoft.Xna.Framework.Content.ContentLoadException) {
                 throw new ResourceException($"{nameof(Resources)}.{nameof(LoadTexture)}(): There is no texture named \"{name}\"!");
