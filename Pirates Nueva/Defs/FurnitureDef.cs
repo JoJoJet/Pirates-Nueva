@@ -9,7 +9,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// An immutable object containing properties for a <see cref="Furniture"/> of a <see cref="Ship"/>.
     /// </summary>
-    public class FurnitureDef : Def
+    public class FurnitureDef : Def<FurnitureDef>
     {
         private readonly CtorInfo ctor;
 
@@ -27,12 +27,7 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF TextureOrigin { get; }
 
-        /// <summary>
-        /// Get the <see cref="FurnitureDef"/> with identifier /id/.
-        /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="FurnitureDef"/> identified by /id/.</exception>
-        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="FurnitureDef"/>.</exception>
-        public static FurnitureDef Get(string id) => Get<FurnitureDef>(id);
+        protected override string ResourcePath => "furniture";
 
         /// <summary>
         /// Creates a <see cref="Furniture"/> using this <see cref="Def"/>.
@@ -40,7 +35,7 @@ namespace Pirates_Nueva
         public Furniture Construct(Block floor, Dir direction)
             => (Furniture)this.ctor.Invoke(new object[] { this, floor, direction });
 
-        protected override Def Construct(XmlReader reader) => new FurnitureDef(reader);
+        protected override FurnitureDef Construct(XmlReader reader) => new FurnitureDef(reader);
         //
         // Method signature for a furniture constructor.
         private static readonly Type[] ctorParams = { typeof(FurnitureDef), typeof(Block), typeof(Dir) };

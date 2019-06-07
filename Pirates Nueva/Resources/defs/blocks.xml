@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+	<Def ID="root">
+		<TextureID>rootBlock</TextureID>
+	</Def>
+	<Def ID="wood">
+		<TextureID>woodBlock</TextureID>
+	</Def>
+</Defs>

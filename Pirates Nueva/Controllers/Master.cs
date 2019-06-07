@@ -73,9 +73,6 @@ namespace Pirates_Nueva
             // Make the mouse cursor visible onscreen.
             IsMouseVisible = true;
 
-            // Initialize the Def class.
-            Def.Initialize(this);
-
             base.Initialize();
         }
 
