@@ -79,7 +79,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         protected override void Draw(Master master, Agent<Ship, Block>? worker) {
             var def = BlockDef.Get(PlaceID);
-            var tex = master.Resources.LoadTexture(def.TextureID);
+            var tex = Resources.LoadTexture(def.TextureID);
             
             var (seaX, seaY) = Container.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
             var (screenX, screenY) = Container.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.

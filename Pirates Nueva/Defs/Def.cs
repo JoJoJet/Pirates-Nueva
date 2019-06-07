@@ -37,7 +37,7 @@ namespace Pirates_Nueva
                     throw new InvalidOperationException($"{nameof(Def)}.{nameof(Initialize)}(): {nameof(Def)} has already been initialized!");
 
                 // Get an XmlReader to load the Defs with.
-                using(XmlReader reader = master.Resources.GetXmlReader("defs")) {
+                using(XmlReader reader = Resources.GetXmlReader("defs")) {
                     while(reader.Read()) {
                         switch(reader.Name) {
                             /*

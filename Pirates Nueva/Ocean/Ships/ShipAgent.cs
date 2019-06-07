@@ -17,7 +17,7 @@ namespace Pirates_Nueva.Ocean
         public ShipAgent(Ship ship, Block floor) : base(ship, floor) {  }
         
         protected override void Draw(Master master) {
-            var tex = master.Resources.LoadTexture("agent");
+            var tex = Resources.LoadTexture("agent");
 
             (float seaX, float seaY) = Ship.ShipPointToSea(X, Y + 1);
             (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);

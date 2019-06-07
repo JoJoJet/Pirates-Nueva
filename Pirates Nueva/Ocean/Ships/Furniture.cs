@@ -33,7 +33,7 @@
         
         /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
         protected override void Draw(Master master) {
-            var tex = master.Resources.LoadTexture(Def.TextureID);
+            var tex = Resources.LoadTexture(Def.TextureID);
             (int sizeX, int sizeY) = Def.TextureSize * Ship.Sea.PPU;
             
             // /Def.TextureOffset/ is the coordinate, local to the texture, from which it will be drawn.

@@ -40,8 +40,6 @@ namespace Pirates_Nueva
 
         public PlayerController Player { get; private set; }
 
-        internal Resources Resources { get; }
-
         private Sea Sea => this._sea ?? NullableUtil.ThrowNotInitialized<Sea>(nameof(Master));
 
         #region Initialization
@@ -51,7 +49,7 @@ namespace Pirates_Nueva
 
             GUI = new UI.GUI(this);
 
-            Resources = new Resources(this);
+            Resources.Initialize(Content);
             Input = new Input(this);
 
             //
