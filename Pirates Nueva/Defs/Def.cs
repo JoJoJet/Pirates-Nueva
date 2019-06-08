@@ -25,8 +25,6 @@ namespace Pirates_Nueva
             }
         }
 
-        private static readonly T dummy = GetDummy(typeof(T));
-
         private static readonly Dictionary<string, T> dict = new Dictionary<string, T>();
 
         /// <summary>
@@ -45,18 +43,18 @@ namespace Pirates_Nueva
         static Def() {
             //
             // Find all loaded subclasses of this type of Def.
-            var subclasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                             from type in assembly.GetTypes()
-                             where !type.IsAbstract
-                             where type.IsSameOrSubclass(typeof(T))
-                             where !type.ContainsGenericParameters
-                             select type;
-            var dummies = subclasses.ToDictionary( t =>  t.FullName.Substring(t.Namespace.Length + 1),
-                                                   t => new Lazy<T>(() => GetDummy(t)),
-                                                   StringComparer.OrdinalIgnoreCase );
+            var dummyList = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                            from type in assembly.GetTypes()
+                            where !type.IsAbstract
+                            where !type.ContainsGenericParameters
+                            where type.IsSameOrSubclass(typeof(T))
+                            select GetDummy(type);
+            dummyList = dummyList.ToList();
+            var dummies = dummyList.ToDictionary(d => d.GetType().FullName.Substring(d.GetType().Namespace.Length + 1),
+                                                 StringComparer.OrdinalIgnoreCase);
             //
             // Open the resources file for Defs of this type.
-            var resources = GetDummy(typeof(T)).Resources;
+            var resources = GetDummy(getTypeForDummy()).Resources;
             using var reader = Pirates_Nueva.Resources.GetXmlReader("defs\\" + resources.FilePath);
             if(reader.ReadToDescendant(resources.RootNode)) {
                 //
@@ -71,7 +69,7 @@ namespace Pirates_Nueva
                     // Create a new Def of the specified type
                     // by calling .Construct() on a dummy instance.
                     if(dummies.TryGetValue(reader.Name, out var dummy)) {
-                        var def = dummy.Value.Construct(reader);
+                        var def = dummy.Construct(reader);
                         dict[def.ID] = def;
                     }
                     //
@@ -80,6 +78,21 @@ namespace Pirates_Nueva
                         throw new XmlException($"There is no {typeof(T).FullName} class named \"{reader.Name}\"!");
                     }
                 }
+            }
+
+            Type getTypeForDummy() {
+                //
+                // If the superclass is instantiable,
+                // return it.
+                if(!typeof(T).IsAbstract)
+                    return typeof(T);
+                //
+                // If the superclass is NOT instantiable,
+                // return its closest derived type.
+                else
+                    return dummies.Values.Select(d => d.GetType())
+                                         .OrderBy(t => t.GetInheritanceDepth(typeof(T)))
+                                         .First();
             }
         }
         /// <summary>
