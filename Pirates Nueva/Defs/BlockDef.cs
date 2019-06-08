@@ -15,6 +15,7 @@ namespace Pirates_Nueva
         /// </summary>
         public string TextureID { get; }
 
+        protected override string TypeName => "BlockDef";
         protected sealed override ResourceInfo Resources => new ResourceInfo("blocks", "BlockDefs");
 
         protected override BlockDef Construct(XmlReader reader) => new BlockDef(reader);

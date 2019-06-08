@@ -28,15 +28,21 @@ namespace Pirates_Nueva
         private static readonly Dictionary<string, T> dict = new Dictionary<string, T>();
 
         /// <summary>
+        /// The identifier for this Def, unique among its type.
+        /// </summary>
+        public string ID { get; }
+
+        /// <summary>
+        /// The name for the current subclass of <see cref="Def"/>, to be used in XML definitions.
+        /// Should behave like a static property.
+        /// </summary>
+        protected abstract string TypeName { get; }
+
+        /// <summary>
         /// Info about the <see cref="Pirates_Nueva.Resources"/> file that contains
         /// the definitions Defs of this type.
         /// </summary>
         protected abstract ResourceInfo Resources { get; }
-
-        /// <summary>
-        /// The identifier for this Def, unique among its type.
-        /// </summary>
-        public string ID { get; }
 
         static T GetDummy(Type t) => (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(t);
 
@@ -50,7 +56,7 @@ namespace Pirates_Nueva
                             where type.IsSameOrSubclass(typeof(T))
                             select GetDummy(type);
             dummyList = dummyList.ToList();
-            var dummies = dummyList.ToDictionary(d => d.GetType().FullName.Substring(d.GetType().Namespace.Length + 1),
+            var dummies = dummyList.ToDictionary(d => d.TypeName,
                                                  StringComparer.OrdinalIgnoreCase);
             //
             // Open the resources file for Defs of this type.

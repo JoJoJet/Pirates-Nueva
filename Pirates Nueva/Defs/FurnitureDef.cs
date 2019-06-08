@@ -27,6 +27,7 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF TextureOrigin { get; }
 
+        protected override string TypeName => "FurnitureDef";
         protected sealed override ResourceInfo Resources => new ResourceInfo("furniture", "FurnitureDefs");
 
         /// <summary>

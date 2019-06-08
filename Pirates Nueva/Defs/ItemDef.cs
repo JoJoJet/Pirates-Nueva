@@ -9,6 +9,7 @@ namespace Pirates_Nueva
     {
         public string TextureID { get; }
 
+        protected override string TypeName => "ItemDef";
         protected override ResourceInfo Resources => new ResourceInfo("items", "ItemDefs");
 
         protected sealed override ItemDef Construct(XmlReader reader) => new ItemDef(reader);
