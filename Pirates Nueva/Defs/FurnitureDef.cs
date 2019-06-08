@@ -77,6 +77,11 @@ namespace Pirates_Nueva
     public class CannonDef : FurnitureDef
     {
         /// <summary>
+        /// The ID of the <see cref="ItemDef"/> that fuels a
+        /// <see cref="Cannon"/> using this <see cref="CannonDef"/>.
+        /// </summary>
+        public string FuelTypeID { get; }
+        /// <summary>
         /// The name for the current type of <see cref="CannonDef"/>, for use in XML definitions.
         /// <para /> Should behave like a static property.
         /// </summary>
@@ -89,13 +94,20 @@ namespace Pirates_Nueva
         /// </summary>
         protected override FurnitureDef Construct(XmlReader reader) => new CannonDef(ref reader);
         /// <summary>
-        /// Reads the ID attribute, and consumes the TextureID, TextureSize, and TextureOrigin nodes.
+        /// Reads the ID attribute, and consumes the TextureID, TextureSize, TextureOrigin, and FuelTypeID nodes.
         /// </summary>
         /// <param name="closeReader">
         /// Whether or not the <see cref="XmlReader"/> should be closed after being read from.
         /// If this value is `false`, then the reader should be closed by this constructor's caller.
         /// </param>
-        protected CannonDef(ref XmlReader reader, bool closeReader = true) : base(ref reader, closeReader) {  }
+        protected CannonDef(ref XmlReader reader, bool closeReader = true) : base(ref reader, closeReader: false) {
+            reader.ReadToNextSibling("FuelTypeID");
+            FuelTypeID = reader.ReadElementContentAsString();
+            //
+            // Close the reader if we're instructed to.
+            if(closeReader)
+                reader.Dispose();
+        }
 
         /// <summary>
         /// Creates a new <see cref="Cannon"/> object using this <see cref="CannonDef"/>.

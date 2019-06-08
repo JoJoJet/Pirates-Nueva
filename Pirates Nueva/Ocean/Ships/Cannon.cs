@@ -9,7 +9,7 @@ namespace Pirates_Nueva.Ocean
 
         new public CannonDef Def => (CannonDef)base.Def;
 
-        public ItemDef FuelType { get; } = ItemDef.Get("gunpowder");
+        public ItemDef FuelType => ItemDef.Get(Def.FuelTypeID);
 
         public Cannon(CannonDef def, Block floor, Dir direction) : base(def, floor, direction) {  }
 
