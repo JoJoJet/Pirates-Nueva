@@ -51,13 +51,13 @@ namespace Pirates_Nueva
             // Find all loaded subclasses of this type of Def.
             var dummyList = from assembly in AppDomain.CurrentDomain.GetAssemblies()
                             from type in assembly.GetTypes()
-                            where !type.IsAbstract
+                            where type.IsClass && !type.IsAbstract
                             where !type.ContainsGenericParameters
                             where type.IsSameOrSubclass(typeof(T))
                             select GetDummy(type);
-            dummyList = dummyList.ToList();
-            var dummies = dummyList.ToDictionary(d => d.TypeName,
-                                                 StringComparer.OrdinalIgnoreCase);
+            //
+            // Project the subclasses into a dictionary.
+            var dummies = dummyList.ToDictionary(d => d.TypeName, StringComparer.OrdinalIgnoreCase);
             //
             // Open the resources file for Defs of this type.
             var resources = GetDummy(getTypeForDummy()).Resources;
@@ -95,10 +95,12 @@ namespace Pirates_Nueva
                 //
                 // If the superclass is NOT instantiable,
                 // return its closest derived type.
-                else
+                else if(dummies.Count > 0)
                     return dummies.Values.Select(d => d.GetType())
                                          .OrderBy(t => t.GetInheritanceDepth(typeof(T)))
                                          .First();
+                else
+                    throw new TypeLoadException($"There are no instantiable subclasses of {typeof(T).FullName}!");
             }
         }
         /// <summary>
