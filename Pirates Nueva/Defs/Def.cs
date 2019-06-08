@@ -47,11 +47,13 @@ namespace Pirates_Nueva
             // Find all loaded subclasses of this type of Def.
             var subclasses = from assembly in AppDomain.CurrentDomain.GetAssemblies()
                              from type in assembly.GetTypes()
-                             where type.IsSameOrSubclass(typeof(T))
                              where !type.IsAbstract
+                             where type.IsSameOrSubclass(typeof(T))
+                             where !type.ContainsGenericParameters
                              select type;
             var dummies = subclasses.ToDictionary( t =>  t.FullName.Substring(t.Namespace.Length + 1),
-                                                   t => new Lazy<T>(() => GetDummy(t)) );
+                                                   t => new Lazy<T>(() => GetDummy(t)),
+                                                   StringComparer.OrdinalIgnoreCase );
             //
             // Open the resources file for Defs of this type.
             var resources = GetDummy(typeof(T)).Resources;
