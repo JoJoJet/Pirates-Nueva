@@ -7,9 +7,11 @@ namespace Pirates_Nueva.Ocean
     {
         private Job<Ship, Block>? haulJob;
 
+        new public CannonDef Def => (CannonDef)base.Def;
+
         public ItemDef FuelType { get; } = ItemDef.Get("gunpowder");
 
-        public Cannon(FurnitureDef def, Block floor, Dir direction) : base(def, floor, direction) {  }
+        public Cannon(CannonDef def, Block floor, Dir direction) : base(def, floor, direction) {  }
 
         protected override void Update(Master master) {
             base.Update(master);

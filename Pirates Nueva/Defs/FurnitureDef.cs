@@ -27,6 +27,7 @@ namespace Pirates_Nueva
 
         /// <summary>
         /// Reads the ID attribute of the <see cref="XmlReader"/>, and consumes
+        /// the TextureID, TextureSize, and TextureOrigin nodes.
         /// </summary>
         /// <param name="closeReader">
         /// Whether or not the <see cref="XmlReader"/> should be closed after being read from.
@@ -64,5 +65,18 @@ namespace Pirates_Nueva
         private FurnitureDefImplementation(XmlReader reader) : base(ref reader) { }
 
         public override Furniture Construct(Block floor, Dir direction) => new Furniture(this, floor, direction);
+    }
+
+    public class CannonDef : FurnitureDef
+    {
+        protected override string TypeName => "CannonDef";
+
+        protected override FurnitureDef Construct(XmlReader reader) => new CannonDef(ref reader);
+        protected CannonDef(ref XmlReader reader, bool closeReader = true) : base(ref reader, closeReader) {  }
+
+        /// <summary>
+        /// Creates a new <see cref="Cannon"/> object using this <see cref="Def"/>.
+        /// </summary>
+        public override Furniture Construct(Block floor, Dir direction) => new Cannon(this, floor, direction);
     }
 }
