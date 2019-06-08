@@ -33,14 +33,14 @@ namespace Pirates_Nueva
         public string ID { get; }
 
         /// <summary>
-        /// The name for the current subclass of <see cref="Def"/>, to be used in XML definitions.
-        /// Should behave like a static property.
+        /// The name for the current type of <see cref="Def"/>, to for use in XML definitions.
+        /// <para /> Should behave like a static property.
         /// </summary>
         protected abstract string TypeName { get; }
 
         /// <summary>
-        /// Info about the <see cref="Pirates_Nueva.Resources"/> file that contains
-        /// the definitions Defs of this type.
+        /// Info about the <see cref="Pirates_Nueva.Resources"/> file that
+        /// contains the definitions for Defs of this type.
         /// </summary>
         protected abstract ResourceInfo Resources { get; }
 

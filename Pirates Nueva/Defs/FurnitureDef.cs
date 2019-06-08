@@ -23,6 +23,10 @@ namespace Pirates_Nueva
         /// </summary>
         public PointF TextureOrigin { get; }
 
+        /// <summary>
+        /// Info about the <see cref="Pirates_Nueva.Resources"/> that contains
+        /// the definitions for <see cref="FurnitureDef"/>s.
+        /// </summary>
         protected sealed override ResourceInfo Resources => new ResourceInfo("furniture", "FurnitureDefs");
 
         /// <summary>
@@ -50,7 +54,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Creates a new <see cref="Furniture"/> object using this <see cref="Def"/>.
+        /// Creates a new <see cref="Furniture"/> object using this <see cref="FurnitureDef"/>.
         /// </summary>
         public abstract Furniture Construct(Block floor, Dir direction);
     }
@@ -67,15 +71,34 @@ namespace Pirates_Nueva
         public override Furniture Construct(Block floor, Dir direction) => new Furniture(this, floor, direction);
     }
 
+    /// <summary>
+    /// An immutable object containing properties for a <see cref="Cannon"/> on a <see cref="Ship"/>.
+    /// </summary>
     public class CannonDef : FurnitureDef
     {
+        /// <summary>
+        /// The name for the current type of <see cref="CannonDef"/>, for use in XML definitions.
+        /// <para /> Should behave like a static property.
+        /// </summary>
         protected override string TypeName => "CannonDef";
 
+        /// <summary>
+        /// Constructs a new instance of the current type of <see cref="CannonDef"/>,
+        /// reading from the specified <see cref="XmlReader"/>.
+        /// <para /> Should behave like a static method.
+        /// </summary>
         protected override FurnitureDef Construct(XmlReader reader) => new CannonDef(ref reader);
+        /// <summary>
+        /// Reads the ID attribute, and consumes the TextureID, TextureSize, and TextureOrigin nodes.
+        /// </summary>
+        /// <param name="closeReader">
+        /// Whether or not the <see cref="XmlReader"/> should be closed after being read from.
+        /// If this value is `false`, then the reader should be closed by this constructor's caller.
+        /// </param>
         protected CannonDef(ref XmlReader reader, bool closeReader = true) : base(ref reader, closeReader) {  }
 
         /// <summary>
-        /// Creates a new <see cref="Cannon"/> object using this <see cref="Def"/>.
+        /// Creates a new <see cref="Cannon"/> object using this <see cref="CannonDef"/>.
         /// </summary>
         public override Furniture Construct(Block floor, Dir direction) => new Cannon(this, floor, direction);
     }
