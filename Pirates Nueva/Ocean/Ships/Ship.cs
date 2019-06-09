@@ -22,10 +22,12 @@ namespace Pirates_Nueva.Ocean
 
         public Sea Sea { get; }
 
+        public ShipDef Def { get; }
+
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
-        public int Width => this.blocks.GetLength(0);
+        public int Width => Def.Width;
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
-        public int Height => this.blocks.GetLength(1);
+        public int Height => Def.Height;
         
         /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
         public float CenterX { get; protected set; }
@@ -64,10 +66,11 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
-        public Ship(Sea parent, int width, int height) {
+        public Ship(Sea parent, ShipDef def) {
             Sea = parent;
+            Def = def;
 
-            this.blocks = new Block[width, height];
+            this.blocks = new Block[Width, Height];
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             

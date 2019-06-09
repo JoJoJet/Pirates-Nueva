@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ShipDefs>
+	<ShipDef ID="dinghy">
+		<Width>10</Width>
+		<Height>5</Height>
+	</ShipDef>
+</ShipDefs>
