@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipDefs>
 	<ShipDef ID="dinghy">
-		<Width>10</Width>
+		<Width>9</Width>
 		<Height>5</Height>
-		<RootIndex>5, 2</RootIndex>
+		<RootIndex>3, 2</RootIndex>
 		<DefaultShape>
 			<!--   W W         -->
 			<!-- W W W W W W   -->
 			<!-- W W R W W W W -->
 			<!-- W W W W W W   -->
 			<!--   W W         -->
-			<Block ID="wood" X="3" Y="3" />
-			<Block ID="wood" X="3" Y="2" />
-			<Block ID="wood" X="3" Y="1" />
+			<Block ID="wood" X="1" Y="3" />
+			<Block ID="wood" X="1" Y="2" />
+			<Block ID="wood" X="1" Y="1" />
 			
-			<Block ID="wood" X="4" Y="4" />
+			<Block ID="wood" X="2" Y="4" />
+			<Block ID="wood" X="2" Y="3" />
+			<Block ID="wood" X="2" Y="2" />
+			<Block ID="wood" X="2" Y="1" />
+			<Block ID="wood" X="2" Y="0" />
+			
+			<Block ID="wood" X="3" Y="4" />
+			<Block ID="wood" X="3" Y="3" />
+			<Block ID="root" X="3" Y="2" />
+			<Block ID="wood" X="3" Y="1" />
+			<Block ID="wood" X="3" Y="0" />
+			
 			<Block ID="wood" X="4" Y="3" />
 			<Block ID="wood" X="4" Y="2" />
 			<Block ID="wood" X="4" Y="1" />
-			<Block ID="wood" X="4" Y="0" />
 			
-			<Block ID="wood" X="5" Y="4" />
 			<Block ID="wood" X="5" Y="3" />
-			<Block ID="root" X="5" Y="2" />
+			<Block ID="wood" X="5" Y="2" />
 			<Block ID="wood" X="5" Y="1" />
-			<Block ID="wood" X="5" Y="0" />
 			
 			<Block ID="wood" X="6" Y="3" />
 			<Block ID="wood" X="6" Y="2" />
 			<Block ID="wood" X="6" Y="1" />
 			
-			<Block ID="wood" X="7" Y="3" />
 			<Block ID="wood" X="7" Y="2" />
-			<Block ID="wood" X="7" Y="1" />
-			
-			<Block ID="wood" X="8" Y="3" />
-			<Block ID="wood" X="8" Y="2" />
-			<Block ID="wood" X="8" Y="1" />
-			
-			<Block ID="wood" X="9" Y="2" />
 		</DefaultShape>
 	</ShipDef>
 </ShipDefs>
