@@ -5,18 +5,14 @@ using System.Xml;
 
 namespace Pirates_Nueva
 {
-    public class ItemDef : Def
+    public class ItemDef : Def<ItemDef>
     {
         public string TextureID { get; }
 
-        /// <summary>
-        /// Gets the <see cref="ItemDef"/> identified by the specified <see cref="string"/>.
-        /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown if there is no <see cref="ItemDef"/> identified by /id/.</exception>
-        /// <exception cref="InvalidCastException">Thrown if the <see cref="Def"/> identified by /id/ is not a <see cref="ItemDef"/>.</exception>
-        public static ItemDef Get(string id) => Get<ItemDef>(id);
+        protected override string TypeName => "ItemDef";
+        protected override ResourceInfo Resources => new ResourceInfo("items", "ItemDefs");
 
-        protected override Def Construct(XmlReader reader) => new ItemDef(reader);
+        protected sealed override ItemDef Construct(XmlReader reader) => new ItemDef(reader);
         protected ItemDef(XmlReader reader) : base(reader) {
             using var r = reader.ReadSubtree();
 

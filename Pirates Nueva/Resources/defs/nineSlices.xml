@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SliceDefs>
+	<SliceDef ID="panel">
+		<!-- The name of the source texture. -->
+		<TextureID>panel</TextureID>
+		<Slices>
+			<Left>10</Left>
+			<Right>10</Right>
+			<Top>10</Top>
+			<Bottom>10</Bottom>
+		</Slices>
+	</SliceDef>
+</SliceDefs>

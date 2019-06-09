@@ -69,10 +69,10 @@
         }
         /// <summary> Draw this <see cref="MenuButton"/> onscreen, from the specified top left corner. </summary>
         protected override void Draw(Master master, int left, int top) {
-            var panel = new NineSlice(Def.Get<SliceDef>("panel"), WidthPixels, HeightPixels, master); // Make a panel.
-            master.Renderer.Draw(panel, left, top, WidthPixels, HeightPixels);                        // Draw a panel behind the text.
+            var panel = new NineSlice(SliceDef.Get("panel"), WidthPixels, HeightPixels, master); // Make a panel.
+            master.Renderer.Draw(panel, left, top, WidthPixels, HeightPixels);                   // Draw a panel behind the text.
 
-            master.Renderer.DrawString(Font, Text, left+Padding, top+Padding);                        // Draw the text.
+            master.Renderer.DrawString(Font, Text, left+Padding, top+Padding);                   // Draw the text.
         }
     }
 }

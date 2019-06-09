@@ -40,8 +40,6 @@ namespace Pirates_Nueva
 
         public PlayerController Player { get; private set; }
 
-        internal Resources Resources { get; }
-
         private Sea Sea => this._sea ?? NullableUtil.ThrowNotInitialized<Sea>(nameof(Master));
 
         #region Initialization
@@ -51,7 +49,7 @@ namespace Pirates_Nueva
 
             GUI = new UI.GUI(this);
 
-            Resources = new Resources(this);
+            Resources.Initialize(Content);
             Input = new Input(this);
 
             //
@@ -74,9 +72,6 @@ namespace Pirates_Nueva
         protected override void Initialize() {
             // Make the mouse cursor visible onscreen.
             IsMouseVisible = true;
-
-            // Initialize the Def class.
-            Def.Initialize(this);
 
             base.Initialize();
         }
@@ -168,5 +163,30 @@ namespace Pirates_Nueva
         /// </summary>
         public static bool IsSameOrSubclass(this Type type, Type other)
             => type == other || type.IsSubclassOf(other);
+
+        /// <summary>
+        /// Gets the inheritance depth of this <see cref="Type"/> with respect to the specified parent <see cref="Type"/>.
+        /// </summary>
+        public static int GetInheritanceDepth(this Type type, Type parent) {
+            if(!type.IsSameOrSubclass(parent))
+                throw new ArgumentException("Not a parent of this type!", nameof(parent));
+            int depth = 0;
+            while(type != parent) {
+                ++depth;
+                type = type.BaseType;
+            }
+            return depth;
+        }
+        /// <summary>
+        /// Gets the inheritance depth of this <see cref="Type"/>.
+        /// </summary>
+        public static int GetInheritanceDepth(this Type type) {
+            int depth = 0;
+            while(type != null) {
+                ++depth;
+                type = type.BaseType;
+            }
+            return depth;
+        }
     }
 }

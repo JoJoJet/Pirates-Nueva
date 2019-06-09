@@ -53,7 +53,7 @@ namespace Pirates_Nueva.Ocean
 
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
         protected override void Draw(Master master) {
-            var tex = master.Resources.LoadTexture(Def.TextureID);
+            var tex = Resources.LoadTexture(Def.TextureID);
 
             PointF texOffset = (0.5f, 0.5f);                  // As MonoGame draws from the top left, ofset the texture by
             texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); //     a rotated constant to account for this.

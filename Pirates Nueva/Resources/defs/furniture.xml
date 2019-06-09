@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FurnitureDefs>
+	<CannonDef ID="cannon">
+		<TextureID>cannon</TextureID>
+		<!-- Counted in number of blocks it takes up -->
+		<TextureSize>2, 1</TextureSize>
+		<!-- The point on the texture (from 0 to 1) from which the texture will be drawn. You can think of it as (1 - offset) -->
+		<TextureOrigin>0.75, 0.5</TextureOrigin>
+		<FuelTypeID>gunpowder</FuelTypeID>
+	</CannonDef>
+</FurnitureDefs>
