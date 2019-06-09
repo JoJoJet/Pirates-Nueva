@@ -61,7 +61,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
         /// </summary>
-        private PointI RootIndex { get; }
+        private PointI RootIndex => Def.RootIndex;
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
@@ -72,7 +72,6 @@ namespace Pirates_Nueva.Ocean
 
             this.blocks = new Block[Width, Height];
 
-            RootIndex = def.RootIndex;
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
             PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.
