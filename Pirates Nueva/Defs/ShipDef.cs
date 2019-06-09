@@ -13,6 +13,8 @@ namespace Pirates_Nueva
         public int Width { get; }
         public int Height { get; }
 
+        public PointI RootIndex { get; }
+
         /// <summary>
         /// The name of the current type of <see cref="ShipDef"/>, for use in XML definitions.
         /// <para /> Should behave like a static property.
@@ -45,6 +47,9 @@ namespace Pirates_Nueva
 
             reader.ReadToNextSibling("Height");
             Height = reader.ReadElementContentAsInt();
+
+            reader.ReadToNextSibling("RootIndex");
+            RootIndex = reader.ReadPointI();
 
             if(closeReader)
                 reader.Dispose();

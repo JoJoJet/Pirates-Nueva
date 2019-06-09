@@ -55,13 +55,13 @@ namespace Pirates_Nueva.Ocean
         public Vector Right => Angle.Vector;
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootX => Width/2;
+        private int RootX => RootIndex.X;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootY => Height/2;
+        private int RootY => RootIndex.Y;
         /// <summary>
         /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
         /// </summary>
-        private PointI RootIndex => (RootX, RootY);
+        private PointI RootIndex { get; }
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
@@ -72,6 +72,7 @@ namespace Pirates_Nueva.Ocean
 
             this.blocks = new Block[Width, Height];
 
+            RootIndex = def.RootIndex;
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             
             PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.

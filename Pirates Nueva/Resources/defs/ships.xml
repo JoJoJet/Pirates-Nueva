@@ -3,5 +3,6 @@
 	<ShipDef ID="dinghy">
 		<Width>10</Width>
 		<Height>5</Height>
+		<RootIndex>5, 2</RootIndex>
 	</ShipDef>
 </ShipDefs>
