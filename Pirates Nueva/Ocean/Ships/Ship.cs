@@ -489,7 +489,7 @@ namespace Pirates_Nueva.Ocean
                     var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
                     Angle = Angle.MoveTowards(Angle, newAngle, delta);  //    and slowly rotate the ship towards that angle.
                                                                         //
-                    Center += Right * 3 * delta;                        //    Slowly move the ship to the right.
+                    Center += Right * Def.Speed * delta;                //    Slowly move the ship to the right.
                 }                                                       //
                 else {                                                  // If the destination is within half a block,
                     Destination = null;                                 //     unassign the destination (we're there!)

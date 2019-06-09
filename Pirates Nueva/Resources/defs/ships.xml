@@ -4,6 +4,8 @@
 		<Width>9</Width>
 		<Height>5</Height>
 		<RootIndex>3, 2</RootIndex>
+		<!-- In units per second. -->
+		<Speed>3</Speed>
 		<DefaultShape>
 			<!--   W W         -->
 			<!-- W W W W W W   -->

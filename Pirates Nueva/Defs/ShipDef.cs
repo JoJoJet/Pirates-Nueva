@@ -34,6 +34,11 @@ namespace Pirates_Nueva
         /// </summary>
         public PointI RootIndex { get; }
 
+        /// <summary>
+        /// The speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in units per second.
+        /// </summary>
+        public float Speed { get; }
+
         public IReadOnlyList<BlockInfo> DefaultShape { get; }
 
         /// <summary>
@@ -71,6 +76,9 @@ namespace Pirates_Nueva
 
             reader.ReadToNextSibling("RootIndex");
             RootIndex = reader.ReadPointI();
+
+            reader.ReadToNextSibling("Speed");
+            Speed = reader.ReadElementContentAsFloat();
 
             reader.ReadToNextSibling("DefaultShape");
             using(var r = reader.ReadSubtree()) {
