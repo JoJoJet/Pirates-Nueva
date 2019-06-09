@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace Pirates_Nueva
 {
+    /// <summary>
+    /// An immutable object contaings properties that are defined via an XML file.
+    /// </summary>
+    /// <typeparam name="T">The type that is implementing this abstract class.</typeparam>
     public abstract class Def<T>
         where T : Def<T>
     {
@@ -33,7 +37,7 @@ namespace Pirates_Nueva
         public string ID { get; }
 
         /// <summary>
-        /// The name for the current type of <see cref="Def"/>, to for use in XML definitions.
+        /// The name for the current type of <see cref="Def"/>, for use in XML definitions.
         /// <para /> Should behave like a static property.
         /// </summary>
         protected abstract string TypeName { get; }

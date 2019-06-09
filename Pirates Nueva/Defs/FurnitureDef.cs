@@ -22,7 +22,7 @@ namespace Pirates_Nueva
         public PointF TextureOrigin { get; }
 
         /// <summary>
-        /// Info about the <see cref="Pirates_Nueva.Resources"/> that contains
+        /// Info about the <see cref="Pirates_Nueva.Resources"/> file that contains
         /// the definitions for <see cref="FurnitureDef"/>s.
         /// </summary>
         protected sealed override ResourceInfo Resources => new ResourceInfo("furniture", "FurnitureDefs");
