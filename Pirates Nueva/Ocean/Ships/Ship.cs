@@ -70,11 +70,13 @@ namespace Pirates_Nueva.Ocean
             Sea = parent;
             Def = def;
 
-            this.blocks = new Block[Width, Height];
-
             Center = (PointF)RootIndex + (0.5f, 0.5f);
-            
-            PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.
+            //
+            // Construct the default shape of this ship def.
+            this.blocks = new Block[Width, Height];
+            foreach(var block in def.DefaultShape) {
+                PlaceBlock(BlockDef.Get(block.ID), block.X, block.Y);
+            }
 
             AddAgent(RootX, RootY); // Add an agent to the center.
         }

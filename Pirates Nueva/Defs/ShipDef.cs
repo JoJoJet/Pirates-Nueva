@@ -10,10 +10,31 @@ namespace Pirates_Nueva
     /// </summary>
     public class ShipDef : Def<ShipDef>
     {
+        /// <summary>
+        /// Info about a ship <see cref="Ocean.Block"/> for a <see cref="ShipDef"/>'s default shape.
+        /// </summary>
+        public class BlockInfo
+        {
+            public string ID { get; }
+            public int X { get; }
+            public int Y { get; }
+
+            internal BlockInfo(XmlReader reader) {
+                ID = reader.GetAttribute("ID");
+                X = int.Parse(reader.GetAttribute("X"));
+                Y = int.Parse(reader.GetAttribute("Y"));
+            }
+        }
+
         public int Width { get; }
         public int Height { get; }
 
+        /// <summary>
+        /// The index of the root block on a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
+        /// </summary>
         public PointI RootIndex { get; }
+
+        public IReadOnlyList<BlockInfo> DefaultShape { get; }
 
         /// <summary>
         /// The name of the current type of <see cref="ShipDef"/>, for use in XML definitions.
@@ -50,6 +71,20 @@ namespace Pirates_Nueva
 
             reader.ReadToNextSibling("RootIndex");
             RootIndex = reader.ReadPointI();
+
+            reader.ReadToNextSibling("DefaultShape");
+            using(var r = reader.ReadSubtree()) {
+                var shape = new List<BlockInfo>();
+
+                if(r.ReadToDescendant("Block")) {
+                    do {
+                        shape.Add(new BlockInfo(r));
+                    }
+                    while(r.ReadToNextSibling("Block"));
+                }
+
+                DefaultShape = shape.AsReadOnly();
+            }
 
             if(closeReader)
                 reader.Dispose();
