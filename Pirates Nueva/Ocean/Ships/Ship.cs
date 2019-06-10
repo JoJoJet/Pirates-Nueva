@@ -487,7 +487,8 @@ namespace Pirates_Nueva.Ocean
             if(Destination is PointF dest) {                            // If there is a destination:
                 if(PointF.Distance(Center, dest) > 0.25f) {             // If the destination is more than half a block away,
                     var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
-                    Angle = Angle.MoveTowards(Angle, newAngle, delta);  //    and slowly rotate the ship towards that angle.
+                    var step = Def.TurnSpeed * delta;                   //
+                    Angle = Angle.MoveTowards(Angle, newAngle, step);   //    and slowly rotate the ship towards that angle.
                                                                         //
                     Center += Right * Def.Speed * delta;                //    Slowly move the ship to the right.
                 }                                                       //

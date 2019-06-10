@@ -6,6 +6,7 @@
 		<RootIndex>3, 2</RootIndex>
 		<!-- In units per second. -->
 		<Speed>3</Speed>
+		<TurningRadius>9</TurningRadius>
 		<DefaultShape>
 			<!--   W W         -->
 			<!-- W W W W W W   -->
