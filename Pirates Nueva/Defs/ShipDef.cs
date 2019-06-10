@@ -39,7 +39,7 @@ namespace Pirates_Nueva
         /// </summary>
         public float Speed { get; }
         /// <summary>
-        /// The minimum turning radius of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
+        /// The turning radius of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
         /// </summary>
         public float TurningRadius { get; }
         /// <summary>
