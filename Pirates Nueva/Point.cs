@@ -191,21 +191,21 @@ namespace Pirates_Nueva
 
     public static class PointExt
     {
-        static readonly Regex intMatcher = new Regex(@"(?<x>\d+), *(?<y>\d+)", RegexOptions.Compiled);
-        static readonly Regex floatMatcher = new Regex(@"(?<x>\d+\.?\d*), *(?<y>\d+\.?\d*)", RegexOptions.Compiled);
+        static readonly Regex intMatcher = new Regex(@"(\d+), *(\d+)", RegexOptions.Compiled);
+        static readonly Regex floatMatcher = new Regex(@"(\d+\.?\d*), *(\d+\.?\d*)", RegexOptions.Compiled);
 
         public static PointI ReadPointI(this System.Xml.XmlReader reader) {
             var match = intMatcher.Match(reader.ReadElementContentAsString());
-            return new PointI(parse("x"), parse("y"));
+            return new PointI(parse(1), parse(2));
 
-            int parse(string group) => int.Parse(match.Groups[group].Value);
+            int parse(int group) => int.Parse(match.Groups[group].Value);
         }
 
         public static PointF ReadPointF(this System.Xml.XmlReader reader) {
             var match = floatMatcher.Match(reader.ReadElementContentAsString());
-            return new PointF(parse("x"), parse("y"));
+            return new PointF(parse(1), parse(2));
 
-            float parse(string group) => float.Parse(match.Groups[group].Value);
+            float parse(int group) => float.Parse(match.Groups[group].Value);
         }
     }
 }
