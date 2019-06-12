@@ -14,9 +14,7 @@ namespace Pirates_Nueva
         /// <exception cref="XmlException"/>
         public static string GetAttributeStrict(this XmlReader reader, string name) {
             const string Sig = nameof(XmlReader) + "." + nameof(GetAttributeStrict) + "()";
-            if(reader.NodeType != XmlNodeType.Element)
-                throw new XmlException($"{Sig}: The reader must be positioned on an element! " +
-                                       $"Node type {reader.NodeType} is invalid.");
+            ThrowIfInvalidNodeType(reader, XmlNodeType.Element, Sig);
             if(reader.GetAttribute(name) is string att)
                 return att;
             else
@@ -39,15 +37,23 @@ namespace Pirates_Nueva
         /// <exception cref="FormatException"/>
         public static int GetAttributeInt(this XmlReader reader, string name) {
             const string Sig = nameof(XmlReader) + "." + nameof(GetAttributeInt) + "()";
-            if(reader.NodeType != XmlNodeType.Element)
-                throw new XmlException($"{Sig}: The reader must be positioned on an element! " +
-                                       $"Node type \"{reader.NodeType}\" is invalid.");
-            var att = reader.GetAttributeStrict(name);
-            if(int.TryParse(att, out int val))
-                return val;
-            else
-                throw new FormatException($"{Sig}: value \"{att}\" of attribute \"{name}\" on " +
-                                          $"element \"{reader.Name}\" is not a valid integer value!");
+            ThrowIfInvalidNodeType(reader, XmlNodeType.Element, Sig);
+            //
+            // Read the attribute and parse it as an integer.
+            if(reader.GetAttributeOrNull(name) is string att) {
+                if(int.TryParse(att, out int val))
+                    return val;
+                //
+                // Throw an exception if the attribute can't be parsed as an integer.
+                else
+                    throw new FormatException($"{Sig}: value \"{att}\" of attribute \"{name}\" on " +
+                                              $"element \"{reader.Name}\" is not a valid integer value!");
+            }
+            //
+            // Throw an exception if the attribute is missing.
+            else {
+                throw new XmlException($"{Sig}: Element \"{reader.Name}\" does not have an attribute named \"{name}\"!");
+            }
         }
         /// <summary>
         /// Gets the value of the attribute with specified name,
@@ -59,19 +65,30 @@ namespace Pirates_Nueva
         /// <exception cref="FormatException"/>
         public static int GetAttributeInt(this XmlReader reader, string name, int @default) {
             const string Sig = nameof(XmlReader) + "." + nameof(GetAttributeInt) + "()";
-            if(reader.NodeType != XmlNodeType.Element)
-                throw new XmlException($"{Sig}: The reader must be positioned on an element! " +
-                                       $"Node type \"{reader.NodeType}\" is invalid.");
+            ThrowIfInvalidNodeType(reader, XmlNodeType.Element, Sig);
+            //
+            // Read the attribute and parse it as an integer.
             if(reader.GetAttributeOrNull(name) is string att) {
                 if(int.TryParse(att, out int val))
                     return val;
+                //
+                // Throw an exception if the attribute can't be parsed as an integer.
                 else
                     throw new FormatException($"{Sig}: value \"{att}\" of attribute \"{name}\" on " +
                                               $"element \"{reader.Name}\" is not a valid integer value!");
             }
+            //
+            // Return the default value if the attribute is missing.
             else {
                 return @default;
             }
+        }
+
+        /// <summary> Throws an exception if the reader is not positioned on the specified node type. </summary>
+        private static void ThrowIfInvalidNodeType(XmlReader reader, XmlNodeType type, string callerSignature) {
+            if(reader.NodeType != type)
+                throw new XmlException($"{callerSignature}: The reader must be positioned on a node of " +
+                                       $"type \"{type}\"! Node type \"{reader.NodeType}\" is invalid.");
         }
     }
 }
