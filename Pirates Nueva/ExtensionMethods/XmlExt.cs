@@ -8,6 +8,12 @@ namespace Pirates_Nueva
     public static class XmlExt
     {
         /// <summary>
+        /// Reads the current element and returns the contents as a <see cref="string"/>.
+        /// </summary>
+        public static string ReadElementString(this XmlReader reader)
+            => reader.ReadElementContentAsString();
+
+        /// <summary>
         /// Gets the value of the attribute with specified name,
         /// or throws an exception if it's not defined.
         /// </summary>

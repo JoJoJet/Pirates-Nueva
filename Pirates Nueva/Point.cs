@@ -195,14 +195,14 @@ namespace Pirates_Nueva
         static readonly Regex floatMatcher = new Regex(@"(\d+\.?\d*), *(\d+\.?\d*)", RegexOptions.Compiled);
 
         public static PointI ReadPointI(this System.Xml.XmlReader reader) {
-            var match = intMatcher.Match(reader.ReadElementContentAsString());
+            var match = intMatcher.Match(reader.ReadElementString());
             return new PointI(parse(1), parse(2));
 
             int parse(int group) => int.Parse(match.Groups[group].Value);
         }
 
         public static PointF ReadPointF(this System.Xml.XmlReader reader) {
-            var match = floatMatcher.Match(reader.ReadElementContentAsString());
+            var match = floatMatcher.Match(reader.ReadElementString());
             return new PointF(parse(1), parse(2));
 
             float parse(int group) => float.Parse(match.Groups[group].Value);
