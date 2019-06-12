@@ -21,8 +21,8 @@ namespace Pirates_Nueva
 
             internal BlockInfo(XmlReader reader) {
                 ID = reader.GetAttributeStrict("ID");
-                X = int.Parse(reader.GetAttribute("X"));
-                Y = int.Parse(reader.GetAttribute("Y"));
+                X = reader.GetAttributeInt("X");
+                Y = reader.GetAttributeInt("Y");
             }
         }
 
