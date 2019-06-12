@@ -29,7 +29,7 @@ namespace Pirates_Nueva.Ocean
             var isl = Islands as IArchiContract;
             isl.Generate(new Random().Next(), master);
 
-            this.entities.Add(new PlayerShip(this, 10, 5));
+            this.entities.Add(new PlayerShip(this, ShipDef.Get("dinghy")));
         }
 
         void IUpdatable.Update(Master master, Time delta) {

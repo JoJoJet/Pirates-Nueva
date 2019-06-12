@@ -22,10 +22,12 @@ namespace Pirates_Nueva.Ocean
 
         public Sea Sea { get; }
 
+        public ShipDef Def { get; }
+
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
-        public int Width => this.blocks.GetLength(0);
+        public int Width => Def.Width;
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
-        public int Height => this.blocks.GetLength(1);
+        public int Height => Def.Height;
         
         /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
         public float CenterX { get; protected set; }
@@ -53,25 +55,28 @@ namespace Pirates_Nueva.Ocean
         public Vector Right => Angle.Vector;
 
         /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootX => Width/2;
+        private int RootX => RootIndex.X;
         /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootY => Height/2;
+        private int RootY => RootIndex.Y;
         /// <summary>
         /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
         /// </summary>
-        private PointI RootIndex => (RootX, RootY);
+        private PointI RootIndex => Def.RootIndex;
 
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
-        public Ship(Sea parent, int width, int height) {
+        public Ship(Sea parent, ShipDef def) {
             Sea = parent;
-
-            this.blocks = new Block[width, height];
+            Def = def;
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
-            
-            PlaceBlock(BlockDef.Get(RootID), RootX, RootY); // Place the root block.
+            //
+            // Construct the default shape of this ship def.
+            this.blocks = new Block[Width, Height];
+            foreach(var block in def.DefaultShape) {
+                PlaceBlock(BlockDef.Get(block.ID), block.X, block.Y);
+            }
 
             AddAgent(RootX, RootY); // Add an agent to the center.
         }
@@ -482,9 +487,10 @@ namespace Pirates_Nueva.Ocean
             if(Destination is PointF dest) {                            // If there is a destination:
                 if(PointF.Distance(Center, dest) > 0.25f) {             // If the destination is more than half a block away,
                     var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
-                    Angle = Angle.MoveTowards(Angle, newAngle, delta);  //    and slowly rotate the ship towards that angle.
+                    var step = Def.TurnSpeed * delta;                   //
+                    Angle = Angle.MoveTowards(Angle, newAngle, step);   //    and slowly rotate the ship towards that angle.
                                                                         //
-                    Center += Right * 3 * delta;                        //    Slowly move the ship to the right.
+                    Center += Right * Def.Speed * delta;                //    Slowly move the ship to the right.
                 }                                                       //
                 else {                                                  // If the destination is within half a block,
                     Destination = null;                                 //     unassign the destination (we're there!)
