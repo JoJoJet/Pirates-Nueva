@@ -110,7 +110,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Reads the ID attribute of the <see cref="XmlReader"/>. Does not consume any elements.
         /// </summary>
-        protected Def(XmlReader reader) => ID = reader.GetAttribute("ID");
+        protected Def(XmlReader reader) => ID = reader.GetAttributeStrict("ID");
 
         /// <summary>
         /// Gets the Def identified by the specified <see cref="string"/>.
