@@ -20,5 +20,12 @@ namespace Pirates_Nueva
             else
                 throw new XmlException($"{Sig}: Element \"{reader.Name}\" does not have an attribute named \"{name}\"!");
         }
+
+        /// <summary>
+        /// Gets the value of the attribute with specified name,
+        /// or returns null if it's not defined.
+        /// </summary>
+        public static string? GetAttributeOrNull(this XmlReader reader, string name)
+            => reader.GetAttribute(name);
     }
 }
