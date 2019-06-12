@@ -34,7 +34,7 @@ namespace Pirates_Nueva
         /// </param>
         protected CannonDef(ref XmlReader reader, bool closeReader = true) : base(ref reader, closeReader: false) {
             reader.ReadToNextSibling("FuelTypeID");
-            FuelTypeID = reader.ReadElementContentAsString();
+            FuelTypeID = reader.ReadElementTrim();
             //
             // Close the reader if we're instructed to.
             if(closeReader)

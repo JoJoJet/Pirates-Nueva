@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva
@@ -190,20 +191,21 @@ namespace Pirates_Nueva
 
     public static class PointExt
     {
-        public static PointI ReadPointI(this System.Xml.XmlReader reader) {
-            var fields = GetFields(reader);
+        static readonly Regex intMatcher = new Regex(@"(\d+), *(\d+)", RegexOptions.Compiled);
+        static readonly Regex floatMatcher = new Regex(@"(\d+\.?\d*), *(\d+\.?\d*)", RegexOptions.Compiled);
 
-            return (int.Parse(fields[0].Trim()), int.Parse(fields[1].Trim()));
+        public static PointI ReadPointI(this System.Xml.XmlReader reader) {
+            var match = intMatcher.Match(reader.ReadElementString());
+            return new PointI(parse(1), parse(2));
+
+            int parse(int group) => int.Parse(match.Groups[group].Value);
         }
 
         public static PointF ReadPointF(this System.Xml.XmlReader reader) {
-            var fields = GetFields(reader);
+            var match = floatMatcher.Match(reader.ReadElementString());
+            return new PointF(parse(1), parse(2));
 
-            return (float.Parse(fields[0].Trim()), float.Parse(fields[1].Trim()));
-        }
-
-        static string[] GetFields(System.Xml.XmlReader reader) {
-            return reader.ReadElementContentAsString().Split(new char[] { ',' }, 2, StringSplitOptions.RemoveEmptyEntries);
+            float parse(int group) => float.Parse(match.Groups[group].Value);
         }
     }
 }

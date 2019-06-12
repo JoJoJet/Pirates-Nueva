@@ -20,9 +20,9 @@ namespace Pirates_Nueva
             public int Y { get; }
 
             internal BlockInfo(XmlReader reader) {
-                ID = reader.GetAttribute("ID");
-                X = int.Parse(reader.GetAttribute("X"));
-                Y = int.Parse(reader.GetAttribute("Y"));
+                ID = reader.GetAttributeStrict("ID");
+                X = reader.GetAttributeInt("X");
+                Y = reader.GetAttributeInt("Y");
             }
         }
 
