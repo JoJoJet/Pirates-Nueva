@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva
 {
@@ -10,11 +11,13 @@ namespace Pirates_Nueva
         /// <summary>
         /// Reads the current element and returns the contents as a trimmed <see cref="string"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadElementTrim(this XmlReader reader)
             => reader.ReadElementContentAsString().Trim();
         /// <summary>
         /// Reads the current element and returns the contents as a <see cref="string"/>.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadElementString(this XmlReader reader)
             => reader.ReadElementContentAsString();
 
