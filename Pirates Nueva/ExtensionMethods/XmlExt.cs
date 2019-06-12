@@ -49,5 +49,29 @@ namespace Pirates_Nueva
                 throw new FormatException($"{Sig}: value \"{att}\" of attribute \"{name}\" on " +
                                           $"element \"{reader.Name}\" is not a valid integer value!");
         }
+        /// <summary>
+        /// Gets the value of the attribute with specified name,
+        /// and converts it to an <see cref="int"/>.
+        /// Returns <paramref name="default"/> if the attribute is not defined.
+        /// </summary>
+        /// <param name="default">The value to return if the attribute is not defined.</param>
+        /// <exception cref="XmlException"/>
+        /// <exception cref="FormatException"/>
+        public static int GetAttributeInt(this XmlReader reader, string name, int @default) {
+            const string Sig = nameof(XmlReader) + "." + nameof(GetAttributeInt) + "()";
+            if(reader.NodeType != XmlNodeType.Element)
+                throw new XmlException($"{Sig}: The reader must be positioned on an element! " +
+                                       $"Node type \"{reader.NodeType}\" is invalid.");
+            if(reader.GetAttributeOrNull(name) is string att) {
+                if(int.TryParse(att, out int val))
+                    return val;
+                else
+                    throw new FormatException($"{Sig}: value \"{att}\" of attribute \"{name}\" on " +
+                                              $"element \"{reader.Name}\" is not a valid integer value!");
+            }
+            else {
+                return @default;
+            }
+        }
     }
 }
