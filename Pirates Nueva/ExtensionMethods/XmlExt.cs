@@ -8,6 +8,11 @@ namespace Pirates_Nueva
     public static class XmlExt
     {
         /// <summary>
+        /// Reads the current element and returns the contents as a trimmed <see cref="string"/>.
+        /// </summary>
+        public static string ReadElementTrim(this XmlReader reader)
+            => reader.ReadElementContentAsString().Trim();
+        /// <summary>
         /// Reads the current element and returns the contents as a <see cref="string"/>.
         /// </summary>
         public static string ReadElementString(this XmlReader reader)

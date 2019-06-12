@@ -39,7 +39,7 @@ namespace Pirates_Nueva
             reader = reader.ReadSubtree();
 
             reader.ReadToDescendant("TextureID");
-            TextureID = reader.ReadElementContentAsString();
+            TextureID = reader.ReadElementTrim();
 
             reader.ReadToNextSibling("TextureSize");
             TextureSize = reader.ReadPointI();

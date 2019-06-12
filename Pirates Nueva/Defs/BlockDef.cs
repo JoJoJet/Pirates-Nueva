@@ -23,7 +23,7 @@ namespace Pirates_Nueva
             using var r = reader.ReadSubtree();
 
             r.ReadToDescendant("TextureID");
-            TextureID = r.ReadElementContentAsString();
+            TextureID = r.ReadElementTrim();
         }
     }
 }
