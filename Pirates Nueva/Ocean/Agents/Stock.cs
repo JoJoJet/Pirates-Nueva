@@ -2,6 +2,11 @@
 
 namespace Pirates_Nueva.Ocean.Agents
 {
+    public interface IStockClaimant : IEquatable<IStockClaimant>
+    {
+
+    }
+
     public abstract class Stock<TC, TSpot> : IDrawable
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
@@ -23,6 +28,11 @@ namespace Pirates_Nueva.Ocean.Agents
                                                 //     (But never both at once).
         /// <summary> The Y coordinate of this instance, local to its container. </summary>
         public float Y => Holder?.Y ?? Spot!.Y;
+
+        /// <summary> Whether or not this Stock is currently claimed. </summary>
+        public bool IsClaimed => Claimant != null;
+        /// <summary> The object that has claimed this Stock, if applicable. </summary>
+        public IStockClaimant? Claimant { get; private set; }
 
         protected Stock(ItemDef def, TC container, TSpot spot) {
             Def = def;
@@ -58,6 +68,22 @@ namespace Pirates_Nueva.Ocean.Agents
             }
             Holder = holder ?? throw new ArgumentNullException(nameof(holder));
             Holder.Holding = this;
+        }
+
+        public void Claim(IStockClaimant claimant) {
+            if(IsClaimed) {
+                throw new InvalidOperationException("This Stock has already been claimed!");
+            }
+            Claimant = claimant;
+        }
+        public void Unclaim(IStockClaimant claimant) {
+            if(Claimant is null) {
+                throw new InvalidOperationException("This stock is not claimed!");
+            }
+            if(Claimant.Equals(claimant)) {
+                throw new ArgumentException("Not the correct claimant!", nameof(claimant));
+            }
+            Claimant = null;
         }
 
         #region IDrawable Implementation
