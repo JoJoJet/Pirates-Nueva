@@ -80,7 +80,7 @@ namespace Pirates_Nueva.Ocean.Agents
             if(Claimant is null) {
                 throw new InvalidOperationException("This stock is not claimed!");
             }
-            if(Claimant.Equals(claimant)) {
+            if(!Claimant.Equals(claimant)) {
                 throw new ArgumentException("Not the correct claimant!", nameof(claimant));
             }
             Claimant = null;
