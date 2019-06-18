@@ -7,7 +7,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
     }
 
-    public abstract class Stock<TC, TSpot> : IDrawable
+    public abstract class Stock<TC, TSpot> : IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -47,6 +47,7 @@ namespace Pirates_Nueva.Ocean.Agents
             holder.Holding = this;
         }
 
+        #region Picking up
         /// <summary>
         /// Places this instance on the specified spot.
         /// </summary>
@@ -69,7 +70,9 @@ namespace Pirates_Nueva.Ocean.Agents
             Holder = holder ?? throw new ArgumentNullException(nameof(holder));
             Holder.Holding = this;
         }
+        #endregion
 
+        #region Claiming
         public void Claim(IStockClaimant claimant) {
             if(IsClaimed) {
                 throw new InvalidOperationException("This Stock has already been claimed!");
@@ -85,11 +88,26 @@ namespace Pirates_Nueva.Ocean.Agents
             }
             Claimant = null;
         }
+        #endregion
 
         #region IDrawable Implementation
         void IDrawable.Draw(Master master) => Draw(master);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
         protected abstract void Draw(Master master);
+        #endregion
+
+        #region IScreenSpaceTarget Implementation
+        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+        protected abstract PointI ScreenTarget { get; }
+        #endregion
+
+        #region IFocusable Implementation
+        protected bool IsFocused { get; private set; }
+        bool IFocusable.IsFocused { set => IsFocused = value; }
+
+        protected abstract IFocusMenuProvider GetFocusProvider(Master master);
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
         #endregion
     }
 }

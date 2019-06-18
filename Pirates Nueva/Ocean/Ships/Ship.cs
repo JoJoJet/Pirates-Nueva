@@ -579,6 +579,9 @@ namespace Pirates_Nueva.Ocean
             if(GetFurnitureOrNull(shipX, shipY) is Furniture f) {
                 focusable.Add(f);
             }
+            if(GetStockOrNull(shipX, shipY) is Stock s) {
+                focusable.Add(s);
+            }
             if(GetBlockOrNull(shipX, shipY) is Block b) {
                 focusable.Add(b);
             }
