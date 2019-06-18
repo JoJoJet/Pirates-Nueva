@@ -136,10 +136,12 @@ namespace Pirates_Nueva.Ocean.Agents
                     if(!ireq.Qualify(worker, out reason)) {
                         //
                         // Check if its executor qualifies.
-                        // If there's no executor,
-                        // return false.
+                        // If there's no executor, return false.
+                        // If it doesn't qualify, return false.
+                        // If it DOES qualify, continue.
                         var exec = req.Executor as IToil;
-                        return exec?.Qualify(worker, out reason) ?? false;
+                        if(!exec?.Qualify(worker, out reason) ?? true)
+                            return false;
                     }
                 }
                 //
