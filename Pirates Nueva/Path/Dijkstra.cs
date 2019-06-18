@@ -40,7 +40,10 @@ namespace Pirates_Nueva.Path
                 var u = (from n in Q                    // Get the node with lowest distance from /source/.
                          where dist[n] != float.MaxValue
                          orderby dist[n] ascending //NOTE: this can be optimized by using a priority queue.
-                         select n).First();
+                         select n).FirstOrDefault();
+
+                if(u == null)                           // If there's no remaining nodes,
+                    break;                              //    that mean's there's no possible path. Break.
 
                 Q.Remove(u);                            // Remove the node from the unvisited nodes.
                 

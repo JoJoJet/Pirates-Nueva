@@ -126,19 +126,19 @@ namespace Pirates_Nueva.Ocean.Agents
             }
 
             if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
-                Container.RemoveJob(Job!);  //     remove it from the container,
-                Job = null;                 //     and unassign it.
+                Container.RemoveJob(Job!);  // |   remove it from the container,
+                Job = null;                 // |   and unassign it.
             }
             if(Job != null) {                     // If there is a job:
-                if(Job.Qualify(this, out _)) {    //     If the job is workable,
-                    if(Job.Work(this, delta)) {   //         work it. If it's done,
-                        Container.RemoveJob(Job); //             remove the job from the ship,
-                        Job = null;               //             and unassign it.
-                    }                             //
-                }                                 //
-                else {                            //     If the job is not workable,
-                    Job.Worker = null;            //         unassign this agent from the job,
-                    Job = null;                   //         and unset it.
+                if(Job.Qualify(this, out _)) {    // |   If the job is workable,
+                    if(Job.Work(this, delta)) {   // |   |   work it. If it's done,
+                        Container.RemoveJob(Job); // |   |   |   remove the job from the ship,
+                        Job = null;               // |   |   |   and unassign it.
+                    }                             // |
+                }                                 // |
+                else {                            // |   If the job is not workable,
+                    Job.Worker = null;            // |   |   unassign this agent from the job,
+                    Job = null;                   // |   |   and unset it.
                 }
             }
 
@@ -149,16 +149,18 @@ namespace Pirates_Nueva.Ocean.Agents
                 MoveProgress += delta * 1.5f;  // increment our progress towards it.
                                                //
                 if(MoveProgress >= 1) {        // If we have reached the block,
-                    CurrentSpot = NextSpot;    //     set it as our current block.
-                    if(Path.Count > 0)         //     If we are currently on a path,
-                        NextSpot = Path.Pop(); //         set the next block as the next step on the path.
-                    else                       //     If we are not on a path,
-                        NextSpot = null;       //         unassign the next block.
-                                               //
-                    if(NextSpot != null)       //     If we are still moving towards a block,
-                        MoveProgress -= 1f;    //         subtract 1 from our move progress.
-                    else                       //     If we are no longer moving towrards a block,
-                        MoveProgress = 0;      //         set our move progress to be 0.
+                    CurrentSpot = NextSpot;    // |   set it as our current block.
+                    if(PathingTo != null)      // |   Recalculate the path
+                        PathTo(PathingTo);     // |       in case it became inacessible.
+                    if(Path.Count > 0)         // |   If we are currently on a path,
+                        NextSpot = Path.Pop(); // |   |   set the next block as the next step on the path.
+                    else                       // |   If we are not on a path,
+                        NextSpot = null;       // |   |   unassign the next block.
+                                               // |
+                    if(NextSpot != null)       // |   If we are still moving towards a block,
+                        MoveProgress -= 1f;    // |   |   subtract 1 from our move progress.
+                    else                       // |   If we are no longer moving towrards a block,
+                        MoveProgress = 0;      // |   |   set our move progress to be 0.
                 }
             }
         }
