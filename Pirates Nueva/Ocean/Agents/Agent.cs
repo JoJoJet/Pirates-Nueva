@@ -122,7 +122,7 @@ namespace Pirates_Nueva.Ocean.Agents
             if(Job == null) {                         // If this agent has no job,
                 Job = Container.GetWorkableJob(this); //     get a workable job from the ship,
                 if(Job != null)                       //     If there was a workable job,
-                    Job.Worker = this;                //         assign this agent to it.
+                    Job.Assign(this);                 //         assign this agent to it.
             }
 
             if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
@@ -137,7 +137,7 @@ namespace Pirates_Nueva.Ocean.Agents
                     }                             // |
                 }                                 // |
                 else {                            // |   If the job is not workable,
-                    Job.Worker = null;            // |   |   unassign this agent from the job,
+                    Job.Quit(this);               // |   |   unassign this agent from the job,
                     Job = null;                   // |   |   and unset it.
                 }
             }

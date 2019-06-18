@@ -18,7 +18,7 @@ namespace Pirates_Nueva.Ocean.Agents
         private readonly Toil top;
 
         public TC Container { get; }
-        public Agent<TC, TSpot>? Worker { get; set; }
+        public Agent<TC, TSpot>? Worker { get; private set; }
 
         public bool IsCancelled { get; private set; }
 
@@ -37,6 +37,29 @@ namespace Pirates_Nueva.Ocean.Agents
         /// Cancels this job.
         /// </summary>
         public void Cancel() => IsCancelled = true;
+
+        /// <summary>
+        /// Assigns the specified Agent to this Job.
+        /// </summary>
+        public void Assign(Agent<TC, TSpot> worker) {
+            if(Worker != null) {
+                throw new InvalidOperationException("This Job already has a Worker!");
+            }
+            Worker = worker;
+        }
+        /// <summary>
+        /// Unassigns the specified Agent from this Job.
+        /// </summary>
+        public void Quit(Agent<TC, TSpot> worker) {
+            if(Worker is null) {
+                throw new InvalidOperationException("This job has no worker!");
+            }
+            if(Worker != worker) {
+                throw new InvalidOperationException("Not the correct Agent!");
+            }
+            Worker = null;
+            (this.top as IToil).OnQuit(worker);
+        }
 
         /// <summary>
         /// Check if this <see cref="Job"/> can currently be completed by the specified <see cref="Agent"/>
@@ -64,6 +87,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
             bool Qualify(Agent<TC, TSpot> worker, out string reason);
             bool Work(Agent<TC, TSpot> worker, Time delta);
+            void OnQuit(Agent<TC, TSpot> worker);
 
             void Draw(Master master);
         }
@@ -173,6 +197,13 @@ namespace Pirates_Nueva.Ocean.Agents
                 // Work on the action.
                 return (Action as IAction).Work(worker, delta);
             }
+            void IToil.OnQuit(Agent<TC, TSpot> worker) {
+                foreach(var req in Requirements) {
+                    if(req.Executor is IToil exec)
+                        exec.OnQuit(worker);
+                }
+                (Action as IAction).OnQuit(worker);
+            }
 
             void IToil.Draw(Master master) {
                 var worker = Job.Worker;
@@ -249,6 +280,7 @@ namespace Pirates_Nueva.Ocean.Agents
         private interface IAction // Restricts the access of some members to this class.
         {
             bool Work(Agent<TC, TSpot> worker, Time delta);
+            void OnQuit(Agent<TC, TSpot> worker);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
@@ -259,6 +291,10 @@ namespace Pirates_Nueva.Ocean.Agents
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
             protected abstract bool Work(Agent<TC, TSpot> worker, Time delta);
+
+            void IAction.OnQuit(Agent<TC, TSpot> worker) => OnQuit(worker);
+            /// <summary> Optional action to perform when a worker quits the job. </summary>
+            protected virtual void OnQuit(Agent<TC, TSpot> worker) {  }
         }
     }
 }
