@@ -322,14 +322,14 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that a specific type of Stock be accessible to an Agent.
     /// </summary>
-    public class IsStockAcesible<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsStockAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
         public bool RequireUnclaimed { get; }
 
-        public IsStockAcesible(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
+        public IsStockAccessible(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
         {
             StockType = stockType;
@@ -372,6 +372,37 @@ namespace Pirates_Nueva.Ocean.Agents
         }
     }
 
+
+    /// <summary>
+    /// Requires that an Agent have some claimed Stock.
+    /// </summary>
+    public class HasClaimedStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        public HasClaimedStock(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+
+        protected override bool Check(Agent<TC, TSpot> worker) => worker.ClaimedStock != null;
+        protected override string Reason => "Worker does not have any claimed Stock.";
+    }
+
+    /// <summary>
+    /// Has an Agent unclaim its claimed Stock.
+    /// </summary>
+    public class UnclaimStock<TC, TSpot> : Job<TC, TSpot>.Action
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
+            if(worker.ClaimedStock != null) {
+                worker.UnclaimStock(worker.ClaimedStock);
+                return true;
+            }
+            else {
+                throw new InvalidOperationException("The worker doesn't have anything to unclaim!");
+            }
+        }
+    }
 
 
     internal static class StockChecker<TC, TSpot>
