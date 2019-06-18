@@ -229,13 +229,19 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool RequireUnclaimed { get; }
 
-        public IsStandingAtStock(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
+        public IsStandingAtStock(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
-            => StockType = stockType;
+        {
+            StockType = stockType;
+            RequireUnclaimed = requireUnclaimed;
+        }
 
         protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.CurrentSpot.Stock?.Def == StockType;
+            => worker.CurrentSpot.Stock is Stock<TC, TSpot> stock
+               ? stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed)
+               : false;
         protected override string Reason => "Worker is not standing at the correct item.";
     }
 
@@ -269,13 +275,23 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool RequireUnclaimed { get; }
 
-        public IsStockAcesible(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
+        public IsStockAcesible(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
-            => StockType = stockType;
+        {
+            StockType = stockType;
+            RequireUnclaimed = requireUnclaimed;
+        }
 
-        protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.IsAccessible(sp => sp.Stock?.Def == StockType);
+        protected override bool Check(Agent<TC, TSpot> worker) => worker.IsAccessible(IsAtDestination);
+        private bool IsAtDestination(TSpot spot) {
+            if(spot.Stock is Stock<TC, TSpot> stock)
+                return stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed);
+            else
+                return false;
+        }
+
         protected override string Reason => "Worker cannot path to the correct item.";
     }
 
@@ -287,9 +303,16 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool RequireUnclaimed { get; }
 
-        public PathToStock(ItemDef stockType) => StockType = stockType;
+        public PathToStock(ItemDef stockType, bool requireUnclaimed = true) {
+            StockType = stockType;
+            RequireUnclaimed = requireUnclaimed;
+        }
 
-        protected override bool IsAtDestination(TSpot spot) => spot.Stock?.Def == StockType;
+        protected override bool IsAtDestination(TSpot spot)
+            => spot.Stock is Stock<TC, TSpot> stock
+               ? stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed)
+               : false;
     }
 }

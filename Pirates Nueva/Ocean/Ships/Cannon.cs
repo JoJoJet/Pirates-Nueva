@@ -31,10 +31,10 @@ namespace Pirates_Nueva.Ocean
                 //
                 // If we still have some fuel claimed,
                 // unclaim it.
-                //if(Fuel != null) {
-                //    Fuel.Unclaim(this);
-                //    Fuel = null;
-                //}
+                if(Fuel != null) {
+                    Fuel.Unclaim(this);
+                    Fuel = null;
+                }
                 //
                 // If there's already a job to haul, return early.
                 if(this.haulJob != null)
@@ -51,13 +51,13 @@ namespace Pirates_Nueva.Ocean
                         // Require the agent to be holding gunpowder.
                         new IsHolding<Ship, Block>(
                             FuelType,
-                            new Toil(
+                            executor: new Toil(
                                 //
                                 // Pick up gunpowder if we are standing next to some.
                                 new PickUpStock<Ship, Block>(),
                                 new IsStandingAtStock<Ship, Block>(
                                     FuelType,
-                                    new Toil(
+                                    executor: new Toil(
                                         //
                                         // Walk to gunpowder if some exists
                                         // and is accessible.
