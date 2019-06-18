@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
-    public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public abstract class Agent<TC, TSpot> : IStockClaimant, IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -76,6 +76,10 @@ namespace Pirates_Nueva.Ocean.Agents
         public void PathTo(IsAtDestination<TSpot> destination) {
             Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
         }
+        #endregion
+
+        #region IStockClaimant Implementation
+        public bool Equals(IStockClaimant other) => other == this;
         #endregion
 
         #region IUpdatable Implementation

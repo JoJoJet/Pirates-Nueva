@@ -114,21 +114,29 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        private Agent<TC, TSpot>? worker;
+        protected Agent<TC, TSpot> Worker => this.worker
+            ?? throw new InvalidOperationException($"Property '{nameof(Worker)}' can't be accessed right now!");
+
         protected abstract bool IsAtDestination(TSpot spot);
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
+            this.worker = worker;
             if(worker.PathingTo == null) {                     // If the worker is currently still:
                 if(IsAtDestination(worker.CurrentSpot)) {      //     If its standing next to the toil,
+                    this.worker = null;
                     return true;                               //         return true.
                 }                                              //
                 else {                                         //     If its standing away from the toil,
                     worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil,
+                    this.worker = null;
                     return false;                              //         and return false.
                 }                                              //
             }                                                  //
             else {                                             // If the worker is currently pathing:
                 if(IsAtDestination(worker.PathingTo) == false) //     if the worker's destination is not adjacent to the toil,
                     worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil.
+                this.worker = null;
                 return false;                                  //     Return false.
             }
         }
@@ -239,9 +247,7 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.CurrentSpot.Stock is Stock<TC, TSpot> stock
-               ? stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed)
-               : false;
+            => StockChecker<TC, TSpot>.Check(worker, worker.CurrentSpot, StockType, RequireUnclaimed);
         protected override string Reason => "Worker is not standing at the correct item.";
     }
 
@@ -284,13 +290,8 @@ namespace Pirates_Nueva.Ocean.Agents
             RequireUnclaimed = requireUnclaimed;
         }
 
-        protected override bool Check(Agent<TC, TSpot> worker) => worker.IsAccessible(IsAtDestination);
-        private bool IsAtDestination(TSpot spot) {
-            if(spot.Stock is Stock<TC, TSpot> stock)
-                return stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed);
-            else
-                return false;
-        }
+        protected override bool Check(Agent<TC, TSpot> worker)
+            => worker.IsAccessible(sp => StockChecker<TC, TSpot>.Check(worker, sp, StockType, RequireUnclaimed));
 
         protected override string Reason => "Worker cannot path to the correct item.";
     }
@@ -311,8 +312,20 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         protected override bool IsAtDestination(TSpot spot)
+            => StockChecker<TC, TSpot>.Check(Worker, spot, StockType, RequireUnclaimed);
+    }
+
+    internal static class StockChecker<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        /// <summary>
+        /// Checks if the specified spot contains a Stock that is
+        /// unclaimed and has the specified <see cref="ItemDef"/>.
+        /// </summary>
+        public static bool Check(Agent<TC, TSpot> worker, TSpot spot, ItemDef stockType, bool requireUnclaimed)
             => spot.Stock is Stock<TC, TSpot> stock
-               ? stock.Def == StockType && (!RequireUnclaimed || !stock.IsClaimed)
+               ? stock.Def == stockType && (!requireUnclaimed || (stock.Claimant?.Equals(worker) ?? true))
                : false;
     }
 }
