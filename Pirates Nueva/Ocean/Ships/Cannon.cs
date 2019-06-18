@@ -53,16 +53,24 @@ namespace Pirates_Nueva.Ocean
                             FuelType,
                             executor: new Toil(
                                 //
-                                // Pick up gunpowder if we are standing next to some.
-                                new PickUpStock<Ship, Block>(),
-                                new IsStandingAtStock<Ship, Block>(
-                                    FuelType,
+                                // Pick up some gunpowder and unclaim it,
+                                // if we're standing on some that we've previously claimed. 
+                                new PickUpClaimedStock<Ship, Block>(unclaimAfter: true),
+                                new IsStandingAtClaimedStock<Ship, Block>(
                                     executor: new Toil(
                                         //
-                                        // Walk to gunpowder if some exists
-                                        // and is accessible.
-                                        new PathToStock<Ship, Block>(FuelType),
-                                        new IsStockAcesible<Ship, Block>(FuelType)
+                                        // Walk to our claimed gunpowder
+                                        // if it's accesible.
+                                        new PathToClaimedStock<Ship, Block>(),
+                                        new IsClaimedStockAccessible<Ship, Block>(
+                                            new Toil(
+                                                //
+                                                // Claim some gunpowder if some
+                                                // exists and is acessible.
+                                                new ClaimAccessibleStock<Ship, Block>(FuelType),
+                                                new IsStockAcesible<Ship, Block>(FuelType)
+                                                )
+                                            )
                                         )
                                     )
                                 )
