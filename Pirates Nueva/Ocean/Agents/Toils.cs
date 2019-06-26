@@ -351,8 +351,12 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool UnclaimOnStopped { get; }
 
-        public ClaimAccessibleStock(ItemDef stockType) => StockType = stockType;
+        public ClaimAccessibleStock(ItemDef stockType, bool unclaimOnStopped = true) {
+            StockType = stockType;
+            UnclaimOnStopped = unclaimOnStopped;
+        }
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             //
@@ -370,6 +374,12 @@ namespace Pirates_Nueva.Ocean.Agents
 
             bool checkSpot(TSpot s) => StockChecker<TC, TSpot>.Check(worker, s, StockType, true);
         }
+
+        protected override void OnStopped(Agent<TC, TSpot> worker) {
+            if(UnclaimOnStopped && worker.ClaimedStock != null) {
+                worker.UnclaimStock(worker.ClaimedStock);
+            }
+        }
     }
 
 
@@ -384,24 +394,6 @@ namespace Pirates_Nueva.Ocean.Agents
 
         protected override bool Check(Agent<TC, TSpot> worker) => worker.ClaimedStock != null;
         protected override string Reason => "Worker does not have any claimed Stock.";
-    }
-
-    /// <summary>
-    /// Has an Agent unclaim its claimed Stock.
-    /// </summary>
-    public class UnclaimStock<TC, TSpot> : Job<TC, TSpot>.Action
-        where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TC, TSpot>
-    {
-        protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
-            if(worker.ClaimedStock != null) {
-                worker.UnclaimStock(worker.ClaimedStock);
-                return true;
-            }
-            else {
-                throw new InvalidOperationException("The worker doesn't have anything to unclaim!");
-            }
-        }
     }
 
 

@@ -68,15 +68,7 @@ namespace Pirates_Nueva.Ocean
                                                 // Claim some gunpowder if some
                                                 // exists and is acessible.
                                                 new ClaimAccessibleStock<Ship, Block>(FuelType),
-                                                new IsStockAccessible<Ship, Block>(
-                                                    FuelType,
-                                                    executor: new Toil(
-                                                        //
-                                                        // If the job can't continue, unclaim the agent's stock.
-                                                        new UnclaimStock<Ship, Block>(),
-                                                        new HasClaimedStock<Ship, Block>()
-                                                        )
-                                                    )
+                                                new IsStockAccessible<Ship, Block>(FuelType)
                                                 )
                                             )
                                         )
