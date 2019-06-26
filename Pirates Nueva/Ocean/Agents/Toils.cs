@@ -336,18 +336,18 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public ItemDef StockType { get; }
+        public StockSelector<TC, TSpot> Selector { get; }
         public bool RequireUnclaimed { get; }
 
-        public IsStockAccessible(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
+        public IsStockAccessible(StockSelector<TC, TSpot> selector, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
         {
-            StockType = stockType;
+            Selector = selector;
             RequireUnclaimed = requireUnclaimed;
         }
 
         protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.IsAccessible(sp => StockChecker<TC, TSpot>.Check(worker, sp, StockType, RequireUnclaimed));
+            => worker.IsAccessible(sp => StockChecker<TC, TSpot>.Check(worker, sp, Selector, RequireUnclaimed));
 
         protected override string Reason => "Worker cannot path to the correct item.";
     }
@@ -357,14 +357,14 @@ namespace Pirates_Nueva.Ocean.Agents
     /// May throw an <see cref="InvalidOperationException"/> if the Agent has already claimed something.
     /// </summary>
     public class ClaimAccessibleStock<TC, TSpot> : Job<TC, TSpot>.Action
-        where TC : class, IAgentContainer<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public ItemDef StockType { get; }
+        public StockSelector<TC, TSpot> Selector { get; }
         public bool UnclaimOnStopped { get; }
 
-        public ClaimAccessibleStock(ItemDef stockType, bool unclaimOnStopped = true) {
-            StockType = stockType;
+        public ClaimAccessibleStock(StockSelector<TC, TSpot> selector, bool unclaimOnStopped = true) {
+            Selector = selector;
             UnclaimOnStopped = unclaimOnStopped;
         }
 
@@ -382,7 +382,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 return false;
             }
 
-            bool checkSpot(TSpot s) => StockChecker<TC, TSpot>.Check(worker, s, StockType, true);
+            bool checkSpot(TSpot s) => StockChecker<TC, TSpot>.Check(worker, s, Selector, true);
         }
 
         protected override void OnStopped(Agent<TC, TSpot> worker) {
@@ -415,9 +415,9 @@ namespace Pirates_Nueva.Ocean.Agents
         /// Checks if the specified spot contains a Stock that is
         /// unclaimed and has the specified <see cref="ItemDef"/>.
         /// </summary>
-        public static bool Check(Agent<TC, TSpot> worker, TSpot spot, ItemDef stockType, bool requireUnclaimed)
+        public static bool Check(Agent<TC, TSpot> worker, TSpot spot, StockSelector<TC, TSpot> selector, bool requireUnclaimed)
             => spot.Stock is Stock<TC, TSpot> stock
-               ? stock.Def == stockType && (!requireUnclaimed || (stock.Claimant?.Equals(worker) ?? true))
+               ? selector.Qualify(stock) && (!requireUnclaimed || (stock.Claimant?.Equals(worker) ?? true))
                : false;
     }
 }

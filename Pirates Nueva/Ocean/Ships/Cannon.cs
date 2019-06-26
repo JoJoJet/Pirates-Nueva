@@ -3,6 +3,7 @@
 namespace Pirates_Nueva.Ocean
 {
     using Toil = Job<Ship, Block>.Toil;
+    using StockSelector = StockSelector<Ship, Block>;
     public class Cannon : Furniture, IStockClaimant
     {
         private Job<Ship, Block>? haulJob;
@@ -67,8 +68,8 @@ namespace Pirates_Nueva.Ocean
                                                 //
                                                 // Claim some gunpowder if some
                                                 // exists and is acessible.
-                                                new ClaimAccessibleStock<Ship, Block>(FuelType),
-                                                new IsStockAccessible<Ship, Block>(FuelType)
+                                                new ClaimAccessibleStock<Ship, Block>(new StockSelector(FuelType)),
+                                                new IsStockAccessible<Ship, Block>(new StockSelector(FuelType))
                                                 )
                                             )
                                         )
