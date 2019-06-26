@@ -254,8 +254,12 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         /// <summary>Whether or not the agent should unclaim the stock after picking it up.</summary>
         public bool UnclaimAfter { get; }
+        public bool DropOnStopped { get; }
 
-        public PickUpClaimedStock(bool unclaimAfter) => UnclaimAfter = unclaimAfter;
+        public PickUpClaimedStock(bool unclaimAfter, bool dropOnStopped = true) {
+            UnclaimAfter = unclaimAfter;
+            DropOnStopped = dropOnStopped;
+        }
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             var stock = worker.ClaimedStock;                 // Store a local reference to the claimed stock.
@@ -271,6 +275,12 @@ namespace Pirates_Nueva.Ocean.Agents
             else {                                           // If the worker is NOT standing at its claimed Stock,
                 throw new InvalidOperationException(         // |   throw an exception.
                     "The worker isn't standing at its claimed Stock!");
+            }
+        }
+
+        protected override void OnStopped(Agent<TC, TSpot> worker) {
+            if(DropOnStopped && worker.Holding != null) {
+                worker.Holding.Place(worker.CurrentSpot);
             }
         }
     }
