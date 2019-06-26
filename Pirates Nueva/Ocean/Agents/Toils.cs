@@ -36,11 +36,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be adjacent to the Job or Toil.
     /// </summary>
-    public class IsAdjacentTo<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsAdjacentToToil<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAdjacentTo(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsAdjacentToToil(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1;
@@ -96,11 +96,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be able to path to the Job or Toil.
     /// </summary>
-    public class IsAccessibleAdj<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsAccessibleToToilAdj<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessibleAdj(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsAccessibleToToilAdj(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(n => PointI.SqrDistance(n.Index, Toil.Index) == 1);
@@ -144,7 +144,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Has an Agent path to a spot adjacent to the Job or Toil.
     /// </summary>
-    public class PathToAdjacent<TC, TSpot> : PathTo<TC, TSpot>
+    public class PathToToilAdjacent<TC, TSpot> : PathTo<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
