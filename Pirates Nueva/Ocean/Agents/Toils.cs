@@ -393,19 +393,6 @@ namespace Pirates_Nueva.Ocean.Agents
     }
 
 
-    /// <summary>
-    /// Requires that an Agent have some claimed Stock.
-    /// </summary>
-    public class HasClaimedStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
-        where TC    : class, IAgentContainer<TC, TSpot>
-        where TSpot : class, IAgentSpot<TC, TSpot>
-    {
-        public HasClaimedStock(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
-
-        protected override bool Check(Agent<TC, TSpot> worker) => worker.ClaimedStock != null;
-        protected override string Reason => "Worker does not have any claimed Stock.";
-    }
-
 
     internal static class StockChecker<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
