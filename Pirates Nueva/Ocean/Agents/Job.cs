@@ -94,7 +94,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary>
         /// An action paired with a requirement.
         /// </summary>
-        public sealed class Toil : IToil
+        public class Toil : IToil
         {
             private Job<TC, TSpot>? _job;
 
