@@ -18,7 +18,7 @@ namespace Pirates_Nueva.Ocean.Agents
         private readonly Toil top;
 
         public TC Container { get; }
-        public Agent<TC, TSpot>? Worker { get; set; }
+        public Agent<TC, TSpot>? Worker { get; private set; }
 
         public bool IsCancelled { get; private set; }
 
@@ -37,6 +37,29 @@ namespace Pirates_Nueva.Ocean.Agents
         /// Cancels this job.
         /// </summary>
         public void Cancel() => IsCancelled = true;
+
+        /// <summary>
+        /// Assigns the specified Agent to this Job.
+        /// </summary>
+        public void Assign(Agent<TC, TSpot> worker) {
+            if(Worker != null) {
+                throw new InvalidOperationException("This Job already has a Worker!");
+            }
+            Worker = worker;
+        }
+        /// <summary>
+        /// Unassigns the specified Agent from this Job.
+        /// </summary>
+        public void Quit(Agent<TC, TSpot> worker) {
+            if(Worker is null) {
+                throw new InvalidOperationException("This job has no worker!");
+            }
+            if(Worker != worker) {
+                throw new InvalidOperationException("Not the correct Agent!");
+            }
+            Worker = null;
+            (this.top as IToil).DoStop(worker);
+        }
 
         /// <summary>
         /// Check if this <see cref="Job"/> can currently be completed by the specified <see cref="Agent"/>
@@ -64,6 +87,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
             bool Qualify(Agent<TC, TSpot> worker, out string reason);
             bool Work(Agent<TC, TSpot> worker, Time delta);
+            void DoStop(Agent<TC, TSpot> worker);
 
             void Draw(Master master);
         }
@@ -136,10 +160,12 @@ namespace Pirates_Nueva.Ocean.Agents
                     if(!ireq.Qualify(worker, out reason)) {
                         //
                         // Check if its executor qualifies.
-                        // If there's no executor,
-                        // return false.
+                        // If there's no executor, return false.
+                        // If it doesn't qualify, return false.
+                        // If it DOES qualify, continue.
                         var exec = req.Executor as IToil;
-                        return exec?.Qualify(worker, out reason) ?? false;
+                        if(!exec?.Qualify(worker, out reason) ?? true)
+                            return false;
                     }
                 }
                 //
@@ -151,17 +177,25 @@ namespace Pirates_Nueva.Ocean.Agents
                 return true;
             }
             bool IToil.Work(Agent<TC, TSpot> worker, Time delta) {
-                foreach(var req in Requirements) {
+                for(int a = 0; a < Requirements.Count; a++) {
                     //
-                    // If any of the requirements do NOT qualify.
+                    // If any of the rquirements do NOT qualify.
+                    var req = Requirements[a];
                     var ireq = req as IReq;
                     if(!ireq.Qualify(worker, out _)) {
                         //
-                        // Work on its executor.
-                        // Always return false here, because we should
-                        // only return true if the top-level Toil is completed.
-                        var exec = req.Executor as IToil;
+                        // Call the Stop method on the Action,
+                        // and Work on the Toil's executor.
+                        (Action as IAction).DoStop(worker);
                         (req.Executor as IToil)?.Work(worker, delta);
+                        //
+                        // Call the Stop method on the rest of the requirements.
+                        for(int b = a+1; b < Requirements.Count; b++) {
+                            (Requirements[b].Executor as IToil)?.DoStop(worker);
+                        }
+                        //
+                        // Always return fasle after here, because we should
+                        // only return true if the top-level Toil is completed.
                         return false;
                     }
                 }
@@ -170,6 +204,13 @@ namespace Pirates_Nueva.Ocean.Agents
                 // requirements qualified (or that there are no requirements).
                 // Work on the action.
                 return (Action as IAction).Work(worker, delta);
+            }
+            void IToil.DoStop(Agent<TC, TSpot> worker) {
+                foreach(var req in Requirements) {
+                    if(req.Executor is IToil exec)
+                        exec.DoStop(worker);
+                }
+                (Action as IAction).DoStop(worker);
             }
 
             void IToil.Draw(Master master) {
@@ -247,16 +288,35 @@ namespace Pirates_Nueva.Ocean.Agents
         private interface IAction // Restricts the access of some members to this class.
         {
             bool Work(Agent<TC, TSpot> worker, Time delta);
+            void DoStop(Agent<TC, TSpot> worker);
         }
         /// <summary>
         /// What a <see cref="Toil"/> will do after its <see cref="Requirement"/> is fulfilled.
         /// </summary>
         public abstract class Action : ToilSegment, IAction
         {
-            bool IAction.Work(Agent<TC, TSpot> worker, Time delta) => Work(worker, delta);
+            private bool isWorkedOn;
+
+            bool IAction.Work(Agent<TC, TSpot> worker, Time delta) {
+                this.isWorkedOn = true;
+                return Work(worker, delta);
+            }
             /// <summary> Have the specified <see cref="Agent"/> work at completing this <see cref="Action"/>. </summary>
             /// <returns>Whether or not the action was just completed.</returns>
             protected abstract bool Work(Agent<TC, TSpot> worker, Time delta);
+
+            void IAction.DoStop(Agent<TC, TSpot> worker) {
+                if(this.isWorkedOn) {
+                    OnStopped(worker);
+                    this.isWorkedOn = false;
+                }
+            }
+            /// <summary>
+            /// Optional action to perform when this action stops being worked on. <para />
+            /// Either because the job was cancelled, the worker quit,
+            /// or because the requirement stopped being met.
+            /// </summary>
+            protected virtual void OnStopped(Agent<TC, TSpot> worker) {  }
         }
     }
 }

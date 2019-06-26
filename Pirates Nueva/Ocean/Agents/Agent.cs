@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
-    public abstract class Agent<TC, TSpot> : IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public abstract class Agent<TC, TSpot> : IStockClaimant, IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -33,8 +33,9 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
         public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
 
-        /// <summary> The item that this instance is currently holding. </summary>
+        /// <summary> The item that this instance is currently holding, if applicable. </summary>
         public Stock<TC, TSpot>? Holding { get; set; }
+        public Stock<TC, TSpot>? ClaimedStock { get; private set; }
 
         public Job<TC, TSpot>? Job { get; protected set; }
 
@@ -56,16 +57,22 @@ namespace Pirates_Nueva.Ocean.Agents
 
         #region Pathing
         /// <summary>
-        /// Returns whether or not the specified <see cref="Block"/> is accessible to this <see cref="Agent"/>.
+        /// Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>.
         /// </summary>
         public bool IsAccessible(TSpot target) {
             return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
         }
         /// <summary>
-        /// Returns whether or not this <see cref="Agent"/> can access a <see cref="Block"/> that matches /destination/.
+        /// Returns whether or not this <see cref="Agent"/> can access a Spot that matches <paramref name="destination"/>.
         /// </summary>
         public bool IsAccessible(IsAtDestination<TSpot> destination) {
             return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
+        }
+        /// <summary>
+        /// Finds the closest accessible Spot that matches <paramref name="destination"/>.
+        /// </summary>
+        public TSpot? FindAccessible(IsAtDestination<TSpot> destination) {
+            return Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
         }
 
         /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
@@ -78,6 +85,36 @@ namespace Pirates_Nueva.Ocean.Agents
         }
         #endregion
 
+        #region Stock Claiming
+        /// <summary>
+        /// Has the current Agent claim the specified <see cref="Stock"/>.
+        /// </summary>
+        public void ClaimStock(Stock<TC, TSpot> stock) {
+            //
+            // Throw an exception if we already have a claim.
+            if(ClaimedStock != null) {
+                throw new InvalidOperationException("This Agent has already claimed stock!");
+            }
+            stock.Claim(this);
+            ClaimedStock = stock;
+        }
+        /// <summary>
+        /// Has the current Agent unclaim the specified Stock.
+        /// </summary>
+        public void UnclaimStock(Stock<TC, TSpot> stock) {
+            if(ClaimedStock is null) {                                                       // If we haven't claimed anything,
+                throw new InvalidOperationException("This Agent hasn't claimed any Stock!"); //     throw an exception.
+            }                                                                                //
+            if(ClaimedStock != stock) {                                                      // If the stock isn't the one we've claimed,
+                throw new InvalidOperationException("Not the correct Stock!");               //     throw an exception.
+            }
+            ClaimedStock.Unclaim(this); // Unclaim the Stock.
+            ClaimedStock = null;        // Unassign it.
+        }
+
+        public bool Equals(IStockClaimant other) => other == this;
+        #endregion
+
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
@@ -85,23 +122,23 @@ namespace Pirates_Nueva.Ocean.Agents
             if(Job == null) {                         // If this agent has no job,
                 Job = Container.GetWorkableJob(this); //     get a workable job from the ship,
                 if(Job != null)                       //     If there was a workable job,
-                    Job.Worker = this;                //         assign this agent to it.
+                    Job.Assign(this);                 //         assign this agent to it.
             }
 
             if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
-                Container.RemoveJob(Job!);  //     remove it from the container,
-                Job = null;                 //     and unassign it.
+                Container.RemoveJob(Job!);  // |   remove it from the container,
+                Job = null;                 // |   and unassign it.
             }
             if(Job != null) {                     // If there is a job:
-                if(Job.Qualify(this, out _)) {    //     If the job is workable,
-                    if(Job.Work(this, delta)) {   //         work it. If it's done,
-                        Container.RemoveJob(Job); //             remove the job from the ship,
-                        Job = null;               //             and unassign it.
-                    }                             //
-                }                                 //
-                else {                            //     If the job is not workable,
-                    Job.Worker = null;            //         unassign this agent from the job,
-                    Job = null;                   //         and unset it.
+                if(Job.Qualify(this, out _)) {    // |   If the job is workable,
+                    if(Job.Work(this, delta)) {   // |   |   work it. If it's done,
+                        Container.RemoveJob(Job); // |   |   |   remove the job from the ship,
+                        Job = null;               // |   |   |   and unassign it.
+                    }                             // |
+                }                                 // |
+                else {                            // |   If the job is not workable,
+                    Job.Quit(this);               // |   |   unassign this agent from the job,
+                    Job = null;                   // |   |   and unset it.
                 }
             }
 
@@ -112,16 +149,18 @@ namespace Pirates_Nueva.Ocean.Agents
                 MoveProgress += delta * 1.5f;  // increment our progress towards it.
                                                //
                 if(MoveProgress >= 1) {        // If we have reached the block,
-                    CurrentSpot = NextSpot;    //     set it as our current block.
-                    if(Path.Count > 0)         //     If we are currently on a path,
-                        NextSpot = Path.Pop(); //         set the next block as the next step on the path.
-                    else                       //     If we are not on a path,
-                        NextSpot = null;       //         unassign the next block.
-                                               //
-                    if(NextSpot != null)       //     If we are still moving towards a block,
-                        MoveProgress -= 1f;    //         subtract 1 from our move progress.
-                    else                       //     If we are no longer moving towrards a block,
-                        MoveProgress = 0;      //         set our move progress to be 0.
+                    CurrentSpot = NextSpot;    // |   set it as our current block.
+                    if(PathingTo != null)      // |   Recalculate the path
+                        PathTo(PathingTo);     // |       in case it became inacessible.
+                    if(Path.Count > 0)         // |   If we are currently on a path,
+                        NextSpot = Path.Pop(); // |   |   set the next block as the next step on the path.
+                    else                       // |   If we are not on a path,
+                        NextSpot = null;       // |   |   unassign the next block.
+                                               // |
+                    if(NextSpot != null)       // |   If we are still moving towards a block,
+                        MoveProgress -= 1f;    // |   |   subtract 1 from our move progress.
+                    else                       // |   If we are no longer moving towrards a block,
+                        MoveProgress = 0;      // |   |   set our move progress to be 0.
                 }
             }
         }

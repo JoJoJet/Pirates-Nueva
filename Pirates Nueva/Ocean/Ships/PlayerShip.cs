@@ -126,12 +126,12 @@ namespace Pirates_Nueva.Ocean
                                         //
                                         // Place a block if next to the job.
                                         action: new PlaceBlock("wood"),
-                                        new IsAdjacentTo<Ship, Block>(
+                                        new IsAdjacentToToil<Ship, Block>(
                                             new Toil(
                                                 //
                                                 // Path to the job if it's accessible.
-                                                action: new PathToAdjacent<Ship, Block>(),
-                                                new IsAccessibleAdj<Ship, Block>()
+                                                action: new PathToToilAdjacent<Ship, Block>(),
+                                                new IsAccessibleToToilAdj<Ship, Block>()
                                                 )
                                             )
                                         )

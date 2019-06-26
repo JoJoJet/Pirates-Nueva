@@ -36,11 +36,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be adjacent to the Job or Toil.
     /// </summary>
-    public class IsAdjacentTo<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsAdjacentToToil<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAdjacentTo(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsAdjacentToToil(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => PointF.SqrDistance((worker.X, worker.Y), Toil.Index) == 1;
@@ -96,11 +96,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an Agent be able to path to the Job or Toil.
     /// </summary>
-    public class IsAccessibleAdj<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsAccessibleToToilAdj<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessibleAdj(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsAccessibleToToilAdj(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(n => PointI.SqrDistance(n.Index, Toil.Index) == 1);
@@ -114,21 +114,29 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        private Agent<TC, TSpot>? worker;
+        protected Agent<TC, TSpot> Worker => this.worker
+            ?? throw new InvalidOperationException($"Property '{nameof(Worker)}' can't be accessed right now!");
+
         protected abstract bool IsAtDestination(TSpot spot);
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
+            this.worker = worker;
             if(worker.PathingTo == null) {                     // If the worker is currently still:
                 if(IsAtDestination(worker.CurrentSpot)) {      //     If its standing next to the toil,
+                    this.worker = null;
                     return true;                               //         return true.
                 }                                              //
                 else {                                         //     If its standing away from the toil,
                     worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil,
+                    this.worker = null;
                     return false;                              //         and return false.
                 }                                              //
             }                                                  //
             else {                                             // If the worker is currently pathing:
                 if(IsAtDestination(worker.PathingTo) == false) //     if the worker's destination is not adjacent to the toil,
                     worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil.
+                this.worker = null;
                 return false;                                  //     Return false.
             }
         }
@@ -136,7 +144,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Has an Agent path to a spot adjacent to the Job or Toil.
     /// </summary>
-    public class PathToAdjacent<TC, TSpot> : PathTo<TC, TSpot>
+    public class PathToToilAdjacent<TC, TSpot> : PathTo<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -199,11 +207,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an agent be able to path to the Job or Toil.
     /// </summary>
-    public class IsAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsToilAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsToilAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(sp => sp.Index == Toil.Index);
@@ -222,74 +230,194 @@ namespace Pirates_Nueva.Ocean.Agents
     
 
     /// <summary>
-    /// Requires that an Agent be standing on a Stock of specified type.
+    /// Requires that an Agent be standing at its claimed Stock.
     /// </summary>
-    public class IsStandingAtStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsStandingAtClaimedStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public ItemDef StockType { get; }
-
-        public IsStandingAtStock(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
-            : base(executor)
-            => StockType = stockType;
+        public IsStandingAtClaimedStock(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.CurrentSpot.Stock?.Def == StockType;
-        protected override string Reason => "Worker is not standing at the correct item.";
+            => worker.ClaimedStock?.Spot == worker.CurrentSpot;
+        protected override string Reason => "Worker is not standing at its claimed Stock.";
     }
 
     /// <summary>
-    /// Has an Agent pick up the Stock that they are standing on.
+    /// Has an Agent pick up its claimed stock at which it is standing. <para />
+    /// Will throw an <see cref="InvalidOperationException"/> if the worker hasn't claimed any Stock,
+    /// or if it is not standing at the claimed stock.
     /// </summary>
-    public class PickUpStock<TC, TSpot> : Job<TC, TSpot>.Action
+    public class PickUpClaimedStock<TC, TSpot> : Job<TC, TSpot>.Action
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
+        /// <summary>Whether or not the agent should unclaim the stock after picking it up.</summary>
+        public bool UnclaimAfter { get; }
+        public bool DropOnStopped { get; }
+
+        public PickUpClaimedStock(bool unclaimAfter, bool dropOnStopped = true) {
+            UnclaimAfter = unclaimAfter;
+            DropOnStopped = dropOnStopped;
+        }
+
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
-            //
-            // If there's stock, pick it up.
-            if(worker.CurrentSpot.Stock is Stock<TC, TSpot> stock) {
-                stock.PickUp(worker);
-                return true;
+            var stock = worker.ClaimedStock;                 // Store a local reference to the claimed stock.
+            if(stock is null)                                // If the worker hasn't claimed any Stock,
+                throw new InvalidOperationException(         // |   throw an exception.
+                    "The worker hasn't claimed any Stock!"); //
+            if(stock.Spot == worker.CurrentSpot) {           // If the worker is standing at its claimed Stock,
+                stock.PickUp(worker);                        // |   pick it up.
+                if(UnclaimAfter)                             // |   If we're told to unclaim it,
+                    worker.UnclaimStock(stock);              // |   |   unclaim it.
+                return true;                                 // |   Return true.
+            }                                                //
+            else {                                           // If the worker is NOT standing at its claimed Stock,
+                throw new InvalidOperationException(         // |   throw an exception.
+                    "The worker isn't standing at its claimed Stock!");
             }
-            //
-            // If there's no stock, throw an exception.
-            else {
-                throw new InvalidOperationException("There is nothing for the worker to pick up!");
+        }
+
+        protected override void OnStopped(Agent<TC, TSpot> worker) {
+            if(DropOnStopped && worker.Holding != null) {
+                worker.Holding.Place(worker.CurrentSpot);
             }
         }
     }
 
+
+    /// <summary>
+    /// Requires that an Agent have claimed some Stock that is accessible to it.
+    /// </summary>
+    public class IsClaimedStockAccessible<TC, TSpot> : Job<TC, TSpot>.Requirement
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        public IsClaimedStockAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+
+        protected override bool Qualify(Agent<TC, TSpot> worker, out string reason) {
+            if(worker.ClaimedStock is Stock<TC, TSpot>) {                // If the worker has claimed stock:
+                if(worker.ClaimedStock.Spot is TSpot spot) {             // |   If the stock is on the ground:
+                    if(worker.IsAccessible(spot)) {                      // |   |   If the stock is accessible,
+                        reason = "";                                     // |   |   |   return true.
+                        return true;                                     // |   |
+                    }                                                    // |   |
+                    else {                                               // |   |   If the stock isn't accessible, 
+                        reason = "The claimed stock is not accessible."; // |   |   |   return false.
+                        return false;                                    // |
+                    }                                                    // |
+                }                                                        // |
+                else {                                                   // |   If the stock is NOT on the ground,
+                    reason = "The claimed stock is not on the ground.";  // |   |   return false.
+                    return false;                                        //
+                }                                                        //
+            }                                                            //
+            else {                                                       // If the worker has NOT claimed stock,
+                reason = "Worker hasn't claimed any stock.";             // |   return false.
+                return false;
+            }
+        }
+    }
+
+    public class PathToClaimedStock<TC, TSpot> : PathTo<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        protected override bool IsAtDestination(TSpot spot)
+            => spot == (Worker.ClaimedStock ?? Throw()).Spot;
+        private static Stock<TC, TSpot> Throw() => throw new InvalidOperationException("Worker doesn't have any claimed Stock!");
+    }
+
+
     /// <summary>
     /// Requires that a specific type of Stock be accessible to an Agent.
     /// </summary>
-    public class IsStockAcesible<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsStockAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool RequireUnclaimed { get; }
 
-        public IsStockAcesible(ItemDef stockType, Job<TC, TSpot>.Toil? executor = null)
+        public IsStockAccessible(ItemDef stockType, bool requireUnclaimed = true, Job<TC, TSpot>.Toil? executor = null)
             : base(executor)
-            => StockType = stockType;
+        {
+            StockType = stockType;
+            RequireUnclaimed = requireUnclaimed;
+        }
 
         protected override bool Check(Agent<TC, TSpot> worker)
-            => worker.IsAccessible(sp => sp.Stock?.Def == StockType);
+            => worker.IsAccessible(sp => StockChecker<TC, TSpot>.Check(worker, sp, StockType, RequireUnclaimed));
+
         protected override string Reason => "Worker cannot path to the correct item.";
     }
 
     /// <summary>
-    /// Has an Agent path to a specific type of Stock.
+    /// Has an Agent claim its closest accessible unclaimed Stock. <para />
+    /// May throw an <see cref="InvalidOperationException"/> if the Agent has already claimed something.
     /// </summary>
-    public class PathToStock<TC, TSpot> : PathTo<TC, TSpot>
-        where TC    : class, IAgentContainer<TC, TSpot>
+    public class ClaimAccessibleStock<TC, TSpot> : Job<TC, TSpot>.Action
+        where TC : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
         public ItemDef StockType { get; }
+        public bool UnclaimOnStopped { get; }
 
-        public PathToStock(ItemDef stockType) => StockType = stockType;
+        public ClaimAccessibleStock(ItemDef stockType, bool unclaimOnStopped = true) {
+            StockType = stockType;
+            UnclaimOnStopped = unclaimOnStopped;
+        }
 
-        protected override bool IsAtDestination(TSpot spot) => spot.Stock?.Def == StockType;
+        protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
+            //
+            // If there's an accessible spot with unclaimed stock of specified type,
+            // claim it and return true.
+            if(worker.FindAccessible(checkSpot) is TSpot spot) {
+                worker.ClaimStock(spot.Stock!);
+                return true;
+            }
+            //
+            // If there's no accessible stock, return false.
+            else {
+                return false;
+            }
+
+            bool checkSpot(TSpot s) => StockChecker<TC, TSpot>.Check(worker, s, StockType, true);
+        }
+
+        protected override void OnStopped(Agent<TC, TSpot> worker) {
+            if(UnclaimOnStopped && worker.ClaimedStock != null) {
+                worker.UnclaimStock(worker.ClaimedStock);
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Requires that an Agent have some claimed Stock.
+    /// </summary>
+    public class HasClaimedStock<TC, TSpot> : SimpleRequirement<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        public HasClaimedStock(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+
+        protected override bool Check(Agent<TC, TSpot> worker) => worker.ClaimedStock != null;
+        protected override string Reason => "Worker does not have any claimed Stock.";
+    }
+
+
+    internal static class StockChecker<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        /// <summary>
+        /// Checks if the specified spot contains a Stock that is
+        /// unclaimed and has the specified <see cref="ItemDef"/>.
+        /// </summary>
+        public static bool Check(Agent<TC, TSpot> worker, TSpot spot, ItemDef stockType, bool requireUnclaimed)
+            => spot.Stock is Stock<TC, TSpot> stock
+               ? stock.Def == stockType && (!requireUnclaimed || (stock.Claimant?.Equals(worker) ?? true))
+               : false;
     }
 }
