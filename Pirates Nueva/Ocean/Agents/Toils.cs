@@ -207,11 +207,11 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <summary>
     /// Requires that an agent be able to path to the Job or Toil.
     /// </summary>
-    public class IsAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
+    public class IsToilAccessible<TC, TSpot> : SimpleRequirement<TC, TSpot>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        public IsAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
+        public IsToilAccessible(Job<TC, TSpot>.Toil? executor = null) : base(executor) {  }
 
         protected override bool Check(Agent<TC, TSpot> worker)
             => worker.IsAccessible(sp => sp.Index == Toil.Index);

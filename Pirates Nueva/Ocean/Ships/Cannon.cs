@@ -82,7 +82,7 @@ namespace Pirates_Nueva.Ocean
                                 //
                                 // Walk to the job if it's accessible.
                                 new PathToToil<Ship, Block>(),
-                                new IsAccessible<Ship, Block>()
+                                new IsToilAccessible<Ship, Block>()
                                 )
                             )
                         )
