@@ -52,29 +52,9 @@ namespace Pirates_Nueva.Ocean
                         // Require the agent to be holding gunpowder.
                         new IsHolding<Ship, Block>(
                             FuelType,
-                            executor: new Toil(
-                                //
-                                // Pick up some gunpowder and unclaim it,
-                                // if we're standing on some that we've previously claimed. 
-                                new PickUpClaimedStock<Ship, Block>(unclaimAfter: true),
-                                new IsStandingAtClaimedStock<Ship, Block>(
-                                    executor: new Toil(
-                                        //
-                                        // Walk to our claimed gunpowder
-                                        // if it's accesible.
-                                        new PathToClaimedStock<Ship, Block>(),
-                                        new IsClaimedStockAccessible<Ship, Block>(
-                                            new Toil(
-                                                //
-                                                // Claim some gunpowder if some
-                                                // exists and is acessible.
-                                                new ClaimAccessibleStock<Ship, Block>(new StockSelector(FuelType)),
-                                                new IsStockAccessible<Ship, Block>(new StockSelector(FuelType))
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
+                            //
+                            // Find and pick up some gunpowder.
+                            executor: new FindAndPickUpStock<Ship, Block>(new StockSelector(FuelType))
                             ),
                         //
                         // Require the agent to be at the job.

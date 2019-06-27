@@ -392,6 +392,47 @@ namespace Pirates_Nueva.Ocean.Agents
         }
     }
 
+    
+    /// <summary>
+    /// Finds, paths to, and picks up a <see cref="Stock{TC, TSpot}"/>
+    /// that matches the <see cref="StockSelector{TC, TSpot}"/>,
+    /// if it exists and is accessible.
+    /// </summary>
+    public class FindAndPickUpStock<TC, TSpot> : Job<TC, TSpot>.Toil
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
+    {
+        public StockSelector<TC, TSpot> Selector { get; }
+
+        public FindAndPickUpStock(StockSelector<TC, TSpot> selector, Job<TC, TSpot>.Toil? executor = null)
+            : base(
+                  //
+                  // Pick up the claimed Stock,
+                  // if it exists and we're standing at it.
+                  new PickUpClaimedStock<TC, TSpot>(unclaimAfter: true),
+                  new IsStandingAtClaimedStock<TC, TSpot>(
+                      executor: new Job<TC, TSpot>.Toil(
+                          //
+                          // Walk to the claimed Stock,
+                          // if it exists and is accessible.
+                          new PathToClaimedStock<TC, TSpot>(),
+                          new IsClaimedStockAccessible<TC, TSpot>(
+                              executor: new Job<TC, TSpot>.Toil(
+                                  //
+                                  // Claim some Stock,
+                                  // if it exists and is acessible.
+                                  new ClaimAccessibleStock<TC, TSpot>(selector),
+                                  new IsStockAccessible<TC, TSpot>(selector, executor: executor)
+                                  )
+                              )
+                          )
+                      )
+                  )
+        {
+            Selector = selector;
+        }
+    }
+
 
 
     internal static class StockChecker<TC, TSpot>
