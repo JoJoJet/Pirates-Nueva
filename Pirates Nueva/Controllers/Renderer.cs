@@ -5,6 +5,15 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Pirates_Nueva
 {
     /// <summary>
+    /// An object that transforms and draws things to the screen.
+    /// </summary>
+    /// <typeparam name="T">The type of object around which things will be drawn.</typeparam>
+    public interface ILocalDrawer<T>
+    {
+
+    }
+
+    /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
     public class Renderer
