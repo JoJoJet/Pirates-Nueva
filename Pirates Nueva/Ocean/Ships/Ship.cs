@@ -686,15 +686,15 @@ namespace Pirates_Nueva.Ocean
             Ship = ship;
         }
 
-        public void Draw(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
-            => Draw(texture, left, top, width, height, Angle.Right, (0.5f, 0.5f), in tint);
-        public void Draw(UI.Texture texture, float left, float top, float width, float height,
+        public void Draw(UI.Texture texture, float centerX, float centerY, float width, float height, in UI.Color tint)
+            => Draw(texture, centerX, centerY, width, height, Angle.Right, (0.5f, 0.5f), in tint);
+        public void Draw(UI.Texture texture, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             PointF texOfset = (1, 1) - origin;
             texOfset = (texOfset.X * width, texOfset.Y * height);
             texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
 
-            var (seaX, seaY) = Ship.ShipPointToSea(left + texOfset.X, top + texOfset.Y);
+            var (seaX, seaY) = Ship.ShipPointToSea(x + texOfset.X, y + texOfset.Y);
             var (screenX, screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
 
             var (screenW, screenH) = new PointF(width, height) * Ship.Sea.PPU;
