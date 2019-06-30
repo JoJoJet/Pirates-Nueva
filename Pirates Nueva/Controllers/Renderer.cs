@@ -29,6 +29,13 @@ namespace Pirates_Nueva
         /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
         ///                      from which to draw it. Range: [0, 1].</param>
         void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
+
+        /// <summary>
+        /// Draws a line with specified color this frame.
+        /// </summary>
+        /// <param name="start">The local position of the line's starting point.</param>
+        /// <param name="end">The local position of the line's ending point.</param>
+        void DrawLine(PointF start, PointF end, in UI.Color color);
     }
 
     /// <summary>

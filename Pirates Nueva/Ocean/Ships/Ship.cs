@@ -701,5 +701,7 @@ namespace Pirates_Nueva.Ocean
 
             Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, -angle - Ship.Angle, (0, 0), in tint);
         }
+
+        public void DrawLine(PointF start, PointF end, in UI.Color color) => throw new NotImplementedException();
     }
 }
