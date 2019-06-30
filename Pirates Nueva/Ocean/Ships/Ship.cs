@@ -686,6 +686,8 @@ namespace Pirates_Nueva.Ocean
             Ship = ship;
         }
 
+        public void Draw(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
+            => Draw(texture, left, top, width, height, Angle.Right, (0.5f, 0.5f), in tint);
         public void Draw(UI.Texture texture, float left, float top, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             PointF texOfset = (1, 1) - origin;
