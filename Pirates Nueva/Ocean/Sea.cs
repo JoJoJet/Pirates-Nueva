@@ -4,7 +4,7 @@ using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : IUpdatable, IDrawable, IFocusableParent
+    public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities = new List<Entity>();
 
@@ -39,8 +39,8 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        void IDrawable.Draw(Master master) {
-            var drawer = new SeaDrawer(master.Renderer, this);
+        void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
+            var drawer = new SeaDrawer(topDrawer, this);
 
             (Islands as IDrawable<Sea>).Draw(drawer);
 
