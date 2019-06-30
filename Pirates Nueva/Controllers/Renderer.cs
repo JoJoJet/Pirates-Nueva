@@ -116,10 +116,10 @@ namespace Pirates_Nueva
             => Draw(texture, left, top, width, height, in UI.Color.White);
 
         /// <summary> Draws a rotated texture this frame with the specified tint value. </summary>
-        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin, in UI.Color tint)
+        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, in Angle angle, in PointF origin, in UI.Color tint)
             => SpriteBatch.Draw(texture, new Rectangle(x, y, width, height), null, tint, angle, origin, SpriteEffects.None, 0f);
         /// <summary> Draws the specified texture this frame. </summary>
-        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin)
+        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, in Angle angle, in PointF origin)
             => DrawRotated(texture, x, y, width, height, angle, origin, in UI.Color.White);
 
         /// <summary> Draws the specified text this frame. </summary>
