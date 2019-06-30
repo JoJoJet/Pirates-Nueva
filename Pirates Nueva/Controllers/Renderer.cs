@@ -36,6 +36,13 @@ namespace Pirates_Nueva
         /// <param name="start">The local position of the line's starting point.</param>
         /// <param name="end">The local position of the line's ending point.</param>
         void DrawLine(PointF start, PointF end, in UI.Color color);
+
+        /// <summary>
+        /// Submits a <see cref="string"/> to be drawn this frame.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="string"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="string"/>'s top edge.</param>
+        void DrawString(UI.Font font, string text, float left, float top, in UI.Color color);
     }
     public static class DrawerExt
     {

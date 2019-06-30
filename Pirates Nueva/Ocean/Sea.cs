@@ -202,5 +202,7 @@ namespace Pirates_Nueva.Ocean
         }
         public void DrawLine(PointF start, PointF end, in UI.Color color)
             => Renderer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
+
+        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
     }
 }
