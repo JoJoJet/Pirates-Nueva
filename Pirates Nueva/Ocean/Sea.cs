@@ -187,12 +187,15 @@ namespace Pirates_Nueva.Ocean
             Sea = sea;
         }
 
-        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
-            => Draw(texture, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint) {
+            var (screenX, screenY) = Sea.SeaPointToScreen(left, top);
+            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
+
+            Renderer.Draw(texture, screenX, screenY, (int)screenW, (int)screenH, in tint);
+        }
         public void Draw(UI.Texture texture, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
-
             var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
 
             Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
