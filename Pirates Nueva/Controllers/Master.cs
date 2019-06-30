@@ -104,6 +104,15 @@ namespace Pirates_Nueva
         #endregion
 
         /// <summary>
+        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
+        /// </summary>
+        public UI.Texture CreateTexture(int width, int height, params UI.Color[] pixels) {
+            var tex = new Texture2D(GraphicsDevice, width, height);
+            tex.SetData(pixels);
+            return new UI.Texture(tex);
+        }
+
+        /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>

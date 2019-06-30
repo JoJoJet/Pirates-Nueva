@@ -50,6 +50,7 @@ namespace Pirates_Nueva
                                          float centerX, float centerY, float width, float height, in UI.Color tint)
             => drawer.DrawCorner(texture, centerX - width / 2, centerY + width / 2, width, height, in tint);
 
+
         /// <summary>
         /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
         /// </summary>
@@ -124,16 +125,7 @@ namespace Pirates_Nueva
             Master = master;
             SpriteBatch = spriteBatch;
 
-            this.pixelLazy = new Lazy<UI.Texture>(() => CreateTexture(1, 1, UI.Color.White));
-        }
-
-        /// <summary>
-        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
-        /// </summary>
-        public UI.Texture CreateTexture(int width, int height, params UI.Color[] pixels) {
-            var tex = new Texture2D(Master.GraphicsDevice, width, height);
-            tex.SetData(pixels);
-            return new UI.Texture(tex);
+            this.pixelLazy = new Lazy<UI.Texture>(() => Master.CreateTexture(1, 1, UI.Color.White));
         }
 
         /// <summary> Draws a texture this frame with the specified tint value. </summary>

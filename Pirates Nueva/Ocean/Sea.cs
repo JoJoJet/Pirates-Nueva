@@ -200,7 +200,6 @@ namespace Pirates_Nueva.Ocean
 
             Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
         }
-
         public void DrawLine(PointF start, PointF end, in UI.Color color)
             => Renderer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
     }

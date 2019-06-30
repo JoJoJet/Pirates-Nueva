@@ -720,7 +720,7 @@ namespace Pirates_Nueva.Ocean
 
             drawShore();
 
-            return master.Renderer.CreateTexture(w, h, pixelsFlat); // Create a texture using the array of colors we just made.
+            return master.CreateTexture(w, h, pixelsFlat); // Create a texture using the array of colors we just made.
 
             /*
              * Local Methods

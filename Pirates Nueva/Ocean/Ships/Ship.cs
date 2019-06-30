@@ -698,7 +698,6 @@ namespace Pirates_Nueva.Ocean
 
             Drawer.Draw(texture, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
         }
-
         public void DrawLine(PointF start, PointF end, in UI.Color color)
             => Drawer.DrawLine(Ship.ShipPointToSea(start), Ship.ShipPointToSea(end), in color);
     }
