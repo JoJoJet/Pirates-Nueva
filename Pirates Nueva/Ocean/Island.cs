@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Island : IDrawable
+    public class Island : IDrawable<Sea>
     {
         /// <summary> The outline of this island. </summary>
         private Vertex[]? vertices;
@@ -852,14 +852,13 @@ namespace Pirates_Nueva.Ocean
         }
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) {
+        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
             //drawOutline();
 
             if(tex == null)
                 return;
-            var (sx, sy) = Sea.SeaPointToScreen(Left, Bottom);
-            var (w, h) = (PointI)(tex.Width * Sea.PPU, tex.Height * Sea.PPU) / PPU;
-            master.Renderer.Draw(this.tex, sx, sy - h, w, h);
+            var (w, h) = ((float)tex.Width / PPU, (float)tex.Height / PPU);
+            drawer.DrawCorner(this.tex, Left, Bottom + h, w, h);
 
             void drawOutline() {
                 //
@@ -870,21 +869,21 @@ namespace Pirates_Nueva.Ocean
                 foreach(var l in this.edges) {
                     //
                     // Draw each edge.
-                    var a = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.a].Pos);
-                    var b = Sea.SeaPointToScreen((Left, Bottom) + vertices[l.b].Pos);
-                    master.Renderer.DrawLine(a, b);
+                    var a = (Left, Bottom) + vertices[l.a].Pos;
+                    var b = (Left, Bottom) + vertices[l.b].Pos;
+                    drawer.DrawLine(a, b, in UI.Color.White);
                     //
-                    // Draw the normal of each EDGE.
+                    // Draw the normal of each edge.
                     var lCenter = (Left, Bottom) + (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
                     var lEnd = lCenter + l.normal;
-                    master.Renderer.DrawLine(Sea.SeaPointToScreen(lCenter), Sea.SeaPointToScreen(lEnd));
+                    drawer.DrawLine(lCenter, lEnd, in UI.Color.White);
                 }
                 //
                 // Draw the normal of each VERTEX.
                 foreach(var v in this.vertices) {
                     var vCenter = (Left, Bottom) + v.Pos;
                     var nEnd = vCenter + v.normal;
-                    master.Renderer.DrawLine(Sea.SeaPointToScreen(vCenter), Sea.SeaPointToScreen(nEnd), UI.Color.Black);
+                    drawer.DrawLine(vCenter, nEnd, in UI.Color.Black);
                 }
             }
         }

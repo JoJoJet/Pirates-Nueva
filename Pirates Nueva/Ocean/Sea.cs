@@ -42,7 +42,7 @@ namespace Pirates_Nueva.Ocean
         void IDrawable.Draw(Master master) {
             var drawer = new SeaDrawer(master.Renderer, this);
 
-            (Islands as IDrawable).Draw(master);
+            (Islands as IDrawable<Sea>).Draw(drawer);
 
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IDrawable<Sea> d)     // If it is drawable,
@@ -107,7 +107,7 @@ namespace Pirates_Nueva.Ocean
         {
             void Generate(int seed, Master master);
         }
-        public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
+        public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>, IArchiContract
         {
             private Sea sea;
             private Island[,]? islands;
@@ -168,9 +168,9 @@ namespace Pirates_Nueva.Ocean
             #endregion
 
             #region IDrawable Implementation
-            void IDrawable.Draw(Master master) {
-                foreach(IDrawable i in this) {  // For every island in this archipelago:
-                    i.Draw(master);             // Call its Draw() method.
+            void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
+                foreach(IDrawable<Sea> i in this) { // For every island in this archipelago:
+                    i.Draw(drawer);                 // Call its Draw() method.
                 }
             }
             #endregion
