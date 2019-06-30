@@ -11,7 +11,7 @@ namespace Pirates_Nueva
     public interface ILocalDrawer<T>
     {
         void Draw(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint);
-        void Draw(UI.Texture texture, float left, float top, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
+        void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
     }
 
     public static class DrawerExt
@@ -20,9 +20,9 @@ namespace Pirates_Nueva
                                    float left, float top, float width, float height)
             => drawer.Draw(texture, left, top, width, height, in UI.Color.White);
         public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
-                                   float left, float top, float width, float height,
+                                   float x, float y, float width, float height,
                                    in Angle angle, in PointF origin)
-            => drawer.Draw(texture, left, top, width, height, in angle, in origin, in UI.Color.White);
+            => drawer.Draw(texture, x, y, width, height, in angle, in origin, in UI.Color.White);
     }
 
     /// <summary>
