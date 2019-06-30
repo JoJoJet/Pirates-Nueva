@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
-    public abstract class Agent<TC, TSpot> : IStockClaimant, IUpdatable, IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public abstract class Agent<TC, TSpot> : IStockClaimant, IUpdatable, IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -167,9 +167,15 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) => Draw(master);
+        void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
-        protected abstract void Draw(Master master);
+        protected virtual void Draw(ILocalDrawer<TC> drawer) {
+            var tex = Resources.LoadTexture("agent");
+
+            drawer.Draw(tex, X, Y, width: 1, height: 1);
+
+            (Holding as IDrawable<TC>)?.Draw(drawer);
+        }
         #endregion
 
         #region IScreenSpaceTarget Implementation

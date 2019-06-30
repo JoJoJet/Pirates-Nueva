@@ -545,7 +545,7 @@ namespace Pirates_Nueva.Ocean
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetStockOrNull(x, y) is Stock s)
-                        (s as IDrawable).Draw(master);
+                        (s as IDrawable<Ship>).Draw(drawer);
                 }
             }
 
@@ -556,7 +556,7 @@ namespace Pirates_Nueva.Ocean
 
             // Draw each agent.
             foreach(var agent in this.agents) {
-                (agent as IDrawable).Draw(master);
+                (agent as IDrawable<Ship>).Draw(drawer);
             }
         }
 

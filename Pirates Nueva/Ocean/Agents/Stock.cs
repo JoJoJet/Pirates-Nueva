@@ -7,7 +7,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
     }
 
-    public abstract class Stock<TC, TSpot> : IDrawable, IFocusable, UI.IScreenSpaceTarget
+    public abstract class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -91,9 +91,13 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) => Draw(master);
+        void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
-        protected abstract void Draw(Master master);
+        protected virtual void Draw(ILocalDrawer<TC> drawer) {
+            var tex = Resources.LoadTexture(Def.TextureID);
+
+            drawer.Draw(tex, X, Y, width: 1, height: 1);
+        }
         #endregion
 
         #region IScreenSpaceTarget Implementation
