@@ -28,7 +28,7 @@ namespace Pirates_Nueva
 
         public Input Input { get; }
 
-        public Renderer Renderer { get; private set; }
+        public ILocalDrawer<Master> Renderer { get; private set; }
         public UI.GUI GUI { get; private set; }
 
         public PlayerController Player { get; private set; }

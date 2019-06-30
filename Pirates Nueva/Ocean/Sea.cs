@@ -179,11 +179,11 @@ namespace Pirates_Nueva.Ocean
 
     internal sealed class SeaDrawer : ILocalDrawer<Sea>
     {
-        private Renderer Renderer { get; }
+        private ILocalDrawer<Master> Drawer { get; }
         private Sea Sea { get; }
 
-        public SeaDrawer(Renderer renderer, Sea sea) {
-            Renderer = renderer;
+        public SeaDrawer(ILocalDrawer<Master> drawer, Sea sea) {
+            Drawer = drawer;
             Sea = sea;
         }
 
@@ -191,17 +191,17 @@ namespace Pirates_Nueva.Ocean
             var (screenX, screenY) = Sea.SeaPointToScreen(left, top);
             var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
 
-            Renderer.Draw(texture, screenX, screenY, (int)screenW, (int)screenH, in tint);
+            Drawer.DrawCorner(texture, screenX, screenY, (int)screenW, (int)screenH, in tint);
         }
         public void Draw(UI.Texture texture, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
             var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
 
-            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
+            Drawer.Draw(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
         }
         public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => Renderer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
+            => Drawer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
 
         public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
     }
