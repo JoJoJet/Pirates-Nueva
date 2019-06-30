@@ -524,11 +524,12 @@ namespace Pirates_Nueva.Ocean
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         protected virtual void Draw(Master master) {
+            var drawer = new ShipDrawer(master.Renderer, this);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlockOrNull(x, y) is Block b)
-                        DrawPart(b, master);
+                        DrawPart(b, drawer);
                 }
             }
 
@@ -536,7 +537,7 @@ namespace Pirates_Nueva.Ocean
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetFurnitureOrNull(x, y) is Furniture f)
-                        DrawPart(f, master);
+                        DrawPart(f, drawer);
                 }
             }
 
@@ -560,7 +561,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
-        protected void DrawPart(Part p, Master master) => (p as IPartContract).Draw(master);
+        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IPartContract).Draw(drawer);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -610,7 +611,7 @@ namespace Pirates_Nueva.Ocean
         private interface IPartContract
         {
             void Update(Master master);
-            void Draw(Master master);
+            void Draw(ILocalDrawer<Ship> drawer);
         }
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
@@ -642,9 +643,9 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IPartContract.Draw(Master master) => Draw(master);
+            void IPartContract.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
-            protected abstract void Draw(Master master);
+            protected abstract void Draw(ILocalDrawer<Ship> drawer);
             #endregion
 
             #region IFocusable Implementation
@@ -672,6 +673,31 @@ namespace Pirates_Nueva.Ocean
                 public virtual void Close(Master master) {  }
             }
             #endregion
+        }
+    }
+
+    internal class ShipDrawer : ILocalDrawer<Ship>
+    {
+        private Renderer Renderer { get; }
+        private Ship Ship { get; }
+
+        public ShipDrawer(Renderer renderer, Ship ship) {
+            Renderer = renderer;
+            Ship = ship;
+        }
+
+        public void Draw(UI.Texture texture, float left, float top, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint) {
+            PointF texOfset = (1, 1) - origin;
+            texOfset = (texOfset.X * width, texOfset.Y * height);
+            texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
+
+            var (seaX, seaY) = Ship.ShipPointToSea(left + texOfset.X, top + texOfset.Y);
+            var (screenX, screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
+
+            var (screenW, screenH) = new PointF(width, height) * Ship.Sea.PPU;
+
+            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, -angle - Ship.Angle, (0, 0));
         }
     }
 }

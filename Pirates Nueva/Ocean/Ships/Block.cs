@@ -52,15 +52,10 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
-        protected override void Draw(Master master) {
+        protected override void Draw(ILocalDrawer<Ship> drawer) {
             var tex = Resources.LoadTexture(Def.TextureID);
 
-            PointF texOffset = (0.5f, 0.5f);                  // As MonoGame draws from the top left, ofset the texture by
-            texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); //     a rotated constant to account for this.
-            
-            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of the Block's texture in sea-space.
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
-            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Angle - Ship.Angle, (0, 0));
+            drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));
         }
 
         #region IScreenSpaceTarget Implementation
