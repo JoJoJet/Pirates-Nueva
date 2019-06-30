@@ -31,6 +31,26 @@ namespace Pirates_Nueva
         void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
     }
 
+    /// <summary>
+    /// An instance that can be drawn through the <see cref="Master"/> object.
+    /// </summary>
+    internal interface IDrawable
+    {
+        void Draw(Master master);
+    }
+    /// <summary>
+    /// An instance that can be locally drawn around an object.
+    /// </summary>
+    /// <typeparam name="T">The type of object around which the instance will be drawn.</typeparam>
+    internal interface IDrawable<T>
+    {
+        /// <summary>
+        /// Draws this object around its parent.
+        /// </summary>
+        /// <param name="drawer"></param>
+        void Draw(ILocalDrawer<T> drawer);
+    }
+
     public static class DrawerExt
     {
         /// <summary>

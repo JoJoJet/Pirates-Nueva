@@ -15,13 +15,6 @@ namespace Pirates_Nueva
         void Update(Master master, Time delta);
     }
     /// <summary>
-    /// An instance that can be drawn through the <see cref="Master"/> object.
-    /// </summary>
-    internal interface IDrawable
-    {
-        void Draw(Master master);
-    }
-    /// <summary>
     /// Controls Rendering and calls the Update() functions for every type in the game.
     /// </summary>
     public sealed class Master : Game
