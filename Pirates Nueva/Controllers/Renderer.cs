@@ -10,7 +10,7 @@ namespace Pirates_Nueva
     /// <typeparam name="T">The type of object around which things will be drawn.</typeparam>
     public interface ILocalDrawer<T>
     {
-        void Draw(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint);
+        void Draw(UI.Texture texture, float x, float y, float width, float height, in UI.Color tint);
         void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
     }
 
