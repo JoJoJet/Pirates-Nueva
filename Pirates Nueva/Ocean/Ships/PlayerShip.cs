@@ -7,16 +7,13 @@ namespace Pirates_Nueva.Ocean
     {
         public PlayerShip(Sea sea, ShipDef def) : base(sea, def) {  }
 
-        protected override void Draw(Master master) {
-            base.Draw(master);
+        protected override void Draw(ILocalDrawer<Sea> drawer) {
+            base.Draw(drawer);
             //
             // If we're being focused on,
             // draw a line to the destination.
             if(IsFocused && Destination is PointF dest) {
-                var screenCenter = Sea.SeaPointToScreen(Center);
-                var screenDest = Sea.SeaPointToScreen(dest);
-
-                master.Renderer.DrawLine(screenCenter, screenDest, UI.Color.Black);
+                drawer.DrawLine(Center, dest, in UI.Color.Black);
             }
         }
 

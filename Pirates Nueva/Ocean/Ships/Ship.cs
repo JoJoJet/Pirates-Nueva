@@ -6,7 +6,7 @@ using Pirates_Nueva.Ocean.Agents;
 namespace Pirates_Nueva.Ocean
 {
     using Stock = Stock<Ship, Block>;
-    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
+    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable<Sea>, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -519,12 +519,12 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) => Draw(master);
+        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) => Draw(drawer);
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        protected virtual void Draw(Master master) {
-            var drawer = new ShipDrawer(master.Renderer, this);
+        protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
+            var drawer = new ShipDrawer(seaDrawer, this);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -676,13 +676,13 @@ namespace Pirates_Nueva.Ocean
         }
     }
 
-    internal class ShipDrawer : ILocalDrawer<Ship>
+    internal sealed class ShipDrawer : ILocalDrawer<Ship>
     {
-        private Renderer Renderer { get; }
+        private ILocalDrawer<Sea> Drawer { get; }
         private Ship Ship { get; }
 
-        public ShipDrawer(Renderer renderer, Ship ship) {
-            Renderer = renderer;
+        public ShipDrawer(ILocalDrawer<Sea> drawer, Ship ship) {
+            Drawer = drawer;
             Ship = ship;
         }
 
@@ -695,13 +695,11 @@ namespace Pirates_Nueva.Ocean
             texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
 
             var (seaX, seaY) = Ship.ShipPointToSea(x + texOfset.X, y + texOfset.Y);
-            var (screenX, screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
 
-            var (screenW, screenH) = new PointF(width, height) * Ship.Sea.PPU;
-
-            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, -angle - Ship.Angle, (0, 0), in tint);
+            Drawer.Draw(texture, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
         }
 
-        public void DrawLine(PointF start, PointF end, in UI.Color color) => throw new NotImplementedException();
+        public void DrawLine(PointF start, PointF end, in UI.Color color)
+            => Drawer.DrawLine(Ship.ShipPointToSea(start), Ship.ShipPointToSea(end), in color);
     }
 }

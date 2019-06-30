@@ -40,11 +40,13 @@ namespace Pirates_Nueva.Ocean
         }
 
         void IDrawable.Draw(Master master) {
+            var drawer = new SeaDrawer(master.Renderer, this);
+
             (Islands as IDrawable).Draw(master);
 
             foreach(var ent in this.entities) { // For every entity:
-                if(ent is IDrawable d)          // If it is drawable,
-                    d.Draw(master);             //     call its Draw() method.
+                if(ent is IDrawable<Sea> d)     // If it is drawable,
+                    d.Draw(drawer);             //     call its Draw() method.
             }
         }
 
@@ -173,5 +175,30 @@ namespace Pirates_Nueva.Ocean
             }
             #endregion
         }
+    }
+
+    internal sealed class SeaDrawer : ILocalDrawer<Sea>
+    {
+        private Renderer Renderer { get; }
+        private Sea Sea { get; }
+
+        public SeaDrawer(Renderer renderer, Sea sea) {
+            Renderer = renderer;
+            Sea = sea;
+        }
+
+        public void Draw(UI.Texture texture, float centerX, float centerY, float width, float height, in UI.Color tint)
+            => Draw(texture, centerX, centerY, width, height, Angle.Right, (0.5f, 0.5f), in tint);
+        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint) {
+            var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
+
+            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
+
+            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
+        }
+
+        public void DrawLine(PointF start, PointF end, in UI.Color color)
+            => Renderer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
     }
 }
