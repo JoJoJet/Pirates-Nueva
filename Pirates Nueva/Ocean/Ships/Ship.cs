@@ -550,8 +550,8 @@ namespace Pirates_Nueva.Ocean
             }
 
             // Draw each job.
-            foreach(IDrawable job in this.jobs) {
-                job.Draw(master);
+            foreach(IDrawable<Ship> job in this.jobs) {
+                job.Draw(drawer);
             }
 
             // Draw each agent.
@@ -699,7 +699,7 @@ namespace Pirates_Nueva.Ocean
 
             var (screenW, screenH) = new PointF(width, height) * Ship.Sea.PPU;
 
-            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, -angle - Ship.Angle, (0, 0));
+            Renderer.DrawRotated(texture, screenX, screenY, (int)screenW, (int)screenH, -angle - Ship.Angle, (0, 0), in tint);
         }
     }
 }
