@@ -96,7 +96,7 @@ namespace Pirates_Nueva.Ocean.Agents
         protected virtual void Draw(ILocalDrawer<TC> drawer) {
             var tex = Resources.LoadTexture(Def.TextureID);
 
-            drawer.Draw(tex, X, Y, width: 1, height: 1);
+            drawer.DrawCenter(tex, X, Y, width: 1, height: 1);
         }
         #endregion
 

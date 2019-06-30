@@ -11,13 +11,13 @@ namespace Pirates_Nueva
     public interface ILocalDrawer<T>
     {
         /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame.
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
         /// </summary>
-        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
         /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
         /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        void Draw(UI.Texture texture, float centerX, float centerY, float width, float height, in UI.Color tint);
+        void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint);
         /// <summary>
         /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
         /// </summary>
@@ -36,6 +36,54 @@ namespace Pirates_Nueva
         /// <param name="start">The local position of the line's starting point.</param>
         /// <param name="end">The local position of the line's ending point.</param>
         void DrawLine(PointF start, PointF end, in UI.Color color);
+    }
+    public static class DrawerExt
+    {
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// </summary>
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float centerX, float centerY, float width, float height, in UI.Color tint)
+            => drawer.DrawCorner(texture, centerX - width / 2, centerY + width / 2, width, height, in tint);
+
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// </summary>
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float centerX, float centerY, float width, float height)
+            => drawer.DrawCenter(texture, centerX, centerY, width, height, in UI.Color.White);
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float left, float top, float width, float height)
+            => drawer.DrawCorner(texture, left, top, width, height, in UI.Color.White);
+        /// <summary>
+        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
+        /// </summary>
+        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
+        ///                      from which to draw it. Range: [0, 1].</param>
+        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                   float x, float y, float width, float height,
+                                   in Angle angle, in PointF origin)
+            => drawer.Draw(texture, x, y, width, height, in angle, in origin, in UI.Color.White);
     }
 
     /// <summary>
@@ -58,33 +106,6 @@ namespace Pirates_Nueva
         void Draw(ILocalDrawer<T> drawer);
     }
 
-    public static class DrawerExt
-    {
-        /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame.
-        /// </summary>
-        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
-                                   float centerX, float centerY, float width, float height)
-            => drawer.Draw(texture, centerX, centerY, width, height, in UI.Color.White);
-        /// <summary>
-        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
-        /// </summary>
-        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
-        ///                      from which to draw it. Range: [0, 1].</param>
-        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
-                                   float x, float y, float width, float height,
-                                   in Angle angle, in PointF origin)
-            => drawer.Draw(texture, x, y, width, height, in angle, in origin, in UI.Color.White);
-    }
 
     /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.

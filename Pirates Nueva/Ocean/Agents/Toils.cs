@@ -81,7 +81,7 @@ namespace Pirates_Nueva.Ocean.Agents
             var def = BlockDef.Get(PlaceID);
             var tex = Resources.LoadTexture(def.TextureID);
             
-            drawer.Draw(tex, Toil.X, Toil.Y, 1, 1, in UI.Color.Lime);
+            drawer.DrawCenter(tex, Toil.X, Toil.Y, 1, 1, in UI.Color.Lime);
         }
     }
     
