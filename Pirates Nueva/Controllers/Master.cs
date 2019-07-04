@@ -142,7 +142,7 @@ namespace Pirates_Nueva
             spriteBatch.Begin();
 
             (Sea as IDrawable<Master>).Draw(Renderer);
-            (GUI as IDrawable).Draw(this);
+            GUI.Draw(this);
 
             spriteBatch.End();
 

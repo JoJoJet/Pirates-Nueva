@@ -10,7 +10,7 @@ namespace Pirates_Nueva.UI
     /// <summary>
     /// Controls the user interface for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    public class GUI : IUpdatable, IDrawable
+    public class GUI : IUpdatable
     {
         private Dictionary<string, EdgeElement> _edgeElements = new Dictionary<string, EdgeElement>();
         private Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
@@ -201,7 +201,7 @@ namespace Pirates_Nueva.UI
             }
         }
 
-        void IDrawable.Draw(Master master) {
+        internal void Draw(Master master) {
             // Draw every drawable edge element.
             foreach(var edge in this._edgeElements.Values) {
                 var con = edge as IEdgeContract;

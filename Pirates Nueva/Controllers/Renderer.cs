@@ -95,13 +95,6 @@ namespace Pirates_Nueva
     }
 
     /// <summary>
-    /// An instance that can be drawn through the <see cref="Master"/> object.
-    /// </summary>
-    internal interface IDrawable
-    {
-        void Draw(Master master);
-    }
-    /// <summary>
     /// An instance that can be locally drawn around an object.
     /// </summary>
     /// <typeparam name="T">The type of object around which the instance will be drawn.</typeparam>
@@ -110,7 +103,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Draws this object around its parent.
         /// </summary>
-        /// <param name="drawer"></param>
+        /// <param name="drawer">The object on which to draw.</param>
         void Draw(ILocalDrawer<T> drawer);
     }
 
