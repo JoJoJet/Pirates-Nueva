@@ -5,14 +5,117 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Pirates_Nueva
 {
     /// <summary>
+    /// An object that transforms and draws things to the screen.
+    /// </summary>
+    /// <typeparam name="T">The type of object around which things will be drawn.</typeparam>
+    public interface ILocalDrawer<T>
+    {
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint);
+        /// <summary>
+        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
+        /// </summary>
+        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
+        ///                      from which to draw it. Range: [0, 1].</param>
+        void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
+
+        /// <summary>
+        /// Draws a line with specified color this frame.
+        /// </summary>
+        /// <param name="start">The local position of the line's starting point.</param>
+        /// <param name="end">The local position of the line's ending point.</param>
+        void DrawLine(PointF start, PointF end, in UI.Color color);
+
+        /// <summary>
+        /// Submits a <see cref="string"/> to be drawn this frame.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="string"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="string"/>'s top edge.</param>
+        void DrawString(UI.Font font, string text, float left, float top, in UI.Color color);
+    }
+    public static class DrawerExt
+    {
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// </summary>
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float centerX, float centerY, float width, float height, in UI.Color tint)
+            => drawer.DrawCorner(texture, centerX - width / 2, centerY + width / 2, width, height, in tint);
+
+
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// </summary>
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float centerX, float centerY, float width, float height)
+            => drawer.DrawCenter(texture, centerX, centerY, width, height, in UI.Color.White);
+        /// <summary>
+        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                         float left, float top, float width, float height)
+            => drawer.DrawCorner(texture, left, top, width, height, in UI.Color.White);
+        /// <summary>
+        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
+        /// </summary>
+        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
+        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
+        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
+        ///                      from which to draw it. Range: [0, 1].</param>
+        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+                                   float x, float y, float width, float height,
+                                   in Angle angle, in PointF origin)
+            => drawer.Draw(texture, x, y, width, height, in angle, in origin, in UI.Color.White);
+    }
+
+    /// <summary>
+    /// An instance that can be locally drawn around an object.
+    /// </summary>
+    /// <typeparam name="T">The type of object around which the instance will be drawn.</typeparam>
+    internal interface IDrawable<T>
+    {
+        /// <summary>
+        /// Draws this object around its parent.
+        /// </summary>
+        /// <param name="drawer">The object on which to draw.</param>
+        void Draw(ILocalDrawer<T> drawer);
+    }
+
+
+    /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    public class Renderer
+    internal class Renderer : ILocalDrawer<Master>
     {
         private Lazy<UI.Texture> pixelLazy;
 
-        public Master Master { get; }
-
+        private Master Master { get; }
         private SpriteBatch SpriteBatch { get; }
 
         private UI.Texture Pixel => this.pixelLazy.Value;
@@ -21,48 +124,24 @@ namespace Pirates_Nueva
             Master = master;
             SpriteBatch = spriteBatch;
 
-            this.pixelLazy = new Lazy<UI.Texture>(() => CreateTexture(1, 1, UI.Color.White));
+            this.pixelLazy = new Lazy<UI.Texture>(() => Master.CreateTexture(1, 1, UI.Color.White));
         }
 
-        /// <summary>
-        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
-        /// </summary>
-        public UI.Texture CreateTexture(int width, int height, params UI.Color[] pixels) {
-            var tex = new Texture2D(Master.GraphicsDevice, width, height);
-            tex.SetData(pixels);
-            return new UI.Texture(tex);
-        }
+        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
+            => SpriteBatch.Draw(texture, new Rectangle((int)left, (int)top, (int)width, (int)height), tint);
+        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint)
+            => SpriteBatch.Draw(texture, new Rectangle((int)x, (int)y, (int)width, (int)height),
+                                null, tint, angle, origin, SpriteEffects.None, 0f);
 
-        /// <summary> Draws a texture this frame with the specified tint value. </summary>
-        public void Draw(UI.Texture texture, int left, int top, int width, int height, in UI.Color tint)
-            => SpriteBatch.Draw(texture, new Rectangle(left, top, width, height), tint);
-        /// <summary> Draws the specified texture this frame. </summary>
-        public void Draw(UI.Texture texture, int left, int top, int width, int height)
-            => Draw(texture, left, top, width, height, in UI.Color.White);
-
-        /// <summary> Draws a rotated texture this frame with the specified tint value. </summary>
-        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin, in UI.Color tint)
-            => SpriteBatch.Draw(texture, new Rectangle(x, y, width, height), null, tint, angle, origin, SpriteEffects.None, 0f);
-        /// <summary> Draws the specified texture this frame. </summary>
-        public void DrawRotated(UI.Texture texture, int x, int y, int width, int height, Angle angle, PointF origin)
-            => DrawRotated(texture, x, y, width, height, angle, origin, in UI.Color.White);
-
-        /// <summary> Draws the specified text this frame. </summary>
-        public void DrawString(UI.Font font, string text, int left, int top, in UI.Color color)
-            => SpriteBatch.DrawString(font, text, new PointF(left, top), color);
-        /// <summary> Draws the specified text this frame, in black. </summary>
-        public void DrawString(UI.Font font, string text, int left, int top)
-            => DrawString(font, text, left, top, in UI.Color.Black);
-
-        /// <summary> Draws a line this frame with the specified color. </summary>
-        public void DrawLine(PointI start, PointI end, in UI.Color color) {
+        public void DrawLine(PointF start, PointF end, in UI.Color color) {
             var edge = end - start;
             var angle = (Angle)Math.Atan2(edge.Y, edge.X);
 
-            DrawRotated(Pixel, start.X, start.Y, (int)edge.Magnitude, 1, angle, (0, 0), in color);
+            Draw(Pixel, start.X, start.Y, edge.Magnitude, 1, angle, (0, 0), in color);
         }
-        /// <summary> Draws a white line this frame. </summary>
-        public void DrawLine(PointI start, PointI end)
-            => DrawLine(start, end, in UI.Color.White);
+
+        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
+            => SpriteBatch.DrawString(font, text, new PointF(left, top), color);
     }
 }

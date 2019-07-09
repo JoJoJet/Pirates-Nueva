@@ -77,19 +77,11 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
 
-        protected override void Draw(Master master, Agent<Ship, Block>? worker) {
+        protected override void Draw(ILocalDrawer<Ship> drawer, Agent<Ship, Block>? worker) {
             var def = BlockDef.Get(PlaceID);
             var tex = Resources.LoadTexture(def.TextureID);
             
-            var (seaX, seaY) = Container.ShipPointToSea(Toil.Index + (0, 1));  // The top left of the Block's texture in sea-space.
-            var (screenX, screenY) = Container.Sea.SeaPointToScreen(seaX, seaY); // The top left of the Block's texture in screen-space.
-            master.Renderer.DrawRotated(
-                tex,
-                screenX, screenY,
-                Container.Sea.PPU, Container.Sea.PPU,
-                -Container.Angle, (0, 0),
-                in UI.Color.Lime
-                );
+            drawer.DrawCenter(tex, Toil.X, Toil.Y, 1, 1, in UI.Color.Lime);
         }
     }
     

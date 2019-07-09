@@ -9,7 +9,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Job exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that an Agent can rest on.</typeparam>
-    public class Job<TC, TSpot> : IDrawable
+    public class Job<TC, TSpot> : IDrawable<TC>
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -76,8 +76,8 @@ namespace Pirates_Nueva.Ocean.Agents
             => (this.top as IToil).Work(worker, delta);
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master)
-            => (top as IToil).Draw(master);
+        void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer)
+            => (top as IToil).Draw(drawer);
         #endregion
 
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>
@@ -89,7 +89,7 @@ namespace Pirates_Nueva.Ocean.Agents
             bool Work(Agent<TC, TSpot> worker, Time delta);
             void DoStop(Agent<TC, TSpot> worker);
 
-            void Draw(Master master);
+            void Draw(ILocalDrawer<TC> drawer);
         }
         /// <summary>
         /// An action paired with a requirement.
@@ -213,21 +213,21 @@ namespace Pirates_Nueva.Ocean.Agents
                 (Action as IAction).DoStop(worker);
             }
 
-            void IToil.Draw(Master master) {
+            void IToil.Draw(ILocalDrawer<TC> drawer) {
                 var worker = Job.Worker;
                 //
                 // Draw each action.
-                (Action as ISegment).Draw(master, worker);
+                (Action as ISegment).Draw(drawer, worker);
                 foreach(var req in Requirements) {
                     //
                     // Draw each requirement.
-                    (req as ISegment).Draw(master, worker);
+                    (req as ISegment).Draw(drawer, worker);
                     //
                     // If the requirement is NOT fulfilled,
                     // draw the requirement's executor toil.
                     if(req.Executor is IToil exec) {
                         if(worker == null || !(req as IReq).Qualify(worker, out _))
-                            exec.Draw(master);
+                            exec.Draw(drawer);
                     }
                 }
             }
@@ -237,7 +237,7 @@ namespace Pirates_Nueva.Ocean.Agents
         {
             Toil Toil { set; }
 
-            void Draw(Master master, Agent<TC, TSpot>? worker);
+            void Draw(ILocalDrawer<TC> Drawer, Agent<TC, TSpot>? worker);
         }
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : ISegment
@@ -255,9 +255,9 @@ namespace Pirates_Nueva.Ocean.Agents
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
-            void ISegment.Draw(Master master, Agent<TC, TSpot>? worker) => Draw(master, worker);
+            void ISegment.Draw(ILocalDrawer<TC> drawer, Agent<TC, TSpot>? worker) => Draw(drawer, worker);
             /// <summary> Draws this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
-            protected virtual void Draw(Master master, Agent<TC, TSpot>? worker) {  }
+            protected virtual void Draw(ILocalDrawer<TC> drawer, Agent<TC, TSpot>? worker) {  }
         }
         
         private interface IReq // Restricts access of some members to this class.

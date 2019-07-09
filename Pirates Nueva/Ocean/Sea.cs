@@ -4,7 +4,7 @@ using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : IUpdatable, IDrawable, IFocusableParent
+    public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities = new List<Entity>();
 
@@ -39,12 +39,14 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        void IDrawable.Draw(Master master) {
-            (Islands as IDrawable).Draw(master);
+        void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
+            var drawer = new SeaDrawer(topDrawer, this);
+
+            (Islands as IDrawable<Sea>).Draw(drawer);
 
             foreach(var ent in this.entities) { // For every entity:
-                if(ent is IDrawable d)          // If it is drawable,
-                    d.Draw(master);             //     call its Draw() method.
+                if(ent is IDrawable<Sea> d)     // If it is drawable,
+                    d.Draw(drawer);             //     call its Draw() method.
             }
         }
 
@@ -105,7 +107,7 @@ namespace Pirates_Nueva.Ocean
         {
             void Generate(int seed, Master master);
         }
-        public sealed class Archipelago : IEnumerable<Island>, IDrawable, IArchiContract
+        public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>, IArchiContract
         {
             private Sea sea;
             private Island[,]? islands;
@@ -166,12 +168,41 @@ namespace Pirates_Nueva.Ocean
             #endregion
 
             #region IDrawable Implementation
-            void IDrawable.Draw(Master master) {
-                foreach(IDrawable i in this) {  // For every island in this archipelago:
-                    i.Draw(master);             // Call its Draw() method.
+            void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
+                foreach(IDrawable<Sea> i in this) { // For every island in this archipelago:
+                    i.Draw(drawer);                 // Call its Draw() method.
                 }
             }
             #endregion
         }
+    }
+
+    internal sealed class SeaDrawer : ILocalDrawer<Sea>
+    {
+        private ILocalDrawer<Master> Drawer { get; }
+        private Sea Sea { get; }
+
+        public SeaDrawer(ILocalDrawer<Master> drawer, Sea sea) {
+            Drawer = drawer;
+            Sea = sea;
+        }
+
+        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint) {
+            var (screenX, screenY) = Sea.SeaPointToScreen(left, top);
+            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
+
+            Drawer.DrawCorner(texture, screenX, screenY, (int)screenW, (int)screenH, in tint);
+        }
+        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint) {
+            var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
+            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
+
+            Drawer.Draw(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
+        }
+        public void DrawLine(PointF start, PointF end, in UI.Color color)
+            => Drawer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
+
+        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
     }
 }

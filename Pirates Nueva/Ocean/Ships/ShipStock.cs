@@ -16,14 +16,6 @@ namespace Pirates_Nueva.Ocean
 
         public ShipStock(ItemDef def, Ship ship, Block floor) : base(def, ship, floor) {  }
 
-        protected override void Draw(Master master) {
-            var tex = Resources.LoadTexture(Def.TextureID);
-
-            (float seaX, float seaY) = Ship.ShipPointToSea(X, Y + 1);
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Ship.Angle, (0, 0));
-        }
-
         protected override IFocusMenuProvider GetFocusProvider(Master master)
             => new ShipStockFocusMenuProvider(this, master);
     }

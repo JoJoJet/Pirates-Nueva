@@ -15,13 +15,6 @@ namespace Pirates_Nueva
         void Update(Master master, Time delta);
     }
     /// <summary>
-    /// An instance that can be drawn through the <see cref="Master"/> object.
-    /// </summary>
-    internal interface IDrawable
-    {
-        void Draw(Master master);
-    }
-    /// <summary>
     /// Controls Rendering and calls the Update() functions for every type in the game.
     /// </summary>
     public sealed class Master : Game
@@ -35,7 +28,7 @@ namespace Pirates_Nueva
 
         public Input Input { get; }
 
-        public Renderer Renderer { get; private set; }
+        public ILocalDrawer<Master> Renderer { get; private set; }
         public UI.GUI GUI { get; private set; }
 
         public PlayerController Player { get; private set; }
@@ -111,6 +104,15 @@ namespace Pirates_Nueva
         #endregion
 
         /// <summary>
+        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
+        /// </summary>
+        public UI.Texture CreateTexture(int width, int height, params UI.Color[] pixels) {
+            var tex = new Texture2D(GraphicsDevice, width, height);
+            tex.SetData(pixels);
+            return new UI.Texture(tex);
+        }
+
+        /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
@@ -139,8 +141,8 @@ namespace Pirates_Nueva
 
             spriteBatch.Begin();
 
-            (Sea as IDrawable).Draw(this);
-            (GUI as IDrawable).Draw(this);
+            (Sea as IDrawable<Master>).Draw(Renderer);
+            GUI.Draw(this);
 
             spriteBatch.End();
 

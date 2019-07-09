@@ -32,20 +32,10 @@
         }
         
         /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
-        protected override void Draw(Master master) {
+        protected override void Draw(ILocalDrawer<Ship> drawer) {
             var tex = Resources.LoadTexture(Def.TextureID);
-            (int sizeX, int sizeY) = Def.TextureSize * Ship.Sea.PPU;
-            
-            // /Def.TextureOffset/ is the coordinate, local to the texture, from which it will be drawn.
-            // Subtract it from '1' to turn the origin into an offset.
-            PointF texOffset = (1, 1) - Def.TextureOrigin;
-            texOffset = (texOffset.X * Def.TextureSize.X, texOffset.Y * Def.TextureSize.Y); // Multiply the offset by the size
-                                                                                            // of the texture in ship-space.
-            texOffset += PointF.Rotate((-0.5f, 0.5f), Angle); // As MonoGame draws from the top left, offset by a rotated constant.
 
-            (float seaX, float seaY) = Ship.ShipPointToSea(Index + texOffset);  // The top left of this Furniture's texture in sea-space.
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY); // The top left of this Furniture's texture in screen-space.
-            master.Renderer.DrawRotated(tex, screenX, screenY, sizeX, sizeY, -Angle - Ship.Angle, (0, 0));
+            drawer.Draw(tex, X, Y, Def.TextureSize.X, Def.TextureSize.Y, Angle, Def.TextureOrigin);
         }
 
         #region IScreenSpaceTarget Implementation

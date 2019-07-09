@@ -6,7 +6,7 @@ using Pirates_Nueva.Ocean.Agents;
 namespace Pirates_Nueva.Ocean
 {
     using Stock = Stock<Ship, Block>;
-    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable, IFocusableParent, UI.IScreenSpaceTarget
+    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, IGraph<Block>, IUpdatable, IDrawable<Sea>, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -519,16 +519,17 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable.Draw(Master master) => Draw(master);
+        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) => Draw(drawer);
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        protected virtual void Draw(Master master) {
+        protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
+            var drawer = new ShipDrawer(seaDrawer, this);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetBlockOrNull(x, y) is Block b)
-                        DrawPart(b, master);
+                        DrawPart(b, drawer);
                 }
             }
 
@@ -536,7 +537,7 @@ namespace Pirates_Nueva.Ocean
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetFurnitureOrNull(x, y) is Furniture f)
-                        DrawPart(f, master);
+                        DrawPart(f, drawer);
                 }
             }
 
@@ -544,23 +545,23 @@ namespace Pirates_Nueva.Ocean
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
                     if(GetStockOrNull(x, y) is Stock s)
-                        (s as IDrawable).Draw(master);
+                        (s as IDrawable<Ship>).Draw(drawer);
                 }
             }
 
             // Draw each job.
-            foreach(IDrawable job in this.jobs) {
-                job.Draw(master);
+            foreach(IDrawable<Ship> job in this.jobs) {
+                job.Draw(drawer);
             }
 
             // Draw each agent.
             foreach(var agent in this.agents) {
-                (agent as IDrawable).Draw(master);
+                (agent as IDrawable<Ship>).Draw(drawer);
             }
         }
 
         /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
-        protected void DrawPart(Part p, Master master) => (p as IPartContract).Draw(master);
+        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IPartContract).Draw(drawer);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -610,7 +611,7 @@ namespace Pirates_Nueva.Ocean
         private interface IPartContract
         {
             void Update(Master master);
-            void Draw(Master master);
+            void Draw(ILocalDrawer<Ship> drawer);
         }
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
@@ -642,9 +643,9 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IPartContract.Draw(Master master) => Draw(master);
+            void IPartContract.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
-            protected abstract void Draw(Master master);
+            protected abstract void Draw(ILocalDrawer<Ship> drawer);
             #endregion
 
             #region IFocusable Implementation
@@ -673,5 +674,33 @@ namespace Pirates_Nueva.Ocean
             }
             #endregion
         }
+    }
+
+    internal sealed class ShipDrawer : ILocalDrawer<Ship>
+    {
+        private ILocalDrawer<Sea> Drawer { get; }
+        private Ship Ship { get; }
+
+        public ShipDrawer(ILocalDrawer<Sea> drawer, Ship ship) {
+            Drawer = drawer;
+            Ship = ship;
+        }
+
+        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
+            => Draw(texture, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint) {
+            PointF texOfset = (1, 1) - origin;
+            texOfset = (texOfset.X * width, texOfset.Y * height);
+            texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
+
+            var (seaX, seaY) = Ship.ShipPointToSea(x + texOfset.X, y + texOfset.Y);
+
+            Drawer.Draw(texture, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
+        }
+        public void DrawLine(PointF start, PointF end, in UI.Color color)
+            => Drawer.DrawLine(Ship.ShipPointToSea(start), Ship.ShipPointToSea(end), in color);
+
+        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
     }
 }

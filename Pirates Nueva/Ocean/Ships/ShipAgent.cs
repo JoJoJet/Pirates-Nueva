@@ -15,16 +15,6 @@ namespace Pirates_Nueva.Ocean
         protected override PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X + 0.5f, Y + 0.5f));
 
         public ShipAgent(Ship ship, Block floor) : base(ship, floor) {  }
-        
-        protected override void Draw(Master master) {
-            var tex = Resources.LoadTexture("agent");
-
-            (float seaX, float seaY) = Ship.ShipPointToSea(X, Y + 1);
-            (int screenX, int screenY) = Ship.Sea.SeaPointToScreen(seaX, seaY);
-            master.Renderer.DrawRotated(tex, screenX, screenY, Ship.Sea.PPU, Ship.Sea.PPU, -Ship.Angle, (0, 0));
-
-            (Holding as IDrawable)?.Draw(master);
-        }
 
         protected override IFocusMenuProvider GetFocusProvider(Master master)
             => new ShipAgentFocusMenuProvider(this, master);
