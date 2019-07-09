@@ -1,14 +1,31 @@
 ﻿namespace Pirates_Nueva.UI
 {
+    public class Text<T> : GUI.Element<T>
+    {
+        public string Value { get; }
+        public Font Font { get; }
+
+        public override int WidthPixels => (int)Font.MeasureString(Value).X;
+        public override int HeightPixels => (int)Font.MeasureString(Value).Y;
+
+        public Text(string value, Font font) {
+            Value = value;
+            Font = font;
+        }
+
+        protected override void Draw(Master master, int left, int top)
+            => master.Renderer.DrawString(Font, Value, left, top, in Color.Black);
+    }
+
     public class MutableText<T> : GUI.Element<T>
     {
-        private string text;
+        private string value;
 
-        public string Text {
-            get => this.text;
+        public string Value {
+            get => this.value;
             set {
-                if(this.text != value) {
-                    this.text = value;
+                if(this.value != value) {
+                    this.value = value;
                     PropertyChanged();
                 }
             }
@@ -16,16 +33,16 @@
 
         public Font Font { get; }
 
-        public override int WidthPixels => (int)Font.MeasureString(Text).X;
-        public override int HeightPixels => (int)Font.MeasureString(Text).Y;
+        public override int WidthPixels => (int)Font.MeasureString(Value).X;
+        public override int HeightPixels => (int)Font.MeasureString(Value).Y;
 
-        public MutableText(string text, Font font) : base() {
-            this.text = text;
+        public MutableText(string value, Font font) {
+            this.value = value;
             Font = font;
         }
 
         protected override void Draw(Master master, int left, int top)
-            => master.Renderer.DrawString(Font, Text, left, top, in Color.Black);
+            => master.Renderer.DrawString(Font, Value, left, top, in Color.Black);
     }
 
     public class Button<T> : GUI.Element<T>, GUI.IButton

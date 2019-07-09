@@ -335,12 +335,11 @@ namespace Pirates_Nueva.UI
             protected const int Padding = 3;
 
             /// <summary> Every <see cref="MenuElement"/> in this <see cref="Menu"/>. </summary>
-            protected MenuElement[] Elements { get; set; }
+            protected Element<Menu>[] Elements { get; set; }
 
-            public Menu(MenuElement[] elements) {
+            public Menu(Element<Menu>[] elements) {
                 
-                foreach(MenuElement el in elements) {
-                    (el as IMenuElement).Menu = this;                     // Set the element's parent Menu to be the current Menu.
+                foreach(var el in elements) {
                     (el as IElement).SubscribeOnPropertyChanged(arrange); // Rearrange the elements when a property changes.
                 }
 
@@ -382,12 +381,12 @@ namespace Pirates_Nueva.UI
             }
 
             /// <summary> Draw the input element onscreen. </summary>
-            protected void DrawElement(Master master, MenuElement element, int left, int top) {
+            protected void DrawElement(Master master, Element<Menu> element, int left, int top) {
                 (element as IElement).Draw(master, left, top);
             }
 
             bool IMenuContract.QueryClicks(PointI mouse) {
-                foreach(MenuElement el in Elements) {      // For every element in this menu:
+                foreach(var el in Elements) {              // For every element in this menu:
                     if(el is IButton b && el is IElement d // If the element is a button,
                         && d.IsMouseOver(mouse)) {         // and the mouse is hovering over it,
                         b.OnClick.Invoke();                //     invoke its action,
@@ -396,27 +395,6 @@ namespace Pirates_Nueva.UI
                 }
                 return false; // If we got this far without exiting the method, return false.
             }
-        }
-
-        /// <summary>
-        /// Makes some properties of a <see cref="MenuElement"/> accessible only with <see cref="GUI"/>.
-        /// </summary>
-        private interface IMenuElement
-        {
-            Menu Menu { set; }
-        }
-        /// <summary>
-        /// An element (text, button, slider, etc.) in a menu.
-        /// </summary>
-        public abstract class MenuElement : Element<Menu>, IMenuElement
-        {
-            private Menu? _menu;
-
-            /// <summary> The <see cref="GUI.Menu"/> that contains this <see cref="MenuElement"/>. </summary>
-            protected Menu Menu => _menu ?? throw new InvalidOperationException($"{nameof(MenuElement)}s must be part of a menu!");
-            #region Hidden Properties
-            Menu IMenuElement.Menu { set => _menu = value; }
-            #endregion
         }
     }
 }

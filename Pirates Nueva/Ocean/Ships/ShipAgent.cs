@@ -38,8 +38,8 @@ namespace Pirates_Nueva.Ocean
                 MenuID,
                 Menu = new UI.FloatingMenu(
                     Agent, (0, -0.05f), UI.Corner.BottomLeft,
-                    new UI.MenuText("Agent", master.Font),
-                    new UI.MenuButton("Path", master.Font, () => this.state = FocusState.ChoosePath)
+                    new UI.Text<UI.GUI.Menu>("Agent", master.Font),
+                    new UI.Button<UI.GUI.Menu>("Path", master.Font, () => this.state = FocusState.ChoosePath)
                     )
                 );
         }

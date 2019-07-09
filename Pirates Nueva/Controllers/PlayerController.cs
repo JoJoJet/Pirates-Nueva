@@ -126,10 +126,10 @@ namespace Pirates_Nueva
             Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
 
             if(master.GUI.TryGetEdge<MutableText<Edge>>(MouseDebugID, out var tex)) { // If there's a mouse debug GUI element,
-                tex.Text = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
+                tex.Value = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
             }
             if(master.GUI.TryGetEdge<MutableText<Edge>>(CameraDebugID, out var edge)) { // If there's a camera debug GUI element,
-                edge.Text = "Camera Position: " + Sea.Camera.Position;            //     update its text to display the camera position.
+                edge.Value = "Camera Position: " + Sea.Camera.Position;            //     update its text to display the camera position.
             }
         }
     }

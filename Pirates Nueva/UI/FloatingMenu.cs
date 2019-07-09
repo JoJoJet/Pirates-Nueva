@@ -26,7 +26,9 @@ namespace Pirates_Nueva.UI
         /// <summary> Which corner of the menu will be aligned with <see cref="Target"/>. </summary>
         public Corner Corner { get; }
 
-        public FloatingMenu(IScreenSpaceTarget target, PointF offset, Corner corner, params GUI.MenuElement[] elements) : base(elements) {
+        public FloatingMenu(IScreenSpaceTarget target, PointF offset, Corner corner, params GUI.Element<GUI.Menu>[] elements)
+            : base(elements)
+        {
             Target = target;
             Offset = offset;
             Corner = corner;

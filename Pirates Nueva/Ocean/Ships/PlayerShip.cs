@@ -45,10 +45,10 @@ namespace Pirates_Nueva.Ocean
                 // Create a GUI menu.
                 master.GUI.AddMenu(
                     MenuID,
-                    Menu = new UI.FloatingMenu(
-                        Ship, (0, -0.025f), UI.Corner.BottomLeft,
-                        new UI.MenuButton("Edit", master.Font, () => SetState(FocusState.Editing)),
-                        new UI.MenuButton("Move", master.Font, () => SetState(FocusState.Movement))
+                    Menu = new FloatingMenu(
+                        Ship, (0, -0.025f), Corner.BottomLeft,
+                        new Button<GUI.Menu>("Edit", master.Font, () => SetState(FocusState.Editing)),
+                        new Button<GUI.Menu>("Move", master.Font, () => SetState(FocusState.Movement))
                         )
                     );
             }
