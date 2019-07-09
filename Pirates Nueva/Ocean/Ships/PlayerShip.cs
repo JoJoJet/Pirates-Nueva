@@ -1,4 +1,5 @@
 ﻿using Pirates_Nueva.Ocean.Agents;
+using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -63,10 +64,10 @@ namespace Pirates_Nueva.Ocean
                         //
                         // If there's no ship editing menu, add one.
                         if(!master.GUI.HasEdge(QuitID)) {
-                            master.GUI.AddEdge(QuitID, new UI.EdgeButton("Quit", master.Font, () => unsetEditing(), UI.Edge.Bottom, UI.Direction.Left));
-                            master.GUI.AddEdge(BlockID, new UI.EdgeButton("Block", master.Font, () => placeMode = PlaceMode.Block, UI.Edge.Bottom, UI.Direction.Left));
-                            master.GUI.AddEdge(FurnID, new UI.EdgeButton("Furniture", master.Font, () => placeMode = PlaceMode.Furniture, UI.Edge.Bottom, UI.Direction.Left));
-                            master.GUI.AddEdge(GunpID, new UI.EdgeButton("Gunpowder", master.Font, () => placeMode = PlaceMode.Gunpowder, UI.Edge.Bottom, UI.Direction.Left));
+                            master.GUI.AddEdge(QuitID, Edge.Bottom, Direction.Left, new Button<Edge>("Quit", master.Font, () => unsetEditing() ));
+                            master.GUI.AddEdge(BlockID, Edge.Bottom, Direction.Left, new Button<Edge>("Block", master.Font, () => placeMode = PlaceMode.Block));
+                            master.GUI.AddEdge(FurnID, Edge.Bottom, Direction.Left, new Button<Edge>("Furniture", master.Font, () => placeMode = PlaceMode.Furniture));
+                            master.GUI.AddEdge(GunpID, Edge.Bottom, Direction.Left, new Button<Edge>("Gunpowder", master.Font, () => placeMode = PlaceMode.Gunpowder));
                         }
                         //
                         // Lock focus & call the editing method.

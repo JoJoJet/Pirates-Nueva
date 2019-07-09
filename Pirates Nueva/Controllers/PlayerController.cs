@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pirates_Nueva.Ocean;
+using Pirates_Nueva.UI;
 
 namespace Pirates_Nueva
 {
@@ -66,8 +67,8 @@ namespace Pirates_Nueva
             Master = master;
             Sea = sea;
 
-            master.GUI.AddEdge(MouseDebugID, new UI.EdgeText("mouse position", master.Font, UI.Edge.Top, UI.Direction.Right));
-            master.GUI.AddEdge(CameraDebugID, new UI.EdgeText("camera", master.Font, UI.Edge.Top, UI.Direction.Left));
+            master.GUI.AddEdge(MouseDebugID, Edge.Top, Direction.Right, new MutableText<Edge>("mouse position", master.Font));
+            master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
         }
 
         void IUpdatable.Update(Master master, Time delta) {
@@ -124,10 +125,10 @@ namespace Pirates_Nueva
 
             Sea.Camera.Zoom += master.Input.MouseWheel.Scroll / 120 * (15f + Sea.Camera.Zoom)/16;
 
-            if(master.GUI.TryGetEdge<UI.EdgeText>(MouseDebugID, out var tex)) { // If there's a mouse debug GUI element,
+            if(master.GUI.TryGetEdge<MutableText<Edge>>(MouseDebugID, out var tex)) { // If there's a mouse debug GUI element,
                 tex.Text = $"Mouse: {Sea.MousePosition}";                       //     update its text to display the mouse position.
             }
-            if(master.GUI.TryGetEdge<UI.EdgeText>(CameraDebugID, out var edge)) { // If there's a camera debug GUI element,
+            if(master.GUI.TryGetEdge<MutableText<Edge>>(CameraDebugID, out var edge)) { // If there's a camera debug GUI element,
                 edge.Text = "Camera Position: " + Sea.Camera.Position;            //     update its text to display the camera position.
             }
         }
