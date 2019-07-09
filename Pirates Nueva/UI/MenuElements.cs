@@ -15,9 +15,6 @@
         /// <summary> The height of this element, in pixels. </summary>
         public override int HeightPixels => (int)Font.MeasureString(Text).Y;
 
-        /// <summary>
-        /// Create a <see cref="MenuText"/>, and allow its <see cref="GUI.Menu"/> to generate a position for it.
-        /// </summary>
         public MenuText(string text, Font font) {
             Text = text;
             Font = font;
@@ -50,18 +47,7 @@
         GUI.OnClick GUI.IButton.OnClick => OnClick;
         #endregion
 
-        /// <summary>
-        /// Create a <see cref="MenuButton"/>, and allow its <see cref="GUI.Menu"/> to generate a position for it.
-        /// </summary>
         public MenuButton(string text, Font font, GUI.OnClick onClick) {
-            Text = text;
-            Font = font;
-            OnClick = onClick;
-        }
-        /// <summary>
-        /// Create a <see cref="MenuButton"/> at the specified position.
-        /// </summary>
-        public MenuButton(int left, int top, string text, Font font, GUI.OnClick onClick) : base(left, top) {
             Text = text;
             Font = font;
             OnClick = onClick;

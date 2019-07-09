@@ -131,17 +131,17 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Returns whether or not the specified point is over any GUI elements. </summary>
         public bool IsPointOverGUI(PointI point) {
-            foreach(var edge in this._edgeElements.Values) {      // For every edge element:
-                if((edge as IElementDrawable).IsMouseOver(point)) // If the point is hovering over it,
-                    return true;                                  //     return true.
-            }                                                     //
-                                                                  //
-            foreach(var menu in this._menus.Values) {             // For every menu:
-                if((menu as IMenuContract).IsMouseOver(point))    // If the point is hovering over it,
-                    return true;                                  //     return true.
-            }                                                     //
-                                                                  //
-            return false;                                         // If we got this far without returning, return false.
+            foreach(var edge in this._edgeElements.Values) {   // For every edge element:
+                if((edge as IElement).IsMouseOver(point))      // If the point is hovering over it,
+                    return true;                               //     return true.
+            }                                                  //
+                                                               //
+            foreach(var menu in this._menus.Values) {          // For every menu:
+                if((menu as IMenuContract).IsMouseOver(point)) // If the point is hovering over it,
+                    return true;                               //     return true.
+            }                                                  //
+                                                               //
+            return false;                                      // If we got this far without returning, return false.
         }
 
         /// <summary> Update the arrangement of edge elements. </summary>
@@ -151,8 +151,7 @@ namespace Pirates_Nueva.UI
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
             foreach(EdgeElement edge in this._edgeElements.Values) {
-                if(!(edge is IEdgeContract con))
-                    continue;
+                var con = edge as IElement;
 
                 // Copy over some commonly used properties of /edge/.
                 var (e, d, width, height) = (edge.Edge, edge.StackDirection, edge.WidthPixels, edge.HeightPixels);
@@ -189,7 +188,7 @@ namespace Pirates_Nueva.UI
             var mouse = master.Input.MousePosition;
             foreach(EdgeElement edge in this._edgeElements.Values) { // For every edge element:
                 var con = edge as IEdgeContract;                     //
-                if(edge is IButton b && edge is IElementDrawable d   // If the element is a button,
+                if(edge is IButton b && edge is IElement d           // If the element is a button,
                     && d.IsMouseOver(mouse)) {                       // and the mouse is over it,
                     b.OnClick();                                     //     invoke its action,
                     return;                                          //     and exit this method.
@@ -202,11 +201,10 @@ namespace Pirates_Nueva.UI
         }
 
         internal void Draw(Master master) {
-            // Draw every drawable edge element.
-            foreach(var edge in this._edgeElements.Values) {
-                var con = edge as IEdgeContract;
-                if(edge is IElementDrawable drawable)         // If /edge/ implements IEdgeDrawable,
-                    drawable.Draw(master, con.Left, con.Top); //     call its Draw() method.
+            //
+            // Draw every edge element.
+            foreach(IElement edge in this._edgeElements.Values) {
+                edge.Draw(master, edge.Left, edge.Top);
             }
             
             // Draw every menu.
@@ -238,8 +236,11 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// Makes the Draw() and IsMouseOver() method elements accessible only within <see cref="GUI"/>.
         /// </summary>
-        private interface IElementDrawable
+        private interface IElement
         {
+            int Left { get; set; }
+            int Top { get; set; }
+
             bool IsHidden { get; set; }
 
             /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
@@ -251,8 +252,16 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// A GUI element onscreen.
         /// </summary>
-        public abstract class Element : IElementDrawable
+        public abstract class Element : IElement
         {
+            /// <summary> The local position of this element's left edge. </summary>
+            public int Left { get; private set; }
+            /// <summary> The local position of this element's top edge. </summary>
+            public int Top { get; private set; }
+
+            int IElement.Left { get => Left; set => Left = value; }
+            int IElement.Top { get => Top; set => Top = value; }
+
             /// <summary> The width of this element, in pixels. </summary>
             public abstract int WidthPixels { get; }
             /// <summary> The height of this element, in pixels. </summary>
@@ -266,9 +275,9 @@ namespace Pirates_Nueva.UI
             protected abstract void Draw(Master master, int left, int top);
             
             private bool IsHidden { get; set; }
-            bool IElementDrawable.IsHidden { get => IsHidden; set => IsHidden = value; }
+            bool IElement.IsHidden { get => IsHidden; set => IsHidden = value; }
 
-            void IElementDrawable.Draw(Master master, int left, int top) {
+            void IElement.Draw(Master master, int left, int top) {
                 if(!IsHidden) {
                     Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
                     Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);  // Store the current bounds of this element
@@ -278,7 +287,7 @@ namespace Pirates_Nueva.UI
                     Bounds = null; //     don't draw it, and set the bounds to null.
                 }
             }
-            bool IElementDrawable.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) ?? false;
+            bool IElement.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) ?? false;
         }
 
 
@@ -287,11 +296,6 @@ namespace Pirates_Nueva.UI
         /// </summary>
         private interface IEdgeContract
         {
-            /// <summary> The position of this element's left edge. </summary>
-            int Left { get; set; }
-            /// <summary> The position of this element's top edge. </summary>
-            int Top { get; set; }
-
             /// <summary> Sets the edge element's reference to the GUI object. </summary>
             GUI GUI { set; }
         }
@@ -310,9 +314,6 @@ namespace Pirates_Nueva.UI
             private GUI GUI => _gui ?? throw new InvalidOperationException($"{nameof(EdgeElement)}s must be part of the GUI object!");
             #region Hidden Properties
             GUI IEdgeContract.GUI { set => _gui = value; }
-
-            int IEdgeContract.Left { get; set; }
-            int IEdgeContract.Top { get; set; }
             #endregion
 
             public EdgeElement(Edge edge, Direction stackDirection) {
@@ -352,15 +353,12 @@ namespace Pirates_Nueva.UI
                 
                 int elementsLeft = Padding; // The length of the row of MenuElements.
                 foreach(MenuElement el in elements) {
-                    var con = el as IMenuElementContract;
-
-                    con.Menu = this; // Set the element's parent menu to be /this/.
-
-                    if(con.AutoAligned) {                               // If the element is set to be auto-aligned,
-                        con.Position = (elementsLeft, Padding);         //     put it in the furthest right position in the row.
-                                                                        //
-                        elementsLeft += el.WidthPixels + Padding;       //     Increment the length of the row by the width of the element.
-                    }
+                    (el as IMenuElement).Menu = this;         // Set the element's parent Menu to be the current Menu.
+                                                              //
+                    (el as IElement).Left = elementsLeft;     // Put it in the furthest right position in the menu.
+                    (el as IElement).Top = Padding;           // Put some padding above it.
+                                                              //
+                    elementsLeft += el.WidthPixels + Padding; // Increment the length of the row by the width of the element.
                 }
 
                 Elements = elements;
@@ -372,8 +370,8 @@ namespace Pirates_Nueva.UI
             public void Unhide() => SetIsHidden(false);
 
             private void SetIsHidden(bool which) {
-                foreach(IElementDrawable el in Elements) // For every element:
-                    el.IsHidden = which;                 //     set whether or not it is hidden.
+                foreach(IElement el in Elements) // For every element:
+                    el.IsHidden = which;         //     set whether or not it is hidden.
             }
 
             void IMenuContract.Draw(Master master) => Draw(master);
@@ -381,24 +379,24 @@ namespace Pirates_Nueva.UI
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {
-                foreach(IElementDrawable el in Elements) { // For every element in this menu:
-                    if(el.IsMouseOver(mouse))              // If the mouse is hovering over it,
-                        return true;                       // return true.
+                foreach(IElement el in Elements) { // For every element in this menu:
+                    if(el.IsMouseOver(mouse))      // If the mouse is hovering over it,
+                        return true;               //     return true.
                 }
                 return false; // If we got this far without returning already, return false.
             }
 
             /// <summary> Draw the input element onscreen. </summary>
             protected void DrawElement(Master master, MenuElement element, int left, int top) {
-                (element as IElementDrawable).Draw(master, left, top);
+                (element as IElement).Draw(master, left, top);
             }
 
             bool IMenuContract.QueryClicks(PointI mouse) {
-                foreach(MenuElement el in Elements) {              // For every element in this menu:
-                    if(el is IButton b && el is IElementDrawable d // If the element is a button,
-                        && d.IsMouseOver(mouse)) {                 // and the mouse is hovering over it,
-                        b.OnClick.Invoke();                        // invoke its action,
-                        return true;                               // and return true.
+                foreach(MenuElement el in Elements) {      // For every element in this menu:
+                    if(el is IButton b && el is IElement d // If the element is a button,
+                        && d.IsMouseOver(mouse)) {         // and the mouse is hovering over it,
+                        b.OnClick.Invoke();                //     invoke its action,
+                        return true;                       //     and return true.
                     }
                 }
                 return false; // If we got this far without exiting the method, return false.
@@ -408,42 +406,22 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// Makes some properties of a <see cref="MenuElement"/> accessible only with <see cref="GUI"/>.
         /// </summary>
-        private interface IMenuElementContract
+        private interface IMenuElement
         {
             Menu Menu { set; }
-            bool AutoAligned { get; }
-            (int Left, int Top) Position { set; }
         }
         /// <summary>
         /// An element (text, button, slider, etc.) in a menu.
         /// </summary>
-        public abstract class MenuElement : Element, IMenuElementContract
+        public abstract class MenuElement : Element, IMenuElement
         {
-            private readonly bool autoAligned;
             private Menu? _menu;
-
-            /// <summary> The position of the left edge of this element local to its menu. </summary>
-            public int Left { get; private set; }
-            /// <summary> The position of the top edge of this element local to its menu. </summary>
-            public int Top { get; private set; }
 
             /// <summary> The <see cref="GUI.Menu"/> that contains this <see cref="MenuElement"/>. </summary>
             protected Menu Menu => _menu ?? throw new InvalidOperationException($"{nameof(MenuElement)}s must be part of a menu!");
             #region Hidden Properties
-            Menu IMenuElementContract.Menu { set => _menu = value; }
-
-            bool IMenuElementContract.AutoAligned => this.autoAligned;
-            (int, int) IMenuElementContract.Position { set => (Left, Top) = value; }
+            Menu IMenuElement.Menu { set => _menu = value; }
             #endregion
-
-            /// <summary> Create a <see cref="MenuElement"/>, allowing its <see cref="GUI.Menu"/> to position it. </summary>
-            public MenuElement() {
-                this.autoAligned = true;
-            }
-            /// <summary> Create a <see cref="MenuElement"/>, with the specified position. </summary>
-            public MenuElement(int left, int top) {
-                (Left, Top) = (left, top);
-            }
         }
     }
 }
