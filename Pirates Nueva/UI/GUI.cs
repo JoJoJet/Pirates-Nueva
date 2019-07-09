@@ -34,15 +34,16 @@ namespace Pirates_Nueva.UI
         
         #region Edge Accessors
         /// <summary>
-        /// Add the indicated edge element to the GUI.
+        /// Adds the specified edge element to the GUI.
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if there is already a floating element identified by /id/.</exception>
-        public void AddEdge(string id, EdgeElement floating) {
+        /// <exception cref="InvalidOperationException">Thrown if there is already an edge element identified by /id/.</exception>
+        public void AddEdge(string id, EdgeElement edge) {
             if(_edgeElements.ContainsKey(id) == false) {
-                (floating as IEdgeContract).GUI = this; // Set the /GUI/ property of /floating/ to be this GUI object.
-                _edgeElements[id] = floating;           // Add /floating/ to the dictionary of floating elements.
-                ArangeEdges(); // Update the arrangement of floating elements after it has been added.
+                (edge as IElement).SubscribeOnPropertyChanged(() => ArrangeEdges());
+                _edgeElements[id] = edge;            // Add the edge to the dictionary of floating elements.
+                ArrangeEdges();                      // Update the arrangement of edge elements after it has been added.
             }
+            //
             // If there is already a floating element identified by /id/, throw an InvalidOperationException.
             else {
                 throw new InvalidOperationException(
@@ -74,7 +75,7 @@ namespace Pirates_Nueva.UI
         public void RemoveEdge(string id) {
             if(this._edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
                 this._edgeElements.Remove(id);     // Remove that element from the dictionary.
-                ArangeEdges();                     // Update the arrangement of edge elements.
+                ArrangeEdges();                     // Update the arrangement of edge elements.
             }
             // If there is no edge element identified by /id/, throw a KeyNotFoundException.
             else {
@@ -145,7 +146,7 @@ namespace Pirates_Nueva.UI
         }
 
         /// <summary> Update the arrangement of edge elements. </summary>
-        void ArangeEdges() {
+        void ArrangeEdges() {
             const int Padding = 5;
 
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
@@ -186,10 +187,8 @@ namespace Pirates_Nueva.UI
                 return;                        //     exit the method.
 
             var mouse = master.Input.MousePosition;
-            foreach(EdgeElement edge in this._edgeElements.Values) { // For every edge element:
-                var con = edge as IEdgeContract;                     //
-                if(edge is IButton b && edge is IElement d           // If the element is a button,
-                    && d.IsMouseOver(mouse)) {                       // and the mouse is over it,
+            foreach(IElement edge in this._edgeElements.Values) {    // For every edge element:
+                if(edge is IButton b && edge.IsMouseOver(mouse)) {   // If the element is a button and the mouse is over it,
                     b.OnClick();                                     //     invoke its action,
                     return;                                          //     and exit this method.
                 }
@@ -243,6 +242,9 @@ namespace Pirates_Nueva.UI
 
             bool IsHidden { get; set; }
 
+            /// <summary> Signs up the specified <see cref="Action"/> to be called when a property changes. </summary>
+            void SubscribeOnPropertyChanged(Action action);
+
             /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
             void Draw(Master master, int left, int top);
 
@@ -254,6 +256,8 @@ namespace Pirates_Nueva.UI
         /// </summary>
         public abstract class Element : IElement
         {
+            protected Action? onPropertyChanged;
+
             /// <summary> The local position of this element's left edge. </summary>
             public int Left { get; private set; }
             /// <summary> The local position of this element's top edge. </summary>
@@ -270,6 +274,8 @@ namespace Pirates_Nueva.UI
             private Rectangle? Bounds { get; set; } // The extents of this element. Used in IsMouseOver().
 
             internal Element() {  } // Ensures that /Element/ can only be descended from within this Assembly.
+
+            void IElement.SubscribeOnPropertyChanged(Action action) => this.onPropertyChanged += action;
 
             /// <summary> Draw this <see cref="Element"/> onscreen, from the specified top left corner. </summary>
             protected abstract void Draw(Master master, int left, int top);
@@ -288,41 +294,26 @@ namespace Pirates_Nueva.UI
                 }
             }
             bool IElement.IsMouseOver(PointI mouse) => Bounds?.Contains(mouse) ?? false;
+
+            /// <summary> Call this when a property is changed after initialization. </summary>
+            protected void PropertyChanged() => this.onPropertyChanged?.Invoke();
         }
 
 
-        /// <summary>
-        /// Makes some properties of an EdgeElement accessible only within <see cref="UI.GUI"/>.
-        /// </summary>
-        private interface IEdgeContract
-        {
-            /// <summary> Sets the edge element's reference to the GUI object. </summary>
-            GUI GUI { set; }
-        }
         /// <summary>
         /// A GUI element hugging an edge of the screen, not part of any menu.
         /// </summary>
-        public abstract class EdgeElement : Element, IEdgeContract
+        public abstract class EdgeElement : Element
         {
-            private GUI? _gui;
-
             /// <summary>  The edge of the screen that this element will hug. </summary>
             public virtual Edge Edge { get; }
             /// <summary> The direction that this edge element will stack towards. </summary>
             public virtual Direction StackDirection { get; }
 
-            private GUI GUI => _gui ?? throw new InvalidOperationException($"{nameof(EdgeElement)}s must be part of the GUI object!");
-            #region Hidden Properties
-            GUI IEdgeContract.GUI { set => _gui = value; }
-            #endregion
-
             public EdgeElement(Edge edge, Direction stackDirection) {
                 Edge = edge;
                 StackDirection = stackDirection;
             }
-
-            /// <summary> Call this when a property is changed after initialization. </summary>
-            protected void PropertyChanged() => GUI.ArangeEdges();
         }
 
         
@@ -351,17 +342,24 @@ namespace Pirates_Nueva.UI
 
             public Menu(MenuElement[] elements) {
                 
-                int elementsLeft = Padding; // The length of the row of MenuElements.
                 foreach(MenuElement el in elements) {
-                    (el as IMenuElement).Menu = this;         // Set the element's parent Menu to be the current Menu.
-                                                              //
-                    (el as IElement).Left = elementsLeft;     // Put it in the furthest right position in the menu.
-                    (el as IElement).Top = Padding;           // Put some padding above it.
-                                                              //
-                    elementsLeft += el.WidthPixels + Padding; // Increment the length of the row by the width of the element.
+                    (el as IMenuElement).Menu = this;                     // Set the element's parent Menu to be the current Menu.
+                    (el as IElement).SubscribeOnPropertyChanged(arrange); // Rearrange the elements when a property changes.
                 }
 
                 Elements = elements;
+
+                arrange();
+
+                void arrange() {
+                    int elementsLeft = Padding;                   // The length of the row of elements.
+                    foreach(var el in Elements) {                 // For every element:
+                        (el as IElement).Left = elementsLeft;     // Put it in the furthest-right position in the menu,
+                        (el as IElement).Top = Padding;           // put padding above it,
+                                                                  //
+                        elementsLeft += el.WidthPixels + Padding; // and increment the length of the row by the element's width.
+                    }
+                }
             }
 
             /// <summary> Hide this <see cref="Menu"/> next frame. </summary>
