@@ -238,9 +238,9 @@ namespace Pirates_Nueva.UI
         /// </summary>
         public delegate void OnClick();
         /// <summary>
-        /// Makes the OnClick property of a Button accessible only through this assembly.
+        /// An Element that can be pressed.
         /// </summary>
-        internal interface IButton
+        public interface IButton
         {
             /// <summary> Action to invoke when this button is clicked. </summary>
             OnClick OnClick { get; }
@@ -286,8 +286,6 @@ namespace Pirates_Nueva.UI
             public abstract int HeightPixels { get; }
             
             private Rectangle? Bounds { get; set; } // The extents of this element. Used in IsMouseOver().
-
-            internal Element() {  } // Ensures that /Element/ can only be descended from within this Assembly.
 
             void IElement.SubscribeOnPropertyChanged(Action action) => this.onPropertyChanged += action;
 
