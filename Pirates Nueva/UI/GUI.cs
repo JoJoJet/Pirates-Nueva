@@ -217,18 +217,18 @@ namespace Pirates_Nueva.UI
             // Draw every edge element.
             foreach(var info in this._edgeElements.Values) {
                 var edge = info.element as IElement<Edge>;
-                edge.Draw(master.Renderer as ILocalDrawer<Edge>, master);
+                edge.Draw(master.Renderer, master);
             }
             
             // Draw every menu.
             foreach(IMenuContract menu in this._menus.Values) {
-                menu.Draw(master.Renderer, master);
+                menu.Draw(master.Drawer, master);
             }
 
             // Draw the tooltip.
             if(!string.IsNullOrEmpty(Tooltip)) {                                 // If there is a tooltip:
                 var (x, y) = master.Input.MousePosition;                         //
-                master.Renderer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
+                master.Drawer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
             }
         }
 
