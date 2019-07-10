@@ -111,7 +111,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    internal class Renderer : ILocalDrawer<Master>
+    internal class Renderer : ILocalDrawer<Master>, ILocalDrawer<UI.Edge>
     {
         private Lazy<UI.Texture> pixelLazy;
 

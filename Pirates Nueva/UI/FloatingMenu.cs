@@ -17,6 +17,8 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class FloatingMenu : GUI.Menu
     {
+        private PointF? resolvedOffset;
+
         /// <summary> The point that this <see cref="FloatingMenu"/> should follow. </summary>
         public IScreenSpaceTarget Target { get; }
         /// <summary>
@@ -26,6 +28,8 @@ namespace Pirates_Nueva.UI
         /// <summary> Which corner of the menu will be aligned with <see cref="Target"/>. </summary>
         public Corner Corner { get; }
 
+        private PointF ResolvedOffset => this.resolvedOffset ?? NullableUtil.ThrowNotInitialized<PointF>();
+
         public FloatingMenu(IScreenSpaceTarget target, PointF offset, Corner corner, params GUI.Element<GUI.Menu>[] elements)
             : base(elements)
         {
@@ -34,11 +38,23 @@ namespace Pirates_Nueva.UI
             Corner = corner;
         }
 
-        protected override void Draw(Master master) {
+        protected override void Draw(ILocalDrawer<Master> drawer, Master master) {
+            CalcOffset(master);
+            var localDrawer = new FloatingMenuDrawer(this, drawer);
+
+            foreach(var el in Elements) {
+                DrawElement(el, localDrawer, master);
+            }
+        }
+
+        protected override PointF ScreenPointToMenu(int screenX, int screenY)
+            => new PointF(screenX - ResolvedOffset.X, screenY - ResolvedOffset.Y);
+
+        private void CalcOffset(Master master) {
             // Find the extents of the menu.
             var (rightBound, bottomBound) = (0, 0);
             foreach(var el in Elements) {
-                rightBound  = Math.Max(rightBound, el.Left + el.WidthPixels  + Padding);
+                rightBound = Math.Max(rightBound, el.Left + el.WidthPixels + Padding);
                 bottomBound = Math.Max(bottomBound, el.Top + el.HeightPixels + Padding);
             }
 
@@ -46,16 +62,34 @@ namespace Pirates_Nueva.UI
             PointI offset = ((int)(Offset.X * master.GUI.ScreenWidth), (int)(Offset.Y * master.GUI.ScreenHeight));
             if(Corner == Corner.TopLeft)
                 offset += (Target.X, Target.Y);
-            if(Corner == Corner.TopRight)
+            else if(Corner == Corner.TopRight)
                 offset += (Target.X - rightBound, Target.Y);
             else if(Corner == Corner.BottomRight)
                 offset += (Target.X - rightBound, Target.Y - bottomBound);
             else if(Corner == Corner.BottomLeft)
                 offset += (Target.X, Target.Y - bottomBound);
 
-            foreach(var el in Elements) {
-                DrawElement(master, el, offset.X, offset.Y);
+            this.resolvedOffset = offset;
+        }
+
+        private class FloatingMenuDrawer : ILocalDrawer<GUI.Menu>
+        {
+            public FloatingMenu Menu { get; }
+            public ILocalDrawer<Master> Drawer { get; }
+
+            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Master> drawer) {
+                Menu = menu;
+                Drawer = drawer;
             }
+
+            public void DrawCorner(Texture texture, float left, float top, float width, float height, in Color tint)
+                => Drawer.DrawCorner(texture, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, width, height, in tint);
+            public void Draw(Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in Color tint)
+                => Drawer.Draw(texture, x + Menu.ResolvedOffset.X, y + Menu.ResolvedOffset.Y, width, height, in angle, in origin, in tint);
+            public void DrawLine(PointF start, PointF end, in Color color)
+                => Drawer.DrawLine(start + Menu.ResolvedOffset, end + Menu.ResolvedOffset, in color);
+            public void DrawString(Font font, string text, float left, float top, in Color color)
+                => Drawer.DrawString(font, text, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, in color);
         }
     }
 }

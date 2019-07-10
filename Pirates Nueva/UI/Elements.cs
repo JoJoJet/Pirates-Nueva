@@ -13,8 +13,8 @@
             Font = font;
         }
 
-        protected override void Draw(Master master, int offsetX, int offsetY)
-            => master.Renderer.DrawString(Font, Value, Left + offsetX, Top + offsetY, in Color.Black);
+        protected override void Draw(ILocalDrawer<T> drawer, Master master)
+            => drawer.DrawString(Font, Value, Left, Top, in Color.Black);
     }
 
     public class MutableText<T> : GUI.Element<T>
@@ -41,8 +41,8 @@
             Font = font;
         }
 
-        protected override void Draw(Master master, int offsetX, int offsetY)
-            => master.Renderer.DrawString(Font, Value, Left + offsetX, Top + offsetY, in Color.Black);
+        protected override void Draw(ILocalDrawer<T> drawer, Master master)
+            => drawer.DrawString(Font, Value, Left, Top, in Color.Black);
     }
 
     public class Button<T> : GUI.Element<T>, GUI.IButton
@@ -65,12 +65,11 @@
             Font = font;
             this.onClick = onClick;
         }
-        protected override void Draw(Master master, int offsetX, int offsetY) {
-            int px = Left + offsetX, py = Top + offsetY;
+        protected override void Draw(ILocalDrawer<T> drawer, Master master) {
             var panel = new NineSlice(SliceDef.Get("panel"), WidthPixels, HeightPixels, master); // Make a panel.
-            master.Renderer.DrawCorner(panel, px, py, WidthPixels, HeightPixels);                // Draw a panel behind the text.
+            drawer.DrawCorner(panel, Left, Top, WidthPixels, HeightPixels);                      // Draw a panel behind the text.
                                                                                                  //
-            master.Renderer.DrawString(Font, Text, px + Padding, py + Padding, in Color.Black);  // Draw the text.
+            drawer.DrawString(Font, Text, Left + Padding, Top + Padding, in Color.Black);        // Draw the text.
         }
     }
 }
