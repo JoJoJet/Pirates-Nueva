@@ -217,7 +217,7 @@ namespace Pirates_Nueva.UI
             // Draw every edge element.
             foreach(var info in this._edgeElements.Values) {
                 var edge = info.element as IElement;
-                edge.Draw(master, edge.Left, edge.Top);
+                edge.Draw(master, 0, 0);
             }
             
             // Draw every menu.
@@ -259,8 +259,8 @@ namespace Pirates_Nueva.UI
             /// <summary> Signs up the specified <see cref="Action"/> to be called when a property changes. </summary>
             void SubscribeOnPropertyChanged(Action action);
 
-            /// <summary> Draws this element onscreen, from the specified top left corner. </summary>
-            void Draw(Master master, int left, int top);
+            /// <summary> Draws this element onscreen, using the offset. </summary>
+            void Draw(Master master, int offsetX, int offsetY);
 
             /// <summary> Whether or not the mouse is hovering over this element, measuring from the specified top left corner. </summary>
             bool IsMouseOver(PointI mouse);
@@ -290,16 +290,16 @@ namespace Pirates_Nueva.UI
             void IElement.SubscribeOnPropertyChanged(Action action) => this.onPropertyChanged += action;
 
             /// <summary> Draw this <see cref="Element"/> onscreen, from the specified top left corner. </summary>
-            protected abstract void Draw(Master master, int left, int top);
+            protected abstract void Draw(Master master, int offsetX, int offsetY);
             
             private bool IsHidden { get; set; }
             bool IElement.IsHidden { get => IsHidden; set => IsHidden = value; }
 
-            void IElement.Draw(Master master, int left, int top) {
+            void IElement.Draw(Master master, int offsetX, int offsetY) {
                 if(!IsHidden) {
-                    Draw(master, left, top);                                       // Have the subclass draw the button onscreen.
-                    Bounds = new Rectangle(left, top, WidthPixels, HeightPixels);  // Store the current bounds of this element
-                                                                                   //     for use in IsMouseOver() at a later time.
+                    Draw(master, offsetX, offsetY);                                                   // Draw the button onscreen.
+                    Bounds = new Rectangle(Left + offsetX, Top + offsetY, WidthPixels, HeightPixels); // Store the bounds of this element
+                                                                                                      //     for later use in IsMouseOver().
                 }
                 else {             // If the element is hidden,
                     Bounds = null; //     don't draw it, and set the bounds to null.
@@ -379,8 +379,8 @@ namespace Pirates_Nueva.UI
             }
 
             /// <summary> Draw the input element onscreen. </summary>
-            protected void DrawElement(Master master, Element<Menu> element, int left, int top) {
-                (element as IElement).Draw(master, left, top);
+            protected void DrawElement(Master master, Element<Menu> element, int offsetX, int offsetY) {
+                (element as IElement).Draw(master, offsetX, offsetY);
             }
 
             bool IMenuContract.QueryClicks(PointI mouse) {

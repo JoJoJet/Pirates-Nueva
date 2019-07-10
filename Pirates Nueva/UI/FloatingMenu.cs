@@ -54,8 +54,7 @@ namespace Pirates_Nueva.UI
                 offset += (Target.X, Target.Y - bottomBound);
 
             foreach(var el in Elements) {
-                var local = (el.Left, el.Top);
-                DrawElement(master, el, local.Left + offset.X, local.Top + offset.Y);
+                DrawElement(master, el, offset.X, offset.Y);
             }
         }
     }
