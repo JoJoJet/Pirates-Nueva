@@ -12,7 +12,13 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class GUI : IUpdatable
     {
-        private readonly Dictionary<string, (Edge edge, Direction dir, Element<Edge> element)> _edgeElements = new Dictionary<string, (Edge, Direction, Element<Edge>)>();
+        private struct EdgeInfo {
+            public Edge Edge { get; set; }
+            public Direction Dir { get; set; }
+            public Element<Edge> Element { get; set; }
+        }
+
+        private readonly Dictionary<string, EdgeInfo> _edgeElements = new Dictionary<string, EdgeInfo>();
         private readonly Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
         public Master Master { get; private set; }
@@ -42,8 +48,8 @@ namespace Pirates_Nueva.UI
         public void AddEdge(string id, Edge edge, Direction dir, Element<Edge> element) {
             if(this._edgeElements.ContainsKey(id) == false) {
                 (element as IElement<Edge>).SubscribeOnPropertyChanged(() => ArrangeEdges());
-                this._edgeElements[id] = (edge, dir, element); // Add the edge element to the dictionary of edge elements.
-                ArrangeEdges();                                // Update the arrangement of edge elements after it has been added.
+                this._edgeElements[id] = new EdgeInfo() { Edge = edge, Dir = dir, Element = element };
+                ArrangeEdges();
             }
             //
             // If there is already a floating element identified by /id/, throw an InvalidOperationException.
@@ -54,10 +60,10 @@ namespace Pirates_Nueva.UI
             }
         }
 
-        /// <summary> Get the <see cref="EdgeElement"/> identifed by /id/. </summary>
+        /// <summary> Gets the edge Element identifed by /id/. </summary>
         public bool TryGetEdge(string id, out Element<Edge> element) {
             if(this._edgeElements.TryGetValue(id, out var info)) {
-                element = info.element;
+                element = info.Element;
                 return true;
             }
             else {
@@ -65,8 +71,7 @@ namespace Pirates_Nueva.UI
                 return false;
             }
         }
-
-        /// <summary> Get the edge element identified by /id/ and that is of type /T/. </summary>
+        /// <summary> Gets the edge element identified by /id/ and that is of type /T/. </summary>
         public bool TryGetEdge<T>(string id, out T element) where T : Element<Edge> {
             if(TryGetEdge(id, out var med) && med is T last) // If there's an edge of type /T/ identified by /id/,
                 element = last;                              //     return it.
@@ -82,7 +87,7 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// Remove the edge element identifed by /id/.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown when there is no <see cref="EdgeElement"/> to remove.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when there is no edge Element to remove.</exception>
         public void RemoveEdge(string id) {
             if(this._edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
                 this._edgeElements.Remove(id);     // Remove that element from the dictionary.
@@ -98,7 +103,7 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// Removes every edge element identified by the specified strings.
         /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown when one of the strings does not identify an existing <see cref="EdgeElement"/>.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when one of the strings does not identify an existing edge Element.</exception>
         public void RemoveEdges(params string[] ids) {
             foreach(var id in ids) {
                 RemoveEdge(id);
@@ -144,7 +149,7 @@ namespace Pirates_Nueva.UI
         /// <summary> Returns whether or not the specified point is over any GUI elements. </summary>
         public bool IsPointOverGUI(PointI point) {
             foreach(var info in this._edgeElements.Values) {            // For every edge element:
-                if((info.element as IElement<Edge>).IsMouseOver(point)) // If the point is hovering over it,
+                if((info.Element as IElement<Edge>).IsMouseOver(point)) // If the point is hovering over it,
                     return true;                                        //     return true.
             }                                                           //
                                                                         //
@@ -163,11 +168,11 @@ namespace Pirates_Nueva.UI
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
             foreach(var info in this._edgeElements.Values) {
-                var edge = info.element;
+                var edge = info.Element;
                 var con = edge as IElement<Edge>;
 
                 // Copy over some commonly used properties of /edge/.
-                var (e, d, width, height) = (info.edge, info.dir, edge.WidthPixels, edge.HeightPixels);
+                var (e, d, width, height) = (info.Edge, info.Dir, edge.WidthPixels, edge.HeightPixels);
 
                 if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
                     stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
@@ -200,7 +205,7 @@ namespace Pirates_Nueva.UI
 
             var mouse = master.Input.MousePosition;
             foreach(var info in this._edgeElements.Values) {    // For every edge element:
-                var edge = info.element as IElement<Edge>;
+                var edge = info.Element as IElement<Edge>;
                 if(edge is IButton b && edge.IsMouseOver(mouse)) {   // If the element is a button and the mouse is over it,
                     b.OnClick();                                     //     invoke its action,
                     return;                                          //     and exit this method.
@@ -217,7 +222,7 @@ namespace Pirates_Nueva.UI
             //
             // Draw every edge element.
             foreach(var info in this._edgeElements.Values) {
-                var edge = info.element as IElement<Edge>;
+                var edge = info.Element as IElement<Edge>;
                 edge.Draw(master.Renderer, master);
             }
             
