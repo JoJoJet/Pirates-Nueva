@@ -54,8 +54,8 @@ namespace Pirates_Nueva.UI
             // Find the extents of the menu.
             var (rightBound, bottomBound) = (0, 0);
             foreach(var el in Elements) {
-                rightBound = Math.Max(rightBound, el.Left + el.WidthPixels + Padding);
-                bottomBound = Math.Max(bottomBound, el.Top + el.HeightPixels + Padding);
+                rightBound = Math.Max(rightBound, el.Left + el.Width + Padding);
+                bottomBound = Math.Max(bottomBound, el.Top + el.Height + Padding);
             }
 
             // Offset the Menu by a different amount depending on which Corner we are pinning against.

@@ -5,8 +5,8 @@
         public string Value { get; }
         public Font Font { get; }
 
-        public override int WidthPixels => (int)Font.MeasureString(Value).X;
-        public override int HeightPixels => (int)Font.MeasureString(Value).Y;
+        public override int Width => (int)Font.MeasureString(Value).X;
+        public override int Height => (int)Font.MeasureString(Value).Y;
 
         public Text(string value, Font font) {
             Value = value;
@@ -33,8 +33,8 @@
 
         public Font Font { get; }
 
-        public override int WidthPixels => (int)Font.MeasureString(Value).X;
-        public override int HeightPixels => (int)Font.MeasureString(Value).Y;
+        public override int Width => (int)Font.MeasureString(Value).X;
+        public override int Height => (int)Font.MeasureString(Value).Y;
 
         public MutableText(string value, Font font) {
             this.value = value;
@@ -55,8 +55,8 @@
         public string Text { get; }
         public Font Font { get; }
 
-        public override int WidthPixels => (int)Font.MeasureString(Text).X + Padding*2;
-        public override int HeightPixels => (int)Font.MeasureString(Text).Y + Padding*2;
+        public override int Width => (int)Font.MeasureString(Text).X + Padding*2;
+        public override int Height => (int)Font.MeasureString(Text).Y + Padding*2;
 
         GUI.OnClick GUI.IButton.OnClick => this.onClick;
 
@@ -66,10 +66,10 @@
             this.onClick = onClick;
         }
         protected override void Draw(ILocalDrawer<T> drawer, Master master) {
-            var panel = new NineSlice(SliceDef.Get("panel"), WidthPixels, HeightPixels, master); // Make a panel.
-            drawer.DrawCorner(panel, Left, Top, WidthPixels, HeightPixels);                      // Draw a panel behind the text.
-                                                                                                 //
-            drawer.DrawString(Font, Text, Left + Padding, Top + Padding, in Color.Black);        // Draw the text.
+            var panel = new NineSlice(SliceDef.Get("panel"), Width, Height, master);      // Make a panel.
+            drawer.DrawCorner(panel, Left, Top, Width, Height);                           // Draw a panel behind the text.
+                                                                                          //
+            drawer.DrawString(Font, Text, Left + Padding, Top + Padding, in Color.Black); // Draw the text.
         }
     }
 }

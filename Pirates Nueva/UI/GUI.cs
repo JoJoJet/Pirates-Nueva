@@ -172,7 +172,7 @@ namespace Pirates_Nueva.UI
                 var con = edge as IElement<Edge>;
 
                 // Copy over some commonly used properties of /edge/.
-                var (e, d, width, height) = (info.Edge, info.Dir, edge.WidthPixels, edge.HeightPixels);
+                var (e, d, width, height) = (info.Edge, info.Dir, edge.Width, edge.Height);
 
                 if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
                     stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
@@ -289,10 +289,10 @@ namespace Pirates_Nueva.UI
             int IElement<T>.Left { set => Left = value; }
             int IElement<T>.Top { set => Top = value; }
 
-            /// <summary> The width of this element, in pixels. </summary>
-            public abstract int WidthPixels { get; }
-            /// <summary> The height of this element, in pixels. </summary>
-            public abstract int HeightPixels { get; }
+            /// <summary> The width of this element, in units local to its container. </summary>
+            public abstract int Width { get; }
+            /// <summary> The height of this element, in units local to its container. </summary>
+            public abstract int Height { get; }
             
             private Rectangle? Bounds { get; set; } // The extents of this element. Used in IsMouseOver().
 
@@ -306,9 +306,9 @@ namespace Pirates_Nueva.UI
 
             void IElement<T>.Draw(ILocalDrawer<T> drawer, Master master) {
                 if(!IsHidden) {
-                    Draw(drawer, master);                                         // Draw the button onscreen.
-                    Bounds = new Rectangle(Left, Top, WidthPixels, HeightPixels); // Store the bounds of this element
-                                                                                  //     for later use in IsMouseOver().
+                    Draw(drawer, master);                             // Draw the button onscreen.
+                    Bounds = new Rectangle(Left, Top, Width, Height); // Store the bounds of this element
+                                                                      //     for later use in IsMouseOver().
                 }
                 else {             // If the element is hidden,
                     Bounds = null; //     don't draw it, and set the bounds to null.
@@ -354,9 +354,8 @@ namespace Pirates_Nueva.UI
 
             public Menu(Element<Menu>[] elements) {
                 
-                foreach(var el in elements) {
-                    (el as IElement<Menu>).SubscribeOnPropertyChanged(arrange); // Rearrange the elements when a property changes.
-                }
+                foreach(IElement<Menu> el in elements)
+                    el.SubscribeOnPropertyChanged(arrange); // Rearrange the elements when a property changes.
 
                 Elements = elements;
 
@@ -367,15 +366,14 @@ namespace Pirates_Nueva.UI
                     foreach(var el in Elements) {                   // For every element:
                         (el as IElement<Menu>).Left = elementsLeft; // Put it in the furthest-right position in the menu,
                         (el as IElement<Menu>).Top = Padding;       // put padding above it,
-                                                                    //
-                        elementsLeft += el.WidthPixels + Padding;   // and increment the length of the row by the element's width.
+                        elementsLeft += el.Width + Padding;         // and increment the length of the row by the element's width.
                     }
                 }
             }
 
-            /// <summary> Hide this <see cref="Menu"/> next frame. </summary>
+            /// <summary> Hides this <see cref="Menu"/> next frame. </summary>
             public void Hide() => SetIsHidden(true);
-            /// <summary> Unhide this <see cref="Menu"/> next frame. </summary>
+            /// <summary> Unhides this <see cref="Menu"/> next frame. </summary>
             public void Unhide() => SetIsHidden(false);
 
             private void SetIsHidden(bool which) {
@@ -385,11 +383,6 @@ namespace Pirates_Nueva.UI
 
             void IMenuContract.Draw(ILocalDrawer<Master> drawer, Master master) => Draw(drawer, master);
             protected abstract void Draw(ILocalDrawer<Master> drawer, Master master);
-
-            /// <summary>
-            /// Transforms a point from the screen a a local point within this <see cref="Menu"/>.
-            /// </summary>
-            protected abstract PointF ScreenPointToMenu(int screenX, int screenY);
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {
@@ -401,10 +394,9 @@ namespace Pirates_Nueva.UI
                 return false; // If we got this far without returning already, return false.
             }
 
-            /// <summary> Draw the input element onscreen. </summary>
-            protected void DrawElement(Element<Menu> element, ILocalDrawer<Menu> drawer, Master master) {
-                (element as IElement<Menu>).Draw(drawer, master);
-            }
+            /// <summary> Draws the specified element onscreen. </summary>
+            protected void DrawElement(Element<Menu> element, ILocalDrawer<Menu> drawer, Master master)
+                => (element as IElement<Menu>).Draw(drawer, master);
 
             bool IMenuContract.GetButton(PointI mouse, out IButton button) {
                 var localMouse = ScreenPointToMenu(mouse.X, mouse.Y);
@@ -417,6 +409,11 @@ namespace Pirates_Nueva.UI
                 button = null!;
                 return false; // If we got this far without exiting the method, return false.
             }
+
+            /// <summary>
+            /// Transforms a point from the screen to a local point within this <see cref="Menu"/>.
+            /// </summary>
+            protected abstract PointF ScreenPointToMenu(int screenX, int screenY);
         }
     }
 }
