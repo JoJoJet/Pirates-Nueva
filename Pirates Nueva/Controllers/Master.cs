@@ -28,7 +28,8 @@ namespace Pirates_Nueva
 
         public Input Input { get; }
 
-        public ILocalDrawer<Master> Renderer { get; private set; }
+        internal Renderer Renderer { get; private set; }
+        public ILocalDrawer<Master> Drawer => Renderer;
         public UI.GUI GUI { get; private set; }
 
         public PlayerController Player { get; private set; }
@@ -48,7 +49,7 @@ namespace Pirates_Nueva
             //
             // Satisfying the nullable reference types flow analysis.
             this.spriteBatch = null!;
-            Renderer = null!;
+            Drawer = null!;
             Font = null!;
             Player = null!;
         }
@@ -86,7 +87,7 @@ namespace Pirates_Nueva
         /// Initialization performed after <see cref="LoadContent"/>.
         /// </summary>
         private void AfterContentLoad() {
-            Renderer = new Renderer(this, spriteBatch);
+            Drawer = new Renderer(this, spriteBatch);
 
             // Initialize the Sea object.
             this._sea = new Sea(this);
@@ -141,7 +142,7 @@ namespace Pirates_Nueva
 
             spriteBatch.Begin();
 
-            (Sea as IDrawable<Master>).Draw(Renderer);
+            (Sea as IDrawable<Master>).Draw(Drawer);
             GUI.Draw(this);
 
             spriteBatch.End();

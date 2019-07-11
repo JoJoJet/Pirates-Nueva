@@ -43,7 +43,7 @@ namespace Pirates_Nueva.Ocean
                   MenuID,
                   new UI.FloatingMenu(
                       Stock, (0, -0.05f), UI.Corner.BottomLeft,
-                      new UI.MenuText("Claimed by: " + (Stock.Claimant?.ToString() ?? "Nothing"), master.Font)
+                      new UI.Text<UI.GUI.Menu>("Claimed by: " + (Stock.Claimant?.ToString() ?? "Nothing"), master.Font)
                       )
                   );
     }

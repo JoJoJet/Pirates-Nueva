@@ -75,7 +75,7 @@ namespace Pirates_Nueva.Ocean
                 => master.GUI.AddMenu(
                       MenuID, new UI.FloatingMenu(
                           Part, (0f, -0.1f), UI.Corner.BottomLeft,
-                          new UI.MenuText("ID: " + Part.ID, master.Font)
+                          new UI.Text<UI.GUI.Menu>("ID: " + Part.ID, master.Font)
                           )
                       );
             public override void Close(Master master)
