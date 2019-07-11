@@ -260,7 +260,7 @@ namespace Pirates_Nueva.UI
             int Left { set; }
             int Top { set; }
 
-            bool IsHidden { get; set; }
+            bool IsHidden { set; }
 
             /// <summary> Signs up the specified <see cref="Action"/> to be called when a property changes. </summary>
             void SubscribeOnPropertyChanged(Action action);
@@ -300,7 +300,7 @@ namespace Pirates_Nueva.UI
             protected abstract void Draw(ILocalDrawer<T> drawer, Master master);
             
             private bool IsHidden { get; set; }
-            bool IElement<T>.IsHidden { get => IsHidden; set => IsHidden = value; }
+            bool IElement<T>.IsHidden { set => IsHidden = value; }
 
             void IElement<T>.Draw(ILocalDrawer<T> drawer, Master master) {
                 if(!IsHidden) {
@@ -320,10 +320,12 @@ namespace Pirates_Nueva.UI
 
         
         /// <summary>
-        /// Makes the Draw() method of a <see cref="Menu"/> accessible only within <see cref="GUI"/>.
+        /// Makes some members of a <see cref="Menu"/> accessible only within the <see cref="UI.GUI"/> class.
         /// </summary>
         private interface IMenuContract
         {
+            GUI GUI { set; }
+
             void Draw(ILocalDrawer<Master> drawer, Master master);
 
             bool IsMouseOver(PointI mouse);
@@ -338,6 +340,12 @@ namespace Pirates_Nueva.UI
         {
             /// <summary> The default spacing between <see cref="Element"/>s. </summary>
             protected const int Padding = 3;
+
+            private GUI? gui;
+
+            /// <summary> The <see cref="UI.GUI"/> object containing this <see cref="Menu"/>. </summary>
+            protected GUI GUI => this.gui ?? NullableUtil.ThrowNotInitialized<GUI>();
+            GUI IMenuContract.GUI { set => this.gui = value; }
 
             /// <summary> Every <see cref="MenuElement"/> in this <see cref="Menu"/>. </summary>
             protected Element<Menu>[] Elements { get; set; }
