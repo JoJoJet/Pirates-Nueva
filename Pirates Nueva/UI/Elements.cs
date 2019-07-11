@@ -49,7 +49,7 @@
     {
         const int Padding = 3;
 
-        private GUI.OnClick onClick;
+        private readonly GUI.OnClick onClick;
 
         /// <summary> Text to display on this Button. </summary>
         public string Text { get; }

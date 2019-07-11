@@ -12,8 +12,8 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class GUI : IUpdatable
     {
-        private Dictionary<string, (Edge edge, Direction dir, Element<Edge> element)> _edgeElements = new Dictionary<string, (Edge, Direction, Element<Edge>)>();
-        private Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
+        private readonly Dictionary<string, (Edge edge, Direction dir, Element<Edge> element)> _edgeElements = new Dictionary<string, (Edge, Direction, Element<Edge>)>();
+        private readonly Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
         public Master Master { get; private set; }
 
@@ -40,10 +40,10 @@ namespace Pirates_Nueva.UI
         /// <param name="dir">The direction that the element will stack towards.</param>
         /// <exception cref="InvalidOperationException">Thrown if there is already an edge element identified by /id/.</exception>
         public void AddEdge(string id, Edge edge, Direction dir, Element<Edge> element) {
-            if(_edgeElements.ContainsKey(id) == false) {
+            if(this._edgeElements.ContainsKey(id) == false) {
                 (element as IElement<Edge>).SubscribeOnPropertyChanged(() => ArrangeEdges());
-                _edgeElements[id] = (edge, dir, element); // Add the edge element to the dictionary of edge elements.
-                ArrangeEdges();                           // Update the arrangement of edge elements after it has been added.
+                this._edgeElements[id] = (edge, dir, element); // Add the edge element to the dictionary of edge elements.
+                ArrangeEdges();                                // Update the arrangement of edge elements after it has been added.
             }
             //
             // If there is already a floating element identified by /id/, throw an InvalidOperationException.
