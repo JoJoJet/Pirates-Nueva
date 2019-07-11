@@ -212,9 +212,11 @@ namespace Pirates_Nueva.UI
                 }
             }
 
-            foreach(var menu in this._menus.Values) {          // For every menu:
-                if((menu as IMenuContract).QueryClicks(mouse)) //     Query a click at the current mouse position.
-                    break;                                     //     Stop querying if one of them succeeds.
+            foreach(IMenuContract menu in this._menus.Values) { // For every menu:
+                if(menu.GetButton(mouse, out var button)) {     //     Query it. If there's a button under the mouse,
+                    button.OnClick();                           //         invoke its action,
+                    break;                                      //         and stop querying.
+                }
             }
         }
 
@@ -330,8 +332,8 @@ namespace Pirates_Nueva.UI
 
             bool IsMouseOver(PointI mouse);
 
-            /// <summary> If /mouse/ is hovering over any buttons, invoke its action and return true. </summary>
-            bool QueryClicks(PointI mouse);
+            /// <summary> Returns the <see cref="IButton"/> under /mouse/, if it exists. </summary>
+            bool GetButton(PointI mouse, out IButton button);
         }
         /// <summary>
         /// A base class for different types of menus.
@@ -404,15 +406,15 @@ namespace Pirates_Nueva.UI
                 (element as IElement<Menu>).Draw(drawer, master);
             }
 
-            bool IMenuContract.QueryClicks(PointI mouse) {
+            bool IMenuContract.GetButton(PointI mouse, out IButton button) {
                 var localMouse = ScreenPointToMenu(mouse.X, mouse.Y);
-                foreach(var el in Elements) {                    // For every element in this menu:
-                    if(el is IButton b && el is IElement<Menu> d // If the element is a button,
-                        && d.IsMouseOver(localMouse)) {          // and the mouse is hovering over it,
-                        b.OnClick.Invoke();                      //     invoke its action,
-                        return true;                             //     and return true.
+                foreach(IElement<Menu> el in Elements) {                // For every element in this menu:
+                    if(el is IButton b && el.IsMouseOver(localMouse)) { // If the element is a button and the mouse is hovering over it,
+                        button = b;                                     //     output the button,
+                        return true;                                    //     and return true.
                     }
                 }
+                button = null!;
                 return false; // If we got this far without exiting the method, return false.
             }
         }
