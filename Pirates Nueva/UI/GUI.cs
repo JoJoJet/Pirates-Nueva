@@ -207,8 +207,9 @@ namespace Pirates_Nueva.UI
                 }
             }
 
-            foreach(var menu in this._menus.Values) {        // For every menu:
-                (menu as IMenuContract).QueryClicks(mouse);  //     query a click at the current mouse position.
+            foreach(var menu in this._menus.Values) {          // For every menu:
+                if((menu as IMenuContract).QueryClicks(mouse)) //     Query a click at the current mouse position.
+                    break;                                     //     Stop querying if one of them succeeds.
             }
         }
 
