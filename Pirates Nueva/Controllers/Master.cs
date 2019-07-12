@@ -49,7 +49,7 @@ namespace Pirates_Nueva
             //
             // Satisfying the nullable reference types flow analysis.
             this.spriteBatch = null!;
-            Drawer = null!;
+            Renderer = null!;
             Font = null!;
             Player = null!;
         }
@@ -87,7 +87,7 @@ namespace Pirates_Nueva
         /// Initialization performed after <see cref="LoadContent"/>.
         /// </summary>
         private void AfterContentLoad() {
-            Drawer = new Renderer(this, spriteBatch);
+            Renderer = new Renderer(this, spriteBatch);
 
             // Initialize the Sea object.
             this._sea = new Sea(this);

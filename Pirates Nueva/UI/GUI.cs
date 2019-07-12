@@ -117,8 +117,10 @@ namespace Pirates_Nueva.UI
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown if there is already a menu identified by /id/.</exception>
         public void AddMenu(string id, Menu menu) {
-            if(this._menus.ContainsKey(id) == false)
+            if(this._menus.ContainsKey(id) == false) {
                 this._menus[id] = menu;
+                (menu as IMenuContract).GUI = this;
+            }
             else
                 throw new InvalidOperationException(
                     $"{nameof(GUI)}.{nameof(AddMenu)}(): There is already a {nameof(Menu)} identified by string \"{id}\"!"
