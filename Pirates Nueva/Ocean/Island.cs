@@ -6,11 +6,6 @@ namespace Pirates_Nueva.Ocean
 {
     public sealed class Island : IDrawable<Sea>
     {
-        /// <summary> The outline of this island. </summary>
-        private Vertex[]? vertices;
-        /// <summary> Each element contains the indices of two connected vertices. </summary>
-        private Edge[]? edges;
-
         private IslandBlock?[,]? blocks;
 
         public Sea Sea { get; }
@@ -26,22 +21,18 @@ namespace Pirates_Nueva.Ocean
             Bottom = bottom;
         }
 
-        /// <summary> The number of texture pixels per whole number. </summary>
-        const int PPU = 16;
-
-        const int _width = 15, _height = 15;
         public void Generate(int seed, Master master) {
             Random r = new Random(seed);
 
             var shape = GenerateShape(r);
 
-            FindOutline(shape, r);
+            var(vertices, edges) = FindOutline(shape, r);
 
-            this.blocks = FindBlocks(this, this.vertices!, this.edges!);
+            this.blocks = FindBlocks(this, vertices, edges);
         }
 
         static bool[,] GenerateShape(Random r) {
-            const int Width = _width, Height = _height;
+            const int Width = 15, Height = 15;
 
             var ground = new bool[Width, Height];
 
@@ -431,8 +422,8 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        void FindOutline(bool[,] shape, Random r) {
-            const int Width = _width, Height = _height;
+        static (Vertex[], Edge[]) FindOutline(bool[,] shape, Random r) {
+            int width = shape.GetLength(0), height = shape.GetLength(1);
 
             var vertices = new List<PointF>();
             var edges = new List<(int a, int b)>();
@@ -443,7 +434,7 @@ namespace Pirates_Nueva.Ocean
             jitterOutline(); // Roughen up the outline.
             superOutline();  // Scale the island up by four.
             alignOutline();  // Align the outline to the bottom left of this island.
-            compile();
+            return compile();
             
             /*
              * Local Methods.
@@ -453,8 +444,8 @@ namespace Pirates_Nueva.Ocean
                 // Run the Marching Squares algorithm on the pixels.
                 // https://en.wikipedia.org/wiki/Marching_squares.
                 //
-                for(int x = -1; x < Width; x++) {
-                    for(int y = -1; y < Height; y++) {
+                for(int x = -1; x < width; x++) {
+                    for(int y = -1; y < height; y++) {
                         var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
@@ -561,7 +552,7 @@ namespace Pirates_Nueva.Ocean
                             }
                         }
 
-                        int b(int g, int h) => g >= 0 && g < Width && h >= 0 && h < Height && shape[g, h] ? 1 : 0;
+                        int b(int g, int h) => g >= 0 && g < width && h >= 0 && h < height && shape[g, h] ? 1 : 0;
                     }
                 }
             }
@@ -671,12 +662,13 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            void compile() {
+            (Vertex[], Edge[]) compile() {
                 //
                 // Project each edge into a specialized struct,
                 // and calculate its normal.
-                this.edges = new Edge[edges.Count];
-                for(int i = 0; i < this.edges.Length; i++) {              // For every edge:
+                //this.edges = new Edge[edges.Count];
+                var finalEdges = new Edge[edges.Count];
+                for(int i = 0; i < finalEdges.Length; i++) {              // For every edge:
                     var e = edges[i];                                     //
                     var a = vertices[e.a];                                // The first vertex of this edge.
                     var b = vertices[e.b];                                // The second vertex of this edge.
@@ -692,21 +684,23 @@ namespace Pirates_Nueva.Ocean
                     if(IntersectsWithPolygon(vertices, edges, testPoint)) // If the vector points inwards,
                         v1 = -v1;                                         //     invert its direction.
                                                                           //
-                    this.edges[i] = new Edge(e.a, e.b, v1);               // Create an Edge struct with the info.
+                    finalEdges[i] = new Edge(e.a, e.b, v1);               // Create an Edge struct with the info.
                 }
                 //
                 // Project each vertex into a specialized struct,
                 // and calculate its normal/
-                this.vertices = new Vertex[vertices.Count];
-                for(int i = 0; i < this.vertices.Length; i++) {           // For each vertex:
-                    var es = this.edges.Where(n => n.a == i || n.b == i); // Find the edges connnecting to this vertex.
+                var finalVertices = new Vertex[vertices.Count];
+                for(int i = 0; i < finalVertices.Length; i++) {           // For each vertex:
+                    var es = finalEdges.Where(n => n.a == i || n.b == i); // Find the edges connnecting to this vertex.
                     var a = es.First();                                   // The first edge connecting.
                     var b = es.Last();                                    // The second edge connecting.
 
                     var v = vertices[i];                                  // Store the vertex's position.
                     var normal = ((a.normal + b.normal) / 2).Normalized;  // Find the vertex's normal.
-                    this.vertices[i] = new Vertex(v.X, v.Y, normal);      // Create a Vertex struct with the info.
+                    finalVertices[i] = new Vertex(v.X, v.Y, normal);      // Create a Vertex struct with the info.
                 }
+
+                return (finalVertices, finalEdges);
             }
         }
 
@@ -767,8 +761,6 @@ namespace Pirates_Nueva.Ocean
         
         #region IDrawable Implementation
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
-            //drawOutline();
-
             //
             // Draw the blocks.
             if(this.blocks is null)
@@ -776,34 +768,6 @@ namespace Pirates_Nueva.Ocean
             var localDrawer = new IslandDrawer(drawer, this);
             foreach(var block in this.blocks) {
                 (block as IDrawable<Island>)?.Draw(localDrawer);
-            }
-
-
-            void drawOutline() {
-                //
-                // Return early if the shape has not been generated yet.
-                if(this.edges == null || this.vertices == null)
-                    return;
-
-                foreach(var l in this.edges) {
-                    //
-                    // Draw each edge.
-                    var a = (Left, Bottom) + vertices[l.a].Pos;
-                    var b = (Left, Bottom) + vertices[l.b].Pos;
-                    drawer.DrawLine(a, b, in UI.Color.White);
-                    //
-                    // Draw the normal of each edge.
-                    var lCenter = (Left, Bottom) + (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
-                    var lEnd = lCenter + l.normal;
-                    drawer.DrawLine(lCenter, lEnd, in UI.Color.White);
-                }
-                //
-                // Draw the normal of each VERTEX.
-                foreach(var v in this.vertices) {
-                    var vCenter = (Left, Bottom) + v.Pos;
-                    var nEnd = vCenter + v.normal;
-                    drawer.DrawLine(vCenter, nEnd, in UI.Color.Black);
-                }
             }
         }
         #endregion
