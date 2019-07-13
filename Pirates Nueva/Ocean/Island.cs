@@ -664,40 +664,18 @@ namespace Pirates_Nueva.Ocean
 
             (Vertex[], Edge[]) compile() {
                 //
-                // Project each edge into a specialized struct,
-                // and calculate its normal.
-                //this.edges = new Edge[edges.Count];
+                // Project each edge into a specialized struct.
                 var finalEdges = new Edge[edges.Count];
-                for(int i = 0; i < finalEdges.Length; i++) {              // For every edge:
-                    var e = edges[i];                                     //
-                    var a = vertices[e.a];                                // The first vertex of this edge.
-                    var b = vertices[e.b];                                // The second vertex of this edge.
-                                                                          //
-                    var center = (a + b) / 2;                             // The midpoint of both vertices.
-                                                                          //
-                    var dx = b.X - a.X;                                   // Rise.
-                    var dy = b.Y - a.Y;                                   // Run.
-                                                                          //
-                    var v1 = new PointF(-dy, dx).Normalized;              // A vector perpendicular to this edge.
-                                                                          //
-                    var testPoint = center + v1 / 10;                     // 
-                    if(IntersectsWithPolygon(vertices, edges, testPoint)) // If the vector points inwards,
-                        v1 = -v1;                                         //     invert its direction.
-                                                                          //
-                    finalEdges[i] = new Edge(e.a, e.b, v1);               // Create an Edge struct with the info.
+                for(int i = 0; i < finalEdges.Length; i++) {
+                    var (a, b) = edges[i];
+                    finalEdges[i] = new Edge(a, b);
                 }
                 //
-                // Project each vertex into a specialized struct,
-                // and calculate its normal/
+                // Project each vertex into a specialized struct.
                 var finalVertices = new Vertex[vertices.Count];
-                for(int i = 0; i < finalVertices.Length; i++) {           // For each vertex:
-                    var es = finalEdges.Where(n => n.a == i || n.b == i); // Find the edges connnecting to this vertex.
-                    var a = es.First();                                   // The first edge connecting.
-                    var b = es.Last();                                    // The second edge connecting.
-
-                    var v = vertices[i];                                  // Store the vertex's position.
-                    var normal = ((a.normal + b.normal) / 2).Normalized;  // Find the vertex's normal.
-                    finalVertices[i] = new Vertex(v.X, v.Y, normal);      // Create a Vertex struct with the info.
+                for(int i = 0; i < finalVertices.Length; i++) { // For each vertex:
+                    var (x, y) = vertices[i];                   // Store the vertex's position.
+                    finalVertices[i] = new Vertex(x, y);        // Create a Vertex struct with the info.
                 }
 
                 return (finalVertices, finalEdges);
@@ -735,24 +713,6 @@ namespace Pirates_Nueva.Ocean
                 || a.y > p.Y && b.y <= p.Y) {
                     float vt = (float)(p.Y - a.y) / (b.y - a.y);
                     if(p.X < a.x + vt * (b.x - a.x))
-                        ++cn;
-                }
-            }
-            return (cn & 1) == 1;
-        }
-
-        /// <summary>
-        /// Checks if the specified point intersects with the described polygon.
-        /// </summary>
-        private static bool IntersectsWithPolygon(List<PointF> vertices, List<(int a, int b)> edges, PointF p) {
-            int cn = 0;
-            foreach(var E in edges) {
-                var a = vertices[E.a];
-                var b = vertices[E.b];
-                if(a.Y <= p.Y && b.Y > p.Y
-                || a.Y > p.Y && b.Y <= p.Y) {
-                    float vt = (float)(p.Y - a.Y) / (b.Y - a.Y);
-                    if(p.X < a.X + vt * (b.X - a.X))
                         ++cn;
                 }
             }
@@ -802,11 +762,9 @@ namespace Pirates_Nueva.Ocean
             /// The index of the corresponding vertex of this edge, within its own list.
             /// </summary>
             public readonly int a, b;
-            public readonly PointF normal;
 
-            public Edge(int a, int b, PointF normal) {
+            public Edge(int a, int b) {
                 this.a = a; this.b = b;
-                this.normal = normal;
             }
         }
 
@@ -816,13 +774,9 @@ namespace Pirates_Nueva.Ocean
             /// The value of the corresponding coordinate of this <see cref="Vertex"/>.
             /// </summary>
             public readonly float x, y;
-            public readonly PointF normal;
 
-            public PointF Pos => new PointF(x, y);
-
-            public Vertex(float x, float y, PointF normal) {
+            public Vertex(float x, float y) {
                 this.x = x; this.y = y;
-                this.normal = normal;
             }
         }
     }
