@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Island : IDrawable<Sea>
+    public sealed class Island : IDrawable<Sea>
     {
         /// <summary> The outline of this island. </summary>
         private Vertex[]? vertices;
@@ -12,6 +12,8 @@ namespace Pirates_Nueva.Ocean
         private Edge[]? edges;
 
         private UI.Texture? tex;
+
+        private IslandBlock?[,]? blocks;
 
         public Sea Sea { get; }
 
@@ -38,6 +40,7 @@ namespace Pirates_Nueva.Ocean
             FindOutline(shape, r);
 
             this.tex = CreateTexture(master, this.vertices!, this.edges!);
+            this.blocks = FindBlocks(this, this.vertices!, this.edges!);
         }
 
         static bool[,] GenerateShape(Random r) {
@@ -788,11 +791,31 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        private bool IsCollidingPrecise(PointF p) {
-            if(this.edges == null || this.vertices == null)
-                return false;
+        static IslandBlock?[,] FindBlocks(Island island, Vertex[] vertices, Edge[] edges) {
+            //
+            // Find the extents of the island.
+            int width = 0, height = 0;
+            foreach(var v in vertices) {
+                if(v.x > width)
+                    width = (int)Math.Ceiling(v.x);
+                if(v.y > height)
+                    height = (int)Math.Ceiling(v.y);
+            }
+
+            var blocks = new IslandBlock?[width, height];
+            for(int x = 0; x < width; x++) {
+                for(int y = 0; y < height; y++) {
+                    if(IsCollidingPrecise(vertices, edges, (x, y)))
+                        blocks[x, y] = new IslandBlock(island, x, y);
+                }
+            }
+
+            return blocks;
+        }
+
+        private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, PointF p) {
             int cn = 0;
-            foreach(var E in this.edges) {
+            foreach(var E in edges) {
                 var a = vertices[E.a];
                 var b = vertices[E.b];
                 if(a.y <= p.Y && b.y > p.Y
@@ -855,10 +878,23 @@ namespace Pirates_Nueva.Ocean
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
             //drawOutline();
 
+            //
+            // Draw the texture.
             if(tex == null)
                 return;
             var (w, h) = ((float)tex.Width / PPU, (float)tex.Height / PPU);
             drawer.DrawCorner(this.tex, Left, Bottom + h, w, h);
+
+
+            //
+            // Draw the blocks.
+            if(this.blocks is null)
+                return;
+            var localDrawer = new IslandDrawer(drawer, this);
+            foreach(var block in this.blocks) {
+                (block as IDrawable<Island>)?.Draw(localDrawer);
+            }
+
 
             void drawOutline() {
                 //
@@ -888,6 +924,30 @@ namespace Pirates_Nueva.Ocean
             }
         }
         #endregion
+
+        private sealed class IslandDrawer : ILocalDrawer<Island>
+        {
+            public ILocalDrawer<Sea> Drawer { get; }
+            public Island Island { get; }
+
+            public IslandDrawer(ILocalDrawer<Sea> drawer, Island island) {
+                Drawer = drawer;
+                Island = island;
+            }
+
+            public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
+                => Drawer.DrawCorner(texture, Island.Left + left, Island.Bottom + top, width, height, in tint);
+            public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                             in Angle angle, in PointF origin, in UI.Color tint)
+                => Drawer.Draw(texture, Island.Left + x, Island.Bottom + y, width, height, in angle, in origin, in tint);
+            public void DrawLine(PointF start, PointF end, in UI.Color color) {
+                PointF pos = (Island.Left, Island.Bottom);
+                Drawer.DrawLine(pos + start, pos + end, in color);
+            }
+
+            public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
+                => throw new NotImplementedException();
+        }
 
         readonly struct Edge
         {
