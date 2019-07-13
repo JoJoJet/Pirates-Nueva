@@ -11,8 +11,6 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Each element contains the indices of two connected vertices. </summary>
         private Edge[]? edges;
 
-        private UI.Texture? tex;
-
         private IslandBlock?[,]? blocks;
 
         public Sea Sea { get; }
@@ -39,7 +37,6 @@ namespace Pirates_Nueva.Ocean
 
             FindOutline(shape, r);
 
-            this.tex = CreateTexture(master, this.vertices!, this.edges!);
             this.blocks = FindBlocks(this, this.vertices!, this.edges!);
         }
 
@@ -713,84 +710,6 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        static UI.Texture CreateTexture(Master master, Vertex[] vertices, Edge[] edges) {
-
-            (int w, int h) = findExtents();
-
-            var pixelsFlat = new UI.Color[w * h]; // An array of colors
-
-            scanlineFill(vertices, edges, UI.Color.DarkLime);
-
-            drawShore();
-
-            return master.CreateTexture(w, h, pixelsFlat); // Create a texture using the array of colors we just made.
-
-            /*
-             * Local Methods
-             */
-            ref UI.Color pixels(int x, int y) => ref pixelsFlat[(h - y - 1) * w + x];
-
-            (int, int) findExtents() {
-                float rightmost = 0; // The rightmost edge of this island.
-                float topmost = 0;   // The topmost edge of this island.
-                foreach(var v in vertices) {              // For every vertex:
-                    rightmost = Math.Max(rightmost, v.x); // Update the rightmost extent if the vertex is further right.
-                    topmost = Math.Max(topmost, v.y);     // Update the topmost extent if the vertex is further up.
-                }
-
-                var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
-                var he = (int)Math.Floor((topmost + 1) * PPU); // Height of the texture.
-                return (wi, he);
-            }
-
-            void scanlineFill(Span<Vertex> _verts, Span<Edge> _edges, UI.Color fillColor) {
-                //
-                // Fills the island using the scanline algorithm described here:
-                // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
-                //
-                for(int y = 0; y < h; y++) {
-                    var iss = getIntersections(_verts, _edges, new PointF(0, (float)y / PPU));
-                    for(int i = 0; i < iss.Count - 1; i += 2) {
-                        var a = iss[i] * PPU;
-                        var b = iss[i + 1] * PPU;
-                        for(int x = (int)a.X; x <= b.X; x++)
-                            pixels(x, y) = fillColor;
-                    }
-                }
-
-                List<PointF> getIntersections(Span<Vertex> vrts, Span<Edge> edgs, PointF rayOrigin) {
-                    var lst = new List<PointF>();
-
-                    var end = rayOrigin + new PointF(w + 100, 0);
-                    (float x, float y) i;
-                    foreach(var e in edgs) {
-                        if(GetLineIntersection(rayOrigin, end, vrts[e.a], vrts[e.b], out i))
-                            lst.Add(i);
-                    }
-
-                    lst.Sort((a, b) => a.X - b.X < 0 ? -1 : 1);
-
-                    return lst;
-                }
-            }
-
-            void drawShore() {
-                Span<Vertex> verts = stackalloc Vertex[vertices.Length * 2];
-                for(int i = 0; i < vertices.Length; i++) {
-                    var v = verts[i] = vertices[i];
-                    verts[vertices.Length + i] = new Vertex(v.x - v.normal.X * 3, v.y - v.normal.Y * 3, v.normal);
-                }
-
-                Span<Edge> edgs = stackalloc Edge[edges.Length * 2];
-                for(int i = 0; i < edges.Length; i++) {
-                    var e = edgs[i] = edges[i];
-                    edgs[edges.Length + i] = new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal);
-                }
-
-                scanlineFill(verts, edgs, UI.Color.PaleYellow);
-            }
-        }
-
         static IslandBlock?[,] FindBlocks(Island island, Vertex[] vertices, Edge[] edges) {
             //
             // Find the extents of the island.
@@ -846,45 +765,9 @@ namespace Pirates_Nueva.Ocean
             return (cn & 1) == 1;
         }
         
-        static bool GetLineIntersection(PointF a1, PointF a2, Vertex b1, Vertex b2, out (float x, float y) i) {
-            return get_line_intersection(a1.X, a1.Y, a2.X, a2.Y, b1.x, b1.y, b2.x, b2.y, out i.x, out i.y) == '1';
-
-            // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
-            // intersect the intersection point may be stored in the floats i_x and i_y.
-            char get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y,
-                float p2_x, float p2_y, float p3_x, float p3_y, out float i_x, out float i_y) {
-                float s1_x, s1_y, s2_x, s2_y;
-                s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
-                s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
-
-                float s, t;
-                s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-                t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
-
-                if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                    // Collision detected
-                    i_x = p0_x + (t * s1_x);
-                    i_y = p0_y + (t * s1_y);
-                    return '1';
-                }
-                else {
-                    i_x = i_y = 0;
-                    return '0'; // No collision
-                }
-            }
-        }
-
         #region IDrawable Implementation
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
             //drawOutline();
-
-            //
-            // Draw the texture.
-            if(tex == null)
-                return;
-            var (w, h) = ((float)tex.Width / PPU, (float)tex.Height / PPU);
-            drawer.DrawCorner(this.tex, Left, Bottom + h, w, h);
-
 
             //
             // Draw the blocks.
