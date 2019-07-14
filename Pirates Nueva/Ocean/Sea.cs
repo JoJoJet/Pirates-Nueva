@@ -11,7 +11,7 @@ namespace Pirates_Nueva.Ocean
         public Camera Camera { get; }
 
         /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
-        public int PPU => (int)Math.Round(Camera.Zoom);
+        public int PPU => (int)Camera.Zoom;
 
         public Archipelago Islands { get; }
 
@@ -98,7 +98,8 @@ namespace Pirates_Nueva.Ocean
         /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToScreen(float x, float y) {
             int height = Master.GUI.ScreenHeight;
-            return ((int)Math.Round((x - Camera.Left) * PPU), (int)Math.Round(height - (y - Camera.Bottom) * PPU));
+            int ppu = PPU;
+            return ((int)((x - Camera.Left) * ppu), (int)(height - (y - Camera.Bottom) * ppu));
         }
         #endregion
 
