@@ -15,18 +15,19 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
-        public Island(Sea sea, int left, int bottom) {
+        public Island(Sea sea, int left, int bottom, int rngSeed) {
+            //
+            // Copy over basic information
             Sea = sea;
-            Left = left;
-            Bottom = bottom;
-        }
+            Left = left; Bottom = bottom;
 
-        public void Generate(int seed, Master master) {
-            Random r = new Random(seed);
+            //
+            // Generate the Island.
+            Random r = new Random(rngSeed);
 
             var shape = GenerateShape(r);
 
-            var(vertices, edges) = FindOutline(shape, r);
+            var (vertices, edges) = FindOutline(shape, r);
 
             this.blocks = FindBlocks(this, vertices, edges);
         }

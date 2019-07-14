@@ -27,7 +27,7 @@ namespace Pirates_Nueva.Ocean
             // Generate the islands.
             Islands = new Archipelago(this);
             var isl = Islands as IArchiContract;
-            isl.Generate(new Random().Next(), master);
+            isl.Generate(new Random().Next());
 
             this.entities.Add(new PlayerShip(this, ShipDef.Get("dinghy")));
         }
@@ -105,7 +105,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Allows some methods to be accessible only within the <see cref="Sea"/> class. </summary>
         private interface IArchiContract
         {
-            void Generate(int seed, Master master);
+            void Generate(int seed);
         }
         public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>, IArchiContract
         {
@@ -130,9 +130,8 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            void IArchiContract.Generate(int seed, Master master) {
-                const int Width = 10;
-                const int Height = 10;
+            void IArchiContract.Generate(int seed) {
+                const int Width = 10, Height = 10;
                 const int Chance = 45;
 
                 var r = new Random(seed);
@@ -141,11 +140,10 @@ namespace Pirates_Nueva.Ocean
                  * Begin generating all of the islands.
                  */
                 this.islands = new Island[Width, Height];
-                for(int x = 0; x < Width; x++) {                                    // For every point in a square area:
-                    for(int y = 0; y < Height; y++) {                               //
-                        if(r.Next(0, 100) < Chance) {                               // If we roll a random chance:
-                            islands[x, y] = new Island(this.sea, x * 180, y * 180); //     Create an island at this point,
-                            islands[x, y].Generate(r.Next(), master);               //     start to generate the island,
+                for(int x = 0; x < Width; x++) {                                              // For every point in a square region:
+                    for(int y = 0; y < Height; y++) {                                         //
+                        if(r.Next(0, 100) < Chance) {                                         // If we roll a random chance,
+                            islands[x, y] = new Island(this.sea, x * 180, y * 180, r.Next()); //     Create an island at this point.
                         }
                     }
                 }
