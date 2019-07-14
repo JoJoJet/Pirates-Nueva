@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<IslandBlockDefs>
+	<IslandBlockDef ID="sand">
+		<TextureID>woodBlock</TextureID>
+	</IslandBlockDef>
+</IslandBlockDefs>

@@ -697,7 +697,7 @@ namespace Pirates_Nueva.Ocean
             for(int x = 0; x < width; x++) {
                 for(int y = 0; y < height; y++) {
                     if(IsCollidingPrecise(vertices, edges, (x, y)))
-                        blocks[x, y] = new IslandBlock(island, x, y);
+                        blocks[x, y] = new IslandBlock(island, IslandBlockDef.Get("sand"), x, y);
                 }
             }
 
@@ -730,7 +730,6 @@ namespace Pirates_Nueva.Ocean
                 (block as IDrawable<Island>)?.Draw(localDrawer);
             }
         }
-        #endregion
 
         private sealed class IslandDrawer : ILocalDrawer<Island>
         {
@@ -755,6 +754,7 @@ namespace Pirates_Nueva.Ocean
             public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
                 => throw new NotImplementedException();
         }
+        #endregion
 
         readonly struct Edge
         {

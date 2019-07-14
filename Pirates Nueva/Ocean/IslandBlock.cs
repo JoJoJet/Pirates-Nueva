@@ -11,19 +11,21 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Island Island { get; }
 
+        public IslandBlockDef Def { get; }
+
         /// <summary> The X index of this <see cref="IslandBlock"/>, local to its <see cref="Ocean.Island"/>. </summary>
         public int X { get; }
         /// <summary> The Y index of this <see cref="IslandBlock"/>, local to its <see cref="Ocean.Island"/>. </summary>
         public int Y { get; }
 
-        public IslandBlock(Island island, int x, int y) {
+        public IslandBlock(Island island, IslandBlockDef def, int x, int y) {
             Island = island;
+            Def = def;
             X = x;    Y = y;
         }
 
         void IDrawable<Island>.Draw(ILocalDrawer<Island> drawer) {
-            var tex = Resources.LoadTexture("woodBlock");
-            drawer.DrawCenter(tex, X, Y, 1, 1);
+            drawer.DrawCenter(Def.Texture, X, Y, 1, 1);
         }
     }
 }
