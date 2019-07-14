@@ -6,7 +6,7 @@ namespace Pirates_Nueva.Ocean
 {
     public sealed class Island : IDrawable<Sea>
     {
-        private IslandBlock?[,]? blocks;
+        private readonly IslandBlock?[,] blocks;
 
         public Sea Sea { get; }
 
