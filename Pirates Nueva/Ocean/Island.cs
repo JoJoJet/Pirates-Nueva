@@ -695,10 +695,25 @@ namespace Pirates_Nueva.Ocean
             }
 
             var blocks = new IslandBlock?[width, height];
+            var def = IslandBlockDef.Get("sand");
             for(int x = 0; x < width; x++) {
                 for(int y = 0; y < height; y++) {
-                    if(IsCollidingPrecise(vertices, edges, (x, y)))
-                        blocks[x, y] = new IslandBlock(island, IslandBlockDef.Get("sand"), x, y);
+                    bool tr = IsCollidingPrecise(vertices, edges, (x + 1, y + 1)),
+                         br = IsCollidingPrecise(vertices, edges, (x + 1, y)),
+                         bl = IsCollidingPrecise(vertices, edges, (x, y)),
+                         tl = IsCollidingPrecise(vertices, edges, (x, y + 1));
+                    if(tr && br && bl && tl)
+                        block(IslandBlockShape.Solid);
+                    else if(tl && br && bl)
+                        block(IslandBlockShape.TopRight);
+                    else if(tl && tr && bl)
+                        block(IslandBlockShape.BottomRight);
+                    else if(tl && tr && br)
+                        block(IslandBlockShape.BottomLeft);
+                    else if(tr && br && bl)
+                        block(IslandBlockShape.TopLeft);
+
+                    void block(IslandBlockShape shape) => blocks[x, y] = new IslandBlock(island, def, x, y, shape);
                 }
             }
 
