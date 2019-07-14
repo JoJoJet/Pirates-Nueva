@@ -4,14 +4,9 @@ using System.Linq;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Island : IDrawable<Sea>
+    public sealed class Island : IDrawable<Sea>
     {
-        /// <summary> The outline of this island. </summary>
-        private Vertex[]? vertices;
-        /// <summary> Each element contains the indices of two connected vertices. </summary>
-        private Edge[]? edges;
-
-        private UI.Texture? tex;
+        private readonly IslandBlock?[,] blocks;
 
         public Sea Sea { get; }
 
@@ -20,28 +15,25 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
-        public Island(Sea sea, int left, int bottom) {
+        public Island(Sea sea, int left, int bottom, int rngSeed) {
+            //
+            // Copy over basic information
             Sea = sea;
-            Left = left;
-            Bottom = bottom;
-        }
+            Left = left; Bottom = bottom;
 
-        /// <summary> The number of texture pixels per whole number. </summary>
-        const int PPU = 16;
-
-        const int _width = 15, _height = 15;
-        public void Generate(int seed, Master master) {
-            Random r = new Random(seed);
+            //
+            // Generate the Island.
+            Random r = new Random(rngSeed);
 
             var shape = GenerateShape(r);
 
-            FindOutline(shape, r);
+            var (vertices, edges) = FindOutline(shape, r);
 
-            this.tex = CreateTexture(master, this.vertices!, this.edges!);
+            this.blocks = FindBlocks(this, vertices, edges);
         }
 
         static bool[,] GenerateShape(Random r) {
-            const int Width = _width, Height = _height;
+            const int Width = 15, Height = 15;
 
             var ground = new bool[Width, Height];
 
@@ -431,8 +423,8 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        void FindOutline(bool[,] shape, Random r) {
-            const int Width = _width, Height = _height;
+        static (Vertex[], Edge[]) FindOutline(bool[,] shape, Random r) {
+            int width = shape.GetLength(0), height = shape.GetLength(1);
 
             var vertices = new List<PointF>();
             var edges = new List<(int a, int b)>();
@@ -443,7 +435,7 @@ namespace Pirates_Nueva.Ocean
             jitterOutline(); // Roughen up the outline.
             superOutline();  // Scale the island up by four.
             alignOutline();  // Align the outline to the bottom left of this island.
-            compile();
+            return compile();
             
             /*
              * Local Methods.
@@ -453,8 +445,8 @@ namespace Pirates_Nueva.Ocean
                 // Run the Marching Squares algorithm on the pixels.
                 // https://en.wikipedia.org/wiki/Marching_squares.
                 //
-                for(int x = -1; x < Width; x++) {
-                    for(int y = -1; y < Height; y++) {
+                for(int x = -1; x < width; x++) {
+                    for(int y = -1; y < height; y++) {
                         var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
@@ -561,7 +553,7 @@ namespace Pirates_Nueva.Ocean
                             }
                         }
 
-                        int b(int g, int h) => g >= 0 && g < Width && h >= 0 && h < Height && shape[g, h] ? 1 : 0;
+                        int b(int g, int h) => g >= 0 && g < width && h >= 0 && h < height && shape[g, h] ? 1 : 0;
                     }
                 }
             }
@@ -671,128 +663,66 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            void compile() {
+            (Vertex[], Edge[]) compile() {
                 //
-                // Project each edge into a specialized struct,
-                // and calculate its normal.
-                this.edges = new Edge[edges.Count];
-                for(int i = 0; i < this.edges.Length; i++) {              // For every edge:
-                    var e = edges[i];                                     //
-                    var a = vertices[e.a];                                // The first vertex of this edge.
-                    var b = vertices[e.b];                                // The second vertex of this edge.
-                                                                          //
-                    var center = (a + b) / 2;                             // The midpoint of both vertices.
-                                                                          //
-                    var dx = b.X - a.X;                                   // Rise.
-                    var dy = b.Y - a.Y;                                   // Run.
-                                                                          //
-                    var v1 = new PointF(-dy, dx).Normalized;              // A vector perpendicular to this edge.
-                                                                          //
-                    var testPoint = center + v1 / 10;                     // 
-                    if(IntersectsWithPolygon(vertices, edges, testPoint)) // If the vector points inwards,
-                        v1 = -v1;                                         //     invert its direction.
-                                                                          //
-                    this.edges[i] = new Edge(e.a, e.b, v1);               // Create an Edge struct with the info.
+                // Project each edge into a specialized struct.
+                var finalEdges = new Edge[edges.Count];
+                for(int i = 0; i < finalEdges.Length; i++) {
+                    var (a, b) = edges[i];
+                    finalEdges[i] = new Edge(a, b);
                 }
                 //
-                // Project each vertex into a specialized struct,
-                // and calculate its normal/
-                this.vertices = new Vertex[vertices.Count];
-                for(int i = 0; i < this.vertices.Length; i++) {           // For each vertex:
-                    var es = this.edges.Where(n => n.a == i || n.b == i); // Find the edges connnecting to this vertex.
-                    var a = es.First();                                   // The first edge connecting.
-                    var b = es.Last();                                    // The second edge connecting.
+                // Project each vertex into a specialized struct.
+                var finalVertices = new Vertex[vertices.Count];
+                for(int i = 0; i < finalVertices.Length; i++) { // For each vertex:
+                    var (x, y) = vertices[i];                   // Store the vertex's position.
+                    finalVertices[i] = new Vertex(x, y);        // Create a Vertex struct with the info.
+                }
 
-                    var v = vertices[i];                                  // Store the vertex's position.
-                    var normal = ((a.normal + b.normal) / 2).Normalized;  // Find the vertex's normal.
-                    this.vertices[i] = new Vertex(v.X, v.Y, normal);      // Create a Vertex struct with the info.
-                }
+                return (finalVertices, finalEdges);
             }
         }
 
-        static UI.Texture CreateTexture(Master master, Vertex[] vertices, Edge[] edges) {
-
-            (int w, int h) = findExtents();
-
-            var pixelsFlat = new UI.Color[w * h]; // An array of colors
-
-            scanlineFill(vertices, edges, UI.Color.DarkLime);
-
-            drawShore();
-
-            return master.CreateTexture(w, h, pixelsFlat); // Create a texture using the array of colors we just made.
-
-            /*
-             * Local Methods
-             */
-            ref UI.Color pixels(int x, int y) => ref pixelsFlat[(h - y - 1) * w + x];
-
-            (int, int) findExtents() {
-                float rightmost = 0; // The rightmost edge of this island.
-                float topmost = 0;   // The topmost edge of this island.
-                foreach(var v in vertices) {              // For every vertex:
-                    rightmost = Math.Max(rightmost, v.x); // Update the rightmost extent if the vertex is further right.
-                    topmost = Math.Max(topmost, v.y);     // Update the topmost extent if the vertex is further up.
-                }
-
-                var wi = (int)Math.Floor((rightmost + 1) * PPU); // Width of the texture.
-                var he = (int)Math.Floor((topmost + 1) * PPU); // Height of the texture.
-                return (wi, he);
+        static IslandBlock?[,] FindBlocks(Island island, Vertex[] vertices, Edge[] edges) {
+            //
+            // Find the extents of the island.
+            int width = 0, height = 0;
+            foreach(var v in vertices) {
+                if(v.x > width)
+                    width = (int)Math.Ceiling(v.x);
+                if(v.y > height)
+                    height = (int)Math.Ceiling(v.y);
             }
 
-            void scanlineFill(Span<Vertex> _verts, Span<Edge> _edges, UI.Color fillColor) {
-                //
-                // Fills the island using the scanline algorithm described here:
-                // https://www.tutorialspoint.com/computer_graphics/polygon_filling_algorithm.htm
-                //
-                for(int y = 0; y < h; y++) {
-                    var iss = getIntersections(_verts, _edges, new PointF(0, (float)y / PPU));
-                    for(int i = 0; i < iss.Count - 1; i += 2) {
-                        var a = iss[i] * PPU;
-                        var b = iss[i + 1] * PPU;
-                        for(int x = (int)a.X; x <= b.X; x++)
-                            pixels(x, y) = fillColor;
-                    }
-                }
+            var blocks = new IslandBlock?[width, height];
+            var def = IslandBlockDef.Get("sand");
+            for(int x = 0; x < width; x++) {
+                for(int y = 0; y < height; y++) {
+                    bool tr = IsCollidingPrecise(vertices, edges, (x + 1, y + 1)),
+                         br = IsCollidingPrecise(vertices, edges, (x + 1, y)),
+                         bl = IsCollidingPrecise(vertices, edges, (x, y)),
+                         tl = IsCollidingPrecise(vertices, edges, (x, y + 1));
+                    if(tr && br && bl && tl)
+                        block(IslandBlockShape.Solid);
+                    else if(tl && br && bl)
+                        block(IslandBlockShape.TopRight);
+                    else if(tl && tr && bl)
+                        block(IslandBlockShape.BottomRight);
+                    else if(tl && tr && br)
+                        block(IslandBlockShape.BottomLeft);
+                    else if(tr && br && bl)
+                        block(IslandBlockShape.TopLeft);
 
-                List<PointF> getIntersections(Span<Vertex> vrts, Span<Edge> edgs, PointF rayOrigin) {
-                    var lst = new List<PointF>();
-
-                    var end = rayOrigin + new PointF(w + 100, 0);
-                    (float x, float y) i;
-                    foreach(var e in edgs) {
-                        if(GetLineIntersection(rayOrigin, end, vrts[e.a], vrts[e.b], out i))
-                            lst.Add(i);
-                    }
-
-                    lst.Sort((a, b) => a.X - b.X < 0 ? -1 : 1);
-
-                    return lst;
+                    void block(IslandBlockShape shape) => blocks[x, y] = new IslandBlock(island, def, x, y, shape);
                 }
             }
 
-            void drawShore() {
-                Span<Vertex> verts = stackalloc Vertex[vertices.Length * 2];
-                for(int i = 0; i < vertices.Length; i++) {
-                    var v = verts[i] = vertices[i];
-                    verts[vertices.Length + i] = new Vertex(v.x - v.normal.X * 3, v.y - v.normal.Y * 3, v.normal);
-                }
-
-                Span<Edge> edgs = stackalloc Edge[edges.Length * 2];
-                for(int i = 0; i < edges.Length; i++) {
-                    var e = edgs[i] = edges[i];
-                    edgs[edges.Length + i] = new Edge(e.a + vertices.Length, e.b + vertices.Length, e.normal);
-                }
-
-                scanlineFill(verts, edgs, UI.Color.PaleYellow);
-            }
+            return blocks;
         }
 
-        private bool IsCollidingPrecise(PointF p) {
-            if(this.edges == null || this.vertices == null)
-                return false;
+        private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, PointF p) {
             int cn = 0;
-            foreach(var E in this.edges) {
+            foreach(var E in edges) {
                 var a = vertices[E.a];
                 var b = vertices[E.b];
                 if(a.y <= p.Y && b.y > p.Y
@@ -804,88 +734,41 @@ namespace Pirates_Nueva.Ocean
             }
             return (cn & 1) == 1;
         }
-
-        /// <summary>
-        /// Checks if the specified point intersects with the described polygon.
-        /// </summary>
-        private static bool IntersectsWithPolygon(List<PointF> vertices, List<(int a, int b)> edges, PointF p) {
-            int cn = 0;
-            foreach(var E in edges) {
-                var a = vertices[E.a];
-                var b = vertices[E.b];
-                if(a.Y <= p.Y && b.Y > p.Y
-                || a.Y > p.Y && b.Y <= p.Y) {
-                    float vt = (float)(p.Y - a.Y) / (b.Y - a.Y);
-                    if(p.X < a.X + vt * (b.X - a.X))
-                        ++cn;
-                }
-            }
-            return (cn & 1) == 1;
-        }
         
-        static bool GetLineIntersection(PointF a1, PointF a2, Vertex b1, Vertex b2, out (float x, float y) i) {
-            return get_line_intersection(a1.X, a1.Y, a2.X, a2.Y, b1.x, b1.y, b2.x, b2.y, out i.x, out i.y) == '1';
-
-            // Returns 1 if the lines intersect, otherwise 0. In addition, if the lines 
-            // intersect the intersection point may be stored in the floats i_x and i_y.
-            char get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y,
-                float p2_x, float p2_y, float p3_x, float p3_y, out float i_x, out float i_y) {
-                float s1_x, s1_y, s2_x, s2_y;
-                s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
-                s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
-
-                float s, t;
-                s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-                t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
-
-                if(s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                    // Collision detected
-                    i_x = p0_x + (t * s1_x);
-                    i_y = p0_y + (t * s1_y);
-                    return '1';
-                }
-                else {
-                    i_x = i_y = 0;
-                    return '0'; // No collision
-                }
-            }
-        }
-
         #region IDrawable Implementation
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
-            //drawOutline();
-
-            if(tex == null)
+            //
+            // Draw the blocks.
+            if(this.blocks is null)
                 return;
-            var (w, h) = ((float)tex.Width / PPU, (float)tex.Height / PPU);
-            drawer.DrawCorner(this.tex, Left, Bottom + h, w, h);
-
-            void drawOutline() {
-                //
-                // Return early if the shape has not been generated yet.
-                if(this.edges == null || this.vertices == null)
-                    return;
-
-                foreach(var l in this.edges) {
-                    //
-                    // Draw each edge.
-                    var a = (Left, Bottom) + vertices[l.a].Pos;
-                    var b = (Left, Bottom) + vertices[l.b].Pos;
-                    drawer.DrawLine(a, b, in UI.Color.White);
-                    //
-                    // Draw the normal of each edge.
-                    var lCenter = (Left, Bottom) + (vertices[l.a].Pos + vertices[l.b].Pos) / 2;
-                    var lEnd = lCenter + l.normal;
-                    drawer.DrawLine(lCenter, lEnd, in UI.Color.White);
-                }
-                //
-                // Draw the normal of each VERTEX.
-                foreach(var v in this.vertices) {
-                    var vCenter = (Left, Bottom) + v.Pos;
-                    var nEnd = vCenter + v.normal;
-                    drawer.DrawLine(vCenter, nEnd, in UI.Color.Black);
-                }
+            var localDrawer = new IslandDrawer(drawer, this);
+            foreach(var block in this.blocks) {
+                (block as IDrawable<Island>)?.Draw(localDrawer);
             }
+        }
+
+        private sealed class IslandDrawer : ILocalDrawer<Island>
+        {
+            public ILocalDrawer<Sea> Drawer { get; }
+            public Island Island { get; }
+
+            public IslandDrawer(ILocalDrawer<Sea> drawer, Island island) {
+                Drawer = drawer;
+                Island = island;
+            }
+
+            public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
+                => Drawer.DrawCorner(texture, Island.Left + left, Island.Bottom + top, width, height, in tint);
+            public void Draw(UI.Texture texture, float x, float y, float width, float height,
+                             in Angle angle, in PointF origin, in UI.Color tint)
+                => Drawer.Draw(texture, Island.Left + x, Island.Bottom + y, width, height, in angle, in origin, in tint);
+            public void DrawLine(PointF start, PointF end, in UI.Color color) {
+                PointF pos = (Island.Left, Island.Bottom);
+                Drawer.DrawLine(pos + start, pos + end, in color);
+            }
+
+            public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
+                => throw new NotImplementedException();
         }
         #endregion
 
@@ -895,11 +778,9 @@ namespace Pirates_Nueva.Ocean
             /// The index of the corresponding vertex of this edge, within its own list.
             /// </summary>
             public readonly int a, b;
-            public readonly PointF normal;
 
-            public Edge(int a, int b, PointF normal) {
+            public Edge(int a, int b) {
                 this.a = a; this.b = b;
-                this.normal = normal;
             }
         }
 
@@ -909,13 +790,9 @@ namespace Pirates_Nueva.Ocean
             /// The value of the corresponding coordinate of this <see cref="Vertex"/>.
             /// </summary>
             public readonly float x, y;
-            public readonly PointF normal;
 
-            public PointF Pos => new PointF(x, y);
-
-            public Vertex(float x, float y, PointF normal) {
+            public Vertex(float x, float y) {
                 this.x = x; this.y = y;
-                this.normal = normal;
             }
         }
     }
