@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Pirates_Nueva.Ocean
 {
-    public enum IslandBlockShape { Solid, TopRight, BottomRight, BottomLeft, TopLeft };
+    public enum IslandBlockShape { Solid = 0, TopRight, BottomRight, BottomLeft, TopLeft };
 
     public sealed class IslandBlock : IDrawable<Island>
     {

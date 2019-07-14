@@ -12,8 +12,8 @@ namespace Pirates_Nueva
     /// </summary>
     public sealed class IslandBlockDef : Def<IslandBlockDef>
     {
-        private readonly string solidId, trId, brId, blId, tlId;
-        private UI.Texture? solid, tr, br, bl, tl;
+        private readonly string[] ids = new string[5];
+        private readonly UI.Texture?[] texes = new UI.Texture?[5];
 
         protected override string TypeName => "IslandBlockDef";
         protected override ResourceInfo Resources => new ResourceInfo("islandBlocks", "IslandBlockDefs");
@@ -26,29 +26,22 @@ namespace Pirates_Nueva
             using var r = reader.ReadSubtree();
 
             r.ReadToDescendant("Solid");
-            solidId = r.ReadElementTrim();
+            this.ids[0] = r.ReadElementTrim();
 
             r.ReadToNextSibling("TopRight");
-            trId = r.ReadElementTrim();
+            this.ids[1] = r.ReadElementTrim();
 
             r.ReadToNextSibling("BottomRight");
-            brId = r.ReadElementTrim();
+            this.ids[2] = r.ReadElementTrim();
 
             r.ReadToNextSibling("BottomLeft");
-            blId = r.ReadElementTrim();
+            this.ids[3] = r.ReadElementTrim();
 
             r.ReadToNextSibling("TopLeft");
-            tlId = r.ReadElementTrim();
+            this.ids[4] = r.ReadElementTrim();
         }
 
-        public UI.Texture GetTexture(IslandBlockShape shape) => shape switch
-        {
-            IslandBlockShape.Solid       => this.solid ?? (this.solid = LoadTexture(this.solidId)),
-            IslandBlockShape.TopRight    => this.tr    ?? (this.tr    = LoadTexture(this.trId)),
-            IslandBlockShape.BottomRight => this.br    ?? (this.br    = LoadTexture(this.brId)),
-            IslandBlockShape.BottomLeft  => this.bl    ?? (this.bl    = LoadTexture(this.blId)),
-            IslandBlockShape.TopLeft     => this.tl    ?? (this.tl    = LoadTexture(this.tlId)),
-            _ => throw new ArgumentException($"\"{shape}\" is an invalid enum value.")
-        };
+        public UI.Texture GetTexture(IslandBlockShape shape)
+            => this.texes[(int)shape] ?? (this.texes[(int)shape] = LoadTexture(this.ids[(int)shape]));
     }
 }
