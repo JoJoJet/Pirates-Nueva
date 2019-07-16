@@ -13,7 +13,7 @@ namespace Pirates_Nueva
     public sealed class IslandBlockDef : Def<IslandBlockDef>
     {
         private readonly string[] ids = new string[5];
-        private readonly UI.Texture?[] texes = new UI.Texture?[5];
+        private readonly UI.Sprite?[] sprites = new UI.Sprite?[5];
 
         protected override string TypeName => "IslandBlockDef";
         protected override ResourceInfo Resources => new ResourceInfo("islandBlocks", "IslandBlockDefs");
@@ -22,7 +22,7 @@ namespace Pirates_Nueva
         IslandBlockDef(XmlReader parentReader) : base(parentReader) {
             using var reader = parentReader.ReadSubtree();
 
-            reader.ReadToDescendant("TextureIDs");
+            reader.ReadToDescendant("SpriteIDs");
             using var r = reader.ReadSubtree();
 
             r.ReadToDescendant("Solid");
@@ -41,7 +41,7 @@ namespace Pirates_Nueva
             this.ids[4] = r.ReadElementTrim();
         }
 
-        public UI.Texture GetTexture(IslandBlockShape shape)
-            => this.texes[(int)shape] ?? (this.texes[(int)shape] = LoadTexture(this.ids[(int)shape]));
+        public UI.Sprite GetSprite(IslandBlockShape shape)
+            => this.sprites[(int)shape] ?? (this.sprites[(int)shape] = LoadSprite(this.ids[(int)shape]));
     }
 }

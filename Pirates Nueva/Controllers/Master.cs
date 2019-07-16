@@ -105,12 +105,12 @@ namespace Pirates_Nueva
         #endregion
 
         /// <summary>
-        /// Create a new <see cref="UI.Texture"/> with specified width, height, and pixel colors.
+        /// Create a new <see cref="UI.Sprite"/> with specified width, height, and pixel colors.
         /// </summary>
-        public UI.Texture CreateTexture(int width, int height, params UI.Color[] pixels) {
+        public UI.Sprite CreateSprite(int width, int height, params UI.Color[] pixels) {
             var tex = new Texture2D(GraphicsDevice, width, height);
             tex.SetData(pixels);
-            return new UI.Texture(tex);
+            return new UI.Sprite(tex);
         }
 
         /// <summary>

@@ -186,18 +186,18 @@ namespace Pirates_Nueva.Ocean
             Sea = sea;
         }
 
-        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint) {
+        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
             var (screenX, screenY) = Sea.SeaPointToScreen(left, top);
             var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
 
-            Drawer.DrawCorner(texture, screenX, screenY, (int)screenW, (int)screenH, in tint);
+            Drawer.DrawCorner(sprite, screenX, screenY, (int)screenW, (int)screenH, in tint);
         }
-        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
             var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
 
-            Drawer.Draw(texture, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
+            Drawer.Draw(sprite, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
         }
         public void DrawLine(PointF start, PointF end, in UI.Color color)
             => Drawer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);

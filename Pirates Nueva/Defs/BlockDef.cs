@@ -11,9 +11,9 @@ namespace Pirates_Nueva
     public class BlockDef : Def<BlockDef>
     {
         /// <summary>
-        /// The name of the Texture to display onscreen for a <see cref="Block"/> with this <see cref="BlockDef"/>.
+        /// The name of the <see cref="UI.Sprite"/> to display onscreen for a <see cref="Block"/> with this <see cref="BlockDef"/>.
         /// </summary>
-        public string TextureID { get; }
+        public string SpriteID { get; }
 
         protected override string TypeName => "BlockDef";
         protected sealed override ResourceInfo Resources => new ResourceInfo("blocks", "BlockDefs");
@@ -22,8 +22,8 @@ namespace Pirates_Nueva
         protected BlockDef(XmlReader reader) : base(reader) {
             using var r = reader.ReadSubtree();
 
-            r.ReadToDescendant("TextureID");
-            TextureID = r.ReadElementTrim();
+            r.ReadToDescendant("SpriteID");
+            SpriteID = r.ReadElementTrim();
         }
     }
 }

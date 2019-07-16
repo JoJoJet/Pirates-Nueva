@@ -5,14 +5,14 @@ using Texture2D = Microsoft.Xna.Framework.Graphics.Texture2D;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// An immutable object containing the definition of a <see cref="UI.NineSlice"/> texture.
+    /// An immutable object containing the definition of a <see cref="UI.NineSlice"/> sprite.
     /// </summary>
     public sealed class SliceDef : Def<SliceDef>
     {
         /// <summary>
         /// The identifier for the source <see cref="Texture2D"/> of a <see cref="UI.NineSlice"/> defined with this <see cref="Def"/>.
         /// </summary>
-        internal string TextureID { get; }
+        internal string SpriteID { get; }
         internal (int left, int right, int top, int bottom) Slices { get; private set; }
 
         protected override string TypeName => "SliceDef";
@@ -22,8 +22,8 @@ namespace Pirates_Nueva
         private SliceDef(XmlReader parentReader) : base(parentReader) {
             using var r = parentReader.ReadSubtree();
 
-            r.ReadToDescendant("TextureID");
-            TextureID = r.ReadElementTrim();
+            r.ReadToDescendant("SpriteID");
+            SpriteID = r.ReadElementTrim();
 
             r.ReadToNextSibling("Slices");
 

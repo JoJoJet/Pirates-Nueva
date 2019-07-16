@@ -53,7 +53,7 @@ namespace Pirates_Nueva.Ocean
 
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
         protected override void Draw(ILocalDrawer<Ship> drawer) {
-            var tex = Resources.LoadTexture(Def.TextureID);
+            var tex = Resources.LoadSprite(Def.SpriteID);
 
             drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));
         }

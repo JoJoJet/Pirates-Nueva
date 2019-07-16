@@ -94,7 +94,7 @@ namespace Pirates_Nueva.Ocean.Agents
         void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
         protected virtual void Draw(ILocalDrawer<TC> drawer) {
-            var tex = Resources.LoadTexture(Def.TextureID);
+            var tex = Resources.LoadSprite(Def.SpriteID);
 
             drawer.DrawCenter(tex, X, Y, width: 1, height: 1);
         }

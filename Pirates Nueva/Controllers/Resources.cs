@@ -19,7 +19,7 @@ namespace Pirates_Nueva
     {
         private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates-Nueva\Pirates Nueva\Resources\";
 
-        private static readonly Dictionary<string, UI.Texture> _textures = new Dictionary<string, UI.Texture>();
+        private static readonly Dictionary<string, UI.Sprite> _sprites = new Dictionary<string, UI.Sprite>();
 
         private static bool isInitialized = false;
 
@@ -50,23 +50,23 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Get the <see cref="UI.Texture"/> with name /name/.
+        /// Get the <see cref="UI.Sprite"/> with name /name/.
         /// </summary>
-        /// <exception cref="ResourceException">Thrown if there is no texture with name /name/.</exception>
-        public static UI.Texture LoadTexture(string name) {
+        /// <exception cref="ResourceException">Thrown if there is no sprite with name /name/.</exception>
+        public static UI.Sprite LoadSprite(string name) {
             ThrowIfUninitialized();
             try {
-                // Get the texture named /name/ out of this instance's dictionary.
-                // If there is no texture with that name, load the texture with that name from file.
-                if(_textures.TryGetValue(name, out var tex) == false) {
-                    tex = new UI.Texture(Content.Load<Texture2D>(name));
-                    _textures[name] = tex;
+                // Get the sprite named /name/ out of this instance's dictionary.
+                // If there is no sprite with that name, load the sprite with that name from file.
+                if(_sprites.TryGetValue(name, out var tex) == false) {
+                    tex = new UI.Sprite(Content.Load<Texture2D>(name));
+                    _sprites[name] = tex;
                 }
 
                 return tex;
             }
             catch(Microsoft.Xna.Framework.Content.ContentLoadException) {
-                throw new ResourceException($"{nameof(Resources)}.{nameof(LoadTexture)}(): There is no texture named \"{name}\"!");
+                throw new ResourceException($"{nameof(Resources)}.{nameof(LoadSprite)}(): There is no sprite named \"{name}\"!");
             }
         }
 
