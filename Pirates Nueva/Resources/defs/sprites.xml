@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SpriteDefs>
+	<SpriteDef ID="panel">
+		<SourceID>panel</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="rootBlock">
+		<SourceID>rootBlock</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="woodBlock">
+		<SourceID>woodBlock</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="cannon">
+		<SourceID>cannon</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="gunpowder">
+		<SourceID>gunpowder</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="sand">
+		<SourceID>sand</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="sand_tr">
+		<SourceID>sand_tr</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="sand_br">
+		<SourceID>sand_br</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="sand_bl">
+		<SourceID>sand_bl</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="sand_tl">
+		<SourceID>sand_tl</SourceID>
+	</SpriteDef>
+	<SpriteDef ID="agent">
+		<SourceID>agent</SourceID>
+	</SpriteDef>
+</SpriteDefs>
