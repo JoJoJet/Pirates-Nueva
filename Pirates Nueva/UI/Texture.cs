@@ -90,7 +90,7 @@ namespace Pirates_Nueva.UI
                     else                                                             // If this point is (vertically) in the middle,
                         ty = def.Slices.bottom + (y - def.Slices.bottom) % midHeight;//     its source index is in the middle set of slices.
 
-                    newData[y * width + x] = readInner(tx, ty);
+                    newData[flatten(x, y, width)] = innerData[flatten(tx, ty, sourceWidth)];
                 }
             }
             var tex = new Texture2D(master.GraphicsDevice, width, height);
@@ -100,8 +100,8 @@ namespace Pirates_Nueva.UI
 
             return tex;
 
-            // Read the specified color pixel from the inner texture.
-            Color readInner(int x, int y) => innerData[y * sourceWidth + x];
+            // Flattens the specified coordinates into a single line, using the specified width value.
+            static int flatten(int x, int y, int width) => y * width + x;
         }
     }
 }
