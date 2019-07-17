@@ -43,31 +43,31 @@
 		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_tr">
-		<SourceID>sand_tr</SourceID>
+		<SourceID>sand</SourceID>
 		<Cropping>
-			<LeftBottom>0, 0</LeftBottom>
-			<RightTop>15, 15</RightTop>
+			<LeftBottom>48, 16</LeftBottom>
+			<RightTop>63, 31</RightTop>
 		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_br">
-		<SourceID>sand_br</SourceID>
+		<SourceID>sand</SourceID>
 		<Cropping>
-			<LeftBottom>0, 0</LeftBottom>
-			<RightTop>15, 15</RightTop>
+			<LeftBottom>48, 0</LeftBottom>
+			<RightTop>63, 15</RightTop>
 		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_bl">
-		<SourceID>sand_bl</SourceID>
+		<SourceID>sand</SourceID>
 		<Cropping>
-			<LeftBottom>0, 0</LeftBottom>
-			<RightTop>15, 15</RightTop>
+			<LeftBottom>32, 0</LeftBottom>
+			<RightTop>47, 15</RightTop>
 		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_tl">
-		<SourceID>sand_tl</SourceID>
+		<SourceID>sand</SourceID>
 		<Cropping>
-			<LeftBottom>0, 0</LeftBottom>
-			<RightTop>15, 15</RightTop>
+			<LeftBottom>32, 16</LeftBottom>
+			<RightTop>47, 31</RightTop>
 		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="agent">
