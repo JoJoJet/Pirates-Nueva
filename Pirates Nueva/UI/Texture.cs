@@ -26,12 +26,14 @@ namespace Pirates_Nueva.UI
         /// <summary>
         /// Creates a new <see cref="Sprite"/> from a MonoGame <see cref="Texture2D"/>.
         /// </summary>
-        public Sprite(Texture2D inner) {
+        public Sprite(Texture2D inner, int left, int top, int width, int height) {
             this.source = inner;
 
-            (Left, Top) = (0, 0);
-            (Width, Height) = (inner.Width, inner.Height);
+            (Left, Top) = (left, top);
+            (Width, Height) = (width, height);
         }
+        internal Sprite(Texture2D inner, SpriteDef def)
+            : this(inner, def.FromLeft, inner.Height - def.FromBottom - def.Height, def.Width, def.Height) { }
         /// <summary>
         /// Creates a blank <see cref="Sprite"/>; only usable from derived classes.
         /// </summary>

@@ -10,18 +10,37 @@ namespace Pirates_Nueva
         /// <summary>
         /// The ID of this <see cref="SpriteDef"/>'s source texture.
         /// </summary>
-        internal string SourceID { get; }
+        public string SourceID { get; }
+
+        /// <summary> The amount of cropping done from the left edge of the texture. </summary>
+        public int FromLeft { get; }
+        /// <summary> The amount of cropping done from the bottom edge of the texture. </summary>
+        public int FromBottom { get; }
+        public int Width { get; }
+        public int Height { get; }
 
         protected override string TypeName => "SpriteDef";
 
         protected override ResourceInfo Resources => new ResourceInfo("sprites", "SpriteDefs");
 
         protected override SpriteDef Construct(XmlReader reader) => new SpriteDef(reader);
-        private SpriteDef(XmlReader reader) : base(reader) {
+        private SpriteDef(XmlReader parentReader) : base(parentReader) {
+            using var reader = parentReader.ReadSubtree();
+
+            reader.ReadToDescendant("SourceID");
+            SourceID = reader.ReadElementTrim();
+
+            reader.ReadToNextSibling("Cropping");
             using var r = reader.ReadSubtree();
 
-            r.ReadToDescendant("SourceID");
-            SourceID = r.ReadElementTrim();
+            r.ReadToDescendant("LeftBottom");
+            var (left, bottom) = r.ReadPointI();
+
+            r.ReadToNextSibling("RightTop");
+            var (right, top) = r.ReadPointI();
+
+            (FromLeft, FromBottom) = (left, bottom);
+            (Width, Height) = (right - left + 1, top - bottom + 1);
         }
     }
 }

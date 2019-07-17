@@ -110,7 +110,7 @@ namespace Pirates_Nueva
         public UI.Sprite CreateSprite(int width, int height, params UI.Color[] pixels) {
             var tex = new Texture2D(GraphicsDevice, width, height);
             tex.SetData(pixels);
-            return new UI.Sprite(tex);
+            return new UI.Sprite(tex, 0, 0, width, height);
         }
 
         /// <summary>

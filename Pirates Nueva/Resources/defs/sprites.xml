@@ -2,35 +2,79 @@
 <SpriteDefs>
 	<SpriteDef ID="panel">
 		<SourceID>panel</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>63, 63</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="rootBlock">
 		<SourceID>rootBlock</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="woodBlock">
 		<SourceID>woodBlock</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="cannon">
 		<SourceID>cannon</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>63, 31</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="gunpowder">
 		<SourceID>gunpowder</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand">
 		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_tr">
 		<SourceID>sand_tr</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_br">
 		<SourceID>sand_br</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_bl">
 		<SourceID>sand_bl</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="sand_tl">
 		<SourceID>sand_tl</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
 	</SpriteDef>
 	<SpriteDef ID="agent">
 		<SourceID>agent</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>31, 31</RightTop>
+		</Cropping>
 	</SpriteDef>
 </SpriteDefs>

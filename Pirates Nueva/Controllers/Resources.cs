@@ -60,7 +60,7 @@ namespace Pirates_Nueva
             // If there is no sprite with that name, create one.
             if(!_sprites.TryGetValue(name, out var sprite)) {
                 var def = SpriteDef.Get(name);
-                sprite = new UI.Sprite(LoadTexture(def.SourceID));
+                sprite = new UI.Sprite(LoadTexture(def.SourceID), def);
                 _sprites[name] = sprite;
             }
 
