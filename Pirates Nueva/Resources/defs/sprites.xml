@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SpriteDefs>
+	<SpriteDef ID="panel">
+		<SourceID>panel</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>63, 63</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="rootBlock">
+		<SourceID>rootBlock</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="woodBlock">
+		<SourceID>woodBlock</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="cannon">
+		<SourceID>cannon</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>63, 31</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="gunpowder">
+		<SourceID>gunpowder</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="sand">
+		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="sand_tr">
+		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>48, 16</LeftBottom>
+			<RightTop>63, 31</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="sand_br">
+		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>48, 0</LeftBottom>
+			<RightTop>63, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="sand_bl">
+		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>32, 0</LeftBottom>
+			<RightTop>47, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="sand_tl">
+		<SourceID>sand</SourceID>
+		<Cropping>
+			<LeftBottom>32, 16</LeftBottom>
+			<RightTop>47, 31</RightTop>
+		</Cropping>
+	</SpriteDef>
+	<SpriteDef ID="agent">
+		<SourceID>agent</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>31, 31</RightTop>
+		</Cropping>
+	</SpriteDef>
+</SpriteDefs>

@@ -26,7 +26,7 @@ namespace Pirates_Nueva
         /// </summary>
         protected override FurnitureDef Construct(XmlReader reader) => new CannonDef(ref reader);
         /// <summary>
-        /// Reads the ID attribute, and consumes the TextureID, TextureSize, TextureOrigin, and FuelTypeID nodes.
+        /// Reads the ID attribute, and consumes the SpriteID, SpriteSize, SpriteOrigin, and FuelTypeID nodes.
         /// </summary>
         /// <param name="closeReader">
         /// Whether or not the <see cref="XmlReader"/> should be closed after being read from.

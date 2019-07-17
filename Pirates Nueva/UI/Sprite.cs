@@ -5,54 +5,63 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Pirates_Nueva.UI
 {
     /// <summary>
-    /// A 2D image texture.
+    /// A 2D image sprite.
     /// </summary>
-    public class Texture
+    public class Sprite
     {
-        private readonly Texture2D? _drawable;
+        private readonly Texture2D? source;
 
-        /// <summary> The width of this <see cref="Texture"/>. </summary>
-        public virtual int Width => Drawable.Width;
-        /// <summary> The height of this <see cref="Texture"/>. </summary>
-        public virtual int Height => Drawable.Height;
+        /// <summary> The left edge of this <see cref="Sprite"/> on its source texture. </summary>
+        protected internal int Left { get; }
+        /// <summary> The top edge of this <see cref="Sprite"/> on its source texture. </summary>
+        protected internal int Top { get; }
 
-        protected virtual Texture2D Drawable => this._drawable ?? NullableUtil.ThrowNotInitialized<Texture2D>(nameof(Texture));
+        /// <summary> The width of this <see cref="Sprite"/>. </summary>
+        public int Width { get; }
+        /// <summary> The height of this <see cref="Sprite"/>. </summary>
+        public int Height { get; }
+
+        protected internal virtual Texture2D Source => this.source ?? NullableUtil.ThrowNotInitialized<Texture2D>(nameof(Sprite));
 
         /// <summary>
-        /// Create a new <see cref="Texture"/> from a MonoGame <see cref="Texture2D"/>.
+        /// Creates a new <see cref="Sprite"/> from a MonoGame <see cref="Texture2D"/>.
         /// </summary>
-        public Texture(Texture2D inner) {
-            this._drawable = inner;
+        public Sprite(Texture2D inner, int left, int top, int width, int height) {
+            this.source = inner;
+
+            (Left, Top) = (left, top);
+            (Width, Height) = (width, height);
         }
+        internal Sprite(Texture2D inner, SpriteDef def)
+            : this(inner, def.FromLeft, inner.Height - def.FromBottom - def.Height, def.Width, def.Height) { }
         /// <summary>
-        /// Create a blank <see cref="Texture2D"/>; only usable from derived classes.
+        /// Creates a blank <see cref="Sprite"/>; only usable from derived classes.
         /// </summary>
-        protected Texture() { }
-
-        public static implicit operator Texture2D(Texture from) => from.Drawable;
+        protected Sprite(int width, int height)
+            => (Width, Height) = (width, height);
     }
 
     /// <summary>
-    /// A 9-sliced <see cref="Texture"/>.
+    /// A 9-sliced <see cref="Sprite"/>.
     /// </summary>
-    public class NineSlice : Texture
+    public class NineSlice : Sprite
     {
         private static readonly Dictionary<string, Texture2D> textures = new Dictionary<string, Texture2D>();
 
-        protected override Texture2D Drawable { get; }
+        protected internal override Texture2D Source { get; }
 
-        public NineSlice(SliceDef def, int width, int height, Master master) : base() {
+        public NineSlice(SliceDef def, int width, int height, Master master) : base(width, height) {
 
             // Create a nine-sliced texture from the source and paramaters,
             // OR: fetch the cached one if we have previously created one with these parameters.
             if(textures.TryGetValue($"{def.ID}_{width}_{height}", out var tex) == false) {
                 tex = CreateTex(def, width, height, master);
             }
-            Drawable = tex;
+            Source = tex;
         }
 
         private static Texture2D CreateTex(SliceDef def, int width, int height, Master master) {
-            Texture2D source = Resources.LoadTexture(def.TextureID);
+            Texture2D source = Resources.LoadSprite(def.SpriteID).Source;
 
             // Fetch the colors of the source texture for use in the /readInner()/ method below.
             var innerData = new Color[source.Width * source.Height];
@@ -83,7 +92,7 @@ namespace Pirates_Nueva.UI
                     else                                                             // If this point is (vertically) in the middle,
                         ty = def.Slices.bottom + (y - def.Slices.bottom) % midHeight;//     its source index is in the middle set of slices.
 
-                    newData[y * width + x] = readInner(tx, ty);
+                    newData[flatten(x, y, width)] = innerData[flatten(tx, ty, sourceWidth)];
                 }
             }
             var tex = new Texture2D(master.GraphicsDevice, width, height);
@@ -93,8 +102,8 @@ namespace Pirates_Nueva.UI
 
             return tex;
 
-            // Read the specified color pixel from the inner texture.
-            Color readInner(int x, int y) => innerData[y * sourceWidth + x];
+            // Flattens the specified coordinates into a single line, using the specified width value.
+            static int flatten(int x, int y, int width) => y * width + x;
         }
     }
 }

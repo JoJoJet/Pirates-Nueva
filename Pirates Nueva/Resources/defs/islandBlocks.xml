@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <IslandBlockDefs>
 	<IslandBlockDef ID="sand">
-		<TextureIDs>
+		<SpriteIDs>
 			<Solid>sand</Solid>
 			<TopRight>sand_tr</TopRight>
 			<BottomRight>sand_br</BottomRight>
 			<BottomLeft>sand_bl</BottomLeft>
 			<TopLeft>sand_tl</TopLeft>
-		</TextureIDs>
+		</SpriteIDs>
 	</IslandBlockDef>
 </IslandBlockDefs>

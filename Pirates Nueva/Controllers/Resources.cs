@@ -19,7 +19,8 @@ namespace Pirates_Nueva
     {
         private const string IndependentResourcesRoot = @"C:\Users\joe10\source\repos\Pirates-Nueva\Pirates Nueva\Resources\";
 
-        private static readonly Dictionary<string, UI.Texture> _textures = new Dictionary<string, UI.Texture>();
+        private static readonly Dictionary<string, UI.Sprite> _sprites = new Dictionary<string, UI.Sprite>();
+        private static readonly Dictionary<string, Texture2D> _textures = new Dictionary<string, Texture2D>();
 
         private static bool isInitialized = false;
 
@@ -50,23 +51,38 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Get the <see cref="UI.Texture"/> with name /name/.
+        /// Get the <see cref="UI.Sprite"/> with name /name/.
         /// </summary>
-        /// <exception cref="ResourceException">Thrown if there is no texture with name /name/.</exception>
-        public static UI.Texture LoadTexture(string name) {
+        public static UI.Sprite LoadSprite(string name) {
+            ThrowIfUninitialized();
+            //
+            // Get the sprite named /name/ out of the dictionary.
+            // If there is no sprite with that name, create one.
+            if(!_sprites.TryGetValue(name, out var sprite)) {
+                var def = SpriteDef.Get(name);
+                sprite = new UI.Sprite(LoadTexture(def.SourceID), def);
+                _sprites[name] = sprite;
+            }
+
+            return sprite;
+        }
+
+        internal static Texture2D LoadTexture(string name) {
+            const string Sig = nameof(Resources) + "." + nameof(LoadTexture) + "()";
             ThrowIfUninitialized();
             try {
-                // Get the texture named /name/ out of this instance's dictionary.
-                // If there is no texture with that name, load the texture with that name from file.
-                if(_textures.TryGetValue(name, out var tex) == false) {
-                    tex = new UI.Texture(Content.Load<Texture2D>(name));
+                //
+                // Get the texture named /name/ from the dictionary.
+                // If there is no texture with that name, load it from file.
+                if(!_textures.TryGetValue(name, out var tex)) {
+                    tex = Content.Load<Texture2D>(name);
                     _textures[name] = tex;
                 }
 
                 return tex;
             }
             catch(Microsoft.Xna.Framework.Content.ContentLoadException) {
-                throw new ResourceException($"{nameof(Resources)}.{nameof(LoadTexture)}(): There is no texture named \"{name}\"!");
+                throw new ResourceException($"{Sig}: There is no {nameof(Texture2D)} named \"{name}\"!");
             }
         }
 

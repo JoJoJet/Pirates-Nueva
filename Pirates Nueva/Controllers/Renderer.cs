@@ -11,24 +11,24 @@ namespace Pirates_Nueva
     public interface ILocalDrawer<T>
     {
         /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
+        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the top left corner.
         /// </summary>
-        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
-        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint);
+        /// <param name="left">The local coordinate of the <see cref="UI.Sprite"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Sprite"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint);
         /// <summary>
-        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
+        /// Submits a rotated <see cref="UI.Sprite"/> to be drawn this frame.
         /// </summary>
-        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
+        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="origin">The point, relative to the <see cref="UI.Sprite"/>,
         ///                      from which to draw it. Range: [0, 1].</param>
-        void Draw(UI.Texture texture, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
+        void Draw(UI.Sprite sprite, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
 
         /// <summary>
         /// Draws a line with specified color this frame.
@@ -47,51 +47,51 @@ namespace Pirates_Nueva
     public static class DrawerExt
     {
         /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the center of the sprite.
         /// </summary>
-        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Sprite"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Sprite"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
                                          float centerX, float centerY, float width, float height, in UI.Color tint)
-            => drawer.DrawCorner(texture, centerX - width / 2, centerY + width / 2, width, height, in tint);
+            => drawer.DrawCorner(sprite, centerX - width / 2, centerY + width / 2, width, height, in tint);
 
 
         /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the center of the texture.
+        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the center of the sprite.
         /// </summary>
-        /// <param name="centerX">The local x coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="centerY">The local y coordinate of the <see cref="UI.Texture"/>'s center.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+        /// <param name="centerX">The local x coordinate of the <see cref="UI.Sprite"/>'s center.</param>
+        /// <param name="centerY">The local y coordinate of the <see cref="UI.Sprite"/>'s center.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
                                          float centerX, float centerY, float width, float height)
-            => drawer.DrawCenter(texture, centerX, centerY, width, height, in UI.Color.White);
+            => drawer.DrawCenter(sprite, centerX, centerY, width, height, in UI.Color.White);
         /// <summary>
-        /// Submits a <see cref="UI.Texture"/> to be drawn this frame, drawing from the top left corner.
+        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the top left corner.
         /// </summary>
-        /// <param name="left">The local coordinate of the <see cref="UI.Texture"/>'s left edge.</param>
-        /// <param name="top">The local coordinate of the <see cref="UI.Texture"/>'s top edge.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+        /// <param name="left">The local coordinate of the <see cref="UI.Sprite"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Sprite"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
                                          float left, float top, float width, float height)
-            => drawer.DrawCorner(texture, left, top, width, height, in UI.Color.White);
+            => drawer.DrawCorner(sprite, left, top, width, height, in UI.Color.White);
         /// <summary>
-        /// Submits a rotated <see cref="UI.Texture"/> to be drawn this frame.
+        /// Submits a rotated <see cref="UI.Sprite"/> to be drawn this frame.
         /// </summary>
-        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="width">The width of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Texture"/>, in local units.</param>
-        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Texture"/>.</param>
-        /// <param name="origin">The point, relative to the <see cref="UI.Texture"/>,
+        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Sprite"/>.</param>
+        /// <param name="origin">The point, relative to the <see cref="UI.Sprite"/>,
         ///                      from which to draw it. Range: [0, 1].</param>
-        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Texture texture,
+        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
                                    float x, float y, float width, float height,
                                    in Angle angle, in PointF origin)
-            => drawer.Draw(texture, x, y, width, height, in angle, in origin, in UI.Color.White);
+            => drawer.Draw(sprite, x, y, width, height, in angle, in origin, in UI.Color.White);
     }
 
     /// <summary>
@@ -113,26 +113,28 @@ namespace Pirates_Nueva
     /// </summary>
     internal class Renderer : ILocalDrawer<Master>, ILocalDrawer<UI.Edge>
     {
-        private Lazy<UI.Texture> pixelLazy;
+        private Lazy<UI.Sprite> pixelLazy;
 
         private Master Master { get; }
         private SpriteBatch SpriteBatch { get; }
 
-        private UI.Texture Pixel => this.pixelLazy.Value;
+        private UI.Sprite Pixel => this.pixelLazy.Value;
 
         internal Renderer(Master master, SpriteBatch spriteBatch) {
             Master = master;
             SpriteBatch = spriteBatch;
 
-            this.pixelLazy = new Lazy<UI.Texture>(() => Master.CreateTexture(1, 1, UI.Color.White));
+            this.pixelLazy = new Lazy<UI.Sprite>(() => Master.CreateSprite(1, 1, UI.Color.White));
         }
 
-        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
-            => SpriteBatch.Draw(texture, new Rectangle((int)left, (int)top, (int)width, (int)height), tint);
-        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
+            => SpriteBatch.Draw(sprite.Source, new Rectangle((int)left, (int)top, (int)width, (int)height),
+                                new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height), tint);
+        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint)
-            => SpriteBatch.Draw(texture, new Rectangle((int)x, (int)y, (int)width, (int)height),
-                                null, tint, angle, origin, SpriteEffects.None, 0f);
+            => SpriteBatch.Draw(sprite.Source, new Rectangle((int)x, (int)y, (int)width, (int)height),
+                                new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height),
+                                tint, angle, origin, SpriteEffects.None, 0);
 
         public void DrawLine(PointF start, PointF end, in UI.Color color) {
             var edge = end - start;

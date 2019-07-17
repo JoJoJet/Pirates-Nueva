@@ -757,11 +757,11 @@ namespace Pirates_Nueva.Ocean
                 Island = island;
             }
 
-            public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
-                => Drawer.DrawCorner(texture, Island.Left + left, Island.Bottom + top, width, height, in tint);
-            public void Draw(UI.Texture texture, float x, float y, float width, float height,
+            public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
+                => Drawer.DrawCorner(sprite, Island.Left + left, Island.Bottom + top, width, height, in tint);
+            public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
                              in Angle angle, in PointF origin, in UI.Color tint)
-                => Drawer.Draw(texture, Island.Left + x, Island.Bottom + y, width, height, in angle, in origin, in tint);
+                => Drawer.Draw(sprite, Island.Left + x, Island.Bottom + y, width, height, in angle, in origin, in tint);
             public void DrawLine(PointF start, PointF end, in UI.Color color) {
                 PointF pos = (Island.Left, Island.Bottom);
                 Drawer.DrawLine(pos + start, pos + end, in color);

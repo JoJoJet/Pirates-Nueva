@@ -30,7 +30,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         void IDrawable<Island>.Draw(ILocalDrawer<Island> drawer) {
-            drawer.DrawCenter(Def.GetTexture(Shape), X, Y, 1, 1);
+            drawer.DrawCenter(Def.GetSprite(Shape), X, Y, 1, 1);
         }
     }
 }

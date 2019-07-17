@@ -2,7 +2,7 @@
 <SliceDefs>
 	<SliceDef ID="panel">
 		<!-- The name of the source texture. -->
-		<TextureID>panel</TextureID>
+		<SpriteID>panel</SpriteID>
 		<Slices>
 			<Left>10</Left>
 			<Right>10</Right>

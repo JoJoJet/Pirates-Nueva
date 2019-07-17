@@ -7,7 +7,7 @@ namespace Pirates_Nueva
 {
     public class ItemDef : Def<ItemDef>
     {
-        public string TextureID { get; }
+        public string SpriteID { get; }
 
         protected override string TypeName => "ItemDef";
         protected override ResourceInfo Resources => new ResourceInfo("items", "ItemDefs");
@@ -16,8 +16,8 @@ namespace Pirates_Nueva
         protected ItemDef(XmlReader reader) : base(reader) {
             using var r = reader.ReadSubtree();
 
-            r.ReadToDescendant("TextureID");
-            TextureID = r.ReadElementTrim();
+            r.ReadToDescendant("SpriteID");
+            SpriteID = r.ReadElementTrim();
         }
     }
 }

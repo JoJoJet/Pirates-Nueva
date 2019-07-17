@@ -686,9 +686,9 @@ namespace Pirates_Nueva.Ocean
             Ship = ship;
         }
 
-        public void DrawCorner(UI.Texture texture, float left, float top, float width, float height, in UI.Color tint)
-            => Draw(texture, left, top, width, height, Angle.Right, (0f, 1f), in tint);
-        public void Draw(UI.Texture texture, float x, float y, float width, float height,
+        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
+            => Draw(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             PointF texOfset = (1, 1) - origin;
             texOfset = (texOfset.X * width, texOfset.Y * height);
@@ -696,7 +696,7 @@ namespace Pirates_Nueva.Ocean
 
             var (seaX, seaY) = Ship.ShipPointToSea(x + texOfset.X, y + texOfset.Y);
 
-            Drawer.Draw(texture, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
+            Drawer.Draw(sprite, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
         }
         public void DrawLine(PointF start, PointF end, in UI.Color color)
             => Drawer.DrawLine(Ship.ShipPointToSea(start), Ship.ShipPointToSea(end), in color);

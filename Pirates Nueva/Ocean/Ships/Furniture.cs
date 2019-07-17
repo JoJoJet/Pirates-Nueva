@@ -33,9 +33,9 @@
         
         /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
         protected override void Draw(ILocalDrawer<Ship> drawer) {
-            var tex = Resources.LoadTexture(Def.TextureID);
+            var tex = Resources.LoadSprite(Def.SpriteID);
 
-            drawer.Draw(tex, X, Y, Def.TextureSize.X, Def.TextureSize.Y, Angle, Def.TextureOrigin);
+            drawer.Draw(tex, X, Y, Def.SpriteSize.X, Def.SpriteSize.Y, Angle, Def.SpriteOrigin);
         }
 
         #region IScreenSpaceTarget Implementation

@@ -11,15 +11,15 @@ namespace Pirates_Nueva
         /// <summary>
         /// The name of the Texture to display onscreen for a <see cref="Furniture"/> with this <see cref="Def"/>.
         /// </summary>
-        public string TextureID { get; }
+        public string SpriteID { get; }
         /// <summary>
-        /// The number of blocks that the Texture of a <see cref="Furniture"/> with this <see cref="Def"/> takes up.
+        /// The number of blocks that the <see cref="UI.Sprite"/> of a <see cref="Furniture"/> with this <see cref="Def"/> takes up.
         /// </summary>
-        public PointI TextureSize { get; }
+        public PointI SpriteSize { get; }
         /// <summary>
-        /// Where the Texture is being drawn from, local to the texture itself. Range: [0, 1].
+        /// Where the <see cref="UI.Sprite"/> is being drawn from, local to the sprite itself. Range: [0, 1].
         /// </summary>
-        public PointF TextureOrigin { get; }
+        public PointF SpriteOrigin { get; }
 
         /// <summary>
         /// Info about the <see cref="Pirates_Nueva.Resources"/> file that contains
@@ -29,7 +29,7 @@ namespace Pirates_Nueva
 
         /// <summary>
         /// Reads the ID attribute of the <see cref="XmlReader"/>, and consumes
-        /// the TextureID, TextureSize, and TextureOrigin nodes.
+        /// the SpriteID, SpriteSize, and SpriteOrigin nodes.
         /// </summary>
         /// <param name="closeReader">
         /// Whether or not the <see cref="XmlReader"/> should be closed after being read from.
@@ -38,14 +38,14 @@ namespace Pirates_Nueva
         protected FurnitureDef(ref XmlReader reader, bool closeReader = true) : base(reader) {
             reader = reader.ReadSubtree();
 
-            reader.ReadToDescendant("TextureID");
-            TextureID = reader.ReadElementTrim();
+            reader.ReadToDescendant("SpriteID");
+            SpriteID = reader.ReadElementTrim();
 
-            reader.ReadToNextSibling("TextureSize");
-            TextureSize = reader.ReadPointI();
+            reader.ReadToNextSibling("SpriteSize");
+            SpriteSize = reader.ReadPointI();
 
-            reader.ReadToNextSibling("TextureOrigin");
-            TextureOrigin = reader.ReadPointF();
+            reader.ReadToNextSibling("SpriteOrigin");
+            SpriteOrigin = reader.ReadPointF();
 
             if(closeReader)
                 reader.Dispose();
