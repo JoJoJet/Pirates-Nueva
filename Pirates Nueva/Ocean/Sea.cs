@@ -7,6 +7,8 @@ namespace Pirates_Nueva.Ocean
     public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities = new List<Entity>();
+        private readonly List<Entity> addBuffer = new List<Entity>();
+        private readonly List<Entity> removeBuffer = new List<Entity>();
 
         public Camera Camera { get; }
 
@@ -33,17 +35,29 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/>.
+        /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
         public void AddEntity(Entity entity) {
-            this.entities.Add(entity);
+            this.addBuffer.Add(entity);
+        }
+        /// <summary>
+        /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.
+        /// </summary>
+        public void RemoveEntity(Entity entity) {
+            this.removeBuffer.Add(entity);
         }
 
         void IUpdatable.Update(Master master, Time delta) {
-            var entities = this.entities.ToArray(); // Copy the list of entities.
-            foreach(var ent in entities) {          // For every entity:
-                if(ent is IUpdatable u)             // If it is updatable,
-                    u.Update(master, delta);        //     call its Update() method.
+            //
+            // Add & remove entities.
+            this.entities.AddRange(this.addBuffer);
+            foreach(var e in this.removeBuffer)
+                this.entities.Remove(e);
+            this.addBuffer.Clear(); this.removeBuffer.Clear();
+
+            foreach(var ent in this.entities) { // For every entity:
+                if(ent is IUpdatable u)         // If it is updatable,
+                    u.Update(master, delta);    //     call its Update() method.
             }
         }
 
