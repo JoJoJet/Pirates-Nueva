@@ -29,13 +29,21 @@ namespace Pirates_Nueva.Ocean
             var isl = Islands as IArchiContract;
             isl.Generate(new Random().Next());
 
-            this.entities.Add(new PlayerShip(this, ShipDef.Get("dinghy")));
+            AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
+        }
+
+        /// <summary>
+        /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/>.
+        /// </summary>
+        public void AddEntity(Entity entity) {
+            this.entities.Add(entity);
         }
 
         void IUpdatable.Update(Master master, Time delta) {
-            foreach(var ent in this.entities) { // For every entity:
-                if(ent is IUpdatable u)         // If it is updatable,
-                    u.Update(master, delta);    //     call its Update() method.
+            var entities = this.entities.ToArray(); // Copy the list of entities.
+            foreach(var ent in entities) {          // For every entity:
+                if(ent is IUpdatable u)             // If it is updatable,
+                    u.Update(master, delta);        //     call its Update() method.
             }
         }
 
