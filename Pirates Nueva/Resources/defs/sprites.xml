@@ -77,4 +77,11 @@
 			<RightTop>31, 31</RightTop>
 		</Cropping>
 	</SpriteDef>
+	<SpriteDef ID="cannonball">
+		<SourceID>cannonball</SourceID>
+		<Cropping>
+			<LeftBottom>0, 0</LeftBottom>
+			<RightTop>15, 15</RightTop>
+		</Cropping>
+	</SpriteDef>
 </SpriteDefs>
