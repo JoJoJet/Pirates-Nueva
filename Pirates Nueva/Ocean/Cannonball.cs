@@ -6,6 +6,8 @@ namespace Pirates_Nueva.Ocean
 {
     public sealed class Cannonball : Entity, IUpdatable, IDrawable<Sea>
     {
+        float distanceTraveled;
+
         public Sea Sea { get; }
 
         public float CenterX { get; private set; }
@@ -28,7 +30,15 @@ namespace Pirates_Nueva.Ocean
         protected override bool IsCollidingPrecise(PointF point) => true;
 
         void IUpdatable.Update(Master master, Time delta) {
-            Center += Velocity * delta * 10;
+            //
+            // Move the shot according to its velocity.
+            var move = Velocity * delta * 30;
+            Center += move;
+            //
+            // Kill the shot if it travels too far.
+            this.distanceTraveled += move.Magnitude;
+            if(this.distanceTraveled > 30)
+                Sea.RemoveEntity(this);
         }
 
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
