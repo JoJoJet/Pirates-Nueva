@@ -7,6 +7,8 @@ namespace Pirates_Nueva.Ocean
     public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities = new List<Entity>();
+        private readonly List<Entity> addBuffer = new List<Entity>();
+        private readonly List<Entity> removeBuffer = new List<Entity>();
 
         public Camera Camera { get; }
 
@@ -29,10 +31,30 @@ namespace Pirates_Nueva.Ocean
             var isl = Islands as IArchiContract;
             isl.Generate(new Random().Next());
 
-            this.entities.Add(new PlayerShip(this, ShipDef.Get("dinghy")));
+            AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
+        }
+
+        /// <summary>
+        /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
+        /// </summary>
+        public void AddEntity(Entity entity) {
+            this.addBuffer.Add(entity);
+        }
+        /// <summary>
+        /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.
+        /// </summary>
+        public void RemoveEntity(Entity entity) {
+            this.removeBuffer.Add(entity);
         }
 
         void IUpdatable.Update(Master master, Time delta) {
+            //
+            // Add & remove entities.
+            this.entities.AddRange(this.addBuffer);
+            foreach(var e in this.removeBuffer)
+                this.entities.Remove(e);
+            this.addBuffer.Clear(); this.removeBuffer.Clear();
+
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
                     u.Update(master, delta);    //     call its Update() method.

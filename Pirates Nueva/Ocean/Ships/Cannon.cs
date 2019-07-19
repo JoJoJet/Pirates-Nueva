@@ -4,7 +4,7 @@ namespace Pirates_Nueva.Ocean
 {
     using Toil = Job<Ship, Block>.Toil;
     using StockSelector = StockSelector<Ship, Block>;
-    public class Cannon : Furniture, IStockClaimant
+    public class Cannon : Furniture, IStockClaimant<Ship, Block>
     {
         private Job<Ship, Block>? haulJob;
 
@@ -21,21 +21,51 @@ namespace Pirates_Nueva.Ocean
         protected override void Update(Master master) {
             base.Update(master);
             //
-            // If the job has been cancelled, unassign it.
+            // If the haul job has been cancelled, unassign it.
             if(this.haulJob?.IsCancelled ?? false) {
                 Ship.RemoveJob(this.haulJob!);
                 this.haulJob = null;
             }
             //
-            // If there is no gunpowder placed at this block.
-            if(!Ship.TryGetStock(X, Y, out var stock) || stock.Def != FuelType) {
+            // If our claimed fuel isn't positioned here, or it isn't the correct type of fuel,
+            // unclaim it.
+            if(Fuel != null && (Fuel != Ship.GetStockOrNull(X, Y) || Fuel.Def != FuelType)) {
+                Fuel.Unclaim(this);
+                Fuel = null;
+            }
+            //
+            // If we don't have any claimed fuel, try to claim some.
+            if(Fuel == null) {
                 //
-                // If we still have some fuel claimed,
-                // unclaim it.
-                if(Fuel != null) {
-                    Fuel.Unclaim(this);
-                    Fuel = null;
+                // If there is already a stock at this cannon with the correct fuel type,
+                // claim it.
+                if(Ship.TryGetStock(X, Y, out var stock) && stock.Def == FuelType && !stock.IsClaimed) {
+                    Fuel = stock;
+                    Fuel.Claim(this);
                 }
+                //
+                // If there is NOT any gunpowder here, make a job to haul some over.
+                else {
+                    haul();
+                }
+            }
+            //
+            // If we have fuel, cancel the haul job.
+            if(Fuel != null && this.haulJob != null) {
+                this.haulJob.Cancel();
+                Ship.RemoveJob(this.haulJob);
+                this.haulJob = null;
+            }
+            if(Fuel != null) {
+                var (x, y) = Ship.ShipPointToSea(X, Y);
+                Ship.Sea.AddEntity(new Cannonball(Ship.Sea, x, y, (Ship.Angle + Angle).Vector));
+                Fuel.Destroy();
+            }
+
+
+            //
+            // Creates a job to haul fuel to this Cannon.
+            void haul() {
                 //
                 // If there's already a job to haul, return early.
                 if(this.haulJob != null)
@@ -69,34 +99,14 @@ namespace Pirates_Nueva.Ocean
                         )
                     );
             }
-            //
-            // If there IS gunpowder here.
-            else {
-                //
-                // If we have already claimed a different Stock,
-                // unclaim it.
-                if(Fuel != null && Fuel != stock) {
-                    Fuel.Unclaim(this);
-                    Fuel = null;
-                }
-                //
-                // If this is the first frame that the gunpowder has existed,
-                // and it is unclaimed, claim it.
-                if(Fuel == null && !stock.IsClaimed) {
-                    Fuel = stock;
-                    Fuel.Claim(this);
-                }
-
-                //
-                // Cancel the job to haul gunpowder, if it still exists.
-                if(Fuel != null && this.haulJob != null) {
-                    this.haulJob.Cancel();
-                    Ship.RemoveJob(this.haulJob);
-                    this.haulJob = null;
-                }
-            }
         }
 
-        public bool Equals(IStockClaimant other) => other == this;
+        bool IStockClaimant<Ship, Block>.Equals(IStockClaimant<Ship, Block> other) => other == this;
+        void IStockClaimant<Ship, Block>.Unclaim(Stock<Ship, Block> stock) {
+            if(stock == Fuel) {
+                Fuel?.Unclaim(this);
+                Fuel = null;
+            }
+        }
     }
 }

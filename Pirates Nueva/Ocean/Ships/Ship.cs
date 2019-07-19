@@ -20,28 +20,14 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         internal static Func<Block, Furniture?, Furniture?> SetBlockFurniture { private protected get; set; }
 
-        public Sea Sea { get; }
-
         public ShipDef Def { get; }
 
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
         public int Width => Def.Width;
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => Def.Height;
-        
-        /// <summary> The X coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterX { get; protected set; }
-        /// <summary> The Y coordinate of the <see cref="Sea"/>-space center of this <see cref="Ship"/>. </summary>
-        public float CenterY { get; protected set; }
-        /// <summary>
-        /// The <see cref="Ocean.Sea"/>-space center of this <see cref="Ship"/>.
-        /// </summary>
-        public PointF Center {
-            get => (CenterX, CenterY);
-            protected set => (CenterX, CenterY) = value;
-        }
 
-        /// <summary> Where this <see cref="Ship"/> is moving towards. </summary>
+        /// <summary> The point that this <see cref="Ship"/> is moving towards. </summary>
         public PointF? Destination { get; protected set; }
 
         /// <summary>
@@ -50,7 +36,7 @@ namespace Pirates_Nueva.Ocean
         public Angle Angle { get; protected set; }
 
         /// <summary>
-        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Ocean.Sea"/>-space.
+        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Sea"/>-space.
         /// </summary>
         public Vector Right => Angle.Vector;
 
@@ -66,8 +52,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
-        public Ship(Sea parent, ShipDef def) {
-            Sea = parent;
+        public Ship(Sea sea, ShipDef def) : base(sea) {
             Def = def;
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
@@ -133,17 +118,17 @@ namespace Pirates_Nueva.Ocean
 
         #region Space Transformation
         /// <summary>
-        /// Transform the input <see cref="PointF"/> from <see cref="Ocean.Sea"/> space
+        /// Transform the input <see cref="PointF"/> from <see cref="Sea"/> space
         /// to a <see cref="PointI"/> representing indices within this <see cref="Ship"/>.
         /// </summary>
-        /// <param name="seaPoint">A pair of coordinates local to the <see cref="Ocean.Sea"/></param>
+        /// <param name="seaPoint">A pair of coordinates local to the <see cref="Sea"/></param>
         public PointI SeaPointToShip(PointF seaPoint) => SeaPointToShip(seaPoint.X, seaPoint.Y);
         /// <summary>
-        /// Transform the input coordinates from <see cref="Ocean.Sea"/>
+        /// Transform the input coordinates from <see cref="Sea"/>
         /// space to a pair of indices within to this <see cref="Ship"/>
         /// </summary>
-        /// <param name="x">The x coordinate local to the <see cref="Ocean.Sea"/>.</param>
-        /// <param name="y">The y coordinate local to the <see cref="Ocean.Sea"/>.</param>
+        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
+        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
         internal (int x, int y) SeaPointToShip(float x, float y) {
             // Coordinates in Sea-space.
             var (seaX, seaY) = (x, y);
@@ -162,7 +147,7 @@ namespace Pirates_Nueva.Ocean
 
         /// <summary>
         /// Transforms the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
-        /// into a <see cref="PointF"/> local to the <see cref="Ocean.Sea"/>.
+        /// into a <see cref="PointF"/> local to the <see cref="Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
         /// has an element of rounding.
@@ -171,7 +156,7 @@ namespace Pirates_Nueva.Ocean
         public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
         /// <summary>
         /// Transforms the input coordinates from coords local to this <see cref="Ship"/> into
-        /// a pair of coordinates local to the <see cref="Ocean.Sea"/>.
+        /// a pair of coordinates local to the <see cref="Sea"/>.
         /// <para />
         /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
         /// has an element of rounding.
