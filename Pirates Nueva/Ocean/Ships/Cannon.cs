@@ -97,5 +97,10 @@ namespace Pirates_Nueva.Ocean
         }
 
         public bool Equals(IStockClaimant other) => other == this;
+
+        void IStockClaimant.Unclaim() {
+            Fuel?.Unclaim(this);
+            Fuel = null;
+        }
     }
 }

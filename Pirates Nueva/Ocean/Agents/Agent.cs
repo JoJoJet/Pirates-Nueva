@@ -113,6 +113,11 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         public bool Equals(IStockClaimant other) => other == this;
+
+        void IStockClaimant.Unclaim() {
+            ClaimedStock?.Unclaim(this);
+            ClaimedStock = null;
+        }
         #endregion
 
         #region IUpdatable Implementation

@@ -4,7 +4,8 @@ namespace Pirates_Nueva.Ocean.Agents
 {
     public interface IStockClaimant : IEquatable<IStockClaimant>
     {
-
+        /// <summary> Unclaims this object's claimed Stock. </summary>
+        void Unclaim();
     }
 
     public abstract class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
@@ -33,6 +34,9 @@ namespace Pirates_Nueva.Ocean.Agents
         public bool IsClaimed => Claimant != null;
         /// <summary> The object that has claimed this Stock, if applicable. </summary>
         public IStockClaimant? Claimant { get; private set; }
+
+        /// <summary> Whether or not this Stock has been destroyed. </summary>
+        public bool IsDestroyed { get; private set; }
 
         protected Stock(ItemDef def, TC container, TSpot spot) {
             Def = def;
@@ -89,6 +93,26 @@ namespace Pirates_Nueva.Ocean.Agents
             Claimant = null;
         }
         #endregion
+
+        /// <summary>
+        /// Marks this <see cref="Stock{TC, TSpot}"/> as destroyed, and removes some references to it.
+        /// </summary>
+        public void Destroy() {
+            //
+            // Remove references to this Stock.
+            if(Holder != null) {
+                Holder.Holding = null;
+            }
+            if(Spot != null) {
+                Spot.Stock = null;
+            }
+            if(Claimant != null) {
+                Claimant.Unclaim();
+            }
+            //
+            // Mark it as desroyed.
+            IsDestroyed = true;
+        }
 
         #region IDrawable Implementation
         void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
