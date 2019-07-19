@@ -56,6 +56,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// Places this instance on the specified spot.
         /// </summary>
         public void Place(TSpot spot) {
+            ThrowIfDestroyed(nameof(Place));
             if(Holder != null) {
                 Holder.Holding = null;
                 Holder = null;
@@ -67,6 +68,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// Puts this instance into the hands of the specified agent.
         /// </summary>
         public void PickUp(Agent<TC, TSpot> holder) {
+            ThrowIfDestroyed(nameof(PickUp));
             if(Spot != null) {
                 Spot.Stock = null;
                 Spot = null;
@@ -78,6 +80,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         #region Claiming
         public void Claim(IStockClaimant claimant) {
+            ThrowIfDestroyed(nameof(Claim));
             if(IsClaimed) {
                 throw new InvalidOperationException("This Stock has already been claimed!");
             }
@@ -95,7 +98,9 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         /// <summary>
-        /// Marks this <see cref="Stock{TC, TSpot}"/> as destroyed, and removes some references to it.
+        /// Marks this <see cref="Stock{TC, TSpot}"/> as destroyed.
+        /// <para />
+        /// Also removes references to it in any of these that apply: <see cref="Claimant"/>, <see cref="Spot"/>, <see cref="Holder"/>.
         /// </summary>
         public void Destroy() {
             //
@@ -114,12 +119,19 @@ namespace Pirates_Nueva.Ocean.Agents
             IsDestroyed = true;
         }
 
+        /// <summary> Throws an exception if this Stock has been destroyed. </summary>
+        protected void ThrowIfDestroyed(string callingMethod) {
+            if(IsDestroyed)
+                throw new InvalidOperationException($"{nameof(Stock<TC, TSpot>)}.{callingMethod}: This Stock has been destroyed!");
+        }
+
         #region IDrawable Implementation
         void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
         protected virtual void Draw(ILocalDrawer<TC> drawer) {
-            var tex = Resources.LoadSprite(Def.SpriteID);
+            if(IsDestroyed) return;
 
+            var tex = Resources.LoadSprite(Def.SpriteID);
             drawer.DrawCenter(tex, X, Y, width: 1, height: 1);
         }
         #endregion
