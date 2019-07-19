@@ -4,7 +4,7 @@ namespace Pirates_Nueva.Ocean
 {
     using Toil = Job<Ship, Block>.Toil;
     using StockSelector = StockSelector<Ship, Block>;
-    public class Cannon : Furniture, IStockClaimant
+    public class Cannon : Furniture, IStockClaimant<Ship, Block>
     {
         private Job<Ship, Block>? haulJob;
 
@@ -96,11 +96,12 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        public bool Equals(IStockClaimant other) => other == this;
-
-        void IStockClaimant.Unclaim() {
-            Fuel?.Unclaim(this);
-            Fuel = null;
+        bool IStockClaimant<Ship, Block>.Equals(IStockClaimant<Ship, Block> other) => other == this;
+        void IStockClaimant<Ship, Block>.Unclaim(Stock<Ship, Block> stock) {
+            if(stock == Fuel) {
+                Fuel?.Unclaim(this);
+                Fuel = null;
+            }
         }
     }
 }

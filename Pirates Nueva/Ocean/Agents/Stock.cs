@@ -2,10 +2,20 @@
 
 namespace Pirates_Nueva.Ocean.Agents
 {
-    public interface IStockClaimant : IEquatable<IStockClaimant>
+    /// <summary>
+    /// An object that can claim <see cref="Stock{TC, TSpot}"/>.
+    /// </summary>
+    public interface IStockClaimant<TC, TSpot>
+        where TC    : class, IAgentContainer<TC, TSpot>
+        where TSpot : class, IAgentSpot<TC, TSpot>
     {
         /// <summary> Unclaims this object's claimed Stock. </summary>
-        void Unclaim();
+        void Unclaim(Stock<TC, TSpot> stock);
+
+        /// <summary>
+        /// Returns whether or not this instance is equal to the specified <see cref="IStockClaimant"/>.
+        /// </summary>
+        bool Equals(IStockClaimant<TC, TSpot> other);
     }
 
     public abstract class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
@@ -33,7 +43,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> Whether or not this Stock is currently claimed. </summary>
         public bool IsClaimed => Claimant != null;
         /// <summary> The object that has claimed this Stock, if applicable. </summary>
-        public IStockClaimant? Claimant { get; private set; }
+        public IStockClaimant<TC, TSpot>? Claimant { get; private set; }
 
         /// <summary> Whether or not this Stock has been destroyed. </summary>
         public bool IsDestroyed { get; private set; }
@@ -79,14 +89,14 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region Claiming
-        public void Claim(IStockClaimant claimant) {
+        public void Claim(IStockClaimant<TC, TSpot> claimant) {
             ThrowIfDestroyed(nameof(Claim));
             if(IsClaimed) {
                 throw new InvalidOperationException("This Stock has already been claimed!");
             }
             Claimant = claimant;
         }
-        public void Unclaim(IStockClaimant claimant) {
+        public void Unclaim(IStockClaimant<TC, TSpot> claimant) {
             if(Claimant is null) {
                 throw new InvalidOperationException("This stock is not claimed!");
             }
@@ -112,7 +122,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 Spot.Stock = null;
             }
             if(Claimant != null) {
-                Claimant.Unclaim();
+                Claimant.Unclaim(this);
             }
             //
             // Mark it as desroyed.

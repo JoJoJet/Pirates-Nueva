@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
-    public abstract class Agent<TC, TSpot> : IStockClaimant, IUpdatable, IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
+    public abstract class Agent<TC, TSpot> : IStockClaimant<TC, TSpot>, IUpdatable, IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -112,11 +112,12 @@ namespace Pirates_Nueva.Ocean.Agents
             ClaimedStock = null;        // Unassign it.
         }
 
-        public bool Equals(IStockClaimant other) => other == this;
-
-        void IStockClaimant.Unclaim() {
-            ClaimedStock?.Unclaim(this);
-            ClaimedStock = null;
+        bool IStockClaimant<TC, TSpot>.Equals(IStockClaimant<TC, TSpot> other) => other == this;
+        void IStockClaimant<TC, TSpot>.Unclaim(Stock<TC, TSpot> stock) {
+            if(stock == ClaimedStock) {
+                ClaimedStock?.Unclaim(this);
+                ClaimedStock = null;
+            }
         }
         #endregion
 
