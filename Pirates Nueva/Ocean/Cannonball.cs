@@ -8,19 +8,9 @@ namespace Pirates_Nueva.Ocean
     {
         float distanceTraveled;
 
-        public Sea Sea { get; }
-
-        public float CenterX { get; private set; }
-        public float CenterY { get; private set; }
-        public PointF Center {
-            get => (CenterX, CenterY);
-            private set => (CenterX, CenterY) = value;
-        }
-
         public Vector Velocity { get; private set; }
 
-        public Cannonball(Sea sea, float centerX, float centerY, Vector velocity) {
-            Sea = sea;
+        public Cannonball(Sea sea, float centerX, float centerY, Vector velocity) : base(sea) {
             (CenterX, CenterY) = (centerX, centerY);
             Velocity = velocity;
         }
