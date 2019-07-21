@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva.Ocean
@@ -32,28 +33,39 @@ namespace Pirates_Nueva.Ocean
             isl.Generate(new Random().Next());
 
             AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
+            AddEntity(new EnemyShip(this, ShipDef.Get("dinghy"), 5, 30));
         }
 
         /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
         public void AddEntity(Entity entity) {
-            this.addBuffer.Add(entity);
+            this.addBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         }
         /// <summary>
         /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.
         /// </summary>
         public void RemoveEntity(Entity entity) {
-            this.removeBuffer.Add(entity);
+            this.removeBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         }
+
+        /// <summary>
+        /// Finds and returns an entity that matches the specified predicate.
+        /// </summary>
+        public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
         void IUpdatable.Update(Master master, Time delta) {
             //
             // Add & remove entities.
-            this.entities.AddRange(this.addBuffer);
-            foreach(var e in this.removeBuffer)
-                this.entities.Remove(e);
-            this.addBuffer.Clear(); this.removeBuffer.Clear();
+            if(this.addBuffer.Count > 0) {
+                this.entities.AddRange(this.addBuffer);
+                this.addBuffer.Clear();
+            }
+            if(this.removeBuffer.Count > 0) {
+                foreach(var e in this.removeBuffer)
+                    this.entities.Remove(e);
+                this.removeBuffer.Clear();
+            }
 
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
