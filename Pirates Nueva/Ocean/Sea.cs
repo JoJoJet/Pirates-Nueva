@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva.Ocean
 {
     public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
     {
-        private readonly List<Entity> entities = new List<Entity>();
-        private readonly List<Entity> addBuffer = new List<Entity>();
-        private readonly List<Entity> removeBuffer = new List<Entity>();
+        private readonly List<Entity> entities     = new List<Entity>(),
+                                      addBuffer    = new List<Entity>(),
+                                      removeBuffer = new List<Entity>();
 
         public Camera Camera { get; }
 
@@ -27,10 +26,9 @@ namespace Pirates_Nueva.Ocean
             Master = master;
             Camera = new Camera(this);
 
+            //
             // Generate the islands.
-            Islands = new Archipelago(this);
-            var isl = Islands as IArchiContract;
-            isl.Generate(new Random().Next());
+            Islands = new Archipelago(this, new Random().Next());
 
             AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
             AddEntity(new EnemyShip(this, ShipDef.Get("dinghy"), 5, 30));
@@ -137,35 +135,14 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
-        /// <summary> Allows some methods to be accessible only within the <see cref="Sea"/> class. </summary>
-        private interface IArchiContract
+        public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>
         {
-            void Generate(int seed);
-        }
-        public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>, IArchiContract
-        {
-            private Sea sea;
-            private Island[,]? islands;
+            private readonly Sea sea;
+            private readonly Island?[,] islands;
 
-            internal Archipelago(Sea sea) {
+            public Archipelago(Sea sea, int seed) {
                 this.sea = sea;
-            }
 
-            /// <summary> Gets the <see cref="Island"> at the specified index. </summary>
-            public Island? this[int x, int y] {
-                get {
-                    if(islands == null) {
-                        ThrowNotInitialized();
-                        return null;
-                    }
-                    if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
-                        return this.islands[x, y];
-                    else
-                        return null;
-                }
-            }
-
-            void IArchiContract.Generate(int seed) {
                 const int Width = 10, Height = 10;
                 const int Chance = 45;
 
@@ -184,16 +161,22 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
+            /// <summary> Gets the <see cref="Island"> at the specified index. </summary>
+            public Island? this[int x, int y] {
+                get {
+                    if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
+                        return this.islands[x, y];
+                    else
+                        return null;
+                }
+            }
+
             #region IEnumerable Implementation
             public IEnumerator<Island> GetEnumerator() {
-                if(islands == null) {
-                    ThrowNotInitialized();
-                    yield break;
-                }
                 for(int x = 0; x < islands.GetLength(0); x++) {     // For every spot in the archipelago:
                     for(int y = 0; y < islands.GetLength(1); y++) { //
-                        if(islands[x, y] != null)                   // If there is an island there,
-                            yield return islands[x, y];             //     return it.
+                        if(islands[x, y] is Island isl)             // If there is an island there,
+                            yield return isl;                       //     return it.
                     }
                 }
             }
