@@ -20,6 +20,7 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         void RemoveJob(Job<TSelf, TSpot> job);
     }
+
     /// <summary>
     /// An object that an Agent can stand on.
     /// </summary>
@@ -33,5 +34,23 @@ namespace Pirates_Nueva.Ocean.Agents
         int Y { get; }
         PointI Index { get; }
         Stock<TC, TSelf>? Stock { get; set; }
+    }
+    /// <summary>
+    /// An <see cref="IAgentSpot{TC, TSelf}"/> that can be destroyed.
+    /// <para />
+    /// The blocks of a <see cref="Ship"/> might be destroyable,
+    /// whereas the blocks of an <see cref="Island"/> might not be.
+    /// </summary>
+    /// <typeparam name="TC">The container type.</typeparam>
+    /// <typeparam name="TSelf">The type that is implementing this interface.</typeparam>
+    public interface IAgentSpotDestroyable<TC, TSelf> : IAgentSpot<TC, TSelf>
+        where TC    : class, IAgentContainer<TC, TSelf>
+        where TSelf : class, IAgentSpotDestroyable<TC, TSelf>
+    {
+        /// <summary> Whether or not this Spot has been destroyed. </summary>
+        bool IsDestroyed { get; }
+
+        void SubscribeOnDestroyed(System.Action<TSelf> action);
+        void UnsubscribeOnDestroyed(System.Action<TSelf> action);
     }
 }

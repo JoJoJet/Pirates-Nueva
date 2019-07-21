@@ -4,8 +4,10 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>
+    public class Block : Ship.Part, IAgentSpotDestroyable<Ship, Block>, Path.INode<Block>
     {
+        private List<Action<Block>> onDestroyed = new List<Action<Block>>();
+
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
@@ -30,6 +32,9 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Stock<Ship, Block>? Stock { get; set; }
 
+        /// <summary> Whether or not this <see cref="Block"/> has been destroyed. </summary>
+        public bool IsDestroyed { get; private set; }
+
         /// <summary>
         /// Static constructor. Is called the first time that this class is mentioned.
         /// </summary>
@@ -49,6 +54,17 @@ namespace Pirates_Nueva.Ocean
             Def = def;
             X = x;
             Y = y;
+        }
+
+        public void SubscribeOnDestroyed(Action<Block> action) => this.onDestroyed.Add(action);
+        public void UnsubscribeOnDestroyed(Action<Block> action) => this.onDestroyed.Remove(action);
+
+        /// <summary> Destroys this <see cref="Block"/>. </summary>
+        public void Destroy() {
+            IsDestroyed = true;
+            foreach(var act in this.onDestroyed) {
+                act.Invoke(this);
+            }
         }
 
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>

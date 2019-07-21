@@ -226,9 +226,15 @@ namespace Pirates_Nueva.Ocean
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
         public Block PlaceBlock(BlockDef def, int x, int y) {
             ValidateIndices(nameof(PlaceBlock), x, y);
-            
-            if(unsafeGetBlock(x, y) == null)                           // If there is NOT a Block at /x/, /y/,
-                return this.blocks[x, y] = new Block(this, def, x, y); //     place a Block there and return it.
+
+            if(unsafeGetBlock(x, y) == null) {          // If there is NOT a Block at /x/, /y/,
+                var block = new Block(this, def, x, y); //     place a block there,
+                block.SubscribeOnDestroyed(b => {       //     sign up to be notified of its destruction,
+                    if(HasBlock(b.X, b.Y))              //
+                        DestroyBlock(b.X, b.Y);          //
+                });                                     //
+                return this.blocks[x, y] = block;       //     and return it.
+            }
             else                                                       // If there IS a Block at /x/, /y/,
                 throw new InvalidOperationException(                   //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
@@ -236,20 +242,20 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Removes the block at position (/x/, /y/).
+        /// Destroys the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Block RemoveBlock(int x, int y) {
-            ValidateIndices(nameof(RemoveBlock), x, y);
+        public void DestroyBlock(int x, int y) {
+            ValidateIndices(nameof(DestroyBlock), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) { // If there is a Block at /x/, /y/,
-                this.blocks[x, y] = null;         //     remove it,
-                return b;                         //     and then return it.
+                this.blocks[x, y] = null;         //     remove it from this ship,
+                b.Destroy();                      //     and destroy it.
             }
             else {                                   // If there is no Block at /x/, /y/,
                 throw new InvalidOperationException( //    throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
+                    $"{nameof(Ship)}.{nameof(DestroyBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
             }
         }
