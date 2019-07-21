@@ -513,16 +513,16 @@ namespace Pirates_Nueva.Ocean
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlockOrNull(x, y) is Block b)
-                        DrawPart(b, drawer);
+                    if(GetBlockOrNull(x, y) is IDrawable<Ship> b)
+                        b.Draw(drawer);
                 }
             }
 
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurnitureOrNull(x, y) is Furniture f)
-                        DrawPart(f, drawer);
+                    if(GetFurnitureOrNull(x, y) is IDrawable<Ship> f)
+                        f.Draw(drawer);
                 }
             }
 
@@ -544,9 +544,6 @@ namespace Pirates_Nueva.Ocean
                 (agent as IDrawable<Ship>).Draw(drawer);
             }
         }
-
-        /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
-        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IDrawable<Ship>).Draw(drawer);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -600,7 +597,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IFocusable, IDrawable<Ship>, IShipPart
+        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, UI.IScreenSpaceTarget
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -654,6 +651,12 @@ namespace Pirates_Nueva.Ocean
                 public virtual void Update(Master master) {  }
                 public virtual void Close(Master master) {  }
             }
+            #endregion
+
+            #region IScreenSpaceTarget Implementation
+            private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
+            int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+            int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
             #endregion
         }
     }

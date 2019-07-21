@@ -4,12 +4,12 @@
     /// A relative direction.
     /// </summary>
     public enum Dir { Up, Right, Down, Left };
-    public class Furniture : Ship.Part, UI.IScreenSpaceTarget
+    public class Furniture : Ship.Part
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Furniture"/>. </summary>
         public override Ship Ship => Floor.Ship;
 
-        public FurnitureDef Def { get; private set; }
+        public FurnitureDef Def { get; }
         public string ID => Def.ID;
 
         /// <summary>
@@ -37,12 +37,6 @@
 
             drawer.Draw(tex, X, Y, Def.SpriteSize.X, Def.SpriteSize.Y, Angle, Def.SpriteOrigin);
         }
-
-        #region IScreenSpaceTarget Implementation
-        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
-        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
-        #endregion
 
         #region IFocusable Implementation
         protected override IFocusMenuProvider GetFocusProvider(Master master)

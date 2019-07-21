@@ -4,7 +4,7 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
@@ -57,12 +57,6 @@ namespace Pirates_Nueva.Ocean
 
             drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));
         }
-
-        #region IScreenSpaceTarget Implementation
-        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
-        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
-        #endregion
 
         #region IFocusable Implementation
         protected override IFocusMenuProvider GetFocusProvider(Master master)
