@@ -485,13 +485,13 @@ namespace Pirates_Nueva.Ocean
             // Update every part in the ship.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlockOrNull(x, y) is IPartContract b)
+                    if(GetBlockOrNull(x, y) is IShipPart b)
                         b.Update(master);
                 }
             }
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurnitureOrNull(x, y) is IPartContract f)
+                    if(GetFurnitureOrNull(x, y) is IShipPart f)
                         f.Update(master);
                 }
             }
@@ -546,7 +546,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
-        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IPartContract).Draw(drawer);
+        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IDrawable<Ship>).Draw(drawer);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -593,15 +593,14 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Makes some members of <see cref="Part"/> accessible only within this class.
         /// </summary>
-        private interface IPartContract
+        private interface IShipPart
         {
             void Update(Master master);
-            void Draw(ILocalDrawer<Ship> drawer);
         }
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IFocusable, IPartContract
+        public abstract class Part : IFocusable, IDrawable<Ship>, IShipPart
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -623,15 +622,13 @@ namespace Pirates_Nueva.Ocean
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
-            #region IPartContract Implementation
-            void IPartContract.Update(Master master) => Update(master);
+            void IShipPart.Update(Master master) => Update(master);
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IPartContract.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
+            void IDrawable<Ship>.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
             protected abstract void Draw(ILocalDrawer<Ship> drawer);
-            #endregion
 
             #region IFocusable Implementation
             bool IFocusable.IsFocused { set => IsFocused = value; }
