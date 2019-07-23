@@ -1,4 +1,5 @@
-﻿using Pirates_Nueva.Path;
+﻿using System;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean.Agents
 {
@@ -45,12 +46,34 @@ namespace Pirates_Nueva.Ocean.Agents
     /// <typeparam name="TSelf">The type that is implementing this interface.</typeparam>
     public interface IAgentSpotDestroyable<TC, TSelf> : IAgentSpot<TC, TSelf>
         where TC    : class, IAgentContainer<TC, TSelf>
-        where TSelf : class, IAgentSpotDestroyable<TC, TSelf>
+        where TSelf : class, IAgentSpot<TC, TSelf>
     {
         /// <summary> Whether or not this Spot has been destroyed. </summary>
         bool IsDestroyed { get; }
 
-        void SubscribeOnDestroyed(System.Action<TSelf> action);
-        void UnsubscribeOnDestroyed(System.Action<TSelf> action);
+        /// <summary> Subscribes the specified function to be invoked if this Spot is destroyed. </summary>
+        void SubscribeOnDestroyed(Action<TSelf> action);
+        /// <summary> Unsubscribes the specified <see cref="Action"/> from being invoked if this Spot is destroyed. </summary>
+        void UnsubscribeOnDestroyed(Action<TSelf> action);
+    }
+
+    public static class AgentSpotExt
+    {
+        /// <summary> Returns whether or not the current Spot has been destroyed. </summary>
+        public static bool IsDestroyed<TC, TSpot>(this IAgentSpot<TC, TSpot> spot)
+            where TC    : class, IAgentContainer<TC, TSpot>
+            where TSpot : class, IAgentSpot<TC, TSpot>
+            => (spot as IAgentSpotDestroyable<TC, TSpot>)?.IsDestroyed ?? false;
+
+        /// <summary> Subscribes the specified function to be invoked if this Spot is destroyed. </summary>
+        public static void SubscribeOnDestroyed<TC, TSpot>(this IAgentSpot<TC, TSpot> spot, Action<TSpot> action)
+            where TC    : class, IAgentContainer<TC, TSpot>
+            where TSpot : class, IAgentSpot<TC, TSpot>
+            => (spot as IAgentSpotDestroyable<TC, TSpot>)?.SubscribeOnDestroyed(action);
+        /// <summary> Unsubscribes the specified <see cref="Action"/> from being invoked if this Spot is destroyed. </summary>
+        public static void UnsubscribeOnDestroyed<TC, TSpot>(this IAgentSpot<TC, TSpot> spot, Action<TSpot> action)
+            where TC    : class, IAgentContainer<TC, TSpot>
+            where TSpot : class, IAgentSpot<TC, TSpot>
+            => (spot as IAgentSpotDestroyable<TC, TSpot>)?.UnsubscribeOnDestroyed(action);
     }
 }
