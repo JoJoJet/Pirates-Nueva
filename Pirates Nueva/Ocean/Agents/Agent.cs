@@ -42,6 +42,8 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The end of this <see cref="Agent"/>'s current path. Null if there is no path. </summary>
         public TSpot? PathEnd => Path.Count > 0 ? Path.Last() : null;
 
+        /// <summary> Checks if the specified Spot could be the destination. </summary>
+        protected IsAtDestination<TSpot>? Destination { get; private set; }
 
         protected Stack<TSpot> Path {
             get => this._path ?? (this._path = new Stack<TSpot>());
@@ -72,12 +74,27 @@ namespace Pirates_Nueva.Ocean.Agents
 
         /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
         public void PathTo(TSpot target) {
+            Destination = n => n.Equals(target);
             Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
+            foreach(var spot in Path)
+                spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
         /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
         public void PathTo(IsAtDestination<TSpot> destination) {
+            Destination = destination;
             Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
+            foreach(var spot in Path)
+                spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
+
+        private void RecalculatePath() {
+            const string Sig = nameof(Agent<TC, TSpot>) + "." + nameof(RecalculatePath) + "()";
+            if(Destination is null)
+                throw new InvalidOperationException($"{Sig}: This Agent has no path to recalculate!");
+            PathTo(Destination);
+        }
+
+        private void OnPathDestroyed(TSpot spot) => RecalculatePath();
         #endregion
 
         #region Stock Claiming
@@ -172,14 +189,19 @@ namespace Pirates_Nueva.Ocean.Agents
                 NextSpot?.UnsubscribeOnDestroyed(onNextDestroyed);   // Unsub from the old reference to the next spot.
                 if(Path.Count > 0) {                                 // If we're currenty on a path,
                     NextSpot = Path.Pop();                           // |   grab the next spot from the path.
+                    NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);// |
                     if(NextSpot.IsDestroyed()) {                     // |   If the next spot has been destroyed,
                         NextSpot = null;                             // |   |   remove the reference to it.
-                        if(PathEnd != null) {                      // |   |   If there's still an endpoint to the path,
-                            PathTo(PathEnd);                       // |   |   |   recalculate the path,
+                        if(Destination != null) {                    // |   |   If there's still an endpoint to the path,
+                            RecalculatePath();                       // |   |   |   recalculate the path,
                             NextSpot = Path.Pop();                   // |   |   |   and grab the first block from it.
+                            NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);
                         }                                            // | 
                     }                                                // | 
-                    NextSpot?.SubscribeOnDestroyed(onNextDestroyed); // | Subsribe to the next spot, if it isn't null.
+                    NextSpot?.SubscribeOnDestroyed(onNextDestroyed); // |   Subsribe to the next spot, if it isn't null.
+                                                                     // |
+                    if(Path.Count == 0)                              // |   If that was the last spot in the path,
+                        Destination = null;                          // |   |   unassign the reference to the destination.
                 }                                                    // |
                 else {                                               // If we are NOT on a path,
                     NextSpot = null;                                 // |   remove our reference to the next spot.
