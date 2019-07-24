@@ -104,15 +104,20 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
 
+        private static void OnCurrentDestroyed(TSpot spot) => throw new InvalidOperationException("The agent's current block was destroyed!");
+        private void OnNextDestroyed(TSpot spot) {
+            NextSpot = null;
+            MoveProgress = 0f;
+            RecalculatePath();
+        }
+        private void OnPathDestroyed(TSpot spot) => RecalculatePath();
+
         private void RecalculatePath() {
             const string Sig = nameof(Agent<TC, TSpot>) + "." + nameof(RecalculatePath) + "()";
             if(Destination is null)
                 throw new InvalidOperationException($"{Sig}: This Agent has no path to recalculate!");
             PathTo(Destination);
         }
-
-        private void OnPathDestroyed(TSpot spot) => RecalculatePath();
-        private void OnNextDestroyed(TSpot spot) {  }
         #endregion
 
         #region Stock Claiming
@@ -187,9 +192,9 @@ namespace Pirates_Nueva.Ocean.Agents
                 MoveProgress += delta * 1.5f;                               // Increment our progress towards the next spot.
                                                                             //
                 if(MoveProgress >= 1) {                                     // If we've reached the next spot,
-                    CurrentSpot.UnsubscribeOnDestroyed(onCurrentDestroyed); // |   unsub from the old spot,
+                    CurrentSpot.UnsubscribeOnDestroyed(OnCurrentDestroyed); // |   unsub from the old spot,
                     CurrentSpot = NextSpot;                                 // |   assign the next as the current spot,
-                    CurrentSpot.SubscribeOnDestroyed(onCurrentDestroyed);   // |   and sub to the new one.
+                    CurrentSpot.SubscribeOnDestroyed(OnCurrentDestroyed);   // |   and sub to the new one.
                                                                             // |   
                     PopPath();                                              // |   Find an new next spot.
                     if(NextSpot != null)                                    // |   If there's still another spot,
@@ -198,8 +203,6 @@ namespace Pirates_Nueva.Ocean.Agents
                         MoveProgress = 0f;                                  // |   |   set out move progress to 0.
                 }
             }
-
-            static void onCurrentDestroyed(TSpot s) => throw new InvalidOperationException("The agent's current block was destroyed!");
         }
         #endregion
 
