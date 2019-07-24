@@ -54,9 +54,7 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         #region Pathing
-        /// <summary>
-        /// Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>.
-        /// </summary>
+        /// <summary> Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>. </summary>
         public bool IsAccessible(TSpot target)
             => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
         /// <summary>
@@ -64,20 +62,18 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         public bool IsAccessible(IsAtDestination<TSpot> destination)
             => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
-        /// <summary>
-        /// Finds the closest accessible Spot that matches <paramref name="destination"/>.
-        /// </summary>
+        /// <summary> Finds the closest accessible Spot that matches <paramref name="destination"/>. </summary>
         public TSpot? FindAccessible(IsAtDestination<TSpot> destination)
             => Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
 
-        /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
+        /// <summary> Has this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
         public void PathTo(TSpot target) {
             Destination = n => n.Equals(target);
             this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
             foreach(var spot in this.path)
                 spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
-        /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
+        /// <summary> Has this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
         public void PathTo(IsAtDestination<TSpot> destination) {
             Destination = destination;
             this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
@@ -112,6 +108,7 @@ namespace Pirates_Nueva.Ocean.Agents
         }
         private void OnPathDestroyed(TSpot spot) => RecalculatePath();
 
+        /// <summary> Finds a new path to the current <see cref="Destination"/>. </summary>
         private void RecalculatePath() {
             const string Sig = nameof(Agent<TC, TSpot>) + "." + nameof(RecalculatePath) + "()";
             if(Destination is null)
