@@ -87,6 +87,25 @@ namespace Pirates_Nueva.Ocean.Agents
                 spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
 
+        /// <summary>
+        /// Grabs the next Spot from the path, and assigns it to <see cref="NextSpot"/>.
+        /// <para /> Also handles subscribing and unsubscribing.
+        /// </summary>
+        private void PopPath() {
+            NextSpot?.UnsubscribeOnDestroyed(OnNextDestroyed);   // Unsub from the old reference to the next spot.
+            if(Path.Count > 0) {                                 // If we're currenty on a path,
+                NextSpot = Path.Pop();                           // |   grab the next spot from the path.
+                NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);// |   Unsubscribe from recalculating the path,
+                NextSpot.SubscribeOnDestroyed(OnNextDestroyed);  // |   and subsribe to the next spot.
+                                                                 // |
+                if(Path.Count == 0)                              // |   If that was the last spot in the path,
+                    Destination = null;                          // |   |   unassign the reference to the destination.
+            }                                                    // |
+            else {                                               // If we are NOT on a path,
+                NextSpot = null;                                 // |   remove our reference to the next spot.
+            }
+        }
+
         private void RecalculatePath() {
             const string Sig = nameof(Agent<TC, TSpot>) + "." + nameof(RecalculatePath) + "()";
             if(Destination is null)
@@ -95,6 +114,7 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         private void OnPathDestroyed(TSpot spot) => RecalculatePath();
+        private void OnNextDestroyed(TSpot spot) {  }
         #endregion
 
         #region Stock Claiming
@@ -164,7 +184,7 @@ namespace Pirates_Nueva.Ocean.Agents
             }
 
             if(NextSpot == null && Path.Count > 0) { // If we're on a path but aren't moving yet,
-                pop();                               // |   start moving.
+                PopPath();                           // |   start moving down the path.
             }
 
             if(NextSpot != null) {                                          // When we're moving on a path.
@@ -175,7 +195,7 @@ namespace Pirates_Nueva.Ocean.Agents
                     CurrentSpot = NextSpot;                                 // |   assign the next as the current spot,
                     CurrentSpot.SubscribeOnDestroyed(onCurrentDestroyed);   // |   and sub to the new one.
                                                                             // |   
-                    pop();                                                  // |   Find an new next spot.
+                    PopPath();                                              // |   Find an new next spot.
                     if(NextSpot != null)                                    // |   If there's still another spot,
                         MoveProgress -= 1f;                                 // |   |   subtract 1 from our move progress.
                     else                                                    // |   If there's no more spots,
@@ -183,33 +203,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 }
             }
 
-            //
-            // Grabs the next spot from the path, and assigns it to NextSpot.
-            void pop() {
-                NextSpot?.UnsubscribeOnDestroyed(onNextDestroyed);   // Unsub from the old reference to the next spot.
-                if(Path.Count > 0) {                                 // If we're currenty on a path,
-                    NextSpot = Path.Pop();                           // |   grab the next spot from the path.
-                    NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);// |
-                    if(NextSpot.IsDestroyed()) {                     // |   If the next spot has been destroyed,
-                        NextSpot = null;                             // |   |   remove the reference to it.
-                        if(Destination != null) {                    // |   |   If there's still an endpoint to the path,
-                            RecalculatePath();                       // |   |   |   recalculate the path,
-                            NextSpot = Path.Pop();                   // |   |   |   and grab the first block from it.
-                            NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);
-                        }                                            // | 
-                    }                                                // | 
-                    NextSpot?.SubscribeOnDestroyed(onNextDestroyed); // |   Subsribe to the next spot, if it isn't null.
-                                                                     // |
-                    if(Path.Count == 0)                              // |   If that was the last spot in the path,
-                        Destination = null;                          // |   |   unassign the reference to the destination.
-                }                                                    // |
-                else {                                               // If we are NOT on a path,
-                    NextSpot = null;                                 // |   remove our reference to the next spot.
-                }
-            }
-
             static void onCurrentDestroyed(TSpot s) => throw new InvalidOperationException("The agent's current block was destroyed!");
-            static void onNextDestroyed(TSpot s) {  }
         }
         #endregion
 
