@@ -39,11 +39,9 @@ namespace Pirates_Nueva.Ocean.Agents
 
         public Job<TC, TSpot>? Job { get; protected set; }
 
-        /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
-        private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
+        /// <summary> The end of this <see cref="Agent"/>'s current path. Null if there is no path. </summary>
+        public TSpot? PathEnd => Path.Count > 0 ? Path.Last() : null;
 
-        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Null if there is no path. </summary>
-        public TSpot? PathingTo => Path.Count > 0 ? Path.Last() : null;
 
         protected Stack<TSpot> Path {
             get => this._path ?? (this._path = new Stack<TSpot>());
@@ -59,21 +57,18 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary>
         /// Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>.
         /// </summary>
-        public bool IsAccessible(TSpot target) {
-            return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
-        }
+        public bool IsAccessible(TSpot target)
+            => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
         /// <summary>
         /// Returns whether or not this <see cref="Agent"/> can access a Spot that matches <paramref name="destination"/>.
         /// </summary>
-        public bool IsAccessible(IsAtDestination<TSpot> destination) {
-            return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
-        }
+        public bool IsAccessible(IsAtDestination<TSpot> destination)
+            => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
         /// <summary>
         /// Finds the closest accessible Spot that matches <paramref name="destination"/>.
         /// </summary>
-        public TSpot? FindAccessible(IsAtDestination<TSpot> destination) {
-            return Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
-        }
+        public TSpot? FindAccessible(IsAtDestination<TSpot> destination)
+            => Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
 
         /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
         public void PathTo(TSpot target) {
@@ -120,6 +115,9 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
         #endregion
+
+        /// <summary> Linearly interpolates between two values, by amount /f/. </summary>
+        private static float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
@@ -176,8 +174,8 @@ namespace Pirates_Nueva.Ocean.Agents
                     NextSpot = Path.Pop();                           // |   grab the next spot from the path.
                     if(NextSpot.IsDestroyed()) {                     // |   If the next spot has been destroyed,
                         NextSpot = null;                             // |   |   remove the reference to it.
-                        if(PathingTo != null) {                      // |   |   If there's still an endpoint to the path,
-                            PathTo(PathingTo);                       // |   |   |   recalculate the path,
+                        if(PathEnd != null) {                      // |   |   If there's still an endpoint to the path,
+                            PathTo(PathEnd);                       // |   |   |   recalculate the path,
                             NextSpot = Path.Pop();                   // |   |   |   and grab the first block from it.
                         }                                            // | 
                     }                                                // | 

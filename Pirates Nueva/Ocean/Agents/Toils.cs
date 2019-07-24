@@ -114,7 +114,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
             this.worker = worker;
-            if(worker.PathingTo == null) {                     // If the worker is currently still:
+            if(worker.PathEnd == null) {                     // If the worker is currently still:
                 if(IsAtDestination(worker.CurrentSpot)) {      //     If its standing next to the toil,
                     this.worker = null;
                     return true;                               //         return true.
@@ -126,7 +126,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 }                                              //
             }                                                  //
             else {                                             // If the worker is currently pathing:
-                if(IsAtDestination(worker.PathingTo) == false) //     if the worker's destination is not adjacent to the toil,
+                if(IsAtDestination(worker.PathEnd) == false) //     if the worker's destination is not adjacent to the toil,
                     worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil.
                 this.worker = null;
                 return false;                                  //     Return false.
