@@ -14,7 +14,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        private Stack<TSpot>? _path;
+        private Stack<TSpot>? path;
 
         /// <summary> The object that contains this <see cref="Agent{TC, TSpot}"/>. </summary>
         protected TC Container { get; }
@@ -40,15 +40,13 @@ namespace Pirates_Nueva.Ocean.Agents
         public Job<TC, TSpot>? Job { get; protected set; }
 
         /// <summary> The end of this <see cref="Agent"/>'s current path. Null if there is no path. </summary>
-        public TSpot? PathEnd => Path.Count > 0 ? Path.Last() : null;
+        public TSpot? PathEnd => this.path?.Count > 0 ? this.path.Last() : null;
+
+        /// <summary> Whether or not this <see cref="Agent"/> currently has a path. </summary>
+        public bool HasPath => this.path?.Count > 0;
 
         /// <summary> Checks if the specified Spot could be the destination. </summary>
         protected IsAtDestination<TSpot>? Destination { get; private set; }
-
-        protected Stack<TSpot> Path {
-            get => this._path ?? (this._path = new Stack<TSpot>());
-            set => this._path = value;
-        }
 
         public Agent(TC container, TSpot floor) {
             Container = container;
@@ -75,15 +73,15 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
         public void PathTo(TSpot target) {
             Destination = n => n.Equals(target);
-            Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
-            foreach(var spot in Path)
+            this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
+            foreach(var spot in this.path)
                 spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
         /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
         public void PathTo(IsAtDestination<TSpot> destination) {
             Destination = destination;
-            Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
-            foreach(var spot in Path)
+            this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
+            foreach(var spot in this.path)
                 spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
 
@@ -93,12 +91,12 @@ namespace Pirates_Nueva.Ocean.Agents
         /// </summary>
         private void PopPath() {
             NextSpot?.UnsubscribeOnDestroyed(OnNextDestroyed);   // Unsub from the old reference to the next spot.
-            if(Path.Count > 0) {                                 // If we're currenty on a path,
-                NextSpot = Path.Pop();                           // |   grab the next spot from the path.
+            if(this.path?.Count > 0) {                           // If we're currenty on a path,
+                NextSpot = this.path.Pop();                      // |   grab the next spot from the path.
                 NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);// |   Unsubscribe from recalculating the path,
                 NextSpot.SubscribeOnDestroyed(OnNextDestroyed);  // |   and subsribe to the next spot.
                                                                  // |
-                if(Path.Count == 0)                              // |   If that was the last spot in the path,
+                if(this.path.Count == 0)                         // |   If that was the last spot in the path,
                     Destination = null;                          // |   |   unassign the reference to the destination.
             }                                                    // |
             else {                                               // If we are NOT on a path,
@@ -182,7 +180,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 }
             }
 
-            if(NextSpot == null && Path.Count > 0) {                        // If we're on a path but aren't moving yet,
+            if(NextSpot == null && HasPath) {                               // If we're on a path but aren't moving yet,
                 PopPath();                                                  // |   start moving down the path.
             }                                                               //
             if(NextSpot != null) {                                          // When we're moving on a path:
