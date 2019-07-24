@@ -161,33 +161,31 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master, Time delta) {
             if(Job == null) {                         // If this agent has no job,
-                Job = Container.GetWorkableJob(this); //     get a workable job from the ship,
-                if(Job != null)                       //     If there was a workable job,
-                    Job.Assign(this);                 //         assign this agent to it.
-            }
-
-            if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
-                Container.RemoveJob(Job!);  // |   remove it from the container,
-                Job = null;                 // |   and unassign it.
-            }
-            if(Job != null) {                     // If there is a job:
-                if(Job.Qualify(this, out _)) {    // |   If the job is workable,
-                    if(Job.Work(this, delta)) {   // |   |   work it. If it's done,
-                        Container.RemoveJob(Job); // |   |   |   remove the job from the ship,
-                        Job = null;               // |   |   |   and unassign it.
-                    }                             // |
-                }                                 // |
-                else {                            // |   If the job is not workable,
-                    Job.Quit(this);               // |   |   unassign this agent from the job,
-                    Job = null;                   // |   |   and unset it.
+                Job = Container.GetWorkableJob(this); // |   get a workable job from the ship,
+                if(Job != null)                       // |   If there was a workable job,
+                    Job.Assign(this);                 // |   |   assign this agent to it.
+            }                                         //
+            if(Job?.IsCancelled ?? false) {           // If the job has been cancelled,
+                Container.RemoveJob(Job!);            // |   remove it from the container,
+                Job = null;                           // |   and unassign it.
+            }                                         //
+            if(Job != null) {                         // If there is a job:
+                if(Job.Qualify(this, out _)) {        // |   If the job is workable,
+                    if(Job.Work(this, delta)) {       // |   |   work it. If it's done,
+                        Container.RemoveJob(Job);     // |   |   |   remove the job from the ship,
+                        Job = null;                   // |   |   |   and unassign it.
+                    }                                 // |
+                }                                     // |
+                else {                                // |   If the job is not workable,
+                    Job.Quit(this);                   // |   |   quit the job,
+                    Job = null;                       // |   |   and unassign it.
                 }
             }
 
-            if(NextSpot == null && Path.Count > 0) { // If we're on a path but aren't moving yet,
-                PopPath();                           // |   start moving down the path.
-            }
-
-            if(NextSpot != null) {                                          // When we're moving on a path.
+            if(NextSpot == null && Path.Count > 0) {                        // If we're on a path but aren't moving yet,
+                PopPath();                                                  // |   start moving down the path.
+            }                                                               //
+            if(NextSpot != null) {                                          // When we're moving on a path:
                 MoveProgress += delta * 1.5f;                               // Increment our progress towards the next spot.
                                                                             //
                 if(MoveProgress >= 1) {                                     // If we've reached the next spot,
