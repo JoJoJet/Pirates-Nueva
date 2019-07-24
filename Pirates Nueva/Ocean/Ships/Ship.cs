@@ -226,9 +226,15 @@ namespace Pirates_Nueva.Ocean
         /// <exception cref="InvalidOperationException">Thrown if there is already a <see cref="Block"/> at /x/, /y/.</exception>
         public Block PlaceBlock(BlockDef def, int x, int y) {
             ValidateIndices(nameof(PlaceBlock), x, y);
-            
-            if(unsafeGetBlock(x, y) == null)                           // If there is NOT a Block at /x/, /y/,
-                return this.blocks[x, y] = new Block(this, def, x, y); //     place a Block there and return it.
+
+            if(unsafeGetBlock(x, y) == null) {          // If there is NOT a Block at /x/, /y/,
+                var block = new Block(this, def, x, y); //     place a block there,
+                block.SubscribeOnDestroyed(b => {       //     sign up to be notified of its destruction,
+                    if(HasBlock(b.X, b.Y))              //
+                        DestroyBlock(b.X, b.Y);          //
+                });                                     //
+                return this.blocks[x, y] = block;       //     and return it.
+            }
             else                                                       // If there IS a Block at /x/, /y/,
                 throw new InvalidOperationException(                   //     throw an InvalidOperationException.
                     $"{nameof(Ship)}.{nameof(PlaceBlock)}(): There is already a {nameof(Block)} at position ({x}, {y})!"
@@ -236,20 +242,20 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Removes the block at position (/x/, /y/).
+        /// Destroys the block at position (/x/, /y/).
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Block RemoveBlock(int x, int y) {
-            ValidateIndices(nameof(RemoveBlock), x, y);
+        public void DestroyBlock(int x, int y) {
+            ValidateIndices(nameof(DestroyBlock), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) { // If there is a Block at /x/, /y/,
-                this.blocks[x, y] = null;         //     remove it,
-                return b;                         //     and then return it.
+                this.blocks[x, y] = null;         //     remove it from this ship,
+                b.Destroy();                      //     and destroy it.
             }
             else {                                   // If there is no Block at /x/, /y/,
                 throw new InvalidOperationException( //    throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(RemoveBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
+                    $"{nameof(Ship)}.{nameof(DestroyBlock)}(): There is no {nameof(Block)} at position ({x}, {y})!"
                     );
             }
         }
@@ -485,13 +491,13 @@ namespace Pirates_Nueva.Ocean
             // Update every part in the ship.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlockOrNull(x, y) is IPartContract b)
+                    if(GetBlockOrNull(x, y) is IShipPart b)
                         b.Update(master);
                 }
             }
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurnitureOrNull(x, y) is IPartContract f)
+                    if(GetFurnitureOrNull(x, y) is IShipPart f)
                         f.Update(master);
                 }
             }
@@ -513,16 +519,16 @@ namespace Pirates_Nueva.Ocean
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetBlockOrNull(x, y) is Block b)
-                        DrawPart(b, drawer);
+                    if(GetBlockOrNull(x, y) is IDrawable<Ship> b)
+                        b.Draw(drawer);
                 }
             }
 
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
-                    if(GetFurnitureOrNull(x, y) is Furniture f)
-                        DrawPart(f, drawer);
+                    if(GetFurnitureOrNull(x, y) is IDrawable<Ship> f)
+                        f.Draw(drawer);
                 }
             }
 
@@ -544,9 +550,6 @@ namespace Pirates_Nueva.Ocean
                 (agent as IDrawable<Ship>).Draw(drawer);
             }
         }
-
-        /// <summary> Draw the specified <see cref="Part"/> to the screen. </summary>
-        protected void DrawPart(Part p, ILocalDrawer<Ship> drawer) => (p as IPartContract).Draw(drawer);
         #endregion
 
         #region IScreenSpaceTarget Implementation
@@ -593,15 +596,14 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Makes some members of <see cref="Part"/> accessible only within this class.
         /// </summary>
-        private interface IPartContract
+        private interface IShipPart
         {
             void Update(Master master);
-            void Draw(ILocalDrawer<Ship> drawer);
         }
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IFocusable, IPartContract
+        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, UI.IScreenSpaceTarget
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -623,15 +625,13 @@ namespace Pirates_Nueva.Ocean
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
-            #region IPartContract Implementation
-            void IPartContract.Update(Master master) => Update(master);
+            void IShipPart.Update(Master master) => Update(master);
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IPartContract.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
+            void IDrawable<Ship>.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
             protected abstract void Draw(ILocalDrawer<Ship> drawer);
-            #endregion
 
             #region IFocusable Implementation
             bool IFocusable.IsFocused { set => IsFocused = value; }
@@ -657,6 +657,12 @@ namespace Pirates_Nueva.Ocean
                 public virtual void Update(Master master) {  }
                 public virtual void Close(Master master) {  }
             }
+            #endregion
+
+            #region IScreenSpaceTarget Implementation
+            private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
+            int UI.IScreenSpaceTarget.X => ScreenTarget.X;
+            int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
             #endregion
         }
     }

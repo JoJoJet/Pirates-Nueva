@@ -152,7 +152,7 @@ namespace Pirates_Nueva.Ocean
                         if(placeMode == PlaceMode.Block) {
                             // If the place that the user clicked has a block, and that block is not the Root.
                             if(Ship.GetBlockOrNull(shipX, shipY) is Block b && b.ID != RootID)
-                                Ship.RemoveBlock(shipX, shipY);
+                                Ship.DestroyBlock(shipX, shipY);
                         }
                     }
 

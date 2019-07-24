@@ -14,7 +14,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        private Stack<TSpot>? _path;
+        private Stack<TSpot>? path;
 
         /// <summary> The object that contains this <see cref="Agent{TC, TSpot}"/>. </summary>
         protected TC Container { get; }
@@ -39,16 +39,14 @@ namespace Pirates_Nueva.Ocean.Agents
 
         public Job<TC, TSpot>? Job { get; protected set; }
 
-        /// <summary> Linearly interpolate between two values, by amount /f/. </summary>
-        private float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
+        /// <summary> The end of this <see cref="Agent"/>'s current path. Null if there is no path. </summary>
+        public TSpot? PathEnd => this.path?.Count > 0 ? this.path.Last() : null;
 
-        /// <summary> The block that this <see cref="Agent"/> is currently pathing to. Null if there is no path. </summary>
-        public TSpot? PathingTo => Path.Count > 0 ? Path.Last() : null;
+        /// <summary> Whether or not this <see cref="Agent"/> currently has a path. </summary>
+        public bool HasPath => this.path?.Count > 0;
 
-        protected Stack<TSpot> Path {
-            get => this._path ?? (this._path = new Stack<TSpot>());
-            set => this._path = value;
-        }
+        /// <summary> Checks if the specified Spot could be the destination. </summary>
+        protected IsAtDestination<TSpot>? Destination { get; private set; }
 
         public Agent(TC container, TSpot floor) {
             Container = container;
@@ -56,32 +54,66 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         #region Pathing
-        /// <summary>
-        /// Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>.
-        /// </summary>
-        public bool IsAccessible(TSpot target) {
-            return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
-        }
+        /// <summary> Returns whether or not the specified Spot is accessible to this <see cref="Agent"/>. </summary>
+        public bool IsAccessible(TSpot target)
+            => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, target);
         /// <summary>
         /// Returns whether or not this <see cref="Agent"/> can access a Spot that matches <paramref name="destination"/>.
         /// </summary>
-        public bool IsAccessible(IsAtDestination<TSpot> destination) {
-            return Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
+        public bool IsAccessible(IsAtDestination<TSpot> destination)
+            => Dijkstra.IsAccessible(Container, NextSpot??CurrentSpot, destination);
+        /// <summary> Finds the closest accessible Spot that matches <paramref name="destination"/>. </summary>
+        public TSpot? FindAccessible(IsAtDestination<TSpot> destination)
+            => Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
+
+        /// <summary> Has this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
+        public void PathTo(TSpot target) {
+            Destination = n => n.Equals(target);
+            this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
+            foreach(var spot in this.path)
+                spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
-        /// <summary>
-        /// Finds the closest accessible Spot that matches <paramref name="destination"/>.
-        /// </summary>
-        public TSpot? FindAccessible(IsAtDestination<TSpot> destination) {
-            return Dijkstra.FindPath(Container, NextSpot ?? CurrentSpot, destination).LastOrDefault();
+        /// <summary> Has this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
+        public void PathTo(IsAtDestination<TSpot> destination) {
+            Destination = destination;
+            this.path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
+            foreach(var spot in this.path)
+                spot.SubscribeOnDestroyed(OnPathDestroyed);
         }
 
-        /// <summary> Have this <see cref="Agent"/> path to the specified <see cref="Block"/>. </summary>
-        public void PathTo(TSpot target) {
-            Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, target);
+        /// <summary>
+        /// Grabs the next Spot from the path, and assigns it to <see cref="NextSpot"/>.
+        /// <para /> Also handles subscribing and unsubscribing.
+        /// </summary>
+        private void PopPath() {
+            NextSpot?.UnsubscribeOnDestroyed(OnNextDestroyed);   // Unsub from the old reference to the next spot.
+            if(this.path?.Count > 0) {                           // If we're currenty on a path,
+                NextSpot = this.path.Pop();                      // |   grab the next spot from the path.
+                NextSpot.UnsubscribeOnDestroyed(OnPathDestroyed);// |   Unsubscribe from recalculating the path,
+                NextSpot.SubscribeOnDestroyed(OnNextDestroyed);  // |   and subsribe to the next spot.
+                                                                 // |
+                if(this.path.Count == 0)                         // |   If that was the last spot in the path,
+                    Destination = null;                          // |   |   unassign the reference to the destination.
+            }                                                    // |
+            else {                                               // If we are NOT on a path,
+                NextSpot = null;                                 // |   remove our reference to the next spot.
+            }
         }
-        /// <summary> Have this <see cref="Agent"/> path to the first <see cref="Block"/> that matches /destination/. </summary>
-        public void PathTo(IsAtDestination<TSpot> destination) {
-            Path = Dijkstra.FindPath(Container, NextSpot??CurrentSpot, destination);
+
+        private static void OnCurrentDestroyed(TSpot spot) => throw new InvalidOperationException("The agent's current block was destroyed!");
+        private void OnNextDestroyed(TSpot spot) {
+            NextSpot = null;
+            MoveProgress = 0f;
+            RecalculatePath();
+        }
+        private void OnPathDestroyed(TSpot spot) => RecalculatePath();
+
+        /// <summary> Finds a new path to the current <see cref="Destination"/>. </summary>
+        private void RecalculatePath() {
+            const string Sig = nameof(Agent<TC, TSpot>) + "." + nameof(RecalculatePath) + "()";
+            if(Destination is null)
+                throw new InvalidOperationException($"{Sig}: This Agent has no path to recalculate!");
+            PathTo(Destination);
         }
         #endregion
 
@@ -121,52 +153,51 @@ namespace Pirates_Nueva.Ocean.Agents
         }
         #endregion
 
+        /// <summary> Linearly interpolates between two values, by amount /f/. </summary>
+        private static float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
+
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
         protected virtual void Update(Master master, Time delta) {
             if(Job == null) {                         // If this agent has no job,
-                Job = Container.GetWorkableJob(this); //     get a workable job from the ship,
-                if(Job != null)                       //     If there was a workable job,
-                    Job.Assign(this);                 //         assign this agent to it.
-            }
-
-            if(Job?.IsCancelled ?? false) { // If the job has been cancelled,
-                Container.RemoveJob(Job!);  // |   remove it from the container,
-                Job = null;                 // |   and unassign it.
-            }
-            if(Job != null) {                     // If there is a job:
-                if(Job.Qualify(this, out _)) {    // |   If the job is workable,
-                    if(Job.Work(this, delta)) {   // |   |   work it. If it's done,
-                        Container.RemoveJob(Job); // |   |   |   remove the job from the ship,
-                        Job = null;               // |   |   |   and unassign it.
-                    }                             // |
-                }                                 // |
-                else {                            // |   If the job is not workable,
-                    Job.Quit(this);               // |   |   unassign this agent from the job,
-                    Job = null;                   // |   |   and unset it.
+                Job = Container.GetWorkableJob(this); // |   get a workable job from the ship,
+                if(Job != null)                       // |   If there was a workable job,
+                    Job.Assign(this);                 // |   |   assign this agent to it.
+            }                                         //
+            if(Job?.IsCancelled ?? false) {           // If the job has been cancelled,
+                Container.RemoveJob(Job!);            // |   remove it from the container,
+                Job = null;                           // |   and unassign it.
+            }                                         //
+            if(Job != null) {                         // If there is a job:
+                if(Job.Qualify(this, out _)) {        // |   If the job is workable,
+                    if(Job.Work(this, delta)) {       // |   |   work it. If it's done,
+                        Container.RemoveJob(Job);     // |   |   |   remove the job from the ship,
+                        Job = null;                   // |   |   |   and unassign it.
+                    }                                 // |
+                }                                     // |
+                else {                                // |   If the job is not workable,
+                    Job.Quit(this);                   // |   |   quit the job,
+                    Job = null;                       // |   |   and unassign it.
                 }
             }
 
-            if(NextSpot == null && Path.Count > 0) // If we're on a path but aren't moving towards a block,
-                NextSpot = Path.Pop();             //     set the next block as the next step on the math.
-
-            if(NextSpot != null) {             // If we are moving towards a block:
-                MoveProgress += delta * 1.5f;  // increment our progress towards it.
-                                               //
-                if(MoveProgress >= 1) {        // If we have reached the block,
-                    CurrentSpot = NextSpot;    // |   set it as our current block.
-                    if(PathingTo != null)      // |   Recalculate the path
-                        PathTo(PathingTo);     // |       in case it became inacessible.
-                    if(Path.Count > 0)         // |   If we are currently on a path,
-                        NextSpot = Path.Pop(); // |   |   set the next block as the next step on the path.
-                    else                       // |   If we are not on a path,
-                        NextSpot = null;       // |   |   unassign the next block.
-                                               // |
-                    if(NextSpot != null)       // |   If we are still moving towards a block,
-                        MoveProgress -= 1f;    // |   |   subtract 1 from our move progress.
-                    else                       // |   If we are no longer moving towrards a block,
-                        MoveProgress = 0;      // |   |   set our move progress to be 0.
+            if(NextSpot == null && HasPath) {                               // If we're on a path but aren't moving yet,
+                PopPath();                                                  // |   start moving down the path.
+            }                                                               //
+            if(NextSpot != null) {                                          // When we're moving on a path:
+                MoveProgress += delta * 1.5f;                               // Increment our progress towards the next spot.
+                                                                            //
+                if(MoveProgress >= 1) {                                     // If we've reached the next spot,
+                    CurrentSpot.UnsubscribeOnDestroyed(OnCurrentDestroyed); // |   unsub from the old spot,
+                    CurrentSpot = NextSpot;                                 // |   assign the next as the current spot,
+                    CurrentSpot.SubscribeOnDestroyed(OnCurrentDestroyed);   // |   and sub to the new one.
+                                                                            // |   
+                    PopPath();                                              // |   Find an new next spot.
+                    if(NextSpot != null)                                    // |   If there's still another spot,
+                        MoveProgress -= 1f;                                 // |   |   subtract 1 from our move progress.
+                    else                                                    // |   If there's no more spots,
+                        MoveProgress = 0f;                                  // |   |   set out move progress to 0.
                 }
             }
         }

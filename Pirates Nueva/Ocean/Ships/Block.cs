@@ -4,8 +4,10 @@ using Pirates_Nueva.Ocean.Agents;
 
 namespace Pirates_Nueva.Ocean
 {
-    public class Block : Ship.Part, IAgentSpot<Ship, Block>, Path.INode<Block>, UI.IScreenSpaceTarget
+    public class Block : Ship.Part, IAgentSpotDestroyable<Ship, Block>, Path.INode<Block>
     {
+        private List<Action<Block>> onDestroyed = new List<Action<Block>>();
+
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
         public override Ship Ship { get; }
 
@@ -30,6 +32,9 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Stock<Ship, Block>? Stock { get; set; }
 
+        /// <summary> Whether or not this <see cref="Block"/> has been destroyed. </summary>
+        public bool IsDestroyed { get; private set; }
+
         /// <summary>
         /// Static constructor. Is called the first time that this class is mentioned.
         /// </summary>
@@ -51,18 +56,23 @@ namespace Pirates_Nueva.Ocean
             Y = y;
         }
 
+        public void SubscribeOnDestroyed(Action<Block> action) => this.onDestroyed.Add(action);
+        public void UnsubscribeOnDestroyed(Action<Block> action) => this.onDestroyed.Remove(action);
+
+        /// <summary> Destroys this <see cref="Block"/>. </summary>
+        public void Destroy() {
+            IsDestroyed = true;
+            foreach(var act in this.onDestroyed) {
+                act.Invoke(this);
+            }
+        }
+
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
         protected override void Draw(ILocalDrawer<Ship> drawer) {
             var tex = Resources.LoadSprite(Def.SpriteID);
 
             drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));
         }
-
-        #region IScreenSpaceTarget Implementation
-        private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
-        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
-        #endregion
 
         #region IFocusable Implementation
         protected override IFocusMenuProvider GetFocusProvider(Master master)
@@ -86,14 +96,17 @@ namespace Pirates_Nueva.Ocean
         #region Path.INode Implementation
         IEnumerable<Path.Edge<Block>> Path.INode<Block>.Edges {
             get {
-                if(Ship.TryGetBlock(X - 1, Y, out var b))    // If there's a block to the left,
+                if(check(X - 1, Y, out var b))               // If there's a block to the left,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(Ship.TryGetBlock(X, Y+1, out b))          // If there's a block upwards,
+                if(check(X, Y+1, out b))                     // If there's a block upwards,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(Ship.TryGetBlock(X+1, Y, out b))          // If there's a block to the right,
+                if(check(X+1, Y, out b))                     // If there's a block to the right,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(Ship.TryGetBlock(X, Y-1, out b))          // If there's a block downwards,
+                if(check(X, Y-1, out b))                     // If there's a block downwards,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
+
+                bool check(int x, int y, out Block block)
+                    => Ship.TryGetBlock(x, y, out block) && !block.IsDestroyed;
             }
         }
         #endregion

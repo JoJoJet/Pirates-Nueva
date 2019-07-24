@@ -106,31 +106,32 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        private Agent<TC, TSpot>? worker;
-        protected Agent<TC, TSpot> Worker => this.worker
-            ?? throw new InvalidOperationException($"Property '{nameof(Worker)}' can't be accessed right now!");
-
-        protected abstract bool IsAtDestination(TSpot spot);
+        protected abstract bool IsAtDestination(TSpot spot, Params @params);
 
         protected override bool Work(Agent<TC, TSpot> worker, Time delta) {
-            this.worker = worker;
-            if(worker.PathingTo == null) {                     // If the worker is currently still:
-                if(IsAtDestination(worker.CurrentSpot)) {      //     If its standing next to the toil,
-                    this.worker = null;
+            var p = new Params(worker);
+            if(worker.PathEnd == null) {                       // If the worker is currently still:
+                if(IsAtDestination(worker.CurrentSpot, p)) {   //     If its standing next to the toil,
                     return true;                               //         return true.
                 }                                              //
                 else {                                         //     If its standing away from the toil,
-                    worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil,
-                    this.worker = null;
+                    worker.PathTo(s => IsAtDestination(s, p)); //         have it path to a spot adjacent to the toil,
                     return false;                              //         and return false.
                 }                                              //
             }                                                  //
             else {                                             // If the worker is currently pathing:
-                if(IsAtDestination(worker.PathingTo) == false) //     if the worker's destination is not adjacent to the toil,
-                    worker.PathTo(IsAtDestination);            //         have it path to a spot adjacent to the toil.
-                this.worker = null;
+                if(!IsAtDestination(worker.PathEnd, p))        //     if the worker's destination is not adjacent to the toil,
+                    worker.PathTo(s => IsAtDestination(s, p)); //         have it path to a spot adjacent to the toil.
                 return false;                                  //     Return false.
             }
+        }
+
+        /// <summary> Holds parameters for <see cref="IsAtDestination"/>. </summary>
+        protected readonly struct Params
+        {
+            public Agent<TC, TSpot> Worker { get; }
+
+            internal Params(Agent<TC, TSpot> worker) => Worker = worker;
         }
     }
     /// <summary>
@@ -140,7 +141,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        protected override bool IsAtDestination(TSpot spot) => PointI.SqrDistance(spot.Index, Toil.Index) == 1;
+        protected override bool IsAtDestination(TSpot spot, Params _) => PointI.SqrDistance(spot.Index, Toil.Index) == 1;
     }
 
 
@@ -217,7 +218,7 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        protected override bool IsAtDestination(TSpot spot) => PointI.SqrDistance(spot.Index, Toil.Index) == 0;
+        protected override bool IsAtDestination(TSpot spot, Params _) => PointI.SqrDistance(spot.Index, Toil.Index) == 0;
     }
     
 
@@ -315,8 +316,8 @@ namespace Pirates_Nueva.Ocean.Agents
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
-        protected override bool IsAtDestination(TSpot spot)
-            => spot == (Worker.ClaimedStock ?? Throw()).Spot;
+        protected override bool IsAtDestination(TSpot spot, Params p)
+            => spot == (p.Worker.ClaimedStock ?? Throw()).Spot;
         private static Stock<TC, TSpot> Throw() => throw new InvalidOperationException("Worker doesn't have any claimed Stock!");
     }
 
