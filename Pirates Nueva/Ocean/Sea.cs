@@ -31,7 +31,6 @@ namespace Pirates_Nueva.Ocean
             Islands = new Archipelago(this, new Random().Next());
 
             AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
-            AddEntity(new EnemyShip(this, ShipDef.Get("dinghy"), 5, 30));
         }
 
         /// <summary>
