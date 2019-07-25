@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Ship Ship => Container;
 
-        protected override PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X + 0.5f, Y + 0.5f));
+        protected override PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.Transformer.PointFrom(X + 0.5f, Y + 0.5f));
 
         public ShipAgent(Ship ship, Block floor) : base(ship, floor) {  }
 
@@ -55,12 +55,12 @@ namespace Pirates_Nueva.Ocean
             if(this.state == FocusState.ChoosePath) { // If we are currently choosing a path,
                 IsLocked = true;                     //     lock the focus onto this agent.
 
-                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // If the user clicked, but not on GUI:
-                    var (seaX, seaY) = Agent.Ship.Sea.MousePosition;              //
-                    var (shipX, shipY) = Agent.Ship.SeaPointToShip(seaX, seaY);   // The point the user clicked,
-                                                                                  //     local to the ship.
-                    if(Agent.Ship.GetBlockOrNull(shipX, shipY) is Block target) { // If the spot has a block,
-                        Agent.PathTo(target);                                     //     have the agent path to it.
+                if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {         // If the user clicked, but not on GUI:
+                    var (seaX, seaY) = Agent.Ship.Sea.MousePosition;                      //
+                    var (shipX, shipY) = Agent.Ship.Transformer.PointToIndex(seaX, seaY); // The point the user clicked,
+                                                                                          //     local to the ship.
+                    if(Agent.Ship.GetBlockOrNull(shipX, shipY) is Block target) {         // If the spot has a block,
+                        Agent.PathTo(target);                                             //     have the agent path to it.
                     }
 
                     this.state = FocusState.None; // Unset the focus mode,
