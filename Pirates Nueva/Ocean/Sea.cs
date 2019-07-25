@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -18,13 +19,16 @@ namespace Pirates_Nueva.Ocean
         public Archipelago Islands { get; }
 
         /// <summary> The position of the mouse, in <see cref="Sea"/>-space. </summary>
-        public PointF MousePosition => ScreenPointToSea(Master.Input.MousePosition);
+        public PointF MousePosition => Transformer.PointTo(Master.Input.MousePosition);
+
+        public Space<Sea, SeaTransformer> Transformer { get; }
         
-        private Master Master { get; }
+        internal Master Master { get; }
 
         internal Sea(Master master) {
             Master = master;
             Camera = new Camera(this);
+            Transformer = new Space<Sea, SeaTransformer>(this);
 
             //
             // Generate the islands.
@@ -71,7 +75,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
-            var drawer = new SeaDrawer(topDrawer, this);
+            var drawer = new SpaceDrawer<Master, Sea, SeaTransformer>(topDrawer, Transformer);
 
             (Islands as IDrawable<Sea>).Draw(drawer);
 
@@ -98,39 +102,6 @@ namespace Pirates_Nueva.Ocean
                 }
             }
             return focusable;
-        }
-        #endregion
-
-        #region Space Transformation
-        /// <summary>
-        /// Transform the input <see cref="PointI"/> from screen space to a <see cref="PointF"/> within this <see cref="Sea"/>.
-        /// </summary>
-        /// <param name="screenPoint">A pair of coordinates in screen space.</param>
-        public PointF ScreenPointToSea(PointI screenPoint) => ScreenPointToSea(screenPoint.X, screenPoint.Y);
-        /// <summary>
-        /// Transform the input coordinates from screen space to a pair of coordinates within this <see cref="Sea"/>.
-        /// </summary>
-        /// <param name="x">The x coordinate local to the screen.</param>
-        /// <param name="y">The y coordinate local to the screen.</param>
-        internal (float x, float y) ScreenPointToSea(int x, int y) {
-            int height = Master.GUI.ScreenHeight;
-            return ((float)x / PPU + Camera.Left, (float)(height - y) / PPU + Camera.Bottom);
-        }
-
-        /// <summary>
-        /// Transform the input <see cref="PointF"/> from <see cref="Sea"/>- to screen-space.
-        /// </summary>
-        /// <param name="seaPoint">A pair of coordinates within this <see cref="Sea"/>.</param>
-        public PointI SeaPointToScreen(PointF seaPoint) => SeaPointToScreen(seaPoint.X, seaPoint.Y);
-        /// <summary>
-        /// Transform the input coordinates from this <see cref="Sea"/> to the screen.
-        /// </summary>
-        /// <param name="x">The x coordinate local to this <see cref="Sea"/>.</param>
-        /// <param name="y">The y coordinate local to this <see cref="Sea"/>.</param>
-        internal (int x, int y) SeaPointToScreen(float x, float y) {
-            int height = Master.GUI.ScreenHeight;
-            int ppu = PPU;
-            return ((int)((x - Camera.Left) * ppu), (int)(height - (y - Camera.Bottom) * ppu));
         }
         #endregion
 
@@ -192,32 +163,29 @@ namespace Pirates_Nueva.Ocean
         }
     }
 
-    internal sealed class SeaDrawer : ILocalDrawer<Sea>
+    public readonly struct SeaTransformer : ITransformer<Sea>
     {
-        private ILocalDrawer<Master> Drawer { get; }
-        private Sea Sea { get; }
+        bool ITransformer<Sea>.HasRotation => false;
 
-        public SeaDrawer(ILocalDrawer<Master> drawer, Sea sea) {
-            Drawer = drawer;
-            Sea = sea;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Sea>.PointTo(Sea sea, in PointF parent) {
+            int height = sea.Master.GUI.ScreenHeight;
+            int ppu = sea.PPU;
+            return new PointF(parent.X / ppu + sea.Camera.Left, (height - parent.Y) / ppu + sea.Camera.Bottom);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Sea>.PointFrom(Sea sea, in PointF local) {
+            int height = sea.Master.GUI.ScreenHeight;
+            int ppu = sea.PPU;
+            return new PointF((local.X - sea.Camera.Left) * ppu, height - (local.Y - sea.Camera.Bottom) * ppu);
         }
 
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
-            var (screenX, screenY) = Sea.SeaPointToScreen(left, top);
-            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
+        Angle ITransformer<Sea>.AngleTo(Sea space, in Angle parent) => parent;
+        Angle ITransformer<Sea>.AngleFrom(Sea space, in Angle local) => local;
 
-            Drawer.DrawCorner(sprite, screenX, screenY, (int)screenW, (int)screenH, in tint);
-        }
-        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
-                         in Angle angle, in PointF origin, in UI.Color tint) {
-            var (screenX, screenY) = Sea.SeaPointToScreen(x, y);
-            var (screenW, screenH) = (width * Sea.PPU, height * Sea.PPU);
-
-            Drawer.Draw(sprite, screenX, screenY, (int)screenW, (int)screenH, in angle, in origin, in tint);
-        }
-        public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => Drawer.DrawLine(Sea.SeaPointToScreen(start), Sea.SeaPointToScreen(end), in color);
-
-        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float ITransformer<Sea>.ScaleTo(Sea space, float parent) => parent / space.PPU;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float ITransformer<Sea>.ScaleFrom(Sea space, float local) => local * space.PPU;
     }
 }

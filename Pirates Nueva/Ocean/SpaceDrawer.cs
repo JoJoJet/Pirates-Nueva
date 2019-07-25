@@ -29,16 +29,14 @@ namespace Pirates_Nueva.Ocean
             // Procedure for transformers without rotation.
             else {
                 var (parentX, parentY) = Transformer.PointFrom(left, top);
-                width = Transformer.ScaleFrom(width);
-                height = Transformer.ScaleFrom(height);
-                Drawer.DrawCorner(sprite, parentX, parentY, width, height, in tint);
+                var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
+                Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
             }
         }
         public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
                      in Angle angle, in PointF origin, in UI.Color tint)
         {
-            width = Transformer.ScaleFrom(width);
-            height = Transformer.ScaleFrom(height);
+            var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
             //
             // Procedure for transformers with rotation.
             if(default(TTransformer).HasRotation) {
@@ -48,13 +46,13 @@ namespace Pirates_Nueva.Ocean
 
                 var (parentX, parentY) = Transformer.PointFrom(x + texOffset.X, y + texOffset.Y);
 
-                Drawer.Draw(sprite, parentX, parentY, width, height, -Transformer.AngleFrom(in angle), (0, 0), in tint);
+                Drawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
             }
             //
             // Procedure for transformers without rotation.
             else {
                 var (parentX, parentY) = Transformer.PointFrom(x, y);
-                Drawer.Draw(sprite, parentX, parentY, width, height, in angle, in origin, in tint);
+                Drawer.Draw(sprite, parentX, parentY, screenW, screenH, in angle, in origin, in tint);
             }
         }
 

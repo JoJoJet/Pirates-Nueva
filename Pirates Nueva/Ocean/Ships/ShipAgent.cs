@@ -12,7 +12,7 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Ship Ship => Container;
 
-        protected override PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.Transformer.PointFrom(X + 0.5f, Y + 0.5f));
+        protected override PointI ScreenTarget => (PointI)Ship.Sea.Transformer.PointFrom(Ship.Transformer.PointFrom(X + 0.5f, Y + 0.5f));
 
         public ShipAgent(Ship ship, Block floor) : base(ship, floor) {  }
 

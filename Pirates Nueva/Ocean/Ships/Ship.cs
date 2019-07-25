@@ -496,8 +496,8 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(CenterX, GetBounds().Top).y;
+        int UI.IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
+        int UI.IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
@@ -600,9 +600,9 @@ namespace Pirates_Nueva.Ocean
             #endregion
 
             #region IScreenSpaceTarget Implementation
-            private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.Transformer.PointFrom(X, Y));
-            int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-            int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+            private PointF ScreenTarget => Ship.Sea.Transformer.PointFrom(Ship.Transformer.PointFrom(X, Y));
+            int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
+            int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
             #endregion
         }
     }
