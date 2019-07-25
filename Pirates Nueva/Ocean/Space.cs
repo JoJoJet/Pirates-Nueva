@@ -15,7 +15,7 @@ namespace Pirates_Nueva.Ocean
         PointF PointTo(TSpace space, in PointF parent);
         /// <summary> Transforms a point from local space to parent space. </summary>
         /// <param name="space">The instance around which to transform.</param>
-        PointF PointFrom(TSpace space, in PointF lcoal);
+        PointF PointFrom(TSpace space, in PointF local);
 
         /// <summary> Transforms an angle from parent space to local space. </summary>
         /// <param name="space">The instance around which to transform.</param>
@@ -23,6 +23,13 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Transforms an angle from local space to parent space. </summary>
         /// <param name="space">The instance around which to transform.</param>
         Angle AngleFrom(TSpace space, in Angle local);
+
+        /// <summary> Scales a scalar value from parent space to local space. </summary>
+        /// <param name="space">The instance around which to scale.</param>
+        float ScaleTo(TSpace space, float parent);
+        /// <summary> Scales a scalar value from local space to parent space. </summary>
+        /// <param name="space">The instance around which to scale.</param>
+        float ScaleFrom(TSpace space, float local);
     }
     /// <summary>
     /// An object representing a local system of coordinates.
@@ -61,5 +68,12 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Transforms an <see cref="Angle"/> from local space to parent sapce. </summary>
         /// <param name="localAngle">The <see cref="Angle"/> in local space.</param>
         public Angle AngleFrom(in Angle localAngle) => default(TTransformer).AngleFrom(this.self, in localAngle);
+
+        /// <summary> Scales a scalar value from parent space to local space. </summary>
+        /// <param name="parentScalar">The scalar value in parent space.</param>
+        public float ScaleTo(float parentScalar) => default(TTransformer).ScaleTo(this.self, parentScalar);
+        /// <summary> Scales a scalar value from local space to parent space. </summary>
+        /// <param name="localScalar">The scalar value in local space.</param>
+        public float ScaleFrom(float localScalar) => default(TTransformer).ScaleFrom(this.self, localScalar);
     }
 }

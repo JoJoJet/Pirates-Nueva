@@ -630,6 +630,9 @@ namespace Pirates_Nueva.Ocean
         Angle ITransformer<Ship>.AngleTo(Ship ship, in Angle parent) => parent - ship.Angle;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Angle ITransformer<Ship>.AngleFrom(Ship ship, in Angle local) => local + ship.Angle;
+
+        float ITransformer<Ship>.ScaleTo(Ship space, float parent) => parent;
+        float ITransformer<Ship>.ScaleFrom(Ship space, float local) => local;
     }
     public static class ShipSpaceExt
     {
