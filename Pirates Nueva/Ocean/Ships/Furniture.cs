@@ -1,9 +1,5 @@
 ﻿namespace Pirates_Nueva.Ocean
 {
-    /// <summary>
-    /// A relative direction.
-    /// </summary>
-    public enum Dir { Up, Right, Down, Left };
     public class Furniture : Ship.Part
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Furniture"/>. </summary>

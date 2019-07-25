@@ -618,10 +618,7 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
             public virtual Dir Direction { get; protected set; }
             /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Ocean.Ship"/>. </summary>
-            public virtual Angle Angle => Direction == Dir.Up    ? Angle.Up
-                                        : Direction == Dir.Right ? Angle.Right
-                                        : Direction == Dir.Down  ? Angle.Down
-                                        :                          Angle.Left;
+            public virtual Angle Angle => Direction.Angle();
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
