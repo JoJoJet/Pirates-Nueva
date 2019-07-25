@@ -458,7 +458,7 @@ namespace Pirates_Nueva.Ocean
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
-            var drawer = new ShipDrawer(seaDrawer, this);
+            var drawer = new SpaceDrawer<Sea, Ship, ShipTransformer>(seaDrawer, Transformer);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -655,33 +655,5 @@ namespace Pirates_Nueva.Ocean
             var (shipX, shipY) = space.PointTo(parentX, parentY);
             return new PointI((int)Math.Floor(shipX), (int)Math.Floor(shipY));
         }
-    }
-
-    internal sealed class ShipDrawer : ILocalDrawer<Ship>
-    {
-        private ILocalDrawer<Sea> Drawer { get; }
-        private Space<Ship, ShipTransformer> Transformer { get; }
-
-        public ShipDrawer(ILocalDrawer<Sea> drawer, Ship ship) {
-            Drawer = drawer;
-            Transformer = ship.Transformer;
-        }
-
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
-            => Draw(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
-        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
-                         in Angle angle, in PointF origin, in UI.Color tint) {
-            PointF texOfset = (1, 1) - origin;
-            texOfset = (texOfset.X * width, texOfset.Y * height);
-            texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
-
-            var (seaX, seaY) = Transformer.PointFrom(x + texOfset.X, y + texOfset.Y);
-
-            Drawer.Draw(sprite, seaX, seaY, width, height, -Transformer.AngleFrom(in angle), (0, 0), in tint);
-        }
-        public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => Drawer.DrawLine(Transformer.PointFrom(start), Transformer.PointFrom(end), in color);
-
-        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
     }
 }
