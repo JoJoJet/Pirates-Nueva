@@ -10,6 +10,9 @@ namespace Pirates_Nueva.Ocean
     /// <typeparam name="TSpace">The type of space around which to transform.</typeparam>
     public interface ITransformer<TSpace>
     {
+        /// <summary> Whether or not this type of Transformer might include rotation. Should be constant. </summary>
+        bool HasRotation { get; }
+
         /// <summary> Transforms a point from parent space to local space. </summary>
         /// <param name="space">The instance around which to transform.</param>
         PointF PointTo(TSpace space, in PointF parent);

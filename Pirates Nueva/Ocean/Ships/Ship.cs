@@ -609,6 +609,8 @@ namespace Pirates_Nueva.Ocean
 
     public readonly struct ShipTransformer : ITransformer<Ship>
     {
+        bool ITransformer<Ship>.HasRotation => true;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         PointF ITransformer<Ship>.PointTo(Ship ship, in PointF parent) {
             var untranslated = parent - ship.Center;                     // Un-translate the coordinates from the ship.
