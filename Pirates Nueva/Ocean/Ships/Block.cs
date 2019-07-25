@@ -9,15 +9,15 @@ namespace Pirates_Nueva.Ocean
         private List<Action<Block>> onDestroyed = new List<Action<Block>>();
 
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Block"/>. </summary>
-        public override Ship Ship { get; }
+        public sealed override Ship Ship { get; }
 
         public BlockDef Def { get; }
         public string ID => Def.ID;
 
         /// <summary> The X index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
-        public override int X { get; }
+        public sealed override int X { get; }
         /// <summary> The Y index of this <see cref="Block"/>, local to its <see cref="Ocean.Ship"/>. </summary>
-        public override int Y { get; }
+        public sealed override int Y { get; }
 
         /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
         public override Dir Direction => Dir.Right;
