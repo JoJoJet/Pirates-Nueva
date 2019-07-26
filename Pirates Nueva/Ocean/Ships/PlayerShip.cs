@@ -161,7 +161,7 @@ namespace Pirates_Nueva.Ocean
                     // Also: If the user clicked a GUI element, definitely return false.
                     bool isMouseValid(out int x, out int y) {
                         var (seaX, seaY) = Ship.Sea.MousePosition;
-                        (x, y) = Ship.SeaPointToShip(seaX, seaY);
+                        (x, y) = Ship.Transformer.PointToIndex(seaX, seaY);
 
                         return Ship.AreIndicesValid(x, y) && !master.GUI.IsMouseOverGUI;
                     }

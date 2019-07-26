@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -15,11 +16,15 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
+        public Space<Island, IslandTransformer> Transformer { get; }
+
         public Island(Sea sea, int left, int bottom, int rngSeed) {
             //
             // Copy over basic information
             Sea = sea;
             Left = left; Bottom = bottom;
+
+            Transformer = new Space<Island, IslandTransformer>(this);
 
             //
             // Generate the Island.
@@ -741,34 +746,10 @@ namespace Pirates_Nueva.Ocean
             // Draw the blocks.
             if(this.blocks is null)
                 return;
-            var localDrawer = new IslandDrawer(drawer, this);
+            var localDrawer = new SpaceDrawer<Island, IslandTransformer, Sea>(drawer, Transformer);
             foreach(var block in this.blocks) {
                 (block as IDrawable<Island>)?.Draw(localDrawer);
             }
-        }
-
-        private sealed class IslandDrawer : ILocalDrawer<Island>
-        {
-            public ILocalDrawer<Sea> Drawer { get; }
-            public Island Island { get; }
-
-            public IslandDrawer(ILocalDrawer<Sea> drawer, Island island) {
-                Drawer = drawer;
-                Island = island;
-            }
-
-            public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
-                => Drawer.DrawCorner(sprite, Island.Left + left, Island.Bottom + top, width, height, in tint);
-            public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
-                             in Angle angle, in PointF origin, in UI.Color tint)
-                => Drawer.Draw(sprite, Island.Left + x, Island.Bottom + y, width, height, in angle, in origin, in tint);
-            public void DrawLine(PointF start, PointF end, in UI.Color color) {
-                PointF pos = (Island.Left, Island.Bottom);
-                Drawer.DrawLine(pos + start, pos + end, in color);
-            }
-
-            public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
-                => throw new NotImplementedException();
         }
         #endregion
 
@@ -795,5 +776,21 @@ namespace Pirates_Nueva.Ocean
                 this.x = x; this.y = y;
             }
         }
+    }
+
+    public readonly struct IslandTransformer : ITransformer<Island>
+    {
+        bool ITransformer<Island>.HasRotation => false;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Island>.PointTo(Island island, in PointF parent) => parent - (island.Left, island.Bottom);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Island>.PointFrom(Island island, in PointF local) => local + (island.Left, island.Bottom);
+
+        Angle ITransformer<Island>.AngleTo(Island space, in Angle parent) => parent;
+        Angle ITransformer<Island>.AngleFrom(Island space, in Angle local) => local;
+
+        float ITransformer<Island>.ScaleTo(Island space, float parent) => parent;
+        float ITransformer<Island>.ScaleFrom(Island space, float local) => local;
     }
 }

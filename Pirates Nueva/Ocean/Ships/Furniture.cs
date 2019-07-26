@@ -1,29 +1,23 @@
 ﻿namespace Pirates_Nueva.Ocean
 {
-    /// <summary>
-    /// A relative direction.
-    /// </summary>
-    public enum Dir { Up, Right, Down, Left };
     public class Furniture : Ship.Part
     {
         /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Furniture"/>. </summary>
-        public override Ship Ship => Floor.Ship;
+        public sealed override Ship Ship => Floor.Ship;
 
         public FurnitureDef Def { get; }
         public string ID => Def.ID;
 
-        /// <summary>
-        /// The <see cref="Block"/> that this <see cref="Furniture"/> is resting upon.
-        /// </summary>
-        public Block Floor { get; private set; }
+        /// <summary> The <see cref="Block"/> that this <see cref="Furniture"/> is resting upon. </summary>
+        public Block Floor { get; }
 
         /// <summary> The X index of this <see cref="Furniture"/>, local to its <see cref="Ocean.Ship"/>. </summary>
-        public override int X => Floor.X;
+        public sealed override int X => Floor.X;
         /// <summary> The Y index of this <see cref="Furniture"/>, local to its <see cref="Ocean.Ship"/>. </summary>
-        public override int Y => Floor.Y;
+        public sealed override int Y => Floor.Y;
 
         /// <summary>
-        /// Create a <see cref="Furniture"/>, defined by the <see cref="FurnitureDef"/> /def/, and placed on the <see cref="Block"/> /block/.
+        /// Creates a <see cref="Furniture"/>, defined by the <see cref="FurnitureDef"/> /def/, and placed on the <see cref="Block"/> /block/.
         /// </summary>
         public Furniture(FurnitureDef def, Block floor, Dir direction) {
             Def = def;

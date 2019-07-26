@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Pirates_Nueva.Path;
 using Pirates_Nueva.Ocean.Agents;
+using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -40,13 +41,16 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Vector Right => Angle.Vector;
 
-        /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootX => RootIndex.X;
-        /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
-        private int RootY => RootIndex.Y;
         /// <summary>
-        /// The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>.
+        /// The object that handles transformation for this <see cref="Ship"/>.
         /// </summary>
+        public Space<Ship, ShipTransformer> Transformer { get; }
+
+        /// <summary> The X index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        public int RootX => RootIndex.X;
+        /// <summary> The Y index of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
+        public int RootY => RootIndex.Y;
+        /// <summary> The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private PointI RootIndex => Def.RootIndex;
 
         /// <summary>
@@ -54,6 +58,7 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Ship(Sea sea, ShipDef def) : base(sea) {
             Def = def;
+            Transformer = new Space<Ship, ShipTransformer>(this);
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             //
@@ -93,15 +98,15 @@ namespace Pirates_Nueva.Ocean
             }
 
             // Transform those extents into sea-space.
-            var lb = ShipPointToSea(left, bottom);
-            var lt = ShipPointToSea(left, top);
-            var rt = ShipPointToSea(right, top);
-            var rb = ShipPointToSea(right, bottom);
+            var lb = Transformer.PointFrom(left, bottom);
+            var lt = Transformer.PointFrom(left, top);
+            var rt = Transformer.PointFrom(right, top);
+            var rb = Transformer.PointFrom(right, bottom);
 
             // Return a bounding box eveloping all four points above.
             return new BoundingBox(
-                min(lb.x, lt.x, rt.x, rb.x), min(lb.y, lt.y, rt.y, rb.y),
-                max(lb.x, lt.x, rt.x, rb.x), max(lb.y, lt.y, rt.y, rb.y)
+                min(lb.X, lt.X, rt.X, rb.X), min(lb.Y, lt.Y, rt.Y, rb.Y),
+                max(lb.X, lt.X, rt.X, rb.X), max(lb.Y, lt.Y, rt.Y, rb.Y)
                 );
 
             float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
@@ -112,73 +117,11 @@ namespace Pirates_Nueva.Ocean
             //
             // Convert the point to an index on the ship,
             // and return whether or not there is a block there.
-            var (shipX, shipY) = SeaPointToShip(point);
+            var (shipX, shipY) = Transformer.PointToIndex(point);
             return HasBlock(shipX, shipY);
         }
 
         #region Space Transformation
-        /// <summary>
-        /// Transform the input <see cref="PointF"/> from <see cref="Sea"/> space
-        /// to a <see cref="PointI"/> representing indices within this <see cref="Ship"/>.
-        /// </summary>
-        /// <param name="seaPoint">A pair of coordinates local to the <see cref="Sea"/></param>
-        public PointI SeaPointToShip(PointF seaPoint) => SeaPointToShip(seaPoint.X, seaPoint.Y);
-        /// <summary>
-        /// Transform the input coordinates from <see cref="Sea"/>
-        /// space to a pair of indices within to this <see cref="Ship"/>
-        /// </summary>
-        /// <param name="x">The x coordinate local to the <see cref="Sea"/>.</param>
-        /// <param name="y">The y coordinate local to the <see cref="Sea"/>.</param>
-        internal (int x, int y) SeaPointToShip(float x, float y) {
-            // Coordinates in Sea-space.
-            var (seaX, seaY) = (x, y);
-
-            // Rotated coordinates local to the ship's root
-            var (rotX, rotY) = (x - CenterX, y - CenterY); // Translate the sea coords to be centered around the root block.
-            
-            // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = PointF.Rotate((rotX, rotY), -Angle);
-
-            // Indices within the ship
-            var (indX, indY) = (shipX + RootX + 0.5f, shipY + RootY + 0.5f); // Translate ship coords into indices centered on ship's bottom left corner.
-
-            return ((int)Math.Floor(indX), (int)Math.Floor(indY)); // Floor the indices into integers, and then return them.
-        }
-
-        /// <summary>
-        /// Transforms the input coordinates from a <see cref="PointI"/> local to this <see cref="Ship"/>
-        /// into a <see cref="PointF"/> local to the <see cref="Sea"/>.
-        /// <para />
-        /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(PointF)"/>, as that method
-        /// has an element of rounding.
-        /// </summary>
-        /// <param name="shipPoint">A pair of coordinates within this <see cref="Ship"/>.</param>
-        public PointF ShipPointToSea(PointF shipPoint) => ShipPointToSea(shipPoint.X, shipPoint.Y);
-        /// <summary>
-        /// Transforms the input coordinates from coords local to this <see cref="Ship"/> into
-        /// a pair of coordinates local to the <see cref="Sea"/>.
-        /// <para />
-        /// NOTE: Is not necessarily the exact inverse of <see cref="SeaPointToShip(float, float)"/>, as that method
-        /// has an element of rounding.
-        /// </summary>
-        /// <param name="x">The x coordinate within this <see cref="Ship"/>.</param>
-        /// <param name="y">The y coordinate within this <see cref="Ship"/>.</param>
-        internal (float x, float y) ShipPointToSea(float x, float y) {
-            // Coordinates within the ship.
-            var (indX, indY) = (x, y);
-            
-            // Flat coordinates local to the ship's root.
-            var (shipX, shipY) = (indX - RootX - 0.5f, indY - RootY - 0.5f);  // Translate the input coords to be
-                                                                              //     centered around the root block.
-            // Rotated coordinate's local to the ship's root.
-            var (rotX, rotY) = PointF.Rotate((shipX, shipY), Angle); // Rotate the ship indices by the ship's angle.
-
-            // Coordinates in Sea-space.
-            var (seaX, seaY) = (CenterX + rotX, CenterY + rotY); // Add the sea-space coords of the ship's center to the local coords.
-
-            return (seaX, seaY); // Return the Sea-space coordinates.
-        }
-        
         /// <summary>
         /// Whether or not the specified indices are within the bounds of this ship.
         /// </summary>
@@ -515,7 +458,7 @@ namespace Pirates_Nueva.Ocean
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
-            var drawer = new ShipDrawer(seaDrawer, this);
+            var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -553,15 +496,15 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => Sea.SeaPointToScreen(Center).X;
-        int UI.IScreenSpaceTarget.Y => Sea.SeaPointToScreen(CenterX, GetBounds().Top).y;
+        int UI.IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
+        int UI.IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
         List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint) {
             var focusable = new List<IFocusable>();
 
-            var (shipX, shipY) = SeaPointToShip(seaPoint);
+            var (shipX, shipY) = Transformer.PointToIndex(seaPoint);
             if(TryGetAgent(shipX, shipY, out var agent)) {
                 focusable.Add(agent);
             }
@@ -618,10 +561,7 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The direction that this <see cref="Part"/> is facing. </summary>
             public virtual Dir Direction { get; protected set; }
             /// <summary> This <see cref="Part"/>'s angle, local to its <see cref="Ocean.Ship"/>. </summary>
-            public virtual Angle Angle => Direction == Dir.Up    ? Angle.Up
-                                        : Direction == Dir.Right ? Angle.Right
-                                        : Direction == Dir.Down  ? Angle.Down
-                                        :                          Angle.Left;
+            public virtual Angle Angle => Direction.Angle();
 
             internal Part() {  } // Ensures that this class can only be derived from within this assembly.
 
@@ -660,38 +600,60 @@ namespace Pirates_Nueva.Ocean
             #endregion
 
             #region IScreenSpaceTarget Implementation
-            private PointI ScreenTarget => Ship.Sea.SeaPointToScreen(Ship.ShipPointToSea(X, Y));
-            int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-            int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
+            private PointF ScreenTarget => Ship.Sea.Transformer.PointFrom(Ship.Transformer.PointFrom(X, Y));
+            int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
+            int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
             #endregion
         }
     }
 
-    internal sealed class ShipDrawer : ILocalDrawer<Ship>
+    public readonly struct ShipTransformer : ITransformer<Ship>
     {
-        private ILocalDrawer<Sea> Drawer { get; }
-        private Ship Ship { get; }
+        bool ITransformer<Ship>.HasRotation => true;
 
-        public ShipDrawer(ILocalDrawer<Sea> drawer, Ship ship) {
-            Drawer = drawer;
-            Ship = ship;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Ship>.PointTo(Ship ship, in PointF parent) {
+            var untranslated = parent - ship.Center;                     // Un-translate the coordinates from the ship.
+            var unrotated = PointF.Rotate(in untranslated, -ship.Angle); // Un-rotate the coordinates from around the ship's center.
+            var indexed = new PointF(unrotated.X + ship.RootX + 0.5f,    // Center the coordinates around the ship's bottom left.
+                                     unrotated.Y + ship.RootY + 0.5f);
+            return indexed;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        PointF ITransformer<Ship>.PointFrom(Ship ship, in PointF indices) {
+            var unindexed = new PointF(indices.X - ship.RootX - 0.5f,  // Un-center the coordinates from the ship's bottom left.
+                                       indices.Y - ship.RootY - 0.5f); //
+            var rotated = PointF.Rotate(unindexed, ship.Angle);        // Rotate the coordinates around the ship's center.
+            var translated = rotated + ship.Center;                    // Translate the coordinates by the ship's position.
+            return translated;
         }
 
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
-            => Draw(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
-        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
-                         in Angle angle, in PointF origin, in UI.Color tint) {
-            PointF texOfset = (1, 1) - origin;
-            texOfset = (texOfset.X * width, texOfset.Y * height);
-            texOfset += PointF.Rotate((-0.5f, 0.5f), in angle);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Angle ITransformer<Ship>.AngleTo(Ship ship, in Angle parent) => parent - ship.Angle;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Angle ITransformer<Ship>.AngleFrom(Ship ship, in Angle local) => local + ship.Angle;
 
-            var (seaX, seaY) = Ship.ShipPointToSea(x + texOfset.X, y + texOfset.Y);
-
-            Drawer.Draw(sprite, seaX, seaY, width, height, -angle - Ship.Angle, (0, 0), in tint);
+        float ITransformer<Ship>.ScaleTo(Ship space, float parent) => parent;
+        float ITransformer<Ship>.ScaleFrom(Ship space, float local) => local;
+    }
+    public static class ShipSpaceExt
+    {
+        /// <summary> Transforms a point from parent space to a local-space index. </summary>
+        /// <param name="parentPoint">The point in parent space.</param>
+        public static PointI PointToIndex<TTransformer>(this Space<Ship, TTransformer> space, in PointF parentPoint)
+            where TTransformer : struct, ITransformer<Ship>
+        {
+            var (shipX, shipY) = space.PointTo(in parentPoint);                // Transform the point.
+            return new PointI((int)Math.Floor(shipX), (int)Math.Floor(shipY)); // Floor the point into integers and return them.
         }
-        public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => Drawer.DrawLine(Ship.ShipPointToSea(start), Ship.ShipPointToSea(end), in color);
-
-        public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color) => throw new NotImplementedException();
+        /// <summary> Transforms a point from parent space to a local-space index. </summary>
+        /// <param name="parentX">The x coordinate of the point in parent space.</param>
+        /// <param name="parentY">The y coordinate of the point in parent space.</param>
+        public static PointI PointToIndex<TTransformer>(this Space<Ship, TTransformer> space, float parentX, float parentY)
+            where TTransformer : struct, ITransformer<Ship>
+        {
+            var (shipX, shipY) = space.PointTo(parentX, parentY);
+            return new PointI((int)Math.Floor(shipX), (int)Math.Floor(shipY));
+        }
     }
 }

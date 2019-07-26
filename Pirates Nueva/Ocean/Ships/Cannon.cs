@@ -57,8 +57,8 @@ namespace Pirates_Nueva.Ocean
                 this.haulJob = null;
             }
             if(Fuel != null) {
-                var (x, y) = Ship.ShipPointToSea(X, Y);
-                Ship.Sea.AddEntity(new Cannonball(Ship.Sea, x, y, (Ship.Angle + Angle).Vector));
+                var (x, y) = Ship.Transformer.PointFrom(X, Y);
+                Ship.Sea.AddEntity(new Cannonball(Ship.Sea, x, y, Ship.Transformer.AngleFrom(Angle).Vector));
                 Fuel.Destroy();
             }
 
