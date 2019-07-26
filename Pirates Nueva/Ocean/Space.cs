@@ -37,17 +37,17 @@ namespace Pirates_Nueva.Ocean
     /// <summary>
     /// An object representing a local system of coordinates.
     /// </summary>
-    /// <typeparam name="TSelf">The type around which this coordinate system is centered.</typeparam>
+    /// <typeparam name="TSpace">The type around which this coordinate system is centered.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Space.</typeparam>
-    public sealed class Space<TSelf, TTransformer>
-        where TTransformer : struct, ITransformer<TSelf>
+    public sealed class Space<TSpace, TTransformer>
+        where TTransformer : struct, ITransformer<TSpace>
     {
-        private readonly TSelf self;
+        private readonly TSpace self;
 
         /// <summary>
         /// Creates a new Space instance centered around the specified object.
         /// </summary>
-        public Space(TSelf self) => this.self = self;
+        public Space(TSpace self) => this.self = self;
 
         /// <summary> Transforms a point from parent space to local space. </summary>
         /// <param name="parentPoint">The point in parent space.</param>
