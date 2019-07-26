@@ -746,7 +746,7 @@ namespace Pirates_Nueva.Ocean
             // Draw the blocks.
             if(this.blocks is null)
                 return;
-            var localDrawer = new SpaceDrawer<Sea, Island, IslandTransformer>(drawer, Transformer);
+            var localDrawer = new SpaceDrawer<Island, IslandTransformer, Sea>(drawer, Transformer);
             foreach(var block in this.blocks) {
                 (block as IDrawable<Island>)?.Draw(localDrawer);
             }

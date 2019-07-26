@@ -75,7 +75,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
-            var drawer = new SpaceDrawer<Master, Sea, SeaTransformer>(topDrawer, Transformer);
+            var drawer = new SpaceDrawer<Sea, SeaTransformer, Master>(topDrawer, Transformer);
 
             (Islands as IDrawable<Sea>).Draw(drawer);
 

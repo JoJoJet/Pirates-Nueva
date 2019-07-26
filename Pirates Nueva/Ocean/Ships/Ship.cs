@@ -458,7 +458,7 @@ namespace Pirates_Nueva.Ocean
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
         protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
-            var drawer = new SpaceDrawer<Sea, Ship, ShipTransformer>(seaDrawer, Transformer);
+            var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {

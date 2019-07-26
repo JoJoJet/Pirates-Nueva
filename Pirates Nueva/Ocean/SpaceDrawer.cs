@@ -7,10 +7,10 @@ namespace Pirates_Nueva.Ocean
     /// <summary>
     /// An implementation of <see cref="ILocalDrawer{T}"/> that depends on an instance of <see cref="Space{TSelf, TTransformer}"/>.
     /// </summary>
-    /// <typeparam name="TParent">The type representing the parent coordinate system.</typeparam>
     /// <typeparam name="TSpace">The type representing the local coordinate system.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Drawer.</typeparam>
-    public sealed class SpaceDrawer<TParent, TSpace, TTransformer> : ILocalDrawer<TSpace>
+    /// <typeparam name="TParent">The type representing the parent coordinate system.</typeparam>
+    public sealed class SpaceDrawer<TSpace, TTransformer, TParent> : ILocalDrawer<TSpace>
         where TTransformer : struct, ITransformer<TSpace>
     {
         private ILocalDrawer<TParent> Drawer { get; }
