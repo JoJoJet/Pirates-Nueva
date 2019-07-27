@@ -13,6 +13,7 @@ namespace Pirates_Nueva.Ocean
         /// The object that handles transformation for this Locus.
         /// </summary>
         ISpace Transformer { get; }
+    }
 
     /// <summary>
     /// An object that performs transformation for coordinate system with specified Locus.
