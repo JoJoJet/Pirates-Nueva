@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Island : IDrawable<Sea>
+    public sealed class Island : ISpaceLocus, IDrawable<Sea>
     {
         private readonly IslandBlock?[,] blocks;
 
@@ -740,6 +740,10 @@ namespace Pirates_Nueva.Ocean
             return (cn & 1) == 1;
         }
         
+        #region ISpaceLocus Implementation
+        ISpace ISpaceLocus.Transformer => Transformer;
+        #endregion
+
         #region IDrawable Implementation
         void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
             //

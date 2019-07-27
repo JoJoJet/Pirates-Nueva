@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : IUpdatable, IDrawable<Master>, IFocusableParent
+    public sealed class Sea : ISpaceLocus, IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
@@ -55,6 +55,11 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
+        #region ISpaceLocus Implementation
+        ISpace ISpaceLocus.Transformer => Transformer;
+        #endregion
+
+        #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) {
             //
             // Add & remove entities.
@@ -73,7 +78,9 @@ namespace Pirates_Nueva.Ocean
                     u.Update(master, delta);    //     call its Update() method.
             }
         }
+        #endregion
 
+        #region IDrawable<> Implementation
         void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
             var drawer = new SpaceDrawer<Sea, SeaTransformer, Master>(topDrawer, Transformer);
 
@@ -84,6 +91,7 @@ namespace Pirates_Nueva.Ocean
                     d.Draw(drawer);             //     call its Draw() method.
             }
         }
+        #endregion
 
         #region IFocusableParent Implementation
         /// <summary>

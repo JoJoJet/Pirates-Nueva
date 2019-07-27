@@ -5,10 +5,21 @@ using System.Text;
 namespace Pirates_Nueva.Ocean
 {
     /// <summary>
+    /// An object that represents the central point in a local coordinate system.
     /// </summary>
+    public interface ISpaceLocus
+    {
+        /// <summary>
+        /// The object that handles transformation for this Locus.
+        /// </summary>
+        ISpace Transformer { get; }
+
+    /// <summary>
     /// An object that performs transformation for coordinate system with specified Locus.
+    /// </summary>
     /// <typeparam name="TLocus">The locus for this coordinate system.</typeparam>
     public interface ITransformer<TLocus>
+        where TLocus : ISpaceLocus
     {
         /// <summary> Whether or not this type of Transformer might include rotation. Should be constant. </summary>
         bool HasRotation { get; }
@@ -60,6 +71,7 @@ namespace Pirates_Nueva.Ocean
     /// <typeparam name="TLocus">The type around which this coordinate system is centered.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Space.</typeparam>
     public sealed class Space<TLocus, TTransformer> : ISpace
+        where TLocus : ISpaceLocus
         where TTransformer : struct, ITransformer<TLocus>
     {
         private readonly TLocus locus;

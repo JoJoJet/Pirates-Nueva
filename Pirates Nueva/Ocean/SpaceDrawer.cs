@@ -11,6 +11,7 @@ namespace Pirates_Nueva.Ocean
     /// <typeparam name="TTransformer">The type that will perform transformation for this Drawer.</typeparam>
     /// <typeparam name="TParent">The type representing the parent coordinate system.</typeparam>
     public sealed class SpaceDrawer<TLocus, TTransformer, TParent> : ILocalDrawer<TLocus>
+        where TLocus : ISpaceLocus
         where TTransformer : struct, ITransformer<TLocus>
     {
         private ILocalDrawer<TParent> Drawer { get; }
