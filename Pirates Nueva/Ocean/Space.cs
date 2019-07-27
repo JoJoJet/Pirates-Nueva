@@ -62,6 +62,11 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Transforms a point from local space to parent space. </summary>
         PointF PointFrom(in PointF localPoint);
 
+        /// <summary> Transforms a point from root space to local space. </summary>
+        PointF PointFromRoot(in PointF rootPoint);
+        /// <summary> Transforms a point from local space to root space. </summary>
+        PointF PointToRoot(in PointF localPoint);
+
         /// <summary> Transforms an <see cref="Angle"/> from parent space to local space. </summary>
         Angle AngleTo(in Angle parentAngle);
         /// <summary> Transforms an <see cref="Angle"/> from local space to parent space. </summary>
@@ -104,12 +109,34 @@ namespace Pirates_Nueva.Ocean
         /// <param name="localY">The y coordinate of the point in local space.</param>
         public PointF PointFrom(float localX, float localY) => default(TTransformer).PointFrom(this.locus, new PointF(localX, localY));
 
+        /// <summary> Transforms a point from root space to local space. </summary>
+        /// <param name="rootPoint">The point in root space.</param>
+        public PointF PointFromRoot(in PointF rootPoint)
+            => PointTo(this.locus.Parent?.Transformer.PointFromRoot(in rootPoint) ?? rootPoint);
+        /// <summary> Transforms a point from root space to local space. </summary>
+        /// <param name="rootX">The x coordinate of the point in root space.</param>
+        /// <param name="rootY">The y coordinate of the point in root space.</param>
+        public PointF PointFromRoot(float rootX, float rootY) => PointFromRoot(new PointF(rootX, rootY));
+
+        /// <summary> Transforms a point from local space to root space. </summary>
+        /// <param name="localPoint">The point in local space.</param>
+        public PointF PointToRoot(in PointF localPoint) {
+            var parentPoint = PointFrom(in localPoint);
+            return this.locus.Parent?.Transformer.PointToRoot(in parentPoint) ?? parentPoint;
+        }
+        /// <summary> Transforms a point from local space to root space. </summary>
+        /// <param name="localX">The x coordinate of the point in local space.</param>
+        /// <param name="localY">The y coordinate of the point in local space.</param>
+        public PointF PointToRoot(float localX, float localY) => PointToRoot(new PointF(localX, localY));
+
+
         /// <summary> Transforms an <see cref="Angle"/> from parent space to local space. </summary>
         /// <param name="parentAngle">The <see cref="Angle"/> in parent space.</param>
         public Angle AngleTo(in Angle parentAngle) => default(TTransformer).AngleTo(this.locus, in parentAngle);
         /// <summary> Transforms an <see cref="Angle"/> from local space to parent sapce. </summary>
         /// <param name="localAngle">The <see cref="Angle"/> in local space.</param>
         public Angle AngleFrom(in Angle localAngle) => default(TTransformer).AngleFrom(this.locus, in localAngle);
+
 
         /// <summary> Scales a scalar value from parent space to local space. </summary>
         /// <param name="parentScalar">The scalar value in parent space.</param>
