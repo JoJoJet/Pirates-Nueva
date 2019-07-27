@@ -10,6 +10,12 @@ namespace Pirates_Nueva.Ocean
     public interface ISpaceLocus
     {
         /// <summary>
+        /// The coordinate system containing the current one.
+        /// If null, that means the current system is the root.
+        /// </summary>
+        ISpaceLocus? Parent { get; }
+
+        /// <summary>
         /// The object that handles transformation for this Locus.
         /// </summary>
         ISpace Transformer { get; }
