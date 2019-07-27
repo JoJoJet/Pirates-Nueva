@@ -35,6 +35,26 @@ namespace Pirates_Nueva.Ocean
         float ScaleFrom(TLocus space, float local);
     }
     /// <summary>
+    /// A type-agnostic interface for <see cref="Space{TSpace, TTransformer}"/>.
+    /// </summary>
+    public interface ISpace
+    {
+        /// <summary> Transforms a point from parent space to local space. </summary>
+        PointF PointTo(in PointF parentPoint);
+        /// <summary> Transforms a point from local space to parent space. </summary>
+        PointF PointFrom(in PointF localPoint);
+
+        /// <summary> Transforms an <see cref="Angle"/> from parent space to local space. </summary>
+        Angle AngleTo(in Angle parentAngle);
+        /// <summary> Transforms an <see cref="Angle"/> from local space to parent space. </summary>
+        Angle AngleFrom(in Angle localAngle);
+
+        /// <summary> Scales a scalar value from parent space to local space. </summary>
+        float ScaleTo(float parentScalar);
+        /// <summary> Scales a scalar value from local space to parent space. </summary>
+        float ScaleFrom(float localScalar);
+    }
+    /// <summary>
     /// An object representing a local system of coordinates.
     /// </summary>
     /// <typeparam name="TLocus">The type around which this coordinate system is centered.</typeparam>
