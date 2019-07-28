@@ -13,36 +13,6 @@ namespace Pirates_Nueva.Ocean
         public Ship Ship => Container;
 
         public ShipStock(ItemDef def, Ship ship, Block floor) : base(def, ship, floor) {  }
-
-        protected override IFocusMenuProvider GetFocusProvider(Master master)
-            => new ShipStockFocusMenuProvider(this, master);
     }
 
-    internal sealed class ShipStockFocusMenuProvider : IFocusMenuProvider
-    {
-        const string MenuID = "shipStockFocusFloating";
-
-        public bool IsLocked => false;
-        public ShipStock Stock { get; }
-
-        public ShipStockFocusMenuProvider(ShipStock stock, Master master) {
-            Stock = stock;
-            MakeMenu(master);
-        }
-        public void Update(Master master) {
-            master.GUI.RemoveMenu(MenuID);
-            MakeMenu(master);
-        }
-        public void Close(Master master)
-            => master.GUI.RemoveMenu(MenuID);
-
-        private void MakeMenu(Master master)
-            => master.GUI.AddMenu(
-                  MenuID,
-                  new UI.FloatingMenu(
-                      Stock, (0, -0.05f), UI.Corner.BottomLeft,
-                      new UI.Text<UI.GUI.Menu>("Claimed by: " + (Stock.Claimant?.ToString() ?? "Nothing"), master.Font)
-                      )
-                  );
-    }
 }
