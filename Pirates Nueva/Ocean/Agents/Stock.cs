@@ -18,7 +18,7 @@ namespace Pirates_Nueva.Ocean.Agents
         bool Equals(IStockClaimant<TC, TSpot> other);
     }
 
-    public abstract class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
+    public class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -48,13 +48,13 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> Whether or not this Stock has been destroyed. </summary>
         public bool IsDestroyed { get; private set; }
 
-        protected Stock(ItemDef def, TC container, TSpot spot) {
+        public Stock(ItemDef def, TC container, TSpot spot) {
             Def = def;
             Container = container;
             Spot = spot;
             Spot.Stock = this;
         }
-        protected Stock(ItemDef def, TC container, Agent<TC, TSpot> holder) {
+        public Stock(ItemDef def, TC container, Agent<TC, TSpot> holder) {
             Def = def;
             Container = container;
             Holder = holder;
@@ -147,17 +147,45 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
-        protected abstract PointI ScreenTarget { get; }
+        int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
+        private PointF ScreenTarget => Container.Transformer.PointToRoot(new PointF(X + 0.5f, Y + 0.5f));
         #endregion
 
         #region IFocusable Implementation
         protected bool IsFocused { get; private set; }
         bool IFocusable.IsFocused { set => IsFocused = value; }
 
-        protected abstract IFocusMenuProvider GetFocusProvider(Master master);
-        IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
+        IFocusMenuProvider IFocusable.GetProvider(Master master)
+            => new FocusMenuProvider(this, master);
+
+        protected class FocusMenuProvider : IFocusMenuProvider
+        {
+            const string MenuID = "shipStockFocusFloating";
+
+            public bool IsLocked => false;
+            public Stock<TC, TSpot> Stock { get; }
+
+            public FocusMenuProvider(Stock<TC, TSpot> stock, Master master) {
+                Stock = stock;
+                MakeMenu(master);
+            }
+            public void Update(Master master) {
+                master.GUI.RemoveMenu(MenuID);
+                MakeMenu(master);
+            }
+            public void Close(Master master)
+                => master.GUI.RemoveMenu(MenuID);
+
+            private void MakeMenu(Master master)
+                => master.GUI.AddMenu(
+                      MenuID,
+                      new UI.FloatingMenu(
+                          Stock, (0, -0.05f), UI.Corner.BottomLeft,
+                          new UI.Text<UI.GUI.Menu>("Claimed by: " + (Stock.Claimant?.ToString() ?? "Nothing"), master.Font)
+                          )
+                      );
+        }
         #endregion
     }
 }

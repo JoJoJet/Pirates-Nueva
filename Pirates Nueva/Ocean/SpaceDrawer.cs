@@ -7,16 +7,17 @@ namespace Pirates_Nueva.Ocean
     /// <summary>
     /// An implementation of <see cref="ILocalDrawer{T}"/> that depends on an instance of <see cref="Space{TSelf, TTransformer}"/>.
     /// </summary>
-    /// <typeparam name="TSpace">The type representing the local coordinate system.</typeparam>
+    /// <typeparam name="TLocus">The locus for this drawer's coordinate system.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Drawer.</typeparam>
     /// <typeparam name="TParent">The type representing the parent coordinate system.</typeparam>
-    public sealed class SpaceDrawer<TSpace, TTransformer, TParent> : ILocalDrawer<TSpace>
-        where TTransformer : struct, ITransformer<TSpace>
+    public sealed class SpaceDrawer<TLocus, TTransformer, TParent> : ILocalDrawer<TLocus>
+        where TLocus : ISpaceLocus<TLocus>
+        where TTransformer : struct, ITransformer<TLocus>
     {
         private ILocalDrawer<TParent> Drawer { get; }
-        private Space<TSpace, TTransformer> Transformer { get; }
+        private Space<TLocus, TTransformer> Transformer { get; }
 
-        public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TSpace, TTransformer> space)
+        public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TLocus, TTransformer> space)
             => (Drawer, Transformer) = (parentDrawer, space);
 
         public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
