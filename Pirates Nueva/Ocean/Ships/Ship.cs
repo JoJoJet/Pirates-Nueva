@@ -308,7 +308,7 @@ namespace Pirates_Nueva.Ocean
 
             if(unsafeGetBlock(x, y) is Block b) {
                 if(b.Stock == null)
-                    return b.Stock = new ShipStock(def, this, b);
+                    return b.Stock = new Stock(def, this, b);
                 else
                     throw new InvalidOperationException(
                         $"{Sig}: There is already a {nameof(Stock)} at index ({x}, {y})!"

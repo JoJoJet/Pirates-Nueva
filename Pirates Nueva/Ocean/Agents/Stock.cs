@@ -18,7 +18,7 @@ namespace Pirates_Nueva.Ocean.Agents
         bool Equals(IStockClaimant<TC, TSpot> other);
     }
 
-    public abstract class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
+    public class Stock<TC, TSpot> : IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -48,13 +48,13 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> Whether or not this Stock has been destroyed. </summary>
         public bool IsDestroyed { get; private set; }
 
-        protected Stock(ItemDef def, TC container, TSpot spot) {
+        public Stock(ItemDef def, TC container, TSpot spot) {
             Def = def;
             Container = container;
             Spot = spot;
             Spot.Stock = this;
         }
-        protected Stock(ItemDef def, TC container, Agent<TC, TSpot> holder) {
+        public Stock(ItemDef def, TC container, Agent<TC, TSpot> holder) {
             Def = def;
             Container = container;
             Holder = holder;
