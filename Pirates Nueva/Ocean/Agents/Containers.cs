@@ -19,6 +19,11 @@ namespace Pirates_Nueva.Ocean.Agents
         where TSpot : class, IAgentSpot<TSelf, TSpot>
     {
         /// <summary>
+        /// Gets the spot at specified indices.
+        /// </summary>
+        TSpot? GetSpotOrNull(int x, int y);
+
+        /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent{TC, TSpot}"/>
         /// </summary>
         Job<TSelf, TSpot>? GetWorkableJob(Agent<TSelf, TSpot> hiree);

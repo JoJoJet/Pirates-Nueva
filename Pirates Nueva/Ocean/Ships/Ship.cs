@@ -123,12 +123,10 @@ namespace Pirates_Nueva.Ocean
             return HasBlock(shipX, shipY);
         }
 
-        #region Space Transformation
         /// <summary>
         /// Whether or not the specified indices are within the bounds of this ship.
         /// </summary>
         public bool AreIndicesValid(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
-        #endregion
 
         #region Block Accessor Methods
         /// <summary>
@@ -417,6 +415,30 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
+        #region IAgentContainer Implementation
+        Block? IAgentContainer<Ship, Block>.GetSpotOrNull(int x, int y) => GetBlockOrNull(x, y);
+        #endregion
+
+        #region ISpaceLocus Implementation
+        ISpaceLocus? ISpaceLocus.Parent => Sea;
+        ISpace ISpaceLocus.Transformer => Transformer;
+        ISpace<Ship> ISpaceLocus<Ship>.Transformer => Transformer;
+        #endregion
+
+        #region IGraph Implementation
+        IEnumerable<Block> IGraph<Block>.Nodes {
+            get {
+                // Return every block in this ship.
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(GetBlockOrNull(x, y) is Block b)
+                            yield return b;
+                    }
+                }
+            }
+        }
+        #endregion
+
         #region IUpdatable Implementation
         void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
         protected virtual void Update(Master master, Time delta) {
@@ -522,26 +544,6 @@ namespace Pirates_Nueva.Ocean
 
             return focusable;
         }
-        #endregion
-
-        #region IGraph Implementation
-        IEnumerable<Block> IGraph<Block>.Nodes {
-            get {
-                // Return every block in this ship.
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
-                        if(GetBlockOrNull(x, y) is Block b)
-                            yield return b;
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region ISpaceLocus Implementation
-        ISpaceLocus? ISpaceLocus.Parent => Sea;
-        ISpace ISpaceLocus.Transformer => Transformer;
-        ISpace<Ship> ISpaceLocus<Ship>.Transformer => Transformer;
         #endregion
 
         /// <summary>
