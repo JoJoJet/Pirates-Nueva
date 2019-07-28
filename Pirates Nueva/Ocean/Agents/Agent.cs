@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TC">The type of Container that this Agent exists in.</typeparam>
     /// <typeparam name="TSpot">The type of Spot that this Agent can rest on.</typeparam>
-    public abstract class Agent<TC, TSpot> : IStockClaimant<TC, TSpot>, IUpdatable, IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
+    public class Agent<TC, TSpot> : IStockClaimant<TC, TSpot>, IUpdatable, IDrawable<TC>, IFocusable, UI.IScreenSpaceTarget
         where TC    : class, IAgentContainer<TC, TSpot>
         where TSpot : class, IAgentSpot<TC, TSpot>
     {
@@ -224,8 +224,59 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IFocusable Implementation
         protected bool IsFocused { get; private set; }
         bool IFocusable.IsFocused { set => IsFocused = value; }
-        IFocusMenuProvider IFocusable.GetProvider(Master master) => GetFocusProvider(master);
-        protected abstract IFocusMenuProvider GetFocusProvider(Master master);
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => new FocusMenuProvider(this, master);
+
+        protected class FocusMenuProvider : IFocusMenuProvider
+        {
+            const string MenuID = "agentFocusFloating";
+
+            enum FocusState { None, ChoosePath };
+
+            private FocusState state;
+
+            public bool IsLocked { get; private set; }
+            public Agent<TC, TSpot> Agent { get; }
+            private UI.FloatingMenu Menu { get; set; }
+
+            public FocusMenuProvider(Agent<TC, TSpot> agent, Master master) {
+                Agent = agent;
+                master.GUI.AddMenu(
+                    MenuID,
+                    Menu = new UI.FloatingMenu(
+                        Agent, (0, -0.05f), UI.Corner.BottomLeft,
+                        new UI.Text<UI.GUI.Menu>("Agent", master.Font),
+                        new UI.Button<UI.GUI.Menu>("Path", master.Font, () => this.state = FocusState.ChoosePath)
+                        )
+                    );
+            }
+
+            public void Update(Master master) {
+                //
+                // Toggle the menu on/off depending on the current state.
+                if(this.state == FocusState.None)
+                    Menu.Unhide();
+                else
+                    Menu.Hide();
+
+                if(this.state == FocusState.ChoosePath) { // If we are currently choosing a path,
+                    IsLocked = true;                     //     lock the focus onto this agent.
+
+                    if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {       // If the user clicked, but not on GUI:
+                        var (localX, localY) = Agent.Container.Transformer                  // Find the indices at which
+                            .PointFromRootToIndex(master.Input.MousePosition);              //     the user clicked.
+                                                                                            //
+                        if(Agent.Container.GetSpotOrNull(localX, localY) is TSpot target) { // If the indices have a block
+                            Agent.PathTo(target);                                           //     make the agent path to it.
+                        }
+
+                        this.state = FocusState.None; // Unset the focus mode,
+                        IsLocked = false;             // and release the focus.
+                    }
+                }
+            }
+            public void Close(Master master)
+                => master.GUI.RemoveMenu(MenuID);
+        }
         #endregion
     }
 }

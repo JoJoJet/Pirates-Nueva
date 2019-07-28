@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
+    using Agent = Agent<Ship, Block>;
     using Stock = Stock<Ship, Block>;
     public abstract class Ship
         : Entity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
@@ -14,7 +15,7 @@ namespace Pirates_Nueva.Ocean
         protected const string RootID = "root";
 
         private readonly Block?[,] blocks;
-        private readonly List<Agent<Ship, Block>> agents = new List<Agent<Ship, Block>>();
+        private readonly List<Agent> agents = new List<Agent>();
         
         private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
@@ -326,7 +327,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
         /// </summary>
-        public bool TryGetAgent(int x, int y, out Agent<Ship, Block> agent) {
+        public bool TryGetAgent(int x, int y, out Agent agent) {
             foreach(var ag in this.agents) { // For each agent in this ship:
                 if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
                     agent = ag;              //     set it as the out parameter,
@@ -340,7 +341,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
         /// </summary>
-        public Agent<Ship, Block>? GetAgentOrNull(int x, int y) {
+        public Agent? GetAgentOrNull(int x, int y) {
             foreach(var agent in this.agents) {
                 if(agent.X == x && agent.Y == y)
                     return agent;
@@ -352,11 +353,11 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Agent<Ship, Block> AddAgent(int x, int y) {
+        public Agent AddAgent(int x, int y) {
             ValidateIndices(nameof(AddAgent), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) {   // If there is a block at /x/, /y/,
-                var agent = new ShipAgent(this, b); //     create an agent on it,
+                var agent = new Agent(this, b); //     create an agent on it,
                 this.agents.Add(agent);             //     add the agent to the list of agents,
                 return agent;                       //     and then return the agent.
             }
@@ -379,7 +380,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
-        public Job<Ship, Block>? GetWorkableJob(Agent<Ship, Block> hiree) {
+        public Job<Ship, Block>? GetWorkableJob(Agent hiree) {
             for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
                 var job = jobs[i];
                 if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
