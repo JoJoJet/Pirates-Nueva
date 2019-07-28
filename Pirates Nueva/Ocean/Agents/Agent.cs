@@ -216,10 +216,9 @@ namespace Pirates_Nueva.Ocean.Agents
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => ScreenTarget.X;
-        int UI.IScreenSpaceTarget.Y => ScreenTarget.Y;
-        /// <summary> The center of this Agent, in screen-space. </summary>
-        protected abstract PointI ScreenTarget { get; }
+        int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
+        int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
+        private PointF ScreenTarget => Container.Transformer.PointToRoot(new PointF(X + 0.5f, Y + 0.5f));
         #endregion
 
         #region IFocusable Implementation

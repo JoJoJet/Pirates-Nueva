@@ -8,7 +8,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// </summary>
     /// <typeparam name="TSelf">The type that is implementing this container.</typeparam>
     /// <typeparam name="TSpot">The type of spot that this instance contains.</typeparam>
-    public interface IAgentContainer<TSelf, TSpot> : IGraph<TSpot>
+    public interface IAgentContainer<TSelf, TSpot> : IGraph<TSpot>, ISpaceLocus
         where TSelf : class, IAgentContainer<TSelf, TSpot>
         where TSpot : class, IAgentSpot<TSelf, TSpot>
     {

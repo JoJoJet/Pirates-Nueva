@@ -12,8 +12,6 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Ship Ship => Container;
 
-        protected override PointI ScreenTarget => (PointI)Ship.Transformer.PointToRoot(X + 0.5f, Y + 0.5f);
-
         public ShipStock(ItemDef def, Ship ship, Block floor) : base(def, ship, floor) {  }
 
         protected override IFocusMenuProvider GetFocusProvider(Master master)
