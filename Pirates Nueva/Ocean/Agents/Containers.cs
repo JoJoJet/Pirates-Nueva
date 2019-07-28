@@ -88,6 +88,24 @@ namespace Pirates_Nueva.Ocean.Agents
             return new PointI(Floor(localX), Floor(localY));
         }
 
+        /// <summary> Transforms a point from root space to a local-space index. </summary>
+        /// <param name="rootPoint">The point in root space.</param>
+        public static PointI PointFromRootToIndex<TContainer>(this ISpace<TContainer> space, in PointF rootPoint)
+            where TContainer : class, IAgentContainer<TContainer>
+        {
+            var (localX, localY) = space.PointFromRoot(in rootPoint);
+            return new PointI(Floor(localX), Floor(localY));
+        }
+        /// <summary> Transforms a point from root space to a local-space index. </summary>
+        /// <param name="rootX">The x index of the point in root space.</param>
+        /// <param name="rootY">The y index of the point in root space.</param>
+        public static PointI PointFromRootToIndex<TContainer>(this ISpace<TContainer> space, float rootX, float rootY)
+            where TContainer : class, IAgentContainer<TContainer>
+        {
+            var (localX, localY) = space.PointFromRoot(new PointF(rootX, rootY));
+            return new PointI(Floor(localX), Floor(localY));
+        }
+
         private static int Floor(float value) => (int)Math.Floor(value);
     }
 
