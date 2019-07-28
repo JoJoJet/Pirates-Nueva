@@ -7,7 +7,7 @@ namespace Pirates_Nueva.Ocean.Agents
     /// The base type of <see cref="IAgentContainer{TSelf, TSpot}"/>.
     /// </summary>
     /// <typeparam name="TSelf">The type that is implementing this interface.</typeparam>
-    public interface IAgentContainer<TSelf> : ISpaceLocus
+    public interface IAgentContainer<TSelf> : ISpaceLocus<TSelf>
         where TSelf : IAgentContainer<TSelf> {  }
     /// <summary>
     /// An object that can contain Agents and Jobs.
@@ -67,9 +67,8 @@ namespace Pirates_Nueva.Ocean.Agents
     {
         /// <summary> Transforms a point from parent space to a local-space index. </summary>
         /// <param name="parentPoint">The point in parent space.</param>
-        public static PointI PointToIndex<TC, TTransformer>(this Space<TC, TTransformer> space, in PointF parentPoint)
-            where TC : class, IAgentContainer<TC>
-            where TTransformer : struct, ITransformer<TC>
+        public static PointI PointToIndex<TContainer>(this ISpace<TContainer> space, in PointF parentPoint)
+            where TContainer : class, IAgentContainer<TContainer>
         {
             var (localX, localY) = space.PointTo(in parentPoint);
             return new PointI(Floor(localX), Floor(localY));
@@ -77,11 +76,10 @@ namespace Pirates_Nueva.Ocean.Agents
         /// <summary> Transforms a point from parent space to a local-space index. </summary>
         /// <param name="parentX">The x index of the point in parent space.</param>
         /// <param name="parentY">The y index of the point in parent space.</param>
-        public static PointI PointToIndex<TC, TTransformer>(this Space<TC, TTransformer> space, float parentX, float parentY)
-            where TC : class, IAgentContainer<TC>
-            where TTransformer : struct, ITransformer<TC>
+        public static PointI PointToIndex<TContainer>(this ISpace<TContainer> space, float parentX, float parentY)
+            where TContainer : class, IAgentContainer<TContainer>
         {
-            var (localX, localY) = space.PointTo(parentX, parentY);
+            var (localX, localY) = space.PointTo(new PointF(parentX, parentY));
             return new PointI(Floor(localX), Floor(localY));
         }
 

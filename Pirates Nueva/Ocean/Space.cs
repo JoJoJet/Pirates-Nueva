@@ -5,7 +5,7 @@ using System.Text;
 namespace Pirates_Nueva.Ocean
 {
     /// <summary>
-    /// An object that represents the central point in a local coordinate system.
+    /// The base type for <see cref="ISpaceLocus{TSelf}"/>.
     /// </summary>
     public interface ISpaceLocus
     {
@@ -15,10 +15,18 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         ISpaceLocus? Parent { get; }
 
-        /// <summary>
-        /// The object that handles transformation for this Locus.
-        /// </summary>
+        /// <summary> The object that handles transformation for this Locus. </summary>
         ISpace Transformer { get; }
+    }
+    /// <summary>
+    /// An object that represents the central point in a local coordinate system.
+    /// </summary>
+    /// <typeparam name="TSelf">The type that is implementing this interface.</typeparam>
+    public interface ISpaceLocus<TSelf> : ISpaceLocus
+        where TSelf : ISpaceLocus<TSelf>
+    {
+        /// <summary> The object that handles transformation for this Locus. </summary>
+        new ISpace<TSelf> Transformer { get; }
     }
 
     /// <summary>
@@ -53,7 +61,7 @@ namespace Pirates_Nueva.Ocean
         float ScaleFrom(TLocus space, float local);
     }
     /// <summary>
-    /// A type-agnostic interface for <see cref="Space{TSpace, TTransformer}"/>.
+    /// The base type of <see cref="Space{TSpace, TTransformer}"/>.
     /// </summary>
     public interface ISpace
     {
@@ -78,12 +86,18 @@ namespace Pirates_Nueva.Ocean
         float ScaleFrom(float localScalar);
     }
     /// <summary>
+    /// The base type of <see cref="Space{TLocus, TTransformer}"/>.
+    /// </summary>
+    public interface ISpace<TLocus> : ISpace
+        where TLocus : ISpaceLocus
+    {  }
+    /// <summary>
     /// An object representing a local system of coordinates.
     /// </summary>
     /// <typeparam name="TLocus">The type around which this coordinate system is centered.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Space.</typeparam>
-    public sealed class Space<TLocus, TTransformer> : ISpace
-        where TLocus : ISpaceLocus
+    public sealed class Space<TLocus, TTransformer> : ISpace<TLocus>
+        where TLocus : ISpaceLocus<TLocus>
         where TTransformer : struct, ITransformer<TLocus>
     {
         private readonly TLocus locus;

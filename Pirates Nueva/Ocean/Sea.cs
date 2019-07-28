@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : ISpaceLocus, IUpdatable, IDrawable<Master>, IFocusableParent
+    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Master>, IFocusableParent
     {
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
@@ -58,6 +58,7 @@ namespace Pirates_Nueva.Ocean
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => null;
         ISpace ISpaceLocus.Transformer => Transformer;
+        ISpace<Sea> ISpaceLocus<Sea>.Transformer => Transformer;
         #endregion
 
         #region IUpdatable Implementation

@@ -7,7 +7,9 @@ using System.Runtime.CompilerServices;
 namespace Pirates_Nueva.Ocean
 {
     using Stock = Stock<Ship, Block>;
-    public abstract class Ship : Entity, IAgentContainer<Ship, Block>, ISpaceLocus, IUpdatable, IDrawable<Sea>, IFocusableParent, UI.IScreenSpaceTarget
+    public abstract class Ship
+        : Entity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
+          IUpdatable, IDrawable<Sea>, IFocusableParent, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -539,6 +541,7 @@ namespace Pirates_Nueva.Ocean
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Sea;
         ISpace ISpaceLocus.Transformer => Transformer;
+        ISpace<Ship> ISpaceLocus<Ship>.Transformer => Transformer;
         #endregion
 
         /// <summary>
