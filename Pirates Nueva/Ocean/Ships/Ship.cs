@@ -641,24 +641,4 @@ namespace Pirates_Nueva.Ocean
         float ITransformer<Ship>.ScaleTo(Ship space, float parent) => parent;
         float ITransformer<Ship>.ScaleFrom(Ship space, float local) => local;
     }
-    public static class ShipSpaceExt
-    {
-        /// <summary> Transforms a point from parent space to a local-space index. </summary>
-        /// <param name="parentPoint">The point in parent space.</param>
-        public static PointI PointToIndex<TTransformer>(this Space<Ship, TTransformer> space, in PointF parentPoint)
-            where TTransformer : struct, ITransformer<Ship>
-        {
-            var (shipX, shipY) = space.PointTo(in parentPoint);                // Transform the point.
-            return new PointI((int)Math.Floor(shipX), (int)Math.Floor(shipY)); // Floor the point into integers and return them.
-        }
-        /// <summary> Transforms a point from parent space to a local-space index. </summary>
-        /// <param name="parentX">The x coordinate of the point in parent space.</param>
-        /// <param name="parentY">The y coordinate of the point in parent space.</param>
-        public static PointI PointToIndex<TTransformer>(this Space<Ship, TTransformer> space, float parentX, float parentY)
-            where TTransformer : struct, ITransformer<Ship>
-        {
-            var (shipX, shipY) = space.PointTo(parentX, parentY);
-            return new PointI((int)Math.Floor(shipX), (int)Math.Floor(shipY));
-        }
-    }
 }

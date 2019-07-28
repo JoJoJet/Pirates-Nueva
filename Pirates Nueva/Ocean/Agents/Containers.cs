@@ -4,11 +4,17 @@ using Pirates_Nueva.Path;
 namespace Pirates_Nueva.Ocean.Agents
 {
     /// <summary>
+    /// The base type of <see cref="IAgentContainer{TSelf, TSpot}"/>.
+    /// </summary>
+    /// <typeparam name="TSelf">The type that is implementing this interface.</typeparam>
+    public interface IAgentContainer<TSelf> : ISpaceLocus
+        where TSelf : IAgentContainer<TSelf> {  }
+    /// <summary>
     /// An object that can contain Agents and Jobs.
     /// </summary>
     /// <typeparam name="TSelf">The type that is implementing this container.</typeparam>
     /// <typeparam name="TSpot">The type of spot that this instance contains.</typeparam>
-    public interface IAgentContainer<TSelf, TSpot> : IGraph<TSpot>, ISpaceLocus
+    public interface IAgentContainer<TSelf, TSpot> : IAgentContainer<TSelf>, IGraph<TSpot>
         where TSelf : class, IAgentContainer<TSelf, TSpot>
         where TSpot : class, IAgentSpot<TSelf, TSpot>
     {
@@ -57,6 +63,31 @@ namespace Pirates_Nueva.Ocean.Agents
         void UnsubscribeOnDestroyed(Action<TSelf> action);
     }
 
+    public static class AgentContainerExt
+    {
+        /// <summary> Transforms a point from parent space to a local-space index. </summary>
+        /// <param name="parentPoint">The point in parent space.</param>
+        public static PointI PointToIndex<TC, TTransformer>(this Space<TC, TTransformer> space, in PointF parentPoint)
+            where TC : class, IAgentContainer<TC>
+            where TTransformer : struct, ITransformer<TC>
+        {
+            var (localX, localY) = space.PointTo(in parentPoint);
+            return new PointI(Floor(localX), Floor(localY));
+        }
+        /// <summary> Transforms a point from parent space to a local-space index. </summary>
+        /// <param name="parentX">The x index of the point in parent space.</param>
+        /// <param name="parentY">The y index of the point in parent space.</param>
+        public static PointI PointToIndex<TC, TTransformer>(this Space<TC, TTransformer> space, float parentX, float parentY)
+            where TC : class, IAgentContainer<TC>
+            where TTransformer : struct, ITransformer<TC>
+        {
+            var (localX, localY) = space.PointTo(parentX, parentY);
+            return new PointI(Floor(localX), Floor(localY));
+        }
+
+        private static int Floor(float value) => (int)Math.Floor(value);
+    }
+
     public static class AgentSpotExt
     {
         /// <summary> Returns whether or not the current Spot has been destroyed. </summary>
@@ -65,12 +96,12 @@ namespace Pirates_Nueva.Ocean.Agents
             where TSpot : class, IAgentSpot<TC, TSpot>
             => (spot as IAgentSpotDestroyable<TC, TSpot>)?.IsDestroyed ?? false;
 
-        /// <summary> Subscribes the specified function to be invoked if this Spot is destroyed. </summary>
+        /// <summary> Subscribes the specified function to be invoked when this Spot is destroyed. </summary>
         public static void SubscribeOnDestroyed<TC, TSpot>(this IAgentSpot<TC, TSpot> spot, Action<TSpot> action)
             where TC    : class, IAgentContainer<TC, TSpot>
             where TSpot : class, IAgentSpot<TC, TSpot>
             => (spot as IAgentSpotDestroyable<TC, TSpot>)?.SubscribeOnDestroyed(action);
-        /// <summary> Unsubscribes the specified <see cref="Action"/> from being invoked if this Spot is destroyed. </summary>
+        /// <summary> Unsubscribes the specified <see cref="Action"/> from being invoked when this Spot is destroyed. </summary>
         public static void UnsubscribeOnDestroyed<TC, TSpot>(this IAgentSpot<TC, TSpot> spot, Action<TSpot> action)
             where TC    : class, IAgentContainer<TC, TSpot>
             where TSpot : class, IAgentSpot<TC, TSpot>
