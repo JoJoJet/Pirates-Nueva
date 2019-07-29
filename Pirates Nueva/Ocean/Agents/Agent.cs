@@ -218,7 +218,7 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IScreenSpaceTarget Implementation
         int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
         int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
-        private PointF ScreenTarget => Container.Transformer.PointToRoot(new PointF(X + 0.5f, Y + 0.5f));
+        private PointF ScreenTarget => Container.Transformer.PointTo<Screen>(new PointF(X + 0.5f, Y + 0.5f));
         #endregion
 
         #region IFocusable Implementation
@@ -263,7 +263,7 @@ namespace Pirates_Nueva.Ocean.Agents
 
                     if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {       // If the user clicked, but not on GUI:
                         var (localX, localY) = Agent.Container.Transformer                  // Find the indices at which
-                            .PointFromRootToIndex(master.Input.MousePosition);              //     the user clicked.
+                            .PointToIndexFrom<Screen, TC>(master.Input.MousePosition);      //     the user clicked.
                                                                                             //
                         if(Agent.Container.GetSpotOrNull(localX, localY) is TSpot target) { // If the indices have a block
                             Agent.PathTo(target);                                           //     make the agent path to it.

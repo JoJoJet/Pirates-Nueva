@@ -151,7 +151,7 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IScreenSpaceTarget Implementation
         int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
         int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
-        private PointF ScreenTarget => Container.Transformer.PointToRoot(new PointF(X + 0.5f, Y + 0.5f));
+        private PointF ScreenTarget => Container.Transformer.PointTo<Screen>(new PointF(X + 0.5f, Y + 0.5f));
         #endregion
 
         #region IFocusable Implementation

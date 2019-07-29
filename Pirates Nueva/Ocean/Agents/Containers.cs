@@ -89,20 +89,24 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         /// <summary> Transforms a point from root space to a local-space index. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space from which to transform.</typeparam>
         /// <param name="rootPoint">The point in root space.</param>
-        public static PointI PointFromRootToIndex<TContainer>(this ISpace<TContainer> space, in PointF rootPoint)
+        public static PointI PointToIndexFrom<TRoot, TContainer>(this ISpace<TContainer> space, in PointF rootPoint)
+            where TRoot : ISpaceLocus<TRoot>
             where TContainer : class, IAgentContainer<TContainer>
         {
-            var (localX, localY) = space.PointFromRoot(in rootPoint);
+            var (localX, localY) = space.PointFrom<TRoot>(in rootPoint);
             return new PointI(Floor(localX), Floor(localY));
         }
         /// <summary> Transforms a point from root space to a local-space index. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space from which to transform.</typeparam>
         /// <param name="rootX">The x index of the point in root space.</param>
         /// <param name="rootY">The y index of the point in root space.</param>
-        public static PointI PointFromRootToIndex<TContainer>(this ISpace<TContainer> space, float rootX, float rootY)
+        public static PointI PointToIndexFrom<TRoot, TContainer>(this ISpace<TContainer> space, float rootX, float rootY)
+            where TRoot : ISpaceLocus<TRoot>
             where TContainer : class, IAgentContainer<TContainer>
         {
-            var (localX, localY) = space.PointFromRoot(new PointF(rootX, rootY));
+            var (localX, localY) = space.PointFrom<TRoot>(new PointF(rootX, rootY));
             return new PointI(Floor(localX), Floor(localY));
         }
 
