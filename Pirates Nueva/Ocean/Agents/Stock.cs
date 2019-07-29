@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pirates_Nueva.Ocean.Agents
 {
@@ -33,12 +34,13 @@ namespace Pirates_Nueva.Ocean.Agents
         public Agent<TC, TSpot>? Holder { get; private set; }
 
         /// <summary> The X coordinate of this instance, local to its container. </summary>
-        public float X => Holder?.X ?? Spot!.X; // We can assume that the spot is not null,
-                                                //     because it is guaranteed that either
-                                                //     /Holder/ or /Spot/ will always have a value.
-                                                //     (But never both at once).
+        public float X => Holder?.X ?? Spot?.X ?? ThrowBothNull();
         /// <summary> The Y coordinate of this instance, local to its container. </summary>
-        public float Y => Holder?.Y ?? Spot!.Y;
+        public float Y => Holder?.Y ?? Spot?.Y ?? ThrowBothNull();
+
+        [DoesNotReturn]
+        private static float ThrowBothNull() => throw new InvalidOperationException(
+            $"The properties {nameof(Holder)} and {nameof(Spot)} cannot both be null! Something went wrong.");
 
         /// <summary> Whether or not this Stock is currently claimed. </summary>
         public bool IsClaimed => Claimant != null;

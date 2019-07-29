@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 
 namespace Pirates_Nueva.UI
@@ -61,22 +62,22 @@ namespace Pirates_Nueva.UI
         }
 
         /// <summary> Gets the edge Element identifed by /id/. </summary>
-        public bool TryGetEdge(string id, out Element<Edge> element) {
+        public bool TryGetEdge(string id, [NotNullWhen(true)] out Element<Edge>? element) {
             if(this._edgeElements.TryGetValue(id, out var info)) {
                 element = info.Element;
                 return true;
             }
             else {
-                element = null!;
+                element = null;
                 return false;
             }
         }
         /// <summary> Gets the edge element identified by /id/ and that is of type /T/. </summary>
-        public bool TryGetEdge<T>(string id, out T element) where T : Element<Edge> {
+        public bool TryGetEdge<T>(string id, [NotNullWhen(true)] out T? element) where T : Element<Edge> {
             if(TryGetEdge(id, out var med) && med is T last) // If there's an edge of type /T/ identified by /id/,
                 element = last;                              //     return it.
             else                                             // If there is no edge element of type /T/ and identified by /id/,
-                element = null!;                             //     return false;
+                element = null;                              //     return false;
                                                              //
             return element != default;                       // Return whether or not we found /edge/.
         }
@@ -131,7 +132,7 @@ namespace Pirates_Nueva.UI
         public bool HasMenu(string id) => this._menus.ContainsKey(id);
 
         /// <summary> Get the <see cref="Menu"/> identified by /id/. </summary>
-        public bool TryGetMenu(string id, out Menu menu) => this._menus.TryGetValue(id, out menu);
+        public bool TryGetMenu(string id, [NotNullWhen(true)] out Menu? menu) => this._menus.TryGetValue(id, out menu);
 
         /// <summary>
         /// Remove the <see cref="Menu"/> identified by /id/.
