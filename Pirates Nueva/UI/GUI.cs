@@ -120,7 +120,7 @@ namespace Pirates_Nueva.UI
         public void AddMenu(string id, Menu menu) {
             if(this._menus.ContainsKey(id) == false) {
                 this._menus[id] = menu;
-                (menu as IMenuContract).GUI = this;
+                (menu as IMenuContract).Screen = Master.Screen;
             }
             else
                 throw new InvalidOperationException(
@@ -329,7 +329,7 @@ namespace Pirates_Nueva.UI
         /// </summary>
         private interface IMenuContract
         {
-            GUI GUI { set; }
+            Screen Screen { set; }
 
             void Draw(ILocalDrawer<Master> drawer, Master master);
 
@@ -346,11 +346,13 @@ namespace Pirates_Nueva.UI
             /// <summary> The default spacing between <see cref="Element"/>s. </summary>
             protected const int Padding = 3;
 
-            private GUI? gui;
+            private Screen? screen;
 
-            /// <summary> The <see cref="UI.GUI"/> object containing this <see cref="Menu"/>. </summary>
-            protected GUI GUI => this.gui ?? NullableUtil.ThrowNotInitialized<GUI>();
-            GUI IMenuContract.GUI { set => this.gui = value; }
+            /// <summary>
+            /// The <see cref="Pirates_Nueva.Screen"/> on which the <see cref="GUI"/> elements are located.
+            /// </summary>
+            protected Screen Screen => this.screen ?? NullableUtil.ThrowNotInitialized<Screen>();
+            Screen IMenuContract.Screen { set => this.screen = value; }
 
             /// <summary> Every <see cref="MenuElement"/> in this <see cref="Menu"/>. </summary>
             protected Element<Menu>[] Elements { get; set; }

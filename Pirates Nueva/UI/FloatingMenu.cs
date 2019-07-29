@@ -59,7 +59,7 @@ namespace Pirates_Nueva.UI
             }
 
             // Offset the Menu by a different amount depending on which Corner we are pinning against.
-            PointI offset = ((int)(Offset.X * GUI.ScreenWidth), (int)(Offset.Y * GUI.ScreenHeight));
+            PointI offset = ((int)(Offset.X * Screen.Width), (int)(Offset.Y * Screen.Height));
             if(Corner == Corner.TopLeft)
                 offset += (Target.X, Target.Y);
             else if(Corner == Corner.TopRight)
