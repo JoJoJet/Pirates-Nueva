@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Pirates_Nueva.Ocean;
 
 namespace Pirates_Nueva
 {
     /// <summary>
     /// An object holding info about the screen.
     /// </summary>
-    public sealed class Screen
+    public sealed class Screen : ISpaceLocus<Screen>
     {
         /// <summary> The width of this <see cref="Screen"/> in pixels. </summary>
         public int Width => Master.GraphicsDevice.Viewport.Width;
@@ -17,5 +16,11 @@ namespace Pirates_Nueva
         private Master Master { get; }
 
         internal Screen(Master master) => Master = master;
+
+        #region ISpaceLocus<> Implementation
+        ISpaceLocus? ISpaceLocus.Parent => null;
+        ISpace ISpaceLocus.Transformer => throw new NotImplementedException();
+        ISpace<Screen> ISpaceLocus<Screen>.Transformer => throw new NotImplementedException();
+        #endregion
     }
 }

@@ -56,7 +56,7 @@ namespace Pirates_Nueva.Ocean
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
         #region ISpaceLocus Implementation
-        ISpaceLocus? ISpaceLocus.Parent => null;
+        ISpaceLocus? ISpaceLocus.Parent => Master.Screen;
         ISpace ISpaceLocus.Transformer => Transformer;
         ISpace<Sea> ISpaceLocus<Sea>.Transformer => Transformer;
         #endregion
