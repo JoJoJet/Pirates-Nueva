@@ -106,7 +106,9 @@ namespace Pirates_Nueva.Ocean
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
 
                 bool check(int x, int y, out Block block)
-                    => Ship.TryGetBlock(x, y, out block) && !block.IsDestroyed;
+                    // FIXME: When we get attributes in local functions,
+                    //     add a NotNullWhen(true) attribute to /block/ parameter.
+                    => Ship.TryGetBlock(x, y, out block!) && !block.IsDestroyed;
             }
         }
         #endregion

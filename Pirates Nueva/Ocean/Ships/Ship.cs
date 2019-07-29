@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Pirates_Nueva.Path;
 using Pirates_Nueva.Ocean.Agents;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -133,17 +134,13 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
         /// </summary>
-        public bool TryGetBlock(int x, int y, out Block block) {
+        public bool TryGetBlock(int x, int y, [NotNullWhen(true)] out Block? block) {
             if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
                 block = b;
                 return true;
             }
             else {
-                //
-                // We're putting `null` into a non-nullable reference type.
-                // This seems bad, but as long as the 'try' pattern is used
-                // correctly, users will never experience any null-reference-exceptions.
-                block = null!;
+                block = null;
                 return false;
             }
         }
@@ -210,13 +207,13 @@ namespace Pirates_Nueva.Ocean
         /// Gets the <see cref="Furniture"/> at index /x/, /y/, if it exists.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public bool TryGetFurniture(int x, int y, out Furniture furniture) {
+        public bool TryGetFurniture(int x, int y, [NotNullWhen(true)] out Furniture? furniture) {
             if(GetBlockOrNull(x, y)?.Furniture is Furniture f) {
                 furniture = f;
                 return true;
             }
             else {
-                furniture = null!;
+                furniture = null;
                 return false;
             }
         }
@@ -283,13 +280,13 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Stock"/> at /x/, /y/, if it exists.
         /// </summary>
-        public bool TryGetStock(int x, int y, out Stock stock) {
+        public bool TryGetStock(int x, int y, [NotNullWhen(true)] out Stock? stock) {
             if(GetBlockOrNull(x, y)?.Stock is Stock s) {
                 stock = s;
                 return true;
             }
             else {
-                stock = null!;
+                stock = null;
                 return false;
             }
         }
@@ -327,7 +324,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
         /// </summary>
-        public bool TryGetAgent(int x, int y, out Agent agent) {
+        public bool TryGetAgent(int x, int y, [NotNullWhen(true)] out Agent? agent) {
             foreach(var ag in this.agents) { // For each agent in this ship:
                 if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
                     agent = ag;              //     set it as the out parameter,
@@ -335,7 +332,7 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            agent = null!; // If we got this far, set the out parameter as null,
+            agent = null;  // If we got this far, set the out parameter as null,
             return false;  // and return false.
         }
         /// <summary>
