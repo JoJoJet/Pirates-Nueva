@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 namespace Pirates_Nueva
 {
     /// <summary>
-    /// A point in 2D space, composed of 2 <see cref="int"/>s. Implicitly converts to and from MonoGame.Point.
+    /// A point in 2D space, composed of 2 <see cref="int"/>s. Implicitly converts to and from <see cref="Point"/>
     /// </summary>
     public readonly struct PointI : IEquatable<PointI>
     {
@@ -31,7 +31,7 @@ namespace Pirates_Nueva
         }
 
         /// <summary>
-        /// Returns the squared distance between two points. Faster than <see cref="Distance(PointI, PointI)"/>.
+        /// Returns the squared distance between two points. Faster than <see cref="Distance(in PointI, in PointI)"/>.
         /// </summary>
         public static int SqrDistance(in PointI a, in PointI b) {
             return sqr(a.X - b.X) + sqr(a.Y - b.Y);
@@ -84,7 +84,7 @@ namespace Pirates_Nueva
     }
 
     /// <summary>
-    /// A point in 2D space, composed of 2 <see cref="float"/>s. Implicitly converts to and from MonoGame.Vector2.
+    /// A point in 2D space, composed of 2 <see cref="float"/>s. Implicitly converts to and from <see cref="Vector2"/>
     /// </summary>
     public readonly struct PointF : IEquatable<PointF>
     {
