@@ -19,10 +19,10 @@ namespace Pirates_Nueva.Ocean
             => new BoundingBox(CenterX - 0.5f, CenterY - 0.5f, CenterX + 0.5f, CenterY + 0.5f);
         protected override bool IsCollidingPrecise(PointF point) => true;
 
-        void IUpdatable.Update(Master master, Time delta) {
+        void IUpdatable.Update(in UpdateParams @params) {
             //
             // Move the shot according to its velocity.
-            var move = Velocity * delta * 30;
+            var move = Velocity * @params.Delta * 30;
             Center += move;
             //
             // Kill the shot if it travels too far.

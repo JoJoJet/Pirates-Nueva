@@ -438,8 +438,9 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
-        void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
-        protected virtual void Update(Master master, Time delta) {
+        void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
+        protected virtual void Update(in UpdateParams @params) {
+            var (delta, master) = @params;
             if(Destination is PointF dest) {                            // If there is a destination:
                 if(PointF.Distance(Center, dest) > 0.25f) {             // If the destination is more than half a block away,
                     var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
@@ -469,7 +470,7 @@ namespace Pirates_Nueva.Ocean
             //
             // Update every agent in the ship.
             foreach(var agent in this.agents) {
-                (agent as IUpdatable).Update(master, delta);
+                (agent as IUpdatable).Update(in @params);
             }
         }
         #endregion

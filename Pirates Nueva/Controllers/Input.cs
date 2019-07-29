@@ -52,7 +52,7 @@ namespace Pirates_Nueva
             }
         }
 
-        void IUpdatable.Update(Master master, Time delta) {
+        void IUpdatable.Update(in UpdateParams @params) {
             var mouse = Mouse.GetState();
 
             MousePosition = mouse.Position;

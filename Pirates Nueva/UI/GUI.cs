@@ -199,11 +199,12 @@ namespace Pirates_Nueva.UI
             }
         }
 
-        void IUpdatable.Update(Master master, Time delta) {
-            if(!master.Input.MouseLeft.IsDown) // If the mouse was NOT clicked this frame,
+        void IUpdatable.Update(in UpdateParams @params) {
+            var input = Master.Input;
+            if(!input.MouseLeft.IsDown) // If the mouse was NOT clicked this frame,
                 return;                        //     exit the method.
 
-            var mouse = master.Input.MousePosition;
+            var mouse = input.MousePosition;
             foreach(var info in this._edgeElements.Values) {    // For every edge element:
                 var edge = info.Element as IElement<Edge>;
                 if(edge is IButton b && edge.IsMouseOver(mouse)) {   // If the element is a button and the mouse is over it,
