@@ -38,7 +38,7 @@ namespace Pirates_Nueva.UI
             Corner = corner;
         }
 
-        protected override void Draw(ILocalDrawer<Master> drawer, Master master) {
+        protected override void Draw(ILocalDrawer<Screen> drawer, Master master) {
             CalcOffset();
             var localDrawer = new FloatingMenuDrawer(this, drawer);
 
@@ -75,9 +75,9 @@ namespace Pirates_Nueva.UI
         private class FloatingMenuDrawer : ILocalDrawer<GUI.Menu>
         {
             public FloatingMenu Menu { get; }
-            public ILocalDrawer<Master> Drawer { get; }
+            public ILocalDrawer<Screen> Drawer { get; }
 
-            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Master> drawer) {
+            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Screen> drawer) {
                 Menu = menu;
                 Drawer = drawer;
             }

@@ -328,7 +328,7 @@ namespace Pirates_Nueva.UI
         {
             Screen Screen { set; }
 
-            void Draw(ILocalDrawer<Master> drawer, Master master);
+            void Draw(ILocalDrawer<Screen> drawer, Master master);
 
             bool IsMouseOver(PointI mouse);
 
@@ -383,8 +383,8 @@ namespace Pirates_Nueva.UI
                     el.IsHidden = which;               //     set whether or not it is hidden.
             }
 
-            void IMenuContract.Draw(ILocalDrawer<Master> drawer, Master master) => Draw(drawer, master);
-            protected abstract void Draw(ILocalDrawer<Master> drawer, Master master);
+            void IMenuContract.Draw(ILocalDrawer<Screen> drawer, Master master) => Draw(drawer, master);
+            protected abstract void Draw(ILocalDrawer<Screen> drawer, Master master);
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {

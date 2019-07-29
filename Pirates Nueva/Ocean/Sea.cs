@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Master>, IFocusableParent
+    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
     {
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
@@ -83,8 +83,8 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable<> Implementation
-        void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
-            var drawer = new SpaceDrawer<Sea, SeaTransformer, Master>(topDrawer, Transformer);
+        void IDrawable<Screen>.Draw(ILocalDrawer<Screen> topDrawer) {
+            var drawer = new SpaceDrawer<Sea, SeaTransformer, Screen>(topDrawer, Transformer);
 
             (Islands as IDrawable<Sea>).Draw(drawer);
 

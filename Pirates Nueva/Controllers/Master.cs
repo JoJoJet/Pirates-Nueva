@@ -29,7 +29,7 @@ namespace Pirates_Nueva
         public Input Input { get; }
 
         internal Renderer Renderer { get; private set; }
-        public ILocalDrawer<Master> Drawer => Renderer;
+        public ILocalDrawer<Screen> Drawer => Renderer;
         public Screen Screen { get; }
         public UI.GUI GUI { get; private set; }
 
@@ -144,7 +144,7 @@ namespace Pirates_Nueva
 
             spriteBatch.Begin();
 
-            (Sea as IDrawable<Master>).Draw(Drawer);
+            (Sea as IDrawable<Screen>).Draw(Drawer);
             GUI.Draw(this);
 
             spriteBatch.End();
