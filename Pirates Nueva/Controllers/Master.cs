@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Pirates_Nueva.Ocean;
+using static Pirates_Nueva.NullableUtil;
 
 namespace Pirates_Nueva
 {
@@ -19,27 +21,33 @@ namespace Pirates_Nueva
     /// </summary>
     public sealed class Master : Game
     {
-        private Sea? _sea;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private UI.Font? font;
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Renderer? renderer;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private PlayerController? player;
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private Sea? sea;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)] private SpriteBatch? spriteBatch;
         private GraphicsDeviceManager graphics;
-        private SpriteBatch spriteBatch;
 
-        public UI.Font Font { get; private set; }
+        public UI.Font Font => this.font ?? ThrowNotInitialized<UI.Font>(nameof(Master));
 
         public Input Input { get; }
 
-        internal Renderer Renderer { get; private set; }
+        internal Renderer Renderer => this.renderer ?? ThrowNotInitialized<Renderer>(nameof(Master));
         public ILocalDrawer<Screen> Drawer => Renderer;
         public Screen Screen { get; }
-        public UI.GUI GUI { get; private set; }
+        public UI.GUI GUI { get; }
 
-        public PlayerController Player { get; private set; }
+        public PlayerController Player => this.player ?? ThrowNotInitialized<PlayerController>(nameof(Master));
 
-        private Sea Sea => this._sea ?? NullableUtil.ThrowNotInitialized<Sea>(nameof(Master));
+        private SpriteBatch SpriteBatch => this.spriteBatch ?? ThrowNotInitialized<SpriteBatch>(nameof(Master));
+
+        private Sea Sea => this.sea ?? ThrowNotInitialized<Sea>(nameof(Master));
 
         #region Initialization
-        public Master() {
-            graphics = new GraphicsDeviceManager(this);
+        internal Master() {
+            this.graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
             Screen = new Screen(this);
@@ -47,13 +55,6 @@ namespace Pirates_Nueva
 
             Resources.Initialize(Content);
             Input = new Input(this);
-
-            //
-            // Satisfying the nullable reference types flow analysis.
-            this.spriteBatch = null!;
-            Renderer = null!;
-            Font = null!;
-            Player = null!;
         }
 
         /// <summary>
@@ -80,7 +81,7 @@ namespace Pirates_Nueva
             // Create a new SpriteBatch, which can be used to draw textures.
             this.spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Font = Content.Load<SpriteFont>("font");
+            this.font = Content.Load<SpriteFont>("font");
 
             AfterContentLoad();
         }
@@ -89,12 +90,12 @@ namespace Pirates_Nueva
         /// Initialization performed after <see cref="LoadContent"/>.
         /// </summary>
         private void AfterContentLoad() {
-            Renderer = new Renderer(this, spriteBatch);
+            this.renderer = new Renderer(this, SpriteBatch);
 
             // Initialize the Sea object.
-            this._sea = new Sea(this);
+            this.sea = new Sea(this);
 
-            Player = new PlayerController(this, Sea);
+            this.player = new PlayerController(this, Sea);
         }
 
         /// <summary>
@@ -142,12 +143,12 @@ namespace Pirates_Nueva
         protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin();
+            SpriteBatch.Begin();
 
             (Sea as IDrawable<Screen>).Draw(Drawer);
             GUI.Draw(this);
 
-            spriteBatch.End();
+            SpriteBatch.End();
 
             base.Draw(gameTime);
         }
