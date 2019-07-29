@@ -38,7 +38,7 @@ namespace Pirates_Nueva.UI
             Corner = corner;
         }
 
-        protected override void Draw(ILocalDrawer<Master> drawer, Master master) {
+        protected override void Draw(ILocalDrawer<Screen> drawer, Master master) {
             CalcOffset();
             var localDrawer = new FloatingMenuDrawer(this, drawer);
 
@@ -59,7 +59,7 @@ namespace Pirates_Nueva.UI
             }
 
             // Offset the Menu by a different amount depending on which Corner we are pinning against.
-            PointI offset = ((int)(Offset.X * GUI.ScreenWidth), (int)(Offset.Y * GUI.ScreenHeight));
+            PointI offset = ((int)(Offset.X * Screen.Width), (int)(Offset.Y * Screen.Height));
             if(Corner == Corner.TopLeft)
                 offset += (Target.X, Target.Y);
             else if(Corner == Corner.TopRight)
@@ -75,9 +75,9 @@ namespace Pirates_Nueva.UI
         private class FloatingMenuDrawer : ILocalDrawer<GUI.Menu>
         {
             public FloatingMenu Menu { get; }
-            public ILocalDrawer<Master> Drawer { get; }
+            public ILocalDrawer<Screen> Drawer { get; }
 
-            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Master> drawer) {
+            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Screen> drawer) {
                 Menu = menu;
                 Drawer = drawer;
             }

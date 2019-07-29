@@ -24,9 +24,6 @@ namespace Pirates_Nueva.UI
 
         public Master Master { get; private set; }
 
-        public int ScreenWidth => Master.GraphicsDevice.Viewport.Width;
-        public int ScreenHeight => Master.GraphicsDevice.Viewport.Height;
-
         public string Tooltip { get; set; }
 
         private Font Font => Master.Font;
@@ -120,7 +117,7 @@ namespace Pirates_Nueva.UI
         public void AddMenu(string id, Menu menu) {
             if(this._menus.ContainsKey(id) == false) {
                 this._menus[id] = menu;
-                (menu as IMenuContract).GUI = this;
+                (menu as IMenuContract).Screen = Master.Screen;
             }
             else
                 throw new InvalidOperationException(
@@ -171,11 +168,11 @@ namespace Pirates_Nueva.UI
             Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
 
             foreach(var info in this._edgeElements.Values) {
-                var edge = info.Element;
-                var con = edge as IElement<Edge>;
+                var el = info.Element;
+                var con = el as IElement<Edge>;
 
                 // Copy over some commonly used properties of /edge/.
-                var (e, d, width, height) = (info.Edge, info.Dir, edge.Width, edge.Height);
+                var (e, d, width, height) = (info.Edge, info.Dir, el.Width, el.Height);
 
                 if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
                     stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
@@ -185,14 +182,14 @@ namespace Pirates_Nueva.UI
 
                 /* Arrange /edge/ into its stack. */
                     if(e == Edge.Top || e == Edge.Bottom) // Position it based on the edge it's hugging.
-                        con.Top = e == Edge.Top ? Padding : ScreenHeight - height - Padding;
+                        con.Top = e == Edge.Top ? Padding : Master.Screen.Height - height - Padding;
                     else
-                        con.Left = e == Edge.Right ? ScreenWidth - width - Padding : Padding;
+                        con.Left = e == Edge.Right ? Master.Screen.Width - width - Padding : Padding;
                 
                     if(d == Direction.Up || d == Direction.Down) // Position it based on its stack direction
-                        con.Top = d == Direction.Up ? ScreenHeight - stackLengths[(e, d)] : stackLengths[(e, d)];
+                        con.Top = d == Direction.Up ? Master.Screen.Height - stackLengths[(e, d)] : stackLengths[(e, d)];
                     else
-                        con.Left = d == Direction.Right ? stackLengths[(e, d)] : ScreenWidth - stackLengths[(e, d)];
+                        con.Left = d == Direction.Right ? stackLengths[(e, d)] : Master.Screen.Width - stackLengths[(e, d)];
 
                 if(d == Direction.Right || d == Direction.Down) // If the direction is 'right' or 'down',
                     incr();                                     // increment the stack.
@@ -329,9 +326,9 @@ namespace Pirates_Nueva.UI
         /// </summary>
         private interface IMenuContract
         {
-            GUI GUI { set; }
+            Screen Screen { set; }
 
-            void Draw(ILocalDrawer<Master> drawer, Master master);
+            void Draw(ILocalDrawer<Screen> drawer, Master master);
 
             bool IsMouseOver(PointI mouse);
 
@@ -346,11 +343,13 @@ namespace Pirates_Nueva.UI
             /// <summary> The default spacing between <see cref="Element"/>s. </summary>
             protected const int Padding = 3;
 
-            private GUI? gui;
+            private Screen? screen;
 
-            /// <summary> The <see cref="UI.GUI"/> object containing this <see cref="Menu"/>. </summary>
-            protected GUI GUI => this.gui ?? NullableUtil.ThrowNotInitialized<GUI>();
-            GUI IMenuContract.GUI { set => this.gui = value; }
+            /// <summary>
+            /// The <see cref="Pirates_Nueva.Screen"/> on which the <see cref="GUI"/> elements are located.
+            /// </summary>
+            protected Screen Screen => this.screen ?? NullableUtil.ThrowNotInitialized<Screen>();
+            Screen IMenuContract.Screen { set => this.screen = value; }
 
             /// <summary> Every <see cref="MenuElement"/> in this <see cref="Menu"/>. </summary>
             protected Element<Menu>[] Elements { get; set; }
@@ -384,8 +383,8 @@ namespace Pirates_Nueva.UI
                     el.IsHidden = which;               //     set whether or not it is hidden.
             }
 
-            void IMenuContract.Draw(ILocalDrawer<Master> drawer, Master master) => Draw(drawer, master);
-            protected abstract void Draw(ILocalDrawer<Master> drawer, Master master);
+            void IMenuContract.Draw(ILocalDrawer<Screen> drawer, Master master) => Draw(drawer, master);
+            protected abstract void Draw(ILocalDrawer<Screen> drawer, Master master);
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {

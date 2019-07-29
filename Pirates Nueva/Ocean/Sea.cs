@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Master>, IFocusableParent
+    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
     {
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
@@ -56,7 +56,7 @@ namespace Pirates_Nueva.Ocean
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
         #region ISpaceLocus Implementation
-        ISpaceLocus? ISpaceLocus.Parent => null;
+        ISpaceLocus? ISpaceLocus.Parent => Master.Screen;
         ISpace ISpaceLocus.Transformer => Transformer;
         ISpace<Sea> ISpaceLocus<Sea>.Transformer => Transformer;
         #endregion
@@ -83,8 +83,8 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable<> Implementation
-        void IDrawable<Master>.Draw(ILocalDrawer<Master> topDrawer) {
-            var drawer = new SpaceDrawer<Sea, SeaTransformer, Master>(topDrawer, Transformer);
+        void IDrawable<Screen>.Draw(ILocalDrawer<Screen> topDrawer) {
+            var drawer = new SpaceDrawer<Sea, SeaTransformer, Screen>(topDrawer, Transformer);
 
             (Islands as IDrawable<Sea>).Draw(drawer);
 
@@ -179,13 +179,13 @@ namespace Pirates_Nueva.Ocean
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         PointF ITransformer<Sea>.PointTo(Sea sea, in PointF parent) {
-            int height = sea.Master.GUI.ScreenHeight;
+            int height = sea.Master.Screen.Height;
             int ppu = sea.PPU;
             return new PointF(parent.X / ppu + sea.Camera.Left, (height - parent.Y) / ppu + sea.Camera.Bottom);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         PointF ITransformer<Sea>.PointFrom(Sea sea, in PointF local) {
-            int height = sea.Master.GUI.ScreenHeight;
+            int height = sea.Master.Screen.Height;
             int ppu = sea.PPU;
             return new PointF((local.X - sea.Camera.Left) * ppu, height - (local.Y - sea.Camera.Bottom) * ppu);
         }

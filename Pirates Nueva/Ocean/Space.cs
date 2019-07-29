@@ -34,7 +34,7 @@ namespace Pirates_Nueva.Ocean
     /// </summary>
     /// <typeparam name="TLocus">The locus for this coordinate system.</typeparam>
     public interface ITransformer<TLocus>
-        where TLocus : ISpaceLocus
+        where TLocus : ISpaceLocus<TLocus>
     {
         /// <summary> Whether or not this type of Transformer might include rotation. Should be constant. </summary>
         bool HasRotation { get; }
@@ -70,10 +70,14 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Transforms a point from local space to parent space. </summary>
         PointF PointFrom(in PointF localPoint);
 
-        /// <summary> Transforms a point from root space to local space. </summary>
-        PointF PointFromRoot(in PointF rootPoint);
-        /// <summary> Transforms a point from local space to root space. </summary>
-        PointF PointToRoot(in PointF localPoint);
+        /// <summary> Transforms a point to local space from the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space from which to transform.</typeparam>
+        PointF PointFrom<TRoot>(in PointF rootPoint)
+            where TRoot : ISpaceLocus<TRoot>;
+        /// <summary> Transforms a point from local space to the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space to which to transform.</typeparam>
+        PointF PointTo<TRoot>(in PointF localPoint)
+            where TRoot : ISpaceLocus<TRoot>;
 
         /// <summary> Transforms an <see cref="Angle"/> from parent space to local space. </summary>
         Angle AngleTo(in Angle parentAngle);
@@ -89,7 +93,7 @@ namespace Pirates_Nueva.Ocean
     /// The base type of <see cref="Space{TLocus, TTransformer}"/>.
     /// </summary>
     public interface ISpace<TLocus> : ISpace
-        where TLocus : ISpaceLocus
+        where TLocus : ISpaceLocus<TLocus>
     {  }
     /// <summary>
     /// An object representing a local system of coordinates.
@@ -123,25 +127,53 @@ namespace Pirates_Nueva.Ocean
         /// <param name="localY">The y coordinate of the point in local space.</param>
         public PointF PointFrom(float localX, float localY) => default(TTransformer).PointFrom(this.locus, new PointF(localX, localY));
 
-        /// <summary> Transforms a point from root space to local space. </summary>
+        /// <summary> Transforms a point to local space from the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space from which to transform.</typeparam>
         /// <param name="rootPoint">The point in root space.</param>
-        public PointF PointFromRoot(in PointF rootPoint)
-            => PointTo(this.locus.Parent?.Transformer.PointFromRoot(in rootPoint) ?? rootPoint);
-        /// <summary> Transforms a point from root space to local space. </summary>
+        public PointF PointFrom<TRoot>(in PointF rootPoint)
+            where TRoot : ISpaceLocus<TRoot>
+        {
+            if(!(this.locus.Parent is ISpaceLocus parent))                         // If the parent is null,
+                throw ThrowInvalidHierarchy<TRoot>();                              //     throw an exception.
+            else if(parent is TRoot)                                               // If the parent is the root type,
+                return PointTo(in rootPoint);                                      //     transform to its space and return the result.
+            else                                                                   // If the parent is NOT the root,
+                return PointTo(parent.Transformer.PointFrom<TRoot>(in rootPoint)); //     call this method on the parent.
+        }
+        /// <summary> Transforms a point to local space from the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space from which to transform.</typeparam>
         /// <param name="rootX">The x coordinate of the point in root space.</param>
         /// <param name="rootY">The y coordinate of the point in root space.</param>
-        public PointF PointFromRoot(float rootX, float rootY) => PointFromRoot(new PointF(rootX, rootY));
+        public PointF PointFrom<TRoot>(float rootX, float rootY)
+            where TRoot : ISpaceLocus<TRoot>
+            => PointFrom<TRoot>(new PointF(rootX, rootY));
 
-        /// <summary> Transforms a point from local space to root space. </summary>
+        /// <summary> Transforms a point from local space to the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root space to which to transform.</typeparam>
         /// <param name="localPoint">The point in local space.</param>
-        public PointF PointToRoot(in PointF localPoint) {
-            var parentPoint = PointFrom(in localPoint);
-            return this.locus.Parent?.Transformer.PointToRoot(in parentPoint) ?? parentPoint;
+        public PointF PointTo<TRoot>(in PointF localPoint)
+            where TRoot : ISpaceLocus<TRoot>
+        {
+            if(!(this.locus.Parent is ISpaceLocus parent))                          // If the parent is null,
+                throw ThrowInvalidHierarchy<TRoot>();                               //     throw an exception.
+            else if(parent is TRoot)                                                // If the parent is the root type,
+                return PointFrom(in localPoint);                                    //     transform to its space and return the result.
+            else                                                                    // If the parent is NOT the root,
+                return parent.Transformer.PointTo<TRoot>(PointFrom(in localPoint)); //     call this method on the parent.
         }
-        /// <summary> Transforms a point from local space to root space. </summary>
+        /// <summary> Transforms a point from local space to the specified root space. </summary>
+        /// <typeparam name="TRoot">The Locus of the root sapce to which to transform.</typeparam>
         /// <param name="localX">The x coordinate of the point in local space.</param>
         /// <param name="localY">The y coordinate of the point in local space.</param>
-        public PointF PointToRoot(float localX, float localY) => PointToRoot(new PointF(localX, localY));
+        public PointF PointTo<TRoot>(float localX, float localY)
+            where TRoot : ISpaceLocus<TRoot>
+            => PointTo<TRoot>(new PointF(localX, localY));
+
+        private static Exception ThrowInvalidHierarchy<TRoot>()
+            => throw new ArgumentException(
+                    $"Space<{typeof(TLocus).Name}, {typeof(TTransformer).Name}>.PointFrom<{typeof(TRoot).Name}>(): " +
+                    $"Locus \"{typeof(TRoot).Name}\" does not occur in this Space<> hierarchy!"
+                    );
 
 
         /// <summary> Transforms an <see cref="Angle"/> from parent space to local space. </summary>
