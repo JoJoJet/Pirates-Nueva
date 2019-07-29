@@ -179,13 +179,13 @@ namespace Pirates_Nueva.Ocean
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         PointF ITransformer<Sea>.PointTo(Sea sea, in PointF parent) {
-            int height = sea.Master.GUI.ScreenHeight;
+            int height = sea.Master.Screen.Height;
             int ppu = sea.PPU;
             return new PointF(parent.X / ppu + sea.Camera.Left, (height - parent.Y) / ppu + sea.Camera.Bottom);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         PointF ITransformer<Sea>.PointFrom(Sea sea, in PointF local) {
-            int height = sea.Master.GUI.ScreenHeight;
+            int height = sea.Master.Screen.Height;
             int ppu = sea.PPU;
             return new PointF((local.X - sea.Camera.Left) * ppu, height - (local.Y - sea.Camera.Bottom) * ppu);
         }

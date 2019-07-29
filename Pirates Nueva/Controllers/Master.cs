@@ -30,6 +30,7 @@ namespace Pirates_Nueva
 
         internal Renderer Renderer { get; private set; }
         public ILocalDrawer<Master> Drawer => Renderer;
+        public Screen Screen { get; }
         public UI.GUI GUI { get; private set; }
 
         public PlayerController Player { get; private set; }
@@ -41,6 +42,7 @@ namespace Pirates_Nueva
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
+            Screen = new Screen(this);
             GUI = new UI.GUI(this);
 
             Resources.Initialize(Content);
