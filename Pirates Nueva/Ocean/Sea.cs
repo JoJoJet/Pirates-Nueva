@@ -62,7 +62,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
-        void IUpdatable.Update(Master master, Time delta) {
+        void IUpdatable.Update(in UpdateParams @params) {
             //
             // Add & remove entities.
             if(this.addBuffer.Count > 0) {
@@ -77,7 +77,7 @@ namespace Pirates_Nueva.Ocean
 
             foreach(var ent in this.entities) { // For every entity:
                 if(ent is IUpdatable u)         // If it is updatable,
-                    u.Update(master, delta);    //     call its Update() method.
+                    u.Update(in @params);       //     call its Update() method.
             }
         }
         #endregion

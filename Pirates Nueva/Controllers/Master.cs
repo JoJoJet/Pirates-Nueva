@@ -14,8 +14,25 @@ namespace Pirates_Nueva
     /// </summary>
     internal interface IUpdatable
     {
-        void Update(Master master, Time delta);
+        void Update(in UpdateParams @params);
     }
+    /// <summary>
+    /// Parameters for a method that is invoked every frame.
+    /// </summary>
+    public readonly struct UpdateParams
+    {
+        public Time Delta { get; }
+        public Master Master { get; }
+
+        public UpdateParams(Time time, Master master) {
+            Delta = time;
+            Master = master;
+        }
+
+        public void Deconstruct(out Time time, out Master master)
+            => (time, master) = (Delta, Master);
+    }
+
     /// <summary>
     /// Controls Rendering and calls the Update() functions for every type in the game.
     /// </summary>
@@ -127,11 +144,13 @@ namespace Pirates_Nueva
 
             var delta = new Time(gameTime);
 
-            (Input as IUpdatable).Update(this, delta);
-            (GUI as IUpdatable).Update(this, delta);
+            var @params = new UpdateParams(delta, this);
 
-            (Player as IUpdatable).Update(this, delta);
-            (Sea as IUpdatable).Update(this, delta);
+            (Input as IUpdatable).Update(in @params);
+            (GUI as IUpdatable).Update(in @params);
+
+            (Player as IUpdatable).Update(in @params);
+            (Sea as IUpdatable).Update(in @params);
 
             base.Update(gameTime);
         }

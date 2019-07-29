@@ -71,7 +71,8 @@ namespace Pirates_Nueva
             master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
         }
 
-        void IUpdatable.Update(Master master, Time delta) {
+        void IUpdatable.Update(in UpdateParams @params) {
+            var master = @params.Master;
             if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
                 && (!FocusProvider?.IsLocked ?? true)) {                   // and if the current focus isn't locked:
 

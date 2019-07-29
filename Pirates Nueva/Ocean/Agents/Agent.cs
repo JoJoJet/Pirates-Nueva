@@ -157,9 +157,10 @@ namespace Pirates_Nueva.Ocean.Agents
         private static float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
         #region IUpdatable Implementation
-        void IUpdatable.Update(Master master, Time delta) => Update(master, delta);
+        void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         /// <summary> The update loop of this <see cref="Agent"/>; is called every frame. </summary>
-        protected virtual void Update(Master master, Time delta) {
+        protected virtual void Update(in UpdateParams @params) {
+            var delta = @params.Delta;
             if(Job == null) {                         // If this agent has no job,
                 Job = Container.GetWorkableJob(this); // |   get a workable job from the ship,
                 if(Job != null)                       // |   If there was a workable job,
