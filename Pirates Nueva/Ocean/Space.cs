@@ -34,7 +34,7 @@ namespace Pirates_Nueva.Ocean
     /// </summary>
     /// <typeparam name="TLocus">The locus for this coordinate system.</typeparam>
     public interface ITransformer<TLocus>
-        where TLocus : ISpaceLocus
+        where TLocus : ISpaceLocus<TLocus>
     {
         /// <summary> Whether or not this type of Transformer might include rotation. Should be constant. </summary>
         bool HasRotation { get; }
@@ -93,7 +93,7 @@ namespace Pirates_Nueva.Ocean
     /// The base type of <see cref="Space{TLocus, TTransformer}"/>.
     /// </summary>
     public interface ISpace<TLocus> : ISpace
-        where TLocus : ISpaceLocus
+        where TLocus : ISpaceLocus<TLocus>
     {  }
     /// <summary>
     /// An object representing a local system of coordinates.
