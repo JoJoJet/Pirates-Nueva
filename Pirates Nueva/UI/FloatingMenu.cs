@@ -82,8 +82,12 @@ namespace Pirates_Nueva.UI
                 Drawer = drawer;
             }
 
-            public void DrawCorner(Sprite sprite, float left, float top, float width, float height, in Color tint)
-                => Drawer.DrawCorner(sprite, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, width, height, in tint);
+            public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in Color tint) {
+                if(typeof(T) == typeof(GUI.Menu))
+                    Drawer.DrawCorner(sprite, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, width, height, in tint);
+                else
+                    Drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+            }
             public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
                                   in Angle angle, in PointF origin, in Color tint) {
                 if(typeof(T) == typeof(GUI.Menu))

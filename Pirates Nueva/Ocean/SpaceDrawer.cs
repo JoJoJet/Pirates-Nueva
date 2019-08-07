@@ -20,18 +20,27 @@ namespace Pirates_Nueva.Ocean
         public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TLocus, TTransformer> space)
             => (Drawer, Transformer) = (parentDrawer, space);
 
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
+        public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
             //
-            // Procedure for transformers with rotation.
-            if(default(TTransformer).HasRotation) {
-                Draw(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+            // If we're drawing at the current space.
+            if(typeof(T) == typeof(TLocus)) {
+                //
+                // Procedure for transformers with rotation.
+                if(default(TTransformer).HasRotation) {
+                    DrawAt<T>(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+                }
+                //
+                // Procedure for transformers without rotation.
+                else {
+                    var (parentX, parentY) = Transformer.PointFrom(left, top);
+                    var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
+                    Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
+                }
             }
             //
-            // Procedure for transformers without rotation.
+            // If we're drawing at a parent space.
             else {
-                var (parentX, parentY) = Transformer.PointFrom(left, top);
-                var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
-                Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
+                Drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
             }
         }
         public void DrawAt<T>(UI.Sprite sprite, float x, float y, float width, float height,

@@ -11,13 +11,14 @@ namespace Pirates_Nueva
     public interface ILocalDrawer<T>
     {
         /// <summary>
-        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the top left corner.
+        /// Submits a <see cref="UI.Sprite"/> to be drawn at the specified space, drawing from the top left corner.
         /// </summary>
+        /// <typeparam name="U">The space around which the sprite will be drawn.</typeparam>
         /// <param name="left">The local coordinate of the <see cref="UI.Sprite"/>'s left edge.</param>
         /// <param name="top">The local coordinate of the <see cref="UI.Sprite"/>'s top edge.</param>
         /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
         /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
-        void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint);
+        void DrawCornerAt<U>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint);
         /// <summary>
         /// Submits a rotated <see cref="UI.Sprite"/> to be drawn at the specified space.
         /// </summary>
@@ -47,6 +48,16 @@ namespace Pirates_Nueva
     }
     public static class DrawerExt
     {
+        /// <summary>
+        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the top left corner.
+        /// </summary>
+        /// <param name="left">The local coordinate of the <see cref="UI.Sprite"/>'s left edge.</param>
+        /// <param name="top">The local coordinate of the <see cref="UI.Sprite"/>'s top edge.</param>
+        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
+        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
+        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
+                                         float left, float top, float width, float height, in UI.Color tint)
+            => drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
         /// <summary>
         /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the center of the sprite.
         /// </summary>
@@ -142,9 +153,14 @@ namespace Pirates_Nueva
             this.pixelLazy = new Lazy<UI.Sprite>(() => Master.CreateSprite(1, 1, UI.Color.White));
         }
 
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
-            => SpriteBatch.Draw(sprite.Source, new Rectangle((int)left, (int)top, (int)width, (int)height),
-                                new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height), tint);
+
+        public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
+            if(typeof(T) == typeof(Screen) || typeof(T) == typeof(UI.Edge))
+                SpriteBatch.Draw(sprite.Source, new Rectangle((int)left, (int)top, (int)width, (int)height),
+                                 new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height), tint);
+            else
+                ThrowInvalidType<T>(nameof(DrawCornerAt));
+        }
 
         public void DrawAt<T>(UI.Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
