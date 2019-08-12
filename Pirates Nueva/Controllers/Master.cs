@@ -109,10 +109,12 @@ namespace Pirates_Nueva
         private void AfterContentLoad() {
             this.renderer = new Renderer(this, SpriteBatch);
 
+            var faction = new Faction(isPlayer: true);
+
             // Initialize the Sea object.
             this.sea = new Sea(this);
 
-            this.player = new PlayerController(this, Sea);
+            this.player = new PlayerController(this, Sea, faction);
         }
 
         /// <summary>
