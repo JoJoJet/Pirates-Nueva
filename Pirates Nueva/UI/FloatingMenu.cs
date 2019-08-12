@@ -82,12 +82,25 @@ namespace Pirates_Nueva.UI
                 Drawer = drawer;
             }
 
-            public void DrawCorner(Sprite sprite, float left, float top, float width, float height, in Color tint)
-                => Drawer.DrawCorner(sprite, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, width, height, in tint);
-            public void Draw(Sprite sprite, float x, float y, float width, float height, in Angle angle, in PointF origin, in Color tint)
-                => Drawer.Draw(sprite, x + Menu.ResolvedOffset.X, y + Menu.ResolvedOffset.Y, width, height, in angle, in origin, in tint);
-            public void DrawLine(PointF start, PointF end, in Color color)
-                => Drawer.DrawLine(start + Menu.ResolvedOffset, end + Menu.ResolvedOffset, in color);
+            public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in Color tint) {
+                if(typeof(T) == typeof(GUI.Menu))
+                    Drawer.DrawCorner(sprite, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, width, height, in tint);
+                else
+                    Drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+            }
+            public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
+                                  in Angle angle, in PointF origin, in Color tint) {
+                if(typeof(T) == typeof(GUI.Menu))
+                    Drawer.Draw(sprite, x + Menu.ResolvedOffset.X, y + Menu.ResolvedOffset.Y, width, height, in angle, in origin, in tint);
+                else
+                    Drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+            }
+            public void DrawLineAt<T>(PointF start, PointF end, in Color color) {
+                if(typeof(T) == typeof(GUI.Menu))
+                    Drawer.DrawLine(start + Menu.ResolvedOffset, end + Menu.ResolvedOffset, in color);
+                else
+                    Drawer.DrawLineAt<T>(start, end, in color);
+            }
             public void DrawString(Font font, string text, float left, float top, in Color color)
                 => Drawer.DrawString(font, text, left + Menu.ResolvedOffset.X, top + Menu.ResolvedOffset.Y, in color);
         }

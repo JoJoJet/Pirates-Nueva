@@ -20,45 +20,67 @@ namespace Pirates_Nueva.Ocean
         public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TLocus, TTransformer> space)
             => (Drawer, Transformer) = (parentDrawer, space);
 
-        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
+        public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
             //
-            // Procedure for transformers with rotation.
-            if(default(TTransformer).HasRotation) {
-                Draw(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+            // If we're drawing at the current space.
+            if(typeof(T) == typeof(TLocus)) {
+                //
+                // Procedure for transformers with rotation.
+                if(default(TTransformer).HasRotation) {
+                    DrawAt<T>(sprite, left, top, width, height, Angle.Right, (0f, 1f), in tint);
+                }
+                //
+                // Procedure for transformers without rotation.
+                else {
+                    var (parentX, parentY) = Transformer.PointFrom(left, top);
+                    var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
+                    Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
+                }
             }
             //
-            // Procedure for transformers without rotation.
+            // If we're drawing at a parent space.
             else {
-                var (parentX, parentY) = Transformer.PointFrom(left, top);
-                var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
-                Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
+                Drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
             }
         }
-        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
+        public void DrawAt<T>(UI.Sprite sprite, float x, float y, float width, float height,
                      in Angle angle, in PointF origin, in UI.Color tint)
         {
-            var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
             //
-            // Procedure for transformers with rotation.
-            if(default(TTransformer).HasRotation) {
-                var texOffset = (1, 1) - origin;
-                texOffset = (texOffset.X * width, texOffset.Y * height);
-                texOffset += PointF.Rotate((-0.5f, 0.5f), in angle);
+            // If we're drawing at the current space.
+            if(typeof(T) == typeof(TLocus)) {
+                var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
+                //
+                // Procedure for transformers with rotation.
+                if(default(TTransformer).HasRotation) {
+                    var texOffset = (1, 1) - origin;
+                    texOffset = (texOffset.X * width, texOffset.Y * height);
+                    texOffset += PointF.Rotate((-0.5f, 0.5f), in angle);
 
-                var (parentX, parentY) = Transformer.PointFrom(x + texOffset.X, y + texOffset.Y);
+                    var (parentX, parentY) = Transformer.PointFrom(x + texOffset.X, y + texOffset.Y);
 
-                Drawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
+                    Drawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
+                }
+                //
+                // Procedure for transformers without rotation.
+                else {
+                    var (parentX, parentY) = Transformer.PointFrom(x, y);
+                    Drawer.Draw(sprite, parentX, parentY, screenW, screenH, in angle, in origin, in tint);
+                }
             }
             //
-            // Procedure for transformers without rotation.
+            // If we're drawing at a parent space.
             else {
-                var (parentX, parentY) = Transformer.PointFrom(x, y);
-                Drawer.Draw(sprite, parentX, parentY, screenW, screenH, in angle, in origin, in tint);
+                Drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
             }
         }
 
-        public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => Drawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
+        public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
+            if(typeof(T) == typeof(TLocus))
+                Drawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
+            else
+                Drawer.DrawLineAt<T>(start, end, in color);
+        }
         public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
             => throw new NotImplementedException();
     }
