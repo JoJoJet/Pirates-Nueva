@@ -33,11 +33,12 @@ namespace Pirates_Nueva
         void DrawAt<U>(UI.Sprite sprite, float x, float y, float width, float height, in Angle angle, in PointF origin, in UI.Color tint);
 
         /// <summary>
-        /// Draws a line with specified color this frame.
+        /// Draws a line with specified color at the specified space.
         /// </summary>
+        /// <typeparam name="U">The space around which the sprite will be drawn.</typeparam>
         /// <param name="start">The local position of the line's starting point.</param>
         /// <param name="end">The local position of the line's ending point.</param>
-        void DrawLine(PointF start, PointF end, in UI.Color color);
+        void DrawLineAt<U>(PointF start, PointF end, in UI.Color color);
 
         /// <summary>
         /// Submits a <see cref="string"/> to be drawn this frame.
@@ -82,6 +83,14 @@ namespace Pirates_Nueva
                                    float x, float y, float width, float height,
                                    in Angle angle, in PointF origin, in UI.Color tint)
             => drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+
+        /// <summary>
+        /// Draws a line with specified color.
+        /// </summary>
+        /// <param name="start">The local position of the line's starting point.</param>
+        /// <param name="end">The local position of the line's ending point.</param>
+        public static void DrawLine<T>(this ILocalDrawer<T> drawer, PointF start, PointF end, in UI.Color color)
+            => drawer.DrawLineAt<T>(start, end, in color);
 
 
         /// <summary>
@@ -172,11 +181,15 @@ namespace Pirates_Nueva
                 ThrowInvalidType<T>(nameof(DrawAt));
         }
 
-        public void DrawLine(PointF start, PointF end, in UI.Color color) {
-            var edge = end - start;
-            var angle = (Angle)Math.Atan2(edge.Y, edge.X);
+        public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
+            if(typeof(T) == typeof(Screen) || typeof(T) == typeof(UI.Edge)) {
+                var edge = end - start;
+                var angle = (Angle)Math.Atan2(edge.Y, edge.X);
 
-            DrawAt<Screen>(Pixel, start.X, start.Y, edge.Magnitude, 1, angle, (0, 0), in color);
+                DrawAt<Screen>(Pixel, start.X, start.Y, edge.Magnitude, 1, angle, (0, 0), in color);
+            }
+            else
+                ThrowInvalidType<T>(nameof(DrawLineAt));
         }
 
         public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
