@@ -47,6 +47,8 @@ namespace Pirates_Nueva
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private SpriteBatch? spriteBatch;
         private GraphicsDeviceManager graphics;
 
+        private readonly List<Faction> factions = new List<Faction>();
+
         public UI.Font Font => this.font ?? ThrowNotInitialized<UI.Font>(nameof(Master));
 
         public Input Input { get; }
@@ -110,6 +112,7 @@ namespace Pirates_Nueva
             this.renderer = new Renderer(this, SpriteBatch);
 
             var faction = new Faction(isPlayer: true);
+            factions.Add(faction);
 
             // Initialize the Sea object.
             this.sea = new Sea(this);
