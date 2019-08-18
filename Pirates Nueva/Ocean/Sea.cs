@@ -33,8 +33,6 @@ namespace Pirates_Nueva.Ocean
             //
             // Generate the islands.
             Islands = new Archipelago(this, new Random().Next());
-
-            AddEntity(new PlayerShip(this, ShipDef.Get("dinghy")));
         }
 
         /// <summary>

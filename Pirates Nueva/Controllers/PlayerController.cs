@@ -53,6 +53,8 @@ namespace Pirates_Nueva
 
         public Master Master { get; }
 
+        public Faction Faction { get; }
+
         private Sea Sea { get; }
 
         private IFocusable[] Focusable { get; set; } = new IFocusable[0];
@@ -63,9 +65,14 @@ namespace Pirates_Nueva
 
         const string MouseDebugID = "debug_mouse";
         const string CameraDebugID = "debug_cameraPosition";
-        internal PlayerController(Master master, Sea sea) {
+        internal PlayerController(Master master, Sea sea, Faction faction) {
             Master = master;
+            Faction = faction;
             Sea = sea;
+
+            //
+            // Add the player's ship.
+            Sea.AddEntity(new Ship(Sea, ShipDef.Get("dinghy"), faction));
 
             master.GUI.AddEdge(MouseDebugID, Edge.Top, Direction.Right, new MutableText<Edge>("mouse position", master.Font));
             master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
