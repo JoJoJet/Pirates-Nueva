@@ -27,6 +27,9 @@ namespace Pirates_Nueva.Ocean
 
         public ShipDef Def { get; }
 
+        /// <summary> The <see cref="Ocean.Faction"/> to which this Ship is aligned. </summary>
+        public Faction Faction { get; }
+
         /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
         public int Width => Def.Width;
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
@@ -60,8 +63,9 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Create a ship with specified /width/ and /height/.
         /// </summary>
-        public Ship(Sea sea, ShipDef def) : base(sea) {
+        public Ship(Sea sea, ShipDef def, Faction faction) : base(sea) {
             Def = def;
+            Faction = faction;
             Transformer = new Space<Ship, ShipTransformer>(this);
 
             Center = (PointF)RootIndex + (0.5f, 0.5f);

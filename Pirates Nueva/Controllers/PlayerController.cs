@@ -70,6 +70,10 @@ namespace Pirates_Nueva
             Faction = faction;
             Sea = sea;
 
+            //
+            // Add the player's ship.
+            Sea.AddEntity(new PlayerShip(Sea, ShipDef.Get("dinghy"), faction));
+
             master.GUI.AddEdge(MouseDebugID, Edge.Top, Direction.Right, new MutableText<Edge>("mouse position", master.Font));
             master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
         }

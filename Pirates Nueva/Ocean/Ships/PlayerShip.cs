@@ -6,7 +6,7 @@ namespace Pirates_Nueva.Ocean
     using Toil = Job<Ship, Block>.Toil;
     public class PlayerShip : Ship, IFocusable
     {
-        public PlayerShip(Sea sea, ShipDef def) : base(sea, def) {  }
+        public PlayerShip(Sea sea, ShipDef def, Faction faction) : base(sea, def, faction) {  }
 
         protected override void Draw(ILocalDrawer<Sea> drawer) {
             base.Draw(drawer);
