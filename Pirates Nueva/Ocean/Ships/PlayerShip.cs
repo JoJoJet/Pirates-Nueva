@@ -8,22 +8,10 @@ namespace Pirates_Nueva.Ocean
     {
         public PlayerShip(Sea sea, ShipDef def, Faction faction) : base(sea, def, faction) {  }
 
-        protected override void Draw(ILocalDrawer<Sea> drawer) {
-            base.Draw(drawer);
-            //
-            // If we're being focused on,
-            // draw a line to the destination.
-            if(IsFocused && Destination is PointF dest) {
-                drawer.DrawLine(Center, dest, in UI.Color.Black);
-            }
-        }
-
         #region IFocusable Implementation
-        protected bool IsFocused { get; private set; }
-        bool IFocusable.IsFocused { set => IsFocused = value; }
         IFocusMenuProvider IFocusable.GetProvider(Master master) => new FocusProvider(this, master);
 
-        private sealed class FocusProvider : IFocusMenuProvider
+        private sealed class FocusProvider : FocusProvider<PlayerShip>
         {
             enum FocusState { None, Movement, Editing };
             enum PlaceMode { None, Block, Furniture, Gunpowder };
@@ -34,13 +22,9 @@ namespace Pirates_Nueva.Ocean
             private PlaceMode placeMode;
             private Dir placeDir;
 
-            public bool IsLocked { get; private set; }
-            public PlayerShip Ship { get; }
+            private FloatingMenu Menu { get; }
 
-            private UI.FloatingMenu Menu { get; }
-
-            public FocusProvider(PlayerShip ship, Master master) {
-                Ship = ship;
+            public FocusProvider(PlayerShip ship, Master master) : base(ship) {
                 //
                 // Create a GUI menu.
                 master.GUI.AddMenu(
@@ -56,7 +40,7 @@ namespace Pirates_Nueva.Ocean
                          BlockID = "playerShipEditing_placeBlock",
                          FurnID = "playerShipEditing_placeFurniture",
                          GunpID = "playerShipEditing_placeGunpowder";
-            public void Update(Master master) {
+            public override void Update(Master master) {
                 switch(this.state) {
                     //
                     // Editing the ship's layout.
@@ -167,7 +151,7 @@ namespace Pirates_Nueva.Ocean
                     }
                 }
             }
-            public void Close(Master master)
+            public override void Close(Master master)
                 => master.GUI.RemoveMenu(MenuID);
 
             /// <summary> Sets the current state to the specified value. </summary>

@@ -11,7 +11,8 @@ namespace Pirates_Nueva.Ocean
     using Stock = Stock<Ship, Block>;
     public abstract class Ship
         : Entity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
-          IUpdatable, IDrawable<Sea>, IFocusableParent, UI.IScreenSpaceTarget
+          IFocusableParent, IFocusable, 
+          IUpdatable, IDrawable<Sea>, UI.IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -486,6 +487,7 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
             var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
+            //
             // Draw each block.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -493,7 +495,7 @@ namespace Pirates_Nueva.Ocean
                         b.Draw(drawer);
                 }
             }
-
+            //
             // Draw each Furniture.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -501,7 +503,7 @@ namespace Pirates_Nueva.Ocean
                         f.Draw(drawer);
                 }
             }
-
+            //
             // Draw each stock.
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -509,16 +511,22 @@ namespace Pirates_Nueva.Ocean
                         (s as IDrawable<Ship>).Draw(drawer);
                 }
             }
-
+            //
             // Draw each job.
             foreach(IDrawable<Ship> job in this.jobs) {
                 job.Draw(drawer);
             }
-
+            //
             // Draw each agent.
             foreach(var agent in this.agents) {
                 (agent as IDrawable<Ship>).Draw(drawer);
             }
+
+            //
+            // If we're being focused on,
+            // draw a line to the destination.
+            if(IsFocused && Destination is PointF dest)
+                seaDrawer.DrawLine(Center, dest, in UI.Color.Black);
         }
         #endregion
 
@@ -618,6 +626,31 @@ namespace Pirates_Nueva.Ocean
             int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
             #endregion
         }
+
+        #region IFocusable Implementation
+        protected bool IsFocused { get; private set; }
+        bool IFocusable.IsFocused { set => IsFocused = value; }
+
+        IFocusMenuProvider IFocusable.GetProvider(Master master) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Base class for implementations of <see cref="IFocusMenuProvider"/> for <see cref="Ship"/>s.
+        /// </summary>
+        /// <typeparam name="T">The subclass of <see cref="Ocean.Ship"/>.</typeparam>
+        protected class FocusProvider<T> : IFocusMenuProvider
+            where T : Ship
+        {
+            public bool IsLocked { get; protected set; }
+
+            public T Ship { get; }
+
+            public FocusProvider(T ship)
+                => Ship = ship;
+
+            public virtual void Update(Master master) {  }
+            public virtual void Close(Master master) {  }
+        }
+        #endregion
     }
 
     public readonly struct ShipTransformer : ITransformer<Ship>
