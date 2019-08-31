@@ -54,7 +54,7 @@ namespace Pirates_Nueva.Path
                                 where Q.Contains(n.End)
                                 select n;
                 foreach(var v in neighbors) {           // For every unvisited neighbor:
-                    var alt = dist[u] + v.SqrCost;      //     The distance from /source/ to /v/, going through /u/.
+                    var alt = dist[u] + v.Cost;         //     The distance from /source/ to /v/, going through /u/.
                     if(alt < dist[v.End]) {             //     If the above distance is a shorter than dist[v], we found a shorter path.
                         dist[v.End] = alt;              //         update dist[v]
                         prev[v.End] = u;                //         set a new previous node for /v/.

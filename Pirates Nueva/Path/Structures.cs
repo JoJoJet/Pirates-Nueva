@@ -27,17 +27,17 @@ namespace Pirates_Nueva.Path
     public struct Edge<T>
         where T : INode<T>
     {
-        /// <summary> The squared cost to move along this <see cref="Edge{T}"/>. </summary>
-        public float SqrCost { get; }
+        /// <summary> The cost to move along this <see cref="Edge{T}"/> in euclidean space. </summary>
+        public float Cost { get; }
 
         /// <summary> The node that this <see cref="Edge{T}"/> connects to. </summary>
         public T End { get; }
 
         /// <summary>
-        /// Create an <see cref="Edge{T}"/> connecting to the specified <see cref="INode{T}"/> and with specified <see cref="SqrCost"/>.
+        /// Create an <see cref="Edge{T}"/> connecting to the specified <see cref="INode{T}"/> and with specified <see cref="Cost"/>.
         /// </summary>
-        public Edge(float sqrCost, T end) {
-            SqrCost = sqrCost;
+        public Edge(float cost, T end) {
+            Cost = cost;
             End = end;
         }
     }
