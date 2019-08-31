@@ -16,6 +16,14 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
+        /// <summary> The right edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
+        public float Right => Left + Width;
+        /// <summary> The top edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
+        public float Top => Bottom + Height;
+
+        public int Width => this.blocks.GetLength(0);
+        public int Height => this.blocks.GetLength(0);
+
         public Space<Island, IslandTransformer> Transformer { get; }
 
         public Island(Sea sea, int left, int bottom, int rngSeed) {
