@@ -22,7 +22,7 @@ namespace Pirates_Nueva.Ocean
         public float Top => Bottom + Height;
 
         public int Width => this.blocks.GetLength(0);
-        public int Height => this.blocks.GetLength(0);
+        public int Height => this.blocks.GetLength(1);
 
         public Space<Island, IslandTransformer> Transformer { get; }
 
