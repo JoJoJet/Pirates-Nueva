@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
+    public sealed class Sea : IGraph<Chunk>, ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
     {
         private readonly List<Island> islands = new List<Island>();
         private readonly Chunk[,] chunks;
@@ -13,6 +14,9 @@ namespace Pirates_Nueva.Ocean
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
                                       removeBuffer = new List<Entity>();
+
+        public int ChunksWidth => this.chunks.GetLength(0);
+        public int ChunksHeight => this.chunks.GetLength(1);
 
         public Camera Camera { get; }
 
@@ -55,7 +59,7 @@ namespace Pirates_Nueva.Ocean
             this.chunks = new Chunk[ChunksWidth, ChunksHeight];
             for(int x = 0; x < ChunksWidth; x++) {
                 for(int y = 0; y < ChunksHeight; y++) {
-                    this.chunks[x, y] = new Chunk(x, y);
+                    this.chunks[x, y] = new Chunk(this, x, y);
                 }
             }
             //
@@ -92,6 +96,19 @@ namespace Pirates_Nueva.Ocean
         /// Finds and returns an entity that matches the specified predicate.
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
+
+        #region IGraph<> Implementation
+        IEnumerable<Chunk> IGraph<Chunk>.Nodes {
+            get {
+                for(int x = 0; x < ChunksWidth; x++) {
+                    for(int y = 0; y < ChunksHeight; y++) {
+                        if(this.chunks[x, y].Islands.Count == 0)
+                            yield return this.chunks[x, y];
+                    }
+                }
+            }
+        }
+        #endregion
 
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Master.Screen;
@@ -167,7 +184,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
     }
 
-    public sealed class Chunk : IEnumerable<Island>
+    public sealed class Chunk : INode<Chunk>
     {
         /// <summary>
         /// The width or height of a <see cref="Chunk"/>.
@@ -177,18 +194,55 @@ namespace Pirates_Nueva.Ocean
 
         private readonly List<Island> islands = new List<Island>();
 
+        public Sea Sea { get; }
         public int XIndex { get; }
         public int YIndex { get; }
 
-        public Chunk(int xIndex, int yIndex) {
+        public IReadOnlyList<Island> Islands => this.islands;
+
+        public Chunk(Sea sea, int xIndex, int yIndex) {
+            Sea = sea;
             XIndex = xIndex;
             YIndex = yIndex;
         }
 
         public void AddIsland(Island island) => this.islands.Add(island);
 
-        public IEnumerator<Island> GetEnumerator() => this.islands.GetEnumerator();
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        #region INode<> Implementation
+        IEnumerable<Edge<Chunk>> INode<Chunk>.Edges {
+            get {
+                if(check(XIndex, YIndex + 1, out var c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(XIndex + 1, YIndex, out c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(XIndex, YIndex - 1, out c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(XIndex - 1, YIndex, out c))
+                    yield return new Edge<Chunk>(1, c);
+
+                const float Root2 = 1.41421356f;
+                if(check(XIndex + 1, YIndex + 1, out c) && check(XIndex, YIndex + 1, out _) && check(XIndex + 1, YIndex, out _))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(XIndex + 1, YIndex - 1, out c) && check(XIndex + 1, YIndex, out _) && check(XIndex, YIndex - 1, out _))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(XIndex - 1, YIndex - 1, out c) && check(XIndex, YIndex - 1, out _) && check(XIndex - 1, YIndex, out _))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(XIndex - 1, YIndex + 1, out c) && check(XIndex - 1, YIndex, out _) && check(XIndex, YIndex + 1, out _))
+                    yield return new Edge<Chunk>(Root2, c);
+
+                bool check(int x, int y, out Chunk chunk) {
+                    if(x >= 0 && x < Sea.ChunksWidth && y >= 0 && y < Sea.ChunksHeight && Sea[x, y].islands.Count == 0) {
+                        chunk = Sea[x, y];
+                        return true;
+                    }
+                    else {
+                        chunk = null!;
+                        return false;
+                    }
+                }
+            }
+        }
+        #endregion
     }
 
     public readonly struct SeaTransformer : ITransformer<Sea>
