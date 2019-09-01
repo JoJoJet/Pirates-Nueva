@@ -71,7 +71,17 @@ namespace Pirates_Nueva.Ocean
                     top    = (int)(i.Top    / Chunk.Height);
                 for(int x = left; x <= right; x++) {
                     for(int y = bottom; y <= top; y++) {
-                        this.chunks[x, y].AddIsland(i);
+                        var ch = this.chunks[x, y];
+                        var chl = ch.XIndex * Chunk.Width;
+                        var chr = chl + Chunk.Width;
+                        var chb = ch.YIndex * Chunk.Height;
+                        var cht = chb + Chunk.Height;
+                        var precise = i.Intersects((chl, chb), (chr, chb))
+                                   || i.Intersects((chr, chb), (chr, cht))
+                                   || i.Intersects((chr, cht), (chl, cht))
+                                   || i.Intersects((chl, cht), (chl, chb));
+                        if(precise)
+                            ch.AddIsland(i);
                     }
                 }
             }
