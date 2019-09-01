@@ -207,6 +207,7 @@ namespace Pirates_Nueva.Ocean
         public Sea Sea { get; }
         public int XIndex { get; }
         public int YIndex { get; }
+        public PointI Index { get; }
 
         public IReadOnlyList<Island> Islands => this.islands;
 
@@ -214,6 +215,7 @@ namespace Pirates_Nueva.Ocean
             Sea = sea;
             XIndex = xIndex;
             YIndex = yIndex;
+            Index = (XIndex, YIndex);
         }
 
         public void AddIsland(Island island) => this.islands.Add(island);
