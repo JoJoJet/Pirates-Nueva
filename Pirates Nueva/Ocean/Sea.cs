@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
+    public sealed class Sea : IGraph<Chunk>, ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
     {
+        private readonly List<Island> islands = new List<Island>();
+        private readonly Chunk[,] chunks;
+
         private readonly List<Entity> entities     = new List<Entity>(),
                                       addBuffer    = new List<Entity>(),
                                       removeBuffer = new List<Entity>();
+
+        public int ChunksWidth => this.chunks.GetLength(0);
+        public int ChunksHeight => this.chunks.GetLength(1);
 
         public Camera Camera { get; }
 
         /// <summary> The number of screen pixels corresponding to a unit within this <see cref="Sea"/>. </summary>
         public int PPU => (int)Camera.Zoom;
-
-        public Archipelago Islands { get; }
 
         /// <summary> The position of the mouse, in <see cref="Sea"/>-space. </summary>
         public PointF MousePosition => Transformer.PointTo(Master.Input.MousePosition);
@@ -32,8 +37,57 @@ namespace Pirates_Nueva.Ocean
 
             //
             // Generate the islands.
-            Islands = new Archipelago(this, new Random().Next());
+            const int IslandsWidth = 10, IslandsHeight = 10;
+            const int Offset = 250;
+            const int Chance = 45;
+
+            var r = new Random();
+
+            for(int x = 0; x < IslandsWidth; x++) {                                 // For every point in a square region:
+                for(int y = 0; y < IslandsHeight; y++) {                            //
+                    if(r.Next(0, 100) < Chance) {                                   // If we roll a random chance,
+                        var i = new Island(this, x * Offset, y * Offset, r.Next()); //     Create an island at this point.
+                        this.islands.Add(i);
+                    }
+                }
+            }
+
+            //
+            // Generate chunks.
+            const int ChunksWidth  = IslandsWidth  * Offset / Chunk.Width,
+                      ChunksHeight = IslandsHeight * Offset / Chunk.Height;
+            this.chunks = new Chunk[ChunksWidth, ChunksHeight];
+            for(int x = 0; x < ChunksWidth; x++) {
+                for(int y = 0; y < ChunksHeight; y++) {
+                    this.chunks[x, y] = new Chunk(this, x, y);
+                }
+            }
+            //
+            // Find the chunks that each island occupies.
+            foreach(var i in this.islands) {
+                int left   = (int)(i.Left   / Chunk.Width),
+                    right  = (int)(i.Right  / Chunk.Width),
+                    bottom = (int)(i.Bottom / Chunk.Height),
+                    top    = (int)(i.Top    / Chunk.Height);
+                for(int x = left; x <= right; x++) {
+                    for(int y = bottom; y <= top; y++) {
+                        var ch = this.chunks[x, y];
+                        var chl = ch.XIndex * Chunk.Width;
+                        var chr = chl + Chunk.Width;
+                        var chb = ch.YIndex * Chunk.Height;
+                        var cht = chb + Chunk.Height;
+                        var precise = i.Intersects((chl, chb), (chr, chb))
+                                   || i.Intersects((chr, chb), (chr, cht))
+                                   || i.Intersects((chr, cht), (chl, cht))
+                                   || i.Intersects((chl, cht), (chl, chb));
+                        if(precise)
+                            ch.AddIsland(i);
+                    }
+                }
+            }
         }
+
+        public Chunk this[int xIndex, int yIndex] => this.chunks[xIndex, yIndex];
 
         /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
@@ -52,6 +106,18 @@ namespace Pirates_Nueva.Ocean
         /// Finds and returns an entity that matches the specified predicate.
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
+
+        #region IGraph<> Implementation
+        IEnumerable<Chunk> IGraph<Chunk>.Nodes {
+            get {
+                for(int x = 0; x < ChunksWidth; x++) {
+                    for(int y = 0; y < ChunksHeight; y++) {
+                        yield return this.chunks[x, y];
+                    }
+                }
+            }
+        }
+        #endregion
 
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Master.Screen;
@@ -83,12 +149,25 @@ namespace Pirates_Nueva.Ocean
         #region IDrawable<> Implementation
         void IDrawable<Screen>.Draw(ILocalDrawer<Screen> topDrawer) {
             var drawer = new SpaceDrawer<Sea, SeaTransformer, Screen>(topDrawer, Transformer);
+            //
+            // Draw the grid of chunks
+            for(int x = 0; x <= this.chunks.GetLength(0); x++) {
+                drawer.DrawLine((x * Chunk.Width, 0), (x * Chunk.Width, this.chunks.GetLength(1) * Chunk.Height), in UI.Color.Black);
+            }
+            for(int y = 0; y <= this.chunks.GetLength(1); y++) {
+                drawer.DrawLine((0, y * Chunk.Height), (this.chunks.GetLength(0) * Chunk.Width, y * Chunk.Height), in UI.Color.Black);
+            }
+            //
+            // Draw the islands.
+            foreach(var i in this.islands) {
+                (i as IDrawable<Sea>).Draw(drawer);
+            }
 
-            (Islands as IDrawable<Sea>).Draw(drawer);
-
-            foreach(var ent in this.entities) { // For every entity:
-                if(ent is IDrawable<Sea> d)     // If it is drawable,
-                    d.Draw(drawer);             //     call its Draw() method.
+            //
+            // Draw the entities.
+            foreach(var ent in this.entities) {
+                if(ent is IDrawable<Sea> d)
+                    d.Draw(drawer);
             }
         }
         #endregion
@@ -112,63 +191,117 @@ namespace Pirates_Nueva.Ocean
             return focusable;
         }
         #endregion
+    }
 
-        public sealed class Archipelago : IEnumerable<Island>, IDrawable<Sea>
-        {
-            private readonly Sea sea;
-            private readonly Island?[,] islands;
+    public sealed class Chunk : INode<Chunk>
+    {
+        /// <summary>
+        /// The width or height of a <see cref="Chunk"/>.
+        /// </summary>
+        public const int Width  = 32,
+                         Height = 32;
 
-            public Archipelago(Sea sea, int seed) {
-                this.sea = sea;
+        private readonly List<Island> islands = new List<Island>();
 
-                const int Width = 10, Height = 10;
-                const int Chance = 45;
+        public Sea Sea { get; }
+        public int XIndex { get; }
+        public int YIndex { get; }
+        public PointI Index { get; }
 
-                var r = new Random(seed);
-                
-                /*
-                 * Begin generating all of the islands.
-                 */
-                this.islands = new Island[Width, Height];
-                for(int x = 0; x < Width; x++) {                                              // For every point in a square region:
-                    for(int y = 0; y < Height; y++) {                                         //
-                        if(r.Next(0, 100) < Chance) {                                         // If we roll a random chance,
-                            islands[x, y] = new Island(this.sea, x * 180, y * 180, r.Next()); //     Create an island at this point.
-                        }
-                    }
-                }
-            }
+        public IReadOnlyList<Island> Islands => this.islands;
 
-            /// <summary> Gets the <see cref="Island"> at the specified index. </summary>
-            public Island? this[int x, int y] {
-                get {
-                    if(x >= 0 && x < islands.GetLength(0) && y >= 0 && y < islands.GetLength(1))
-                        return this.islands[x, y];
-                    else
-                        return null;
-                }
-            }
-
-            #region IEnumerable Implementation
-            public IEnumerator<Island> GetEnumerator() {
-                for(int x = 0; x < islands.GetLength(0); x++) {     // For every spot in the archipelago:
-                    for(int y = 0; y < islands.GetLength(1); y++) { //
-                        if(islands[x, y] is Island isl)             // If there is an island there,
-                            yield return isl;                       //     return it.
-                    }
-                }
-            }
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-            #endregion
-
-            #region IDrawable Implementation
-            void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
-                foreach(IDrawable<Sea> i in this) { // For every island in this archipelago:
-                    i.Draw(drawer);                 // Call its Draw() method.
-                }
-            }
-            #endregion
+        public Chunk(Sea sea, int xIndex, int yIndex) {
+            Sea = sea;
+            XIndex = xIndex;
+            YIndex = yIndex;
+            Index = (XIndex, YIndex);
         }
+
+        public void AddIsland(Island island) => this.islands.Add(island);
+
+        #region INode<> Implementation
+        IEnumerable<Edge<Chunk>> INode<Chunk>.Edges {
+            get {
+                if(check(0, 1, out var c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(1, 0, out c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(0, -1, out c))
+                    yield return new Edge<Chunk>(1, c);
+                if(check(-1, 0, out c))
+                    yield return new Edge<Chunk>(1, c);
+
+                const float Root2 = 1.41421356f;
+                if(check(1, 1, out c))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(1, -1, out c))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(-1, -1, out c))
+                    yield return new Edge<Chunk>(Root2, c);
+                if(check(-1, 1, out c))
+                    yield return new Edge<Chunk>(Root2, c);
+
+                bool check(int xDir, int yDir, out Chunk chunk) {
+                    int checkX = XIndex + xDir;
+                    int checkY = YIndex + yDir;
+                    //
+                    // If the chunk that we're checking is off the grid, 
+                    // return false right away.
+                    if(checkX < 0  || checkX >= Sea.ChunksWidth || checkY < 0 || checkY >= Sea.ChunksHeight) {
+                        chunk = null!;
+                        return false;
+                    }
+                    //
+                    // Find the initial points for three rays
+                    // to cast into the chunk that we are checking.
+                    const float ThirdW = (float)Width / 3,
+                                HalfW  = (float)Width / 2,
+                                ThirdH = (float)Height / 3,
+                                HalfH  = (float)Height / 2;
+                    var offset = (XIndex * Width, YIndex * Height);
+                    (float x, float y) a = offset, b = offset, c = offset;
+                    if(yDir != 0) {
+                        a.x += ThirdW;
+                        b.x += HalfW;
+                        c.x += ThirdW * 2;
+                    }
+                    else {
+                        a.x = b.x = c.x += HalfW;
+                    }
+                    if(xDir != 0) {
+                        a.y += ThirdH;
+                        b.y += HalfH;
+                        c.y += ThirdH * 2;
+                    }
+                    else {
+                        a.y = b.y = c.y += HalfH;
+                    }
+                    PointF ray = (xDir * Width, yDir * Height);
+                    //
+                    // Cast the ray against the current chunk and the one we're checking.
+                    if(this.islands.Any(testIsland) || Sea[checkX, checkY].islands.Any(testIsland)) {
+                        chunk = null!;
+                        return false;
+                    }
+                    //
+                    // If the chunk that we're checking is diagonal,
+                    // also cast the ray against adjacent chunks.
+                    if(xDir != 0 && yDir != 0 && (Sea[XIndex, checkY].islands.Any(testIsland) || Sea[checkX, YIndex].islands.Any(testIsland))) {
+                        chunk = null!;
+                        return false;
+                    }
+                    //
+                    // If we got this far without returning,
+                    // that means the chunk that we're checking
+                    // both exists and has unimpeded passage from the current chunk.
+                    chunk = Sea[checkX, checkY];
+                    return true;
+
+                    bool testIsland(Island i) => i.Intersects(a, a + ray) || i.Intersects(b, b + ray) || i.Intersects(c, c + ray);
+                }
+            }
+        }
+        #endregion
     }
 
     public readonly struct SeaTransformer : ITransformer<Sea>

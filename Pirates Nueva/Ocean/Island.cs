@@ -16,6 +16,14 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The bottom edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
         public float Bottom { get; }
 
+        /// <summary> The right edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
+        public float Right => Left + Width;
+        /// <summary> The top edge of this <see cref="Island"/>, in <see cref="Ocean.Sea"/>-space. </summary>
+        public float Top => Bottom + Height;
+
+        public int Width => this.blocks.GetLength(0);
+        public int Height => this.blocks.GetLength(1);
+
         public Space<Island, IslandTransformer> Transformer { get; }
 
         public Island(Sea sea, int left, int bottom, int rngSeed) {
@@ -738,6 +746,36 @@ namespace Pirates_Nueva.Ocean
                 }
             }
             return (cn & 1) == 1;
+        }
+
+        /// <summary>
+        /// Checks if the specified point in <see cref="Ocean.Sea"/> space collides with this <see cref="Island"/>.
+        /// </summary>
+        public bool Collides(PointF seaPoint) {
+            var local = Transformer.PointTo(seaPoint);
+            var (indX, indY) = ((int)local.X, (int)local.Y);
+            return indX >= 0 && indX < Width
+                && indY >= 0 && indY < Height
+                && this.blocks[indX, indY] != null;
+        }
+
+        /// <summary>
+        /// Checks if the described <see cref="Ocean.Sea"/>-space line segment intersects with this <see cref="Island"/>.
+        /// </summary>
+        public bool Intersects(PointF start, PointF end) {
+            var localStart = (PointI)Transformer.PointTo(in start);
+            var localEnd = (PointI)Transformer.PointTo(in end);
+            //
+            // Use a pixel-by-pixel line drawing algorithm to draw a line.
+            // If any pixel collides with an island block,
+            // that means that the line intersects with this island.
+            bool intersects = false;
+            Bresenham.Line(localStart, localEnd, step);
+            void step(int x, int y) {
+                if(x >= 0 && y >= 0 && x < Width && y < Height && this.blocks[x, y] != null)
+                    intersects = true;
+            }
+            return intersects;
         }
         
         #region ISpaceLocus Implementation

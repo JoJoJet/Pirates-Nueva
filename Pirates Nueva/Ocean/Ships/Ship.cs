@@ -5,6 +5,7 @@ using Pirates_Nueva.Ocean.Agents;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 using Pirates_Nueva.UI;
+using System.Linq;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -23,6 +24,9 @@ namespace Pirates_Nueva.Ocean
         
         private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
+        private List<Chunk>? junctions;
+        private Queue<PointF>? path;
+
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
@@ -37,9 +41,6 @@ namespace Pirates_Nueva.Ocean
         public int Width => Def.Width;
         /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
         public int Height => Def.Height;
-
-        /// <summary> The point that this <see cref="Ship"/> is moving towards. </summary>
-        public PointF? Destination { get; protected set; }
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
@@ -400,6 +401,64 @@ namespace Pirates_Nueva.Ocean
         public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
         #endregion
 
+        #region Navigation
+        public void SetDestination(PointF destination) {
+            var sourceChunk = Sea[(int)(Center.X / Chunk.Width), (int)(Center.Y / Chunk.Height)];
+            var destChunk = Sea[(int)(destination.X / Chunk.Width), (int)(destination.Y / Chunk.Height)];
+            //
+            // If the destination is within this chunk.
+            if(sourceChunk == destChunk) {
+                this.path = new Queue<PointF>();
+                this.path.Enqueue(destination);
+                this.junctions = new List<Chunk>();
+            }
+            //
+            // If the destination point is in another chunk, not occupied by any Islands.
+            else if(!destChunk.Islands.Any(i => i.Collides(destination))) {
+                //
+                // Pathfind over the Chunks from the current chunk to the destination.
+                var path = Dijkstra.FindPath(Sea, sourceChunk, destChunk);
+                //
+                // If a path was found.
+                if(path.Count > 0) {
+                    //
+                    // Iterate over the path,
+                    // removing any chunks in between straight lines.
+                    this.junctions = new List<Chunk>(path.Count / 2);
+                    var prev = sourceChunk;
+                    while(path.Count > 1) { // Require the path to have MORE THAN 1 element, as the destination is the last element.
+                        var current = path.Pop();
+                        var next = path.Peek();
+                        if(current.Index - prev.Index != next.Index - current.Index)
+                            junctions.Add(current);
+                        prev = current;
+                    }
+                    //
+                    // Find a set of straight lines
+                    // using the junctions that were found above.
+                    this.path = new Queue<PointF>();
+                    foreach(var j in this.junctions) {
+                        this.path.Enqueue(j.Index * Chunk.Width + (Chunk.Width / 2, Chunk.Height / 2));
+                    }
+                    this.path.Enqueue(destination);
+                }
+                else {
+                    this.path = null;
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Checks if the specified <see cref="Sea"/>-space point collides with this <see cref="Ship"/>.
+        /// </summary>
+        public bool Collides(in PointF seaPoint) {
+            var local = (PointI)Transformer.PointTo(in seaPoint);
+            return local.X >= 0 && local.X < Width
+                && local.Y >= 0 && local.Y < Height
+                && unsafeGetBlock(local.X, local.Y) != null;
+        }
+
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block? unsafeGetBlock(int x, int y) => this.blocks[x, y];
@@ -448,16 +507,27 @@ namespace Pirates_Nueva.Ocean
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         protected virtual void Update(in UpdateParams @params) {
             var (delta, master) = @params;
-            if(Destination is PointF dest) {                            // If there is a destination:
-                if(PointF.Distance(Center, dest) > 0.25f) {             // If the destination is more than half a block away,
-                    var newAngle = new Vector(Center, dest).Angle;      //    get the angle towards the destination,
-                    var step = Def.TurnSpeed * delta;                   //
-                    Angle = Angle.MoveTowards(Angle, newAngle, step);   //    and slowly rotate the ship towards that angle.
-                                                                        //
-                    Center += Right * Def.Speed * delta;                //    Slowly move the ship to the right.
-                }                                                       //
-                else {                                                  // If the destination is within half a block,
-                    Destination = null;                                 //     unassign the destination (we're there!)
+            if(this.path is Queue<PointF> path) {
+                //
+                // If we've reached the next segment of the path,
+                // move onto the following one.
+                if(Collides(path.Peek()))
+                    _ = path.Dequeue();
+                //
+                // If the path is empty,
+                // unassign it.
+                if(path.Count == 0) {
+                    this.path = null;
+                }
+                //
+                // If there is more ground to cover,
+                // do so.
+                else {
+                    var newAngle = new Vector(Center, path.Peek()).Angle; // Get the angle twoards the segment
+                    var step = Def.TurnSpeed * delta;                     //
+                                                                          //
+                    Angle = Angle.MoveTowards(Angle, newAngle, step);     // Slowly rotate the ship towards that angle.
+                    Center += Right * Def.Speed * delta;                  // Slowly move the ship to the right.
                 }
             }
             //
@@ -525,10 +595,24 @@ namespace Pirates_Nueva.Ocean
             }
 
             //
-            // If we're being focused on,
-            // draw a line to the destination.
-            if(IsFocused && Destination is PointF dest)
-                seaDrawer.DrawLine(Center, dest, in UI.Color.Black);
+            // If we're being focused on, draw our path.
+            if(IsFocused && this.path != null && this.junctions != null) {
+                foreach(var ch in this.junctions) {
+                    PointF tl = (ch.XIndex * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
+                    PointF tr = ((ch.XIndex + 1) * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
+                    PointF br = ((ch.XIndex + 1) * Chunk.Width, ch.YIndex * Chunk.Height);
+                    PointF bl = (ch.XIndex * Chunk.Width, ch.YIndex * Chunk.Height);
+                    seaDrawer.DrawLine(bl, tl, in Color.Lime);
+                    seaDrawer.DrawLine(tl, tr, in Color.Lime);
+                    seaDrawer.DrawLine(tr, br, in Color.Lime);
+                    seaDrawer.DrawLine(br, bl, in Color.Lime);
+                }
+                var prev = Center;
+                foreach(var p in this.path) {
+                    seaDrawer.DrawLine(prev, p, in Color.Lime);
+                    prev = p;
+                }
+            }
         }
         #endregion
 
@@ -655,7 +739,7 @@ namespace Pirates_Nueva.Ocean
                         master.GUI.Tooltip = "Click the new destination"; // Set a tooltip telling the user what to do.
 
                         if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) { // When the user clicks:
-                            Ship.Destination = Ship.Sea.MousePosition;                    //     Set the destination as the click point,
+                            Ship.SetDestination(Ship.Sea.MousePosition);                  //     Set the destination as the click point,
                             SetState(FocusState.None);                                    //     unset the focus option,
                             IsLocked = false;                                             //     release focus from this object,
                             master.GUI.Tooltip = "";                                      //     and unset the tooltip.

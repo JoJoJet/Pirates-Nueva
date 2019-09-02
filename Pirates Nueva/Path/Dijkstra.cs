@@ -24,7 +24,7 @@ namespace Pirates_Nueva.Path
         /// <summary>
         /// Find the shortest path between /source/ and the first node to pass the destination check.
         /// </summary>
-        /// <param name="dest">Returns whether or not the specified node is the destination.</param>
+        /// <param name="dest">A function that returns whether or not the specified node is the destination.</param>
         public static Stack<T> FindPath<T>(IGraph<T> graph, T source, IsAtDestination<T> dest) where T : INode<T> {
             var dist = new Dictionary<T, float>(); // The squared distance from /source/ for each node.
             var prev = new Dictionary<T, T>();     // The node before the key in the optimal path to /source/.
@@ -54,7 +54,7 @@ namespace Pirates_Nueva.Path
                                 where Q.Contains(n.End)
                                 select n;
                 foreach(var v in neighbors) {           // For every unvisited neighbor:
-                    var alt = dist[u] + v.SqrCost;      //     The distance from /source/ to /v/, going through /u/.
+                    var alt = dist[u] + v.Cost;         //     The distance from /source/ to /v/, going through /u/.
                     if(alt < dist[v.End]) {             //     If the above distance is a shorter than dist[v], we found a shorter path.
                         dist[v.End] = alt;              //         update dist[v]
                         prev[v.End] = u;                //         set a new previous node for /v/.
