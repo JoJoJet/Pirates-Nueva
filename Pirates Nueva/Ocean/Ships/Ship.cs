@@ -417,7 +417,7 @@ namespace Pirates_Nueva.Ocean
             else if(!destChunk.Islands.Any(i => i.Collides(destination))) {
                 //
                 // Pathfind over the Chunks from the current chunk to the destination.
-                var path = Dijkstra.FindPath(Sea, sourceChunk, isAtDestination);
+                var path = Dijkstra.FindPath(Sea, sourceChunk, destChunk);
                 //
                 // If a path was found.
                 if(path.Count > 0) {
@@ -426,16 +426,13 @@ namespace Pirates_Nueva.Ocean
                     // removing any chunks in between straight lines.
                     this.junctions = new List<Chunk>(path.Count / 2);
                     var prev = sourceChunk;
-                    do {
+                    while(path.Count > 1) { // Require the path to have MORE THAN 1 element, as the destination is the last element.
                         var current = path.Pop();
-                        var next = path.Count > 0
-                                   ? path.Peek()
-                                   : destChunk;
+                        var next = path.Peek();
                         if(current.Index - prev.Index != next.Index - current.Index)
                             junctions.Add(current);
                         prev = current;
                     }
-                    while(path.Count > 0);
                     //
                     // Find a set of straight lines
                     // using the junctions that were found above.
@@ -448,10 +445,6 @@ namespace Pirates_Nueva.Ocean
                 else {
                     this.path = null;
                 }
-
-                bool isAtDestination(Chunk ch)
-                    => sqr(destChunk.XIndex - ch.XIndex) + sqr(destChunk.YIndex - ch.YIndex) <= 2;
-                static float sqr(float x) => x * x;
             }
         }
         #endregion
