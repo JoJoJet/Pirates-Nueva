@@ -112,8 +112,7 @@ namespace Pirates_Nueva.Ocean
             get {
                 for(int x = 0; x < ChunksWidth; x++) {
                     for(int y = 0; y < ChunksHeight; y++) {
-                        if(this.chunks[x, y].Islands.Count == 0)
-                            yield return this.chunks[x, y];
+                        yield return this.chunks[x, y];
                     }
                 }
             }
@@ -223,34 +222,82 @@ namespace Pirates_Nueva.Ocean
         #region INode<> Implementation
         IEnumerable<Edge<Chunk>> INode<Chunk>.Edges {
             get {
-                if(check(XIndex, YIndex + 1, out var c))
+                if(check(0, 1, out var c))
                     yield return new Edge<Chunk>(1, c);
-                if(check(XIndex + 1, YIndex, out c))
+                if(check(1, 0, out c))
                     yield return new Edge<Chunk>(1, c);
-                if(check(XIndex, YIndex - 1, out c))
+                if(check(0, -1, out c))
                     yield return new Edge<Chunk>(1, c);
-                if(check(XIndex - 1, YIndex, out c))
+                if(check(-1, 0, out c))
                     yield return new Edge<Chunk>(1, c);
 
                 const float Root2 = 1.41421356f;
-                if(check(XIndex + 1, YIndex + 1, out c) && check(XIndex, YIndex + 1, out _) && check(XIndex + 1, YIndex, out _))
+                if(check(1, 1, out c))
                     yield return new Edge<Chunk>(Root2, c);
-                if(check(XIndex + 1, YIndex - 1, out c) && check(XIndex + 1, YIndex, out _) && check(XIndex, YIndex - 1, out _))
+                if(check(1, -1, out c))
                     yield return new Edge<Chunk>(Root2, c);
-                if(check(XIndex - 1, YIndex - 1, out c) && check(XIndex, YIndex - 1, out _) && check(XIndex - 1, YIndex, out _))
+                if(check(-1, -1, out c))
                     yield return new Edge<Chunk>(Root2, c);
-                if(check(XIndex - 1, YIndex + 1, out c) && check(XIndex - 1, YIndex, out _) && check(XIndex, YIndex + 1, out _))
+                if(check(-1, 1, out c))
                     yield return new Edge<Chunk>(Root2, c);
 
-                bool check(int x, int y, out Chunk chunk) {
-                    if(x >= 0 && x < Sea.ChunksWidth && y >= 0 && y < Sea.ChunksHeight && Sea[x, y].islands.Count == 0) {
-                        chunk = Sea[x, y];
-                        return true;
-                    }
-                    else {
+                bool check(int xDir, int yDir, out Chunk chunk) {
+                    int checkX = XIndex + xDir;
+                    int checkY = YIndex + yDir;
+                    //
+                    // If the chunk that we're checking is off the grid, 
+                    // return false right away.
+                    if(checkX < 0  || checkX >= Sea.ChunksWidth || checkY < 0 || checkY >= Sea.ChunksHeight) {
                         chunk = null!;
                         return false;
                     }
+                    //
+                    // Find the initial points for three rays
+                    // to cast into the chunk that we are checking.
+                    const float ThirdW = (float)Width / 3,
+                                HalfW  = (float)Width / 2,
+                                ThirdH = (float)Height / 3,
+                                HalfH  = (float)Height / 2;
+                    var offset = (XIndex * Width, YIndex * Height);
+                    (float x, float y) a = offset, b = offset, c = offset;
+                    if(yDir != 0) {
+                        a.x += ThirdW;
+                        b.x += HalfW;
+                        c.x += ThirdW * 2;
+                    }
+                    else {
+                        a.x = b.x = c.x += HalfW;
+                    }
+                    if(xDir != 0) {
+                        a.y += ThirdH;
+                        b.y += HalfH;
+                        c.y += ThirdH * 2;
+                    }
+                    else {
+                        a.y = b.y = c.y += HalfH;
+                    }
+                    PointF ray = (xDir * Width, yDir * Height);
+                    //
+                    // Cast the ray against the current chunk and the one we're checking.
+                    if(this.islands.Any(testIsland) || Sea[checkX, checkY].islands.Any(testIsland)) {
+                        chunk = null!;
+                        return false;
+                    }
+                    //
+                    // If the chunk that we're checking is diagonal,
+                    // also cast the ray against adjacent chunks.
+                    if(xDir != 0 && yDir != 0 && (Sea[XIndex, checkY].islands.Any(testIsland) || Sea[checkX, YIndex].islands.Any(testIsland))) {
+                        chunk = null!;
+                        return false;
+                    }
+                    //
+                    // If we got this far without returning,
+                    // that means the chunk that we're checking
+                    // both exists and has unimpeded passage from the current chunk.
+                    chunk = Sea[checkX, checkY];
+                    return true;
+
+                    bool testIsland(Island i) => i.Intersects(a, a + ray) || i.Intersects(b, b + ray) || i.Intersects(c, c + ray);
                 }
             }
         }
