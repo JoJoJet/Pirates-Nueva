@@ -184,7 +184,7 @@ namespace Pirates_Nueva
         public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
             if(typeof(T) == typeof(Screen) || typeof(T) == typeof(UI.Edge)) {
                 var edge = end - start;
-                var angle = (Angle)Math.Atan2(edge.Y, edge.X);
+                var angle = Angle.FromRadians(MathF.Atan2(edge.Y, edge.X));
 
                 DrawAt<Screen>(Pixel, start.X, start.Y, edge.Magnitude, 1, angle, (0, 0), in color);
             }

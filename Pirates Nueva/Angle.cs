@@ -10,7 +10,7 @@ namespace Pirates_Nueva
     public readonly struct Angle
     {
         /// <summary> A half rotation around a circle, in radians. </summary>
-        public const float HalfTurn = (float)Math.PI;
+        public const float HalfTurn = MathF.PI;
         /// <summary> A full rotation around a circle, in radians. </summary>
         public const float FullTurn = 2*HalfTurn;
         /// <summary> Converts radians to degrees. </summary>
@@ -35,7 +35,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// The <see cref="Pirates_Nueva.Vector"/> that represents this <see cref="Angle"/>.
         /// </summary>
-        public Vector Vector => new Vector((float)Math.Cos(Radians), (float)Math.Sin(Radians));
+        public Vector Vector => new Vector(MathF.Cos(Radians), MathF.Sin(Radians));
 
         private Angle(float radians) {
             Radians = radians % FullTurn;
@@ -79,7 +79,7 @@ namespace Pirates_Nueva
             static float abs(float f) => Math.Abs(f);    static float sign(float f) => Math.Sign(f);
         }
 
-        public override string ToString() => Radians != 0 ? $"{Radians/Math.PI:0.##}π" : "0";
+        public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.##}π" : "0";
 
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
