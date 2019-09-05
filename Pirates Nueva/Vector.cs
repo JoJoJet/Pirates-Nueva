@@ -35,7 +35,7 @@ namespace Pirates_Nueva
         /// Creates a normalized <see cref="Vector"/> pointing in the specified direction.
         /// </summary>
         public Vector(float x, float y) {
-            float mag = (float)Math.Sqrt(x*x + y*y);
+            float mag = MathF.Sqrt(x*x + y*y);
             //
             // If the vector is longer than 1,
             // normalize it.
@@ -54,7 +54,7 @@ namespace Pirates_Nueva
         /// Gets the <see cref="Pirates_Nueva.Angle"/> between the specified <see cref="Vector"/>s.
         /// </summary>
         public static Angle MeasureAngle(in Vector a, in Vector b)
-            => (Angle)((float)Math.Atan2(b.Y, b.X) - (float)Math.Atan2(a.Y, a.X));
+            => (Angle)(MathF.Atan2(b.Y, b.X) - MathF.Atan2(a.Y, a.X));
 
         public override bool Equals(object obj) => obj switch {
             Vector v           => Equals(v),

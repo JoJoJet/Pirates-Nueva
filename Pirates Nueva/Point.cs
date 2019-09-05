@@ -23,7 +23,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Gets the magnitude (distance from origin) of this <see cref="PointI"/>.
         /// </summary>
-        public float Magnitude => (float)Math.Sqrt(SqrMagnitude);
+        public float Magnitude => MathF.Sqrt(SqrMagnitude);
 
         public PointI(int value) : this(value, value) {  }
         public PointI(int x, int y) {
@@ -40,7 +40,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns the euclidean distance between two points.
         /// </summary>
-        public static float Distance(in PointI a, in PointI b) => (float)Math.Sqrt(SqrDistance(in a, in b));
+        public static float Distance(in PointI a, in PointI b) => MathF.Sqrt(SqrDistance(in a, in b));
 
         /// <summary>
         /// Returns a copy of the current <see cref="PointI"/> with the specified properties modified.
@@ -102,7 +102,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns the magnitude (distance from the origin) of this <see cref="PointF"/>.
         /// </summary>
-        public float Magnitude => (float)Math.Sqrt(X*X + Y*Y);
+        public float Magnitude => MathF.Sqrt(X*X + Y*Y);
 
         /// <summary>
         /// Returns this <see cref="PointF"/>, with a <see cref="Magnitude"/> of zero. Does not modify this instance.
@@ -124,7 +124,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns the euclidean distance between two points.
         /// </summary>
-        public static float Distance(in PointF a, in PointF b) => (float)Math.Sqrt(SqrDistance(in a, in b));
+        public static float Distance(in PointF a, in PointF b) => MathF.Sqrt(SqrDistance(in a, in b));
 
         /// <summary>
         /// Linearly interpolate between the specified points, by the specified factor.
@@ -139,8 +139,8 @@ namespace Pirates_Nueva
         /// Rotate a <see cref="PointF"/> /p/ around the origin (0, 0) by angle /theta/.
         /// </summary>
         public static PointF Rotate(in PointF p, in Angle theta) {
-            float sine = (float)Math.Sin(theta);
-            float cosine = (float)Math.Cos(theta);
+            float sine = MathF.Sin(theta);
+            float cosine = MathF.Cos(theta);
 
             return new PointF(p.X * cosine - p.Y * sine, p.X * sine + p.Y * cosine);
         }
