@@ -100,8 +100,9 @@ namespace Pirates_Nueva
         /// <param name="centerY">The y coordinate of the <see cref="Sprite"/>'s center.</param>
         /// <param name="width">The width of the <see cref="Sprite"/>.</param>
         /// <param name="height">The height of the <see cref="Sprite"/>.</param>
-        public static void DrawCenter(this IDrawer drawer, Sprite sprite,
-                                      float centerX, float centerY, float width, float height, in UI.Color tint)
+        public static void DrawCenter<T>(this T drawer, Sprite sprite,
+                                         float centerX, float centerY, float width, float height, in UI.Color tint)
+            where T : IDrawer
             => drawer.DrawCorner(sprite, centerX - width / 2, centerY + width / 2, width, height, in tint);
 
 
@@ -112,8 +113,9 @@ namespace Pirates_Nueva
         /// <param name="centerY">The y coordinate of the <see cref="Sprite"/>'s center.</param>
         /// <param name="width">The width of the <see cref="Sprite"/>.</param>
         /// <param name="height">The height of the <see cref="Sprite"/>.</param>
-        public static void DrawCenter(this IDrawer drawer, Sprite sprite,
-                                      float centerX, float centerY, float width, float height)
+        public static void DrawCenter<T>(this T drawer, Sprite sprite,
+                                         float centerX, float centerY, float width, float height)
+            where T : IDrawer
             => drawer.DrawCenter(sprite, centerX, centerY, width, height, in UI.Color.White);
         /// <summary>
         /// Submits a <see cref="Sprite"/> to be drawn this frame, drawing from the top left corner.
@@ -122,8 +124,9 @@ namespace Pirates_Nueva
         /// <param name="top">The coordinate of the <see cref="Sprite"/>'s top edge.</param>
         /// <param name="width">The width of the <see cref="Sprite"/>.</param>
         /// <param name="height">The height of the <see cref="Sprite"/>.</param>
-        public static void DrawCorner(this IDrawer drawer, Sprite sprite,
-                                      float left, float top, float width, float height)
+        public static void DrawCorner<T>(this T drawer, Sprite sprite,
+                                         float left, float top, float width, float height)
+            where T : IDrawer
             => drawer.DrawCorner(sprite, left, top, width, height, in UI.Color.White);
         /// <summary>
         /// Submits a rotated <see cref="Sprite"/> to be drawn this frame.
@@ -135,9 +138,10 @@ namespace Pirates_Nueva
         /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="Sprite"/>.</param>
         /// <param name="origin">The point, relative to the <see cref="Sprite"/>,
         ///                      from which to draw it. Range: [0, 1].</param>
-        public static void Draw(this IDrawer drawer, Sprite sprite,
-                                float x, float y, float width, float height,
-                                in Angle angle, in PointF origin)
+        public static void Draw<T>(this T drawer, Sprite sprite,
+                                   float x, float y, float width, float height,
+                                   in Angle angle, in PointF origin)
+            where T : IDrawer
             => drawer.Draw(sprite, x, y, width, height, in angle, in origin, in UI.Color.White);
     }
 
@@ -160,7 +164,7 @@ namespace Pirates_Nueva
     /// </summary>
     internal class Renderer : ILocalDrawer<Screen>, ILocalDrawer<Edge>
     {
-        private Lazy<Sprite> pixelLazy;
+        private readonly Lazy<Sprite> pixelLazy;
 
         private Master Master { get; }
         private SpriteBatch SpriteBatch { get; }
