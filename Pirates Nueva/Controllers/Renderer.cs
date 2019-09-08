@@ -40,8 +40,8 @@ namespace Pirates_Nueva
         /// <summary>
         /// Submits a <see cref="string"/> to be drawn this frame.
         /// </summary>
-        /// <param name="left">The local coordinate of the <see cref="string"/>'s left edge.</param>
-        /// <param name="top">The local coordinate of the <see cref="string"/>'s top edge.</param>
+        /// <param name="left">The coordinate of the <see cref="string"/>'s left edge.</param>
+        /// <param name="top">The coordinate of the <see cref="string"/>'s top edge.</param>
         void DrawString(UI.Font font, string text, float left, float top, in UI.Color color);
     }
 
@@ -49,8 +49,17 @@ namespace Pirates_Nueva
     /// An object that transforms and draws things to the screen.
     /// </summary>
     /// <typeparam name="T">The type of object around which things will be drawn.</typeparam>
-    public interface ILocalDrawer<T>
+    public interface ILocalDrawer<T> : IDrawer
     {
+        void IDrawer.DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
+            => DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+        void IDrawer.Draw(UI.Sprite sprite, float x, float y, float width, float height,
+                          in Angle angle, in PointF origin, in UI.Color tint)
+            => DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+
+        void IDrawer.DrawLine(PointF start, PointF end, in UI.Color color)
+            => DrawLineAt<T>(start, end, in color);
+
         /// <summary>
         /// Submits a <see cref="UI.Sprite"/> to be drawn at the specified space, drawing from the top left corner.
         /// </summary>
@@ -80,26 +89,9 @@ namespace Pirates_Nueva
         /// <param name="start">The local position of the line's starting point.</param>
         /// <param name="end">The local position of the line's ending point.</param>
         void DrawLineAt<U>(PointF start, PointF end, in UI.Color color);
-
-        /// <summary>
-        /// Submits a <see cref="string"/> to be drawn this frame.
-        /// </summary>
-        /// <param name="left">The local coordinate of the <see cref="string"/>'s left edge.</param>
-        /// <param name="top">The local coordinate of the <see cref="string"/>'s top edge.</param>
-        void DrawString(UI.Font font, string text, float left, float top, in UI.Color color);
     }
     public static class DrawerExt
     {
-        /// <summary>
-        /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the top left corner.
-        /// </summary>
-        /// <param name="left">The local coordinate of the <see cref="UI.Sprite"/>'s left edge.</param>
-        /// <param name="top">The local coordinate of the <see cref="UI.Sprite"/>'s top edge.</param>
-        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
-        public static void DrawCorner<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
-                                         float left, float top, float width, float height, in UI.Color tint)
-            => drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
         /// <summary>
         /// Submits a <see cref="UI.Sprite"/> to be drawn this frame, drawing from the center of the sprite.
         /// </summary>
@@ -110,28 +102,6 @@ namespace Pirates_Nueva
         public static void DrawCenter<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
                                          float centerX, float centerY, float width, float height, in UI.Color tint)
             => drawer.DrawCorner(sprite, centerX - width / 2, centerY + width / 2, width, height, in tint);
-        /// <summary>
-        /// Submits a rotated <see cref="UI.Sprite"/> to be drawn this frame.
-        /// </summary>
-        /// <param name="x">The local x coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
-        /// <param name="y">The local y coordinate at which to draw the <see cref="UI.Sprite"/>.</param>
-        /// <param name="width">The width of the <see cref="UI.Sprite"/>, in local units.</param>
-        /// <param name="height">The height of the <see cref="UI.Sprite"/>, in local units.</param>
-        /// <param name="angle">The <see cref="Angle"/> at which to draw the <see cref="UI.Sprite"/>.</param>
-        /// <param name="origin">The point, relative to the <see cref="UI.Sprite"/>,
-        ///                      from which to draw it. Range: [0, 1].</param>
-        public static void Draw<T>(this ILocalDrawer<T> drawer, UI.Sprite sprite,
-                                   float x, float y, float width, float height,
-                                   in Angle angle, in PointF origin, in UI.Color tint)
-            => drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
-
-        /// <summary>
-        /// Draws a line with specified color.
-        /// </summary>
-        /// <param name="start">The local position of the line's starting point.</param>
-        /// <param name="end">The local position of the line's ending point.</param>
-        public static void DrawLine<T>(this ILocalDrawer<T> drawer, PointF start, PointF end, in UI.Color color)
-            => drawer.DrawLineAt<T>(start, end, in color);
 
 
         /// <summary>
@@ -211,7 +181,6 @@ namespace Pirates_Nueva
             else
                 ThrowInvalidType<T>(nameof(DrawCornerAt));
         }
-
         public void DrawAt<T>(UI.Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
             if(typeof(T) == typeof(Screen) || typeof(T) == typeof(UI.Edge))
@@ -235,6 +204,15 @@ namespace Pirates_Nueva
 
         public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
             => SpriteBatch.DrawString(font, text, new PointF(left, top), color);
+
+        public void DrawCorner(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
+            => DrawCornerAt<Screen>(sprite, left, top, width, height, in tint);
+        public void Draw(UI.Sprite sprite, float x, float y, float width, float height,
+                         in Angle angle, in PointF origin, in UI.Color tint)
+            => DrawAt<Screen>(sprite, x, y, width, height, in angle, in origin, in tint);
+
+        public void DrawLine(PointF start, PointF end, in UI.Color color)
+            => DrawLineAt<Screen>(start, end, in color);
 
         private static void ThrowInvalidType<T>(string callingMethod)
             => throw new ArgumentException($"{nameof(Renderer)}.{callingMethod}<{typeof(T).Name}>(): Type parameter is not valid!");
