@@ -14,11 +14,11 @@ namespace Pirates_Nueva.Ocean
         where TLocus : ISpaceLocus<TLocus>
         where TTransformer : struct, ITransformer<TLocus>
     {
-        private ILocalDrawer<TParent> Drawer { get; }
+        private ILocalDrawer<TParent> ParentDrawer { get; }
         private Space<TLocus, TTransformer> Transformer { get; }
 
         public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TLocus, TTransformer> space)
-            => (Drawer, Transformer) = (parentDrawer, space);
+            => (ParentDrawer, Transformer) = (parentDrawer, space);
 
         public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
             //
@@ -34,13 +34,13 @@ namespace Pirates_Nueva.Ocean
                 else {
                     var (parentX, parentY) = Transformer.PointFrom(left, top);
                     var (screenW, screenH) = (Transformer.ScaleFrom(width), Transformer.ScaleFrom(height));
-                    Drawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
+                    ParentDrawer.DrawCorner(sprite, parentX, parentY, screenW, screenH, in tint);
                 }
             }
             //
             // If we're drawing at a parent space.
             else {
-                Drawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+                ParentDrawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
             }
         }
         public void DrawAt<T>(UI.Sprite sprite, float x, float y, float width, float height,
@@ -59,27 +59,27 @@ namespace Pirates_Nueva.Ocean
 
                     var (parentX, parentY) = Transformer.PointFrom(x + texOffset.X, y + texOffset.Y);
 
-                    Drawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
+                    ParentDrawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
                 }
                 //
                 // Procedure for transformers without rotation.
                 else {
                     var (parentX, parentY) = Transformer.PointFrom(x, y);
-                    Drawer.Draw(sprite, parentX, parentY, screenW, screenH, in angle, in origin, in tint);
+                    ParentDrawer.Draw(sprite, parentX, parentY, screenW, screenH, in angle, in origin, in tint);
                 }
             }
             //
             // If we're drawing at a parent space.
             else {
-                Drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+                ParentDrawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
             }
         }
 
         public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
             if(typeof(T) == typeof(TLocus))
-                Drawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
+                ParentDrawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
             else
-                Drawer.DrawLineAt<T>(start, end, in color);
+                ParentDrawer.DrawLineAt<T>(start, end, in color);
         }
         public void DrawString(UI.Font font, string text, float left, float top, in UI.Color color)
             => throw new NotImplementedException();
