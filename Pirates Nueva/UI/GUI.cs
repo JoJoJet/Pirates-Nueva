@@ -269,7 +269,8 @@ namespace Pirates_Nueva.UI
             void SubscribeOnPropertyChanged(Action action);
 
             /// <summary> Draws this element onscreen, using the offset. </summary>
-            void Draw(ILocalDrawer<T> drawer, Master master);
+            void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<T>;
 
             /// <summary> Whether or not the mouse is hovering over this element, local to the element's containing menu. </summary>
             bool IsMouseOver(PointF localMouse);
@@ -300,14 +301,15 @@ namespace Pirates_Nueva.UI
             void IElement<T>.SubscribeOnPropertyChanged(Action action) => this.onPropertyChanged += action;
 
             /// <summary> Draw this <see cref="Element"/> onscreen, from the specified top left corner. </summary>
-            protected abstract void Draw(ILocalDrawer<T> drawer, Master master);
+            protected abstract void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<T>;
             
             private bool IsHidden { get; set; }
             bool IElement<T>.IsHidden { set => IsHidden = value; }
 
-            void IElement<T>.Draw(ILocalDrawer<T> drawer, Master master) {
+            void IElement<T>.Draw<TDrawer>(in TDrawer drawer, Master master) {
                 if(!IsHidden) {
-                    Draw(drawer, master);                             // Draw the button onscreen.
+                    Draw(in drawer, master);                          // Draw the button onscreen.
                     Bounds = new Rectangle(Left, Top, Width, Height); // Store the bounds of this element
                                                                       //     for later use in IsMouseOver().
                 }
@@ -329,7 +331,8 @@ namespace Pirates_Nueva.UI
         {
             Screen Screen { set; }
 
-            void Draw(ILocalDrawer<Screen> drawer, Master master);
+            void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Screen>;
 
             bool IsMouseOver(PointI mouse);
 
@@ -384,8 +387,9 @@ namespace Pirates_Nueva.UI
                     el.IsHidden = which;               //     set whether or not it is hidden.
             }
 
-            void IMenuContract.Draw(ILocalDrawer<Screen> drawer, Master master) => Draw(drawer, master);
-            protected abstract void Draw(ILocalDrawer<Screen> drawer, Master master);
+            void IMenuContract.Draw<TDrawer>(in TDrawer drawer, Master master) => Draw(in drawer, master);
+            protected abstract void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Screen>;
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {
@@ -398,8 +402,9 @@ namespace Pirates_Nueva.UI
             }
 
             /// <summary> Draws the specified element onscreen. </summary>
-            protected void DrawElement(Element<Menu> element, ILocalDrawer<Menu> drawer, Master master)
-                => (element as IElement<Menu>).Draw(drawer, master);
+            protected void DrawElement<TDrawer>(Element<Menu> element, in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Menu>
+                => (element as IElement<Menu>).Draw(in drawer, master);
 
             bool IMenuContract.GetButton(PointI mouse, out IButton button) {
                 var localMouse = ScreenPointToMenu(mouse.X, mouse.Y);
