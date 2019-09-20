@@ -54,7 +54,6 @@ namespace Pirates_Nueva
         public Input Input { get; }
 
         internal Renderer Renderer => this.renderer ?? ThrowNotInitialized<Renderer>(nameof(Master));
-        public ILocalDrawer<Screen> Drawer => Renderer;
         public Screen Screen { get; }
         public UI.GUI GUI { get; }
 
@@ -169,7 +168,7 @@ namespace Pirates_Nueva
 
             SpriteBatch.Begin();
 
-            (Sea as IDrawable<Screen>).Draw(Drawer);
+            (Sea as IDrawable<Screen>).Draw(Renderer);
             GUI.Draw(this);
 
             SpriteBatch.End();

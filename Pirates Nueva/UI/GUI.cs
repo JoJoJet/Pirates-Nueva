@@ -231,13 +231,13 @@ namespace Pirates_Nueva.UI
             
             // Draw every menu.
             foreach(IMenuContract menu in this._menus.Values) {
-                menu.Draw(master.Drawer, master);
+                menu.Draw(master.Renderer, master);
             }
 
             // Draw the tooltip.
             if(!string.IsNullOrEmpty(Tooltip)) {                                 // If there is a tooltip:
                 var (x, y) = master.Input.MousePosition;                         //
-                master.Drawer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
+                master.Renderer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
             }
         }
 
