@@ -165,7 +165,13 @@ namespace Pirates_Nueva.UI
         void ArrangeEdges() {
             const int Padding = 5;
 
-            Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
+            //
+            // Holds the length of each stack of edge elements.
+            var stackLengths = new int[16] {
+                Padding, Padding, Padding, Padding, Padding, Padding, Padding, Padding,
+                Padding, Padding, Padding, Padding, Padding, Padding, Padding, Padding
+            };
+            ref int stack(Edge e, Direction d) => ref stackLengths[(int)e * 4 + (int)d];
 
             foreach(var info in this._edgeElements.Values) {
                 var el = info.Element;
@@ -173,9 +179,6 @@ namespace Pirates_Nueva.UI
 
                 // Copy over some commonly used properties of /edge/.
                 var (e, d, width, height) = (info.Edge, info.Dir, el.Width, el.Height);
-
-                if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
-                    stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
                 
                 if(d == Direction.Left || d == Direction.Up) // If the direction is 'left' or 'up',
                     incr();                                  // increment the stack.
@@ -187,15 +190,15 @@ namespace Pirates_Nueva.UI
                         con.Left = e == Edge.Right ? Master.Screen.Width - width - Padding : Padding;
                 
                     if(d == Direction.Up || d == Direction.Down) // Position it based on its stack direction
-                        con.Top = d == Direction.Up ? Master.Screen.Height - stackLengths[(e, d)] : stackLengths[(e, d)];
+                        con.Top = d == Direction.Up ? Master.Screen.Height - stack(e, d) : stack(e, d);
                     else
-                        con.Left = d == Direction.Right ? stackLengths[(e, d)] : Master.Screen.Width - stackLengths[(e, d)];
+                        con.Left = d == Direction.Right ? stack(e, d) : Master.Screen.Width - stack(e, d);
 
                 if(d == Direction.Right || d == Direction.Down) // If the direction is 'right' or 'down',
                     incr();                                     // increment the stack.
 
                 // Increment the stack length that /edge/ is aligned in.
-                void incr() => stackLengths[(e, d)] += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
+                void incr() => stack(e, d) += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
             }
         }
 
@@ -228,7 +231,7 @@ namespace Pirates_Nueva.UI
                 var edge = info.Element as IElement<Edge>;
                 edge.Draw(master.Renderer, master);
             }
-            
+            //
             // Draw every menu.
             foreach(IMenuContract menu in this._menus.Values) {
                 menu.Draw(master.Renderer, master);
