@@ -39,7 +39,7 @@ namespace Pirates_Nueva
         /// </summary>
         public float Speed { get; }
         /// <summary>
-        /// The maximum turning speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in units per second.
+        /// The maximum turning speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in radians per second.
         /// </summary>
         public Angle TurnSpeed { get; }
 
