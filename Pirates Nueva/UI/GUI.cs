@@ -13,13 +13,32 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class GUI : IUpdatable
     {
-        private struct EdgeInfo {
+        private struct EdgeInfo
+        {
             public Edge Edge { get; set; }
             public Direction Dir { get; set; }
             public Element<Edge> Element { get; set; }
         }
+        private readonly struct EdgeDrawer<TScreenDrawer> : ILocalDrawer<Edge>
+            where TScreenDrawer : ILocalDrawer<Screen>
+        {
+            public TScreenDrawer ScreenDrawer { get; }
 
-        private readonly Dictionary<string, EdgeInfo> _edgeElements = new Dictionary<string, EdgeInfo>();
+            public EdgeDrawer(TScreenDrawer screenDrawer)
+                => ScreenDrawer = screenDrawer;
+
+            public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in Color tint)
+                => ScreenDrawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+            public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
+                                  in Angle angle, in PointF origin, in Color tint)
+                => ScreenDrawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+            public void DrawLineAt<T>(PointF start, PointF end, in Color color)
+                => ScreenDrawer.DrawLineAt<T>(start, end, in color);
+            public void DrawString(Font font, string text, float left, float top, in Color color)
+                => ScreenDrawer.DrawString(font, text, left, top, in color);
+        }
+
+        private readonly Dictionary<string, EdgeInfo> edgeElements = new Dictionary<string, EdgeInfo>();
         private readonly Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
         public Master Master { get; private set; }
@@ -44,9 +63,9 @@ namespace Pirates_Nueva.UI
         /// <param name="dir">The direction that the element will stack towards.</param>
         /// <exception cref="InvalidOperationException">Thrown if there is already an edge element identified by /id/.</exception>
         public void AddEdge(string id, Edge edge, Direction dir, Element<Edge> element) {
-            if(this._edgeElements.ContainsKey(id) == false) {
+            if(this.edgeElements.ContainsKey(id) == false) {
                 (element as IElement<Edge>).SubscribeOnPropertyChanged(() => ArrangeEdges());
-                this._edgeElements[id] = new EdgeInfo() { Edge = edge, Dir = dir, Element = element };
+                this.edgeElements[id] = new EdgeInfo() { Edge = edge, Dir = dir, Element = element };
                 ArrangeEdges();
             }
             //
@@ -60,7 +79,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Gets the edge Element identifed by /id/. </summary>
         public bool TryGetEdge(string id, [NotNullWhen(true)] out Element<Edge>? element) {
-            if(this._edgeElements.TryGetValue(id, out var info)) {
+            if(this.edgeElements.TryGetValue(id, out var info)) {
                 element = info.Element;
                 return true;
             }
@@ -80,15 +99,15 @@ namespace Pirates_Nueva.UI
         }
 
         /// <summary> Whether or not there is a edge element identified by /id/. </summary>
-        public bool HasEdge(string id) => this._edgeElements.ContainsKey(id);
+        public bool HasEdge(string id) => this.edgeElements.ContainsKey(id);
 
         /// <summary>
         /// Remove the edge element identifed by /id/.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown when there is no edge Element to remove.</exception>
         public void RemoveEdge(string id) {
-            if(this._edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
-                this._edgeElements.Remove(id);     // Remove that element from the dictionary.
+            if(this.edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
+                this.edgeElements.Remove(id);       // Remove that element from the dictionary.
                 ArrangeEdges();                     // Update the arrangement of edge elements.
             }
             // If there is no edge element identified by /id/, throw a KeyNotFoundException.
@@ -148,7 +167,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Returns whether or not the specified point is over any GUI elements. </summary>
         public bool IsPointOverGUI(PointI point) {
-            foreach(var info in this._edgeElements.Values) {            // For every edge element:
+            foreach(var info in this.edgeElements.Values) {             // For every edge element:
                 if((info.Element as IElement<Edge>).IsMouseOver(point)) // If the point is hovering over it,
                     return true;                                        //     return true.
             }                                                           //
@@ -173,7 +192,7 @@ namespace Pirates_Nueva.UI
             };
             ref int stack(Edge e, Direction d) => ref stackLengths[(int)e * 4 + (int)d];
 
-            foreach(var info in this._edgeElements.Values) {
+            foreach(var info in this.edgeElements.Values) {
                 var el = info.Element;
                 var con = el as IElement<Edge>;
 
@@ -208,7 +227,7 @@ namespace Pirates_Nueva.UI
                 return;                        //     exit the method.
 
             var mouse = input.MousePosition;
-            foreach(var info in this._edgeElements.Values) {    // For every edge element:
+            foreach(var info in this.edgeElements.Values) {          // For every edge element:
                 var edge = info.Element as IElement<Edge>;
                 if(edge is IButton b && edge.IsMouseOver(mouse)) {   // If the element is a button and the mouse is over it,
                     b.OnClick();                                     //     invoke its action,
@@ -227,9 +246,12 @@ namespace Pirates_Nueva.UI
         internal void Draw(Master master) {
             //
             // Draw every edge element.
-            foreach(var info in this._edgeElements.Values) {
-                var edge = info.Element as IElement<Edge>;
-                edge.Draw(master.Renderer, master);
+            if(this.edgeElements.Count > 0) {
+                var edgeDrawer = new EdgeDrawer<Renderer>(master.Renderer);
+                foreach(var info in this.edgeElements.Values) {
+                    var edge = info.Element as IElement<Edge>;
+                    edge.Draw(in edgeDrawer, master);
+                }
             }
             //
             // Draw every menu.

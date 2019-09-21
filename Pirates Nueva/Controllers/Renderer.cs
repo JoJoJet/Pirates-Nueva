@@ -162,7 +162,7 @@ namespace Pirates_Nueva
     /// <summary>
     /// Controls rendering for <see cref="Pirates_Nueva"/>.
     /// </summary>
-    internal class Renderer : ILocalDrawer<Screen>, ILocalDrawer<Edge>
+    internal class Renderer : ILocalDrawer<Screen>
     {
         private readonly Lazy<Sprite> pixelLazy;
 
@@ -180,7 +180,7 @@ namespace Pirates_Nueva
 
 
         public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
-            if(typeof(T) == typeof(Screen) || typeof(T) == typeof(Edge))
+            if(typeof(T) == typeof(Screen))
                 SpriteBatch.Draw(sprite.Source, new Rectangle((int)left, (int)top, (int)width, (int)height),
                                  new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height), tint);
             else
@@ -188,7 +188,7 @@ namespace Pirates_Nueva
         }
         public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
                          in Angle angle, in PointF origin, in UI.Color tint) {
-            if(typeof(T) == typeof(Screen) || typeof(T) == typeof(Edge))
+            if(typeof(T) == typeof(Screen))
                 SpriteBatch.Draw(sprite.Source, new Rectangle((int)x, (int)y, (int)width, (int)height),
                                  new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height),
                                  tint, angle, origin, SpriteEffects.None, 0);
@@ -197,7 +197,7 @@ namespace Pirates_Nueva
         }
 
         public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
-            if(typeof(T) == typeof(Screen) || typeof(T) == typeof(Edge)) {
+            if(typeof(T) == typeof(Screen)) {
                 var edge = end - start;
                 var angle = Angle.FromRadians(MathF.Atan2(edge.Y, edge.X));
 
@@ -209,15 +209,6 @@ namespace Pirates_Nueva
 
         public void DrawString(Font font, string text, float left, float top, in UI.Color color)
             => SpriteBatch.DrawString(font, text, new PointF(left, top), color);
-
-        public void DrawCorner(Sprite sprite, float left, float top, float width, float height, in UI.Color tint)
-            => DrawCornerAt<Screen>(sprite, left, top, width, height, in tint);
-        public void Draw(Sprite sprite, float x, float y, float width, float height,
-                         in Angle angle, in PointF origin, in UI.Color tint)
-            => DrawAt<Screen>(sprite, x, y, width, height, in angle, in origin, in tint);
-
-        public void DrawLine(PointF start, PointF end, in UI.Color color)
-            => DrawLineAt<Screen>(start, end, in color);
 
         private static void ThrowInvalidType<T>(string callingMethod)
             => throw new ArgumentException($"{nameof(Renderer)}.{callingMethod}<{typeof(T).Name}>(): Type parameter is not valid!");
