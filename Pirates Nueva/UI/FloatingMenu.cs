@@ -72,7 +72,7 @@ namespace Pirates_Nueva.UI
             this.resolvedOffset = offset;
         }
 
-        private struct FloatingMenuDrawer<TScreenDrawer> : ILocalDrawer<GUI.Menu>
+        private readonly struct FloatingMenuDrawer<TScreenDrawer> : ILocalDrawer<GUI.Menu>
             where TScreenDrawer : ILocalDrawer<Screen>
         {
             public FloatingMenu Menu { get; }
