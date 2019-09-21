@@ -13,13 +13,32 @@ namespace Pirates_Nueva.UI
     /// </summary>
     public class GUI : IUpdatable
     {
-        private struct EdgeInfo {
+        private struct EdgeInfo
+        {
             public Edge Edge { get; set; }
             public Direction Dir { get; set; }
             public Element<Edge> Element { get; set; }
         }
+        private readonly struct EdgeDrawer<TScreenDrawer> : ILocalDrawer<Edge>
+            where TScreenDrawer : ILocalDrawer<Screen>
+        {
+            public TScreenDrawer ScreenDrawer { get; }
 
-        private readonly Dictionary<string, EdgeInfo> _edgeElements = new Dictionary<string, EdgeInfo>();
+            public EdgeDrawer(TScreenDrawer screenDrawer)
+                => ScreenDrawer = screenDrawer;
+
+            public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in Color tint)
+                => ScreenDrawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
+            public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
+                                  in Angle angle, in PointF origin, in Color tint)
+                => ScreenDrawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
+            public void DrawLineAt<T>(PointF start, PointF end, in Color color)
+                => ScreenDrawer.DrawLineAt<T>(start, end, in color);
+            public void DrawString(Font font, string text, float left, float top, in Color color)
+                => ScreenDrawer.DrawString(font, text, left, top, in color);
+        }
+
+        private readonly Dictionary<string, EdgeInfo> edgeElements = new Dictionary<string, EdgeInfo>();
         private readonly Dictionary<string, Menu> _menus = new Dictionary<string, Menu>();
 
         public Master Master { get; private set; }
@@ -44,9 +63,9 @@ namespace Pirates_Nueva.UI
         /// <param name="dir">The direction that the element will stack towards.</param>
         /// <exception cref="InvalidOperationException">Thrown if there is already an edge element identified by /id/.</exception>
         public void AddEdge(string id, Edge edge, Direction dir, Element<Edge> element) {
-            if(this._edgeElements.ContainsKey(id) == false) {
+            if(this.edgeElements.ContainsKey(id) == false) {
                 (element as IElement<Edge>).SubscribeOnPropertyChanged(() => ArrangeEdges());
-                this._edgeElements[id] = new EdgeInfo() { Edge = edge, Dir = dir, Element = element };
+                this.edgeElements[id] = new EdgeInfo() { Edge = edge, Dir = dir, Element = element };
                 ArrangeEdges();
             }
             //
@@ -60,7 +79,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Gets the edge Element identifed by /id/. </summary>
         public bool TryGetEdge(string id, [NotNullWhen(true)] out Element<Edge>? element) {
-            if(this._edgeElements.TryGetValue(id, out var info)) {
+            if(this.edgeElements.TryGetValue(id, out var info)) {
                 element = info.Element;
                 return true;
             }
@@ -80,15 +99,15 @@ namespace Pirates_Nueva.UI
         }
 
         /// <summary> Whether or not there is a edge element identified by /id/. </summary>
-        public bool HasEdge(string id) => this._edgeElements.ContainsKey(id);
+        public bool HasEdge(string id) => this.edgeElements.ContainsKey(id);
 
         /// <summary>
         /// Remove the edge element identifed by /id/.
         /// </summary>
         /// <exception cref="KeyNotFoundException">Thrown when there is no edge Element to remove.</exception>
         public void RemoveEdge(string id) {
-            if(this._edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
-                this._edgeElements.Remove(id);     // Remove that element from the dictionary.
+            if(this.edgeElements.ContainsKey(id)) { // If there is an edge element identifed by /id/,
+                this.edgeElements.Remove(id);       // Remove that element from the dictionary.
                 ArrangeEdges();                     // Update the arrangement of edge elements.
             }
             // If there is no edge element identified by /id/, throw a KeyNotFoundException.
@@ -148,7 +167,7 @@ namespace Pirates_Nueva.UI
 
         /// <summary> Returns whether or not the specified point is over any GUI elements. </summary>
         public bool IsPointOverGUI(PointI point) {
-            foreach(var info in this._edgeElements.Values) {            // For every edge element:
+            foreach(var info in this.edgeElements.Values) {             // For every edge element:
                 if((info.Element as IElement<Edge>).IsMouseOver(point)) // If the point is hovering over it,
                     return true;                                        //     return true.
             }                                                           //
@@ -165,17 +184,20 @@ namespace Pirates_Nueva.UI
         void ArrangeEdges() {
             const int Padding = 5;
 
-            Dictionary<(Edge, Direction), int> stackLengths = new Dictionary<(Edge, Direction), int>();
+            //
+            // Holds the length of each stack of edge elements.
+            var stackLengths = new int[16] {
+                Padding, Padding, Padding, Padding, Padding, Padding, Padding, Padding,
+                Padding, Padding, Padding, Padding, Padding, Padding, Padding, Padding
+            };
+            ref int stack(Edge e, Direction d) => ref stackLengths[(int)e * 4 + (int)d];
 
-            foreach(var info in this._edgeElements.Values) {
+            foreach(var info in this.edgeElements.Values) {
                 var el = info.Element;
                 var con = el as IElement<Edge>;
 
                 // Copy over some commonly used properties of /edge/.
                 var (e, d, width, height) = (info.Edge, info.Dir, el.Width, el.Height);
-
-                if(stackLengths.ContainsKey((e, d)) == false) // If the stack for /edge/ is unassigned,
-                    stackLengths[(e, d)] = Padding;           // make it default to the constant /Padding/.
                 
                 if(d == Direction.Left || d == Direction.Up) // If the direction is 'left' or 'up',
                     incr();                                  // increment the stack.
@@ -187,15 +209,15 @@ namespace Pirates_Nueva.UI
                         con.Left = e == Edge.Right ? Master.Screen.Width - width - Padding : Padding;
                 
                     if(d == Direction.Up || d == Direction.Down) // Position it based on its stack direction
-                        con.Top = d == Direction.Up ? Master.Screen.Height - stackLengths[(e, d)] : stackLengths[(e, d)];
+                        con.Top = d == Direction.Up ? Master.Screen.Height - stack(e, d) : stack(e, d);
                     else
-                        con.Left = d == Direction.Right ? stackLengths[(e, d)] : Master.Screen.Width - stackLengths[(e, d)];
+                        con.Left = d == Direction.Right ? stack(e, d) : Master.Screen.Width - stack(e, d);
 
                 if(d == Direction.Right || d == Direction.Down) // If the direction is 'right' or 'down',
                     incr();                                     // increment the stack.
 
                 // Increment the stack length that /edge/ is aligned in.
-                void incr() => stackLengths[(e, d)] += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
+                void incr() => stack(e, d) += (d == Direction.Down || d == Direction.Up ? height : width) + Padding;
             }
         }
 
@@ -205,7 +227,7 @@ namespace Pirates_Nueva.UI
                 return;                        //     exit the method.
 
             var mouse = input.MousePosition;
-            foreach(var info in this._edgeElements.Values) {    // For every edge element:
+            foreach(var info in this.edgeElements.Values) {          // For every edge element:
                 var edge = info.Element as IElement<Edge>;
                 if(edge is IButton b && edge.IsMouseOver(mouse)) {   // If the element is a button and the mouse is over it,
                     b.OnClick();                                     //     invoke its action,
@@ -224,20 +246,23 @@ namespace Pirates_Nueva.UI
         internal void Draw(Master master) {
             //
             // Draw every edge element.
-            foreach(var info in this._edgeElements.Values) {
-                var edge = info.Element as IElement<Edge>;
-                edge.Draw(master.Renderer, master);
+            if(this.edgeElements.Count > 0) {
+                var edgeDrawer = new EdgeDrawer<Renderer>(master.Renderer);
+                foreach(var info in this.edgeElements.Values) {
+                    var edge = info.Element as IElement<Edge>;
+                    edge.Draw(in edgeDrawer, master);
+                }
             }
-            
+            //
             // Draw every menu.
             foreach(IMenuContract menu in this._menus.Values) {
-                menu.Draw(master.Drawer, master);
+                menu.Draw(master.Renderer, master);
             }
 
             // Draw the tooltip.
             if(!string.IsNullOrEmpty(Tooltip)) {                                 // If there is a tooltip:
                 var (x, y) = master.Input.MousePosition;                         //
-                master.Drawer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
+                master.Renderer.DrawString(Font, Tooltip, x, y, in Color.Black); //     Draw it next to the mouse cursor.
             }
         }
 
@@ -269,7 +294,8 @@ namespace Pirates_Nueva.UI
             void SubscribeOnPropertyChanged(Action action);
 
             /// <summary> Draws this element onscreen, using the offset. </summary>
-            void Draw(ILocalDrawer<T> drawer, Master master);
+            void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<T>;
 
             /// <summary> Whether or not the mouse is hovering over this element, local to the element's containing menu. </summary>
             bool IsMouseOver(PointF localMouse);
@@ -300,14 +326,15 @@ namespace Pirates_Nueva.UI
             void IElement<T>.SubscribeOnPropertyChanged(Action action) => this.onPropertyChanged += action;
 
             /// <summary> Draw this <see cref="Element"/> onscreen, from the specified top left corner. </summary>
-            protected abstract void Draw(ILocalDrawer<T> drawer, Master master);
+            protected abstract void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<T>;
             
             private bool IsHidden { get; set; }
             bool IElement<T>.IsHidden { set => IsHidden = value; }
 
-            void IElement<T>.Draw(ILocalDrawer<T> drawer, Master master) {
+            void IElement<T>.Draw<TDrawer>(in TDrawer drawer, Master master) {
                 if(!IsHidden) {
-                    Draw(drawer, master);                             // Draw the button onscreen.
+                    Draw(in drawer, master);                          // Draw the button onscreen.
                     Bounds = new Rectangle(Left, Top, Width, Height); // Store the bounds of this element
                                                                       //     for later use in IsMouseOver().
                 }
@@ -329,7 +356,8 @@ namespace Pirates_Nueva.UI
         {
             Screen Screen { set; }
 
-            void Draw(ILocalDrawer<Screen> drawer, Master master);
+            void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Screen>;
 
             bool IsMouseOver(PointI mouse);
 
@@ -384,8 +412,9 @@ namespace Pirates_Nueva.UI
                     el.IsHidden = which;               //     set whether or not it is hidden.
             }
 
-            void IMenuContract.Draw(ILocalDrawer<Screen> drawer, Master master) => Draw(drawer, master);
-            protected abstract void Draw(ILocalDrawer<Screen> drawer, Master master);
+            void IMenuContract.Draw<TDrawer>(in TDrawer drawer, Master master) => Draw(in drawer, master);
+            protected abstract void Draw<TDrawer>(in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Screen>;
             
             bool IMenuContract.IsMouseOver(PointI mouse) => IsMouseOver(mouse);
             protected virtual bool IsMouseOver(PointI mouse) {
@@ -398,8 +427,9 @@ namespace Pirates_Nueva.UI
             }
 
             /// <summary> Draws the specified element onscreen. </summary>
-            protected void DrawElement(Element<Menu> element, ILocalDrawer<Menu> drawer, Master master)
-                => (element as IElement<Menu>).Draw(drawer, master);
+            protected void DrawElement<TDrawer>(Element<Menu> element, in TDrawer drawer, Master master)
+                where TDrawer : ILocalDrawer<Menu>
+                => (element as IElement<Menu>).Draw(in drawer, master);
 
             bool IMenuContract.GetButton(PointI mouse, out IButton button) {
                 var localMouse = ScreenPointToMenu(mouse.X, mouse.Y);

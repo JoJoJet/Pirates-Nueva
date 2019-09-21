@@ -13,7 +13,7 @@
             Font = font;
         }
 
-        protected override void Draw(ILocalDrawer<T> drawer, Master master)
+        protected override void Draw<TDrawer>(in TDrawer drawer, Master master)
             => drawer.DrawString(Font, Value, Left, Top, in Color.Black);
     }
 
@@ -41,7 +41,7 @@
             Font = font;
         }
 
-        protected override void Draw(ILocalDrawer<T> drawer, Master master)
+        protected override void Draw<TDrawer>(in TDrawer drawer, Master master)
             => drawer.DrawString(Font, Value, Left, Top, in Color.Black);
     }
 
@@ -65,7 +65,7 @@
             Font = font;
             this.onClick = onClick;
         }
-        protected override void Draw(ILocalDrawer<T> drawer, Master master) {
+        protected override void Draw<TDrawer>(in TDrawer drawer, Master master) {
             var panel = new NineSlice(SliceDef.Get("panel"), Width, Height, master);      // Make a panel.
             drawer.DrawCorner(panel, Left, Top, Width, Height);                           // Draw a panel behind the text.
                                                                                           //

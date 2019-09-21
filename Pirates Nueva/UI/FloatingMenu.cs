@@ -38,12 +38,12 @@ namespace Pirates_Nueva.UI
             Corner = corner;
         }
 
-        protected override void Draw(ILocalDrawer<Screen> drawer, Master master) {
+        protected override void Draw<TDrawer>(in TDrawer drawer, Master master) {
             CalcOffset();
-            var localDrawer = new FloatingMenuDrawer(this, drawer);
+            var localDrawer = new FloatingMenuDrawer<TDrawer>(this, in drawer);
 
             foreach(var el in Elements) {
-                DrawElement(el, localDrawer, master);
+                DrawElement(el, in localDrawer, master);
             }
         }
 
@@ -72,12 +72,13 @@ namespace Pirates_Nueva.UI
             this.resolvedOffset = offset;
         }
 
-        private class FloatingMenuDrawer : ILocalDrawer<GUI.Menu>
+        private readonly struct FloatingMenuDrawer<TScreenDrawer> : ILocalDrawer<GUI.Menu>
+            where TScreenDrawer : ILocalDrawer<Screen>
         {
             public FloatingMenu Menu { get; }
-            public ILocalDrawer<Screen> Drawer { get; }
+            public TScreenDrawer Drawer { get; }
 
-            public FloatingMenuDrawer(FloatingMenu menu, ILocalDrawer<Screen> drawer) {
+            public FloatingMenuDrawer(FloatingMenu menu, in TScreenDrawer drawer) {
                 Menu = menu;
                 Drawer = drawer;
             }
