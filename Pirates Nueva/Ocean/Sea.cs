@@ -107,6 +107,31 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
+        public bool IntersectsWithIsland(PointF start, PointF end) {
+            var startChunk = new PointI((int)(start.X / Chunk.Width), (int)(start.Y / Chunk.Height));
+            var endChunk   = new PointI((int)(end.X   / Chunk.Width), (int)(end.Y   / Chunk.Height));
+
+            bool intersects = false;
+            void step(int x, int y) {
+                var ch = this[x, y];
+                foreach(var i in ch.Islands) {
+                    if(i.Intersects(start, end)) {
+                        intersects = true;
+                        break;
+                    }
+                }
+            }
+
+            if(startChunk == endChunk) {
+                step(startChunk.X, startChunk.Y);
+            }
+            else {
+                Bresenham.Line(startChunk, endChunk, step);
+            }
+
+            return intersects;
+        }
+
         #region IGraph<> Implementation
         IEnumerable<Chunk> IGraph<Chunk>.Nodes {
             get {
