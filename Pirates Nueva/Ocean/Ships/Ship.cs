@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 using Pirates_Nueva.Path;
@@ -15,7 +14,7 @@ namespace Pirates_Nueva.Ocean
     public class Ship : Entity,
         IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
-        IUpdatable, IDrawable<Sea>, UI.IScreenSpaceTarget
+        IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -617,8 +616,8 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
-        int UI.IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
+        int IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
+        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
@@ -838,7 +837,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, UI.IScreenSpaceTarget
+        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, IScreenSpaceTarget
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -893,8 +892,8 @@ namespace Pirates_Nueva.Ocean
 
             #region IScreenSpaceTarget Implementation
             private PointF ScreenTarget => Ship.Sea.Transformer.PointFrom(Ship.Transformer.PointFrom(X, Y));
-            int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
-            int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
+            int IScreenSpaceTarget.X => (int)ScreenTarget.X;
+            int IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
             #endregion
         }
     }
