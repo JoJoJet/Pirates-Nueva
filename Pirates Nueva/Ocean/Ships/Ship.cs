@@ -495,7 +495,6 @@ namespace Pirates_Nueva.Ocean
                 // Find the length of each probe that looks for obstacles in front of the ship.
                 // This should be related to the ship's turning radius.
                 float probeLength = Def.TurnRadius * 3;
-                float sqrProbeLength = probeLength * probeLength;
 
                 //
                 // Get an array of probes.
@@ -509,6 +508,7 @@ namespace Pirates_Nueva.Ocean
                 //
                 // If any of the probes intersect with anything,
                 // they should push the ship in the opposite direction.
+                // This gives a decent amount of spacing between the ship and obstacles.
                 for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
                     if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
@@ -518,7 +518,7 @@ namespace Pirates_Nueva.Ocean
                         // on the distance from the intersection to the ship.
                         // An intersection at the very end of the probe should
                         // have half the strength as one up close and personal.
-                        probeFactors[i] = sqrDist / sqrProbeLength;
+                        probeFactors[i] = MathF.Sqrt(sqrDist) / probeLength;
                         var factor = MoreMath.Lerp(1f, 0.5f, probeFactors[i]);
                         targetAng -= probes[i] * factor;
                     }
