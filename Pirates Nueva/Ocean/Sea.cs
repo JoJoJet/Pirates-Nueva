@@ -90,6 +90,13 @@ namespace Pirates_Nueva.Ocean
         public Chunk this[int xIndex, int yIndex] => this.chunks[xIndex, yIndex];
 
         /// <summary>
+        /// Gets the index of the <see cref="Chunk"/> that contains the specified point.
+        /// Note: the index of the chunk will not necessarily be in bounds.
+        /// </summary>
+        public static PointI RoundToChunks(in PointF point)
+            => new PointI((int)(point.X / Chunk.Width), (int)(point.Y / Chunk.Height));
+
+        /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
         public void AddEntity(Entity entity) {
@@ -107,16 +114,18 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
+        /// <summary>
+        /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
+        /// </summary>
         public bool IntersectsWithIsland(PointF start, PointF end) {
-            var startChunk = new PointI((int)(start.X / Chunk.Width), (int)(start.Y / Chunk.Height));
-            var endChunk   = new PointI((int)(end.X   / Chunk.Width), (int)(end.Y   / Chunk.Height));
+            var startChunk = RoundToChunks(in start);
+            var endChunk   = RoundToChunks(in end);
 
             bool intersects = false;
             void step(int x, int y) {
                 if(x < 0 || x >= ChunksWidth || y < 0 || y >= ChunksHeight)
                     return;
-                var ch = this[x, y];
-                foreach(var i in ch.Islands) {
+                foreach(var i in this[x, y].Islands) {
                     if(i.Intersects(start, end)) {
                         intersects = true;
                         break;
