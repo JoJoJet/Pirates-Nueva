@@ -29,9 +29,9 @@ namespace Pirates_Nueva.Ocean.Agents
         public float MoveProgress { get; protected set; }
         
         /// <summary> The X coordinate of this <see cref="Agent"/>, local to its container. </summary>
-        public float X => Lerp(CurrentSpot.X, (NextSpot ?? CurrentSpot).X, MoveProgress);
+        public float X => MoreMath.Lerp(CurrentSpot.X, (NextSpot ?? CurrentSpot).X, MoveProgress);
         /// <summary> The Y coordinate of this <see cref="Agent"/>, local to its container. </summary>
-        public float Y => Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
+        public float Y => MoreMath.Lerp(CurrentSpot.Y, (NextSpot ?? CurrentSpot).Y, MoveProgress);
 
         /// <summary> The item that this instance is currently holding, if applicable. </summary>
         public Stock<TC, TSpot>? Holding { get; set; }
@@ -152,9 +152,6 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
         #endregion
-
-        /// <summary> Linearly interpolates between two values, by amount /f/. </summary>
-        private static float Lerp(float a, float b, float f) => a * (1 - f) + b * f;
 
         #region IUpdatable Implementation
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
