@@ -46,7 +46,12 @@ namespace Pirates_Nueva
 
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
         public static Angle FromRadians(float rads) {
+            //
+            // Perform a modulus to ensure that the value
+            // is no greater in magnitude than a full turn.
             rads %= FullTurn;
+            //
+            // Ensure that the value is always positive.
             if(rads < 0)
                 rads += FullTurn;
             return new Angle(rads);
@@ -85,26 +90,42 @@ namespace Pirates_Nueva
             static float abs(float f) => Math.Abs(f);    static float sign(float f) => Math.Sign(f);
         }
 
-        public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.##}π" : "0";
+        public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.###}π" : "0";
 
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
 
         public static Angle operator +(Angle a, Angle b) {
+            //
+            // The sum will always be less in magnitude than
+            // two full turns, so we can perform subtraction
+            // instead of a modulus.
+            // It will also never be negative.
             var sum = a.Radians + b.Radians;
             if(sum >= FullTurn)
                 sum -= FullTurn;
             return new Angle(sum);
         }
         public static Angle operator -(Angle a, Angle b) {
+            //
+            // The difference will always be less in magnitude
+            // than a full turn, so we don't need to perform a modulus here.
             var dif = a.Radians - b.Radians;
             if(dif < 0)
                 dif += FullTurn;
             return new Angle(dif);
         }
-        public static Angle operator -(Angle ang) => ang.Radians == 0
-                                                     ? ang
-                                                     : new Angle(FullTurn - ang.Radians);
+        public static Angle operator -(Angle ang) {
+            //
+            // As long as the input angle is not 0 radians,
+            // the result of unary negation will always be
+            // in a valid range, so we don't need to perform
+            // any input validation.
+            if(ang.Radians == 0)
+                return ang;
+            else
+                return new Angle(FullTurn - ang.Radians);
+        }
 
         public static Angle operator *(Angle a, float b) => FromRadians(a.Radians * b);
         public static Angle operator /(Angle a, float b) => FromRadians(a.Radians / b);
