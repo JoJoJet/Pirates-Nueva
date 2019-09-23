@@ -5,7 +5,7 @@
 		<Height>5</Height>
 		<RootIndex>3, 2</RootIndex>
 		<!-- In units per second. -->
-		<Speed>3</Speed>
+		<Speed>4.5</Speed>
 		<TurningRadius>9</TurningRadius>
 		<DefaultShape>
 			<!--   W W         -->
