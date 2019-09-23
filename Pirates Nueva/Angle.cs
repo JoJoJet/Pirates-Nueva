@@ -105,5 +105,19 @@ namespace Pirates_Nueva
         public static Angle operator -(Angle ang) => ang.Radians == 0
                                                      ? ang
                                                      : new Angle(FullTurn - ang.Radians);
+
+        public static Angle operator *(Angle a, float b) => FromRadians(a.Radians * b);
+        public static Angle operator /(Angle a, float b) => FromRadians(a.Radians / b);
+        public static Angle operator /(Angle a, int b) {
+            //
+            // We dont't need to perform a modulus here,
+            // because since the denominator is > 0,
+            // the quotient will always be smaller than a full turn.
+            // We still need to check for negative though, as the denominator can be negative.
+            var quo = a.Radians / b;
+            if(quo < 0)
+                quo += FullTurn;
+            return new Angle(quo);
+        }
     }
 }
