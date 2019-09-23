@@ -113,6 +113,8 @@ namespace Pirates_Nueva.Ocean
 
             bool intersects = false;
             void step(int x, int y) {
+                if(x < 0 || x >= ChunksWidth || y < 0 || y >= ChunksHeight)
+                    return;
                 var ch = this[x, y];
                 foreach(var i in ch.Islands) {
                     if(i.Intersects(start, end)) {
