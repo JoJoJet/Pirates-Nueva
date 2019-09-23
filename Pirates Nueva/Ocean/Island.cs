@@ -777,6 +777,40 @@ namespace Pirates_Nueva.Ocean
             }
             return intersects;
         }
+
+        /// <summary>
+        /// Checks if the described <see cref="Ocean.Sea"/>-space lien segment intersects with this <see cref="Island"/>.
+        /// If it does, outputs the squared distance from <paramref name="start"/> to the intersection.
+        /// </summary>
+        /// <param name="sqrDistance">
+        /// The squared distance from <paramref name="start"/> to the intersection.
+        /// To get the euclidean distance, take the square root of this.</param>
+        public bool Intersects(PointF start, PointF end, out float sqrDistance) {
+            var localStart = (PointI)Transformer.PointTo(in start);
+            var localEnd = (PointI)Transformer.PointTo(in end);
+            //
+            // Use a pixel-by-pixel line drawing algorithm to draw a line.
+            // If any pixel collides with an island block,
+            // that measn that the line intersects with this island.
+            bool intersects = false;
+            var sqrDist = float.MaxValue;
+            Bresenham.Line(localStart, localEnd, step);
+            void step(int x, int y) {
+                if(x > 0 && y >= 0 && x < Width && y < Height && this.blocks[x, y] != null) {
+                    intersects = true;
+                    //
+                    // Measure the squared distance from the start to the intersection.
+                    // If it's smaller than the last smallest distance,
+                    // set it as the new smallest distance.
+                    var dist = PointF.SqrDistance(in start, (x, y));
+                    if(dist < sqrDist)
+                        sqrDist = dist;
+                }
+            }
+
+            sqrDistance = sqrDist;
+            return intersects;
+        }
         
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Sea;

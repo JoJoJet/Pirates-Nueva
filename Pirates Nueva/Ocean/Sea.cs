@@ -133,13 +133,49 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            if(startChunk == endChunk) {
+            if(startChunk == endChunk)
                 step(startChunk.X, startChunk.Y);
-            }
-            else {
+            else
                 Bresenham.Line(startChunk, endChunk, step);
+
+            return intersects;
+        }
+
+        /// <summary>
+        /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
+        /// If it does, outputs the squared distance from <paramref name="start"/> to the closest.
+        /// </summary>
+        /// <param name="sqrDistance">
+        /// The squared distance from <paramref name="start"/> to the closest intersection.
+        /// To get the euclidean distance, take the square root of this.</param>
+        public bool IntersectsWithIsland(PointF start, PointF end, out float sqrDistance) {
+            var startChunk = RoundToChunks(in start);
+            var endChunk   = RoundToChunks(in end);
+
+            bool intersects = false;
+            var sqrDist = float.MaxValue;
+            void step(int x, int y) {
+                if(x < 0 || x >= ChunksWidth || y < 0 || y >= ChunksHeight)
+                    return;
+                foreach(var i in this[x, y].Islands) {
+                    if(i.Intersects(start, end, out var dist)) {
+                        intersects = true;
+                        //
+                        // If the distance from the start to the intersection
+                        // is less than the last smallest distance,
+                        // set it as the new smallest distance.
+                        if(dist < sqrDist)
+                            sqrDist = dist;
+                    }
+                }
             }
 
+            if(startChunk == endChunk)
+                step(startChunk.X, startChunk.Y);
+            else
+                Bresenham.Line(startChunk, endChunk, step);
+
+            sqrDistance = sqrDist;
             return intersects;
         }
 
