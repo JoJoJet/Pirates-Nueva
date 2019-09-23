@@ -802,7 +802,7 @@ namespace Pirates_Nueva.Ocean
                     // Measure the squared distance from the start to the intersection.
                     // If it's smaller than the last smallest distance,
                     // set it as the new smallest distance.
-                    var dist = PointF.SqrDistance(in start, (x, y));
+                    var dist = PointF.SqrDistance(in start, Transformer.PointFrom(x, y));
                     if(dist < sqrDist)
                         sqrDist = dist;
                 }
