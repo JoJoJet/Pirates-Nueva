@@ -37,16 +37,22 @@ namespace Pirates_Nueva
         /// </summary>
         public Vector Vector => new Vector(MathF.Cos(Radians), MathF.Sin(Radians));
 
-        private Angle(float radians) {
-            Radians = radians % FullTurn;
-            if(Radians < 0)
-                Radians += FullTurn;
-        }
+        /// <summary>
+        /// Returns a new angle. Does not perform any input validation,
+        /// so you gotta be sure that all inputs are valid.
+        /// </summary>
+        private Angle(float radians)
+            => Radians = radians;
 
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
-        public static Angle FromRadians(float rads) => new Angle(rads);
+        public static Angle FromRadians(float rads) {
+            rads %= FullTurn;
+            if(rads < 0)
+                rads += FullTurn;
+            return new Angle(rads);
+        }
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in degrees. </summary>
-        public static Angle FromDegrees(float degs) => new Angle(degs * Deg2Rad);
+        public static Angle FromDegrees(float degs) => FromRadians(degs * Deg2Rad);
 
         /// <summary>
         /// Return an angle, moving from /a/ towards /b/, with a maximum change of /step/.
@@ -84,8 +90,20 @@ namespace Pirates_Nueva
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
 
-        public static Angle operator +(Angle a, Angle b) => FromRadians(a.Radians + b.Radians);
-        public static Angle operator -(Angle a, Angle b) => FromRadians(a.Radians - b.Radians);
-        public static Angle operator -(Angle ang) => FromRadians(-ang.Radians);
+        public static Angle operator +(Angle a, Angle b) {
+            var sum = a.Radians + b.Radians;
+            if(sum >= FullTurn)
+                sum -= FullTurn;
+            return new Angle(sum);
+        }
+        public static Angle operator -(Angle a, Angle b) {
+            var dif = a.Radians - b.Radians;
+            if(dif < 0)
+                dif += FullTurn;
+            return new Angle(dif);
+        }
+        public static Angle operator -(Angle ang) => ang.Radians == 0
+                                                     ? ang
+                                                     : new Angle(FullTurn - ang.Radians);
     }
 }
