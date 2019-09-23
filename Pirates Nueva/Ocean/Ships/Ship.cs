@@ -23,9 +23,6 @@ namespace Pirates_Nueva.Ocean
         
         private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
-        private List<Chunk>? junctions;
-        private Queue<PointF>? path;
-
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
@@ -50,6 +47,8 @@ namespace Pirates_Nueva.Ocean
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Sea"/>-space.
         /// </summary>
         public Vector Right => Angle.Vector;
+
+        public PointF? Destination { get; private set; }
 
         /// <summary>
         /// The object that handles transformation for this <see cref="Ship"/>.
@@ -402,49 +401,7 @@ namespace Pirates_Nueva.Ocean
 
         #region Navigation
         public void SetDestination(PointF destination) {
-            var sourceChunk = Sea[(int)(Center.X / Chunk.Width), (int)(Center.Y / Chunk.Height)];
-            var destChunk = Sea[(int)(destination.X / Chunk.Width), (int)(destination.Y / Chunk.Height)];
-            //
-            // If the destination is within this chunk.
-            if(sourceChunk == destChunk) {
-                this.path = new Queue<PointF>();
-                this.path.Enqueue(destination);
-                this.junctions = new List<Chunk>();
-            }
-            //
-            // If the destination point is in another chunk, not occupied by any Islands.
-            else if(!destChunk.Islands.Any(i => i.Collides(destination))) {
-                //
-                // Pathfind over the Chunks from the current chunk to the destination.
-                var path = Dijkstra.FindPath(Sea, sourceChunk, destChunk);
-                //
-                // If a path was found.
-                if(path.Count > 0) {
-                    //
-                    // Iterate over the path,
-                    // removing any chunks in between straight lines.
-                    this.junctions = new List<Chunk>(path.Count / 2);
-                    var prev = sourceChunk;
-                    while(path.Count > 1) { // Require the path to have MORE THAN 1 element, as the destination is the last element.
-                        var current = path.Pop();
-                        var next = path.Peek();
-                        if(current.Index - prev.Index != next.Index - current.Index)
-                            junctions.Add(current);
-                        prev = current;
-                    }
-                    //
-                    // Find a set of straight lines
-                    // using the junctions that were found above.
-                    this.path = new Queue<PointF>();
-                    foreach(var j in this.junctions) {
-                        this.path.Enqueue(j.Index * Chunk.Width + (Chunk.Width / 2, Chunk.Height / 2));
-                    }
-                    this.path.Enqueue(destination);
-                }
-                else {
-                    this.path = null;
-                }
-            }
+            Destination = destination;
         }
         #endregion
 
@@ -503,32 +460,90 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
+        /// <summary>
+        /// Fills an array with values for offsets for navigation "probes".
+        /// </summary>
+        /// <param name="probes"></param>
+        private static void FillProbes(Span<Angle> probes) {
+            probes[0]  = Angle.FromRadians( Angle.FullTurn * 10 / 64);
+            probes[1]  = Angle.FromRadians( Angle.FullTurn * 8  / 64);
+            probes[2]  = Angle.FromRadians( Angle.FullTurn * 6  / 64);
+            probes[3]  = Angle.FromRadians( Angle.FullTurn * 4  / 64);
+            probes[4]  = Angle.FromRadians( Angle.FullTurn * 2  / 64);
+            probes[5]  = Angle.FromRadians( Angle.FullTurn * 1  / 64);
+            probes[6]  = Angle.FromRadians(-Angle.FullTurn * 1  / 64);
+            probes[7]  = Angle.FromRadians(-Angle.FullTurn * 2  / 64);
+            probes[8]  = Angle.FromRadians(-Angle.FullTurn * 4  / 64);
+            probes[9]  = Angle.FromRadians(-Angle.FullTurn * 6  / 64);
+            probes[10] = Angle.FromRadians(-Angle.FullTurn * 8  / 64);
+            probes[11] = Angle.FromRadians(-Angle.FullTurn * 10 / 64);
+        }
+
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         protected virtual void Update(in UpdateParams @params) {
             var (delta, master) = @params;
-            if(this.path is Queue<PointF> path) {
+            if(Destination is PointF dest) {
                 //
-                // If we've reached the next segment of the path,
-                // move onto the following one.
-                if(Collides(path.Peek()))
-                    _ = path.Dequeue();
+                // If we're already at the destination,
+                // skip navigation.
+                if(Collides(in dest)) {
+                    Destination = null;
+                    goto skipNavigation;
+                }
+
                 //
-                // If the path is empty,
-                // unassign it.
-                if(path.Count == 0) {
-                    this.path = null;
+                // Find the length of each probe that looks for obstacles in front of the ship.
+                // This should be related to the ship's turning radius.
+                float probeLength = Def.TurnRadius * 3;
+                float sqrProbeLength = probeLength * probeLength;
+
+                //
+                // Get an array of probes.
+                const int ProbeCount = 12;
+                Span<Angle> probes = stackalloc Angle[ProbeCount];
+                FillProbes(probes);
+                Span<float> probeFactors = stackalloc float[ProbeCount];
+
+                bool anyCollision = false;
+                var targetAng = Angle;
+                //
+                // If any of the probes intersect with anything,
+                // they should push the ship in the opposite direction.
+                for(int i = 0; i < ProbeCount; i++) {
+                    var ang = Angle + probes[i];
+                    if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
+                        anyCollision = true;
+                        //
+                        // The strength with which the probe pushes should vary depending
+                        // on the distance from the intersection to the ship.
+                        // An intersection at the very end of the probe should
+                        // have half the strength as one up close and personal.
+                        probeFactors[i] = sqrDist / sqrProbeLength;
+                        var factor = MoreMath.Lerp(1f, 0.5f, probeFactors[i]);
+                        targetAng -= probes[i] * factor;
+                    }
+                    else {
+                        probeFactors[i] = float.MaxValue;
+                    }
                 }
                 //
-                // If there is more ground to cover,
-                // do so.
-                else {
-                    var newAngle = new Vector(Center, path.Peek()).Angle; // Get the angle twoards the segment
-                    var step = Def.TurnSpeed * delta;                     //
-                                                                          //
-                    Angle = Angle.MoveTowards(Angle, newAngle, step);     // Slowly rotate the ship towards that angle.
-                    Center += Right * Def.Speed * delta;                  // Slowly move the ship to the right.
-                }
+                // If none of the probes collided with anything (the way is clear),
+                // Then the ship should point in the direction of the destination.
+                if(!anyCollision)
+                    targetAng = new Vector(Center, dest).Angle;
+
+                //
+                // Gradually turn the ship in the direction of the target angle.
+                // If the target angle is REALLY close to the current one,
+                // don't do anything. This is to reduce jitter.
+                if(MathF.Abs(Angle.Radians - targetAng.Radians) > 0.05f)
+                    Angle = Angle.MoveTowards(Angle, targetAng, Def.TurnSpeed * delta);
+                //
+                // Gradually move the ship in the direction of the bow.
+                Center += Right * (Def.Speed * delta);
             }
+        skipNavigation:
+
             //
             // Update every part in the ship.
             for(int x = 0; x < Width; x++) {
@@ -595,21 +610,16 @@ namespace Pirates_Nueva.Ocean
 
             //
             // If we're being focused on, draw our path.
-            if(IsFocused && this.path != null && this.junctions != null) {
-                foreach(var ch in this.junctions) {
-                    PointF tl = (ch.XIndex * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
-                    PointF tr = ((ch.XIndex + 1) * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
-                    PointF br = ((ch.XIndex + 1) * Chunk.Width, ch.YIndex * Chunk.Height);
-                    PointF bl = (ch.XIndex * Chunk.Width, ch.YIndex * Chunk.Height);
-                    seaDrawer.DrawLine(bl, tl, in Color.Lime);
-                    seaDrawer.DrawLine(tl, tr, in Color.Lime);
-                    seaDrawer.DrawLine(tr, br, in Color.Lime);
-                    seaDrawer.DrawLine(br, bl, in Color.Lime);
-                }
-                var prev = Center;
-                foreach(var p in this.path) {
-                    seaDrawer.DrawLine(prev, p, in Color.Lime);
-                    prev = p;
+            if(IsFocused && Destination is PointF dest) {
+                seaDrawer.DrawLine(Center, dest, in Color.White);
+
+                //
+                // Draw the probes extending from the front of this Ship.
+                Span<Angle> probes = stackalloc Angle[12];
+                FillProbes(probes);
+                for(int i = 0; i < 12; i++) {
+                    var ang = Angle + probes[i];
+                    seaDrawer.DrawLine(Center, Center + ang.Vector * Def.TurnRadius * 3, in Color.Lime);
                 }
             }
         }
