@@ -13,10 +13,16 @@ namespace Pirates_Nueva
         public const float HalfTurn = MathF.PI;
         /// <summary> A full rotation around a circle, in radians. </summary>
         public const float FullTurn = 2*HalfTurn;
-        /// <summary> Converts radians to degrees. </summary>
-        public const float Rad2Deg  = 180f / HalfTurn;
-        /// <summary> Converts degrees to radians. </summary>
-        public const float Deg2Rad  = HalfTurn / 180f;
+
+        /// <summary> A half rotation around a circle, in degrees. </summary>
+        public const float HalfTurnDegs = FullTurnDegs / 2;
+        /// <summary> A full rotation around a circle, in degrees. </summary>
+        public const float FullTurnDegs = 360f;
+
+        /// <summary> When a number is multiplied by this, converts from radians to degrees. </summary>
+        public const float DegsPerRad = HalfTurnDegs / HalfTurn;
+        /// <summary> When a number is multiplied by this, converts from degrees to radians. </summary>
+        public const float RadsPerDeg = HalfTurn / HalfTurnDegs;
 
         /// <summary> 0π </summary>
         public static Angle Right { get; } = FromRadians(0);
@@ -30,7 +36,7 @@ namespace Pirates_Nueva
         /// <summary> The value of this <see cref="Angle"/>, in radians. Range: [0, 2π) </summary>
         public float Radians { get; }
         /// <summary> The value of this <see cref="Angle"/>, in degrees. Range: [0, 360°) </summary>
-        public float Degrees => Radians * Rad2Deg;
+        public float Degrees => Radians * DegsPerRad;
 
         /// <summary>
         /// The <see cref="Pirates_Nueva.Vector"/> that represents this <see cref="Angle"/>.
@@ -57,7 +63,17 @@ namespace Pirates_Nueva
             return new Angle(rads);
         }
         /// <summary> Create a new <see cref="Angle"/> struct, from a number in degrees. </summary>
-        public static Angle FromDegrees(float degs) => FromRadians(degs * Deg2Rad);
+        public static Angle FromDegrees(float degs) {
+            //
+            // Perform a modulus to ensrue that the value
+            // is no greater in magnitude than a full turn.
+            degs %= FullTurnDegs;
+            //
+            // Ensure that the value is always positive.
+            if(degs < 0)
+                degs += FullTurnDegs;
+            return new Angle(degs);
+        }
 
         /// <summary>
         /// Return an angle, moving from /a/ towards /b/, with a maximum change of /step/.
