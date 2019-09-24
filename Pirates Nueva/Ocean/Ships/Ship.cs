@@ -513,10 +513,6 @@ namespace Pirates_Nueva.Ocean
                 // FIXME: There is currently an issue where if there is an equal
                 // amount of obstacles on both sides, the ship will just plunge forward.
                 // We need to perform further checks to see exactly where the obstacle is.
-                // Maybe we should even invert the weight.
-                // Right now, the probes pointing forward push the ship the least,
-                // while the probes pointing outward push it the most.
-                // That doesn't really make sense.
                 for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
                     if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
@@ -528,7 +524,10 @@ namespace Pirates_Nueva.Ocean
                         // have half the strength as one up close and personal.
                         probeFactors[i] = MathF.Sqrt(sqrDist) / probeLength;
                         var factor = MoreMath.Lerp(1f, 0.5f, probeFactors[i]);
-                        targetAng -= probes[i] * factor;
+                        Angle push = i >= ProbeCount / 2
+                                     ? probes[ProbeCount - 1 - (i - ProbeCount / 2)]
+                                     : probes[ProbeCount / 2 - 1 - i];
+                        targetAng -= push * factor;
                     }
                     else {
                         probeFactors[i] = float.MaxValue;
