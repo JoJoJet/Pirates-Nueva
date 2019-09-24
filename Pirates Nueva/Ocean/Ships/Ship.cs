@@ -509,6 +509,14 @@ namespace Pirates_Nueva.Ocean
                 // If any of the probes intersect with anything,
                 // they should push the ship in the opposite direction.
                 // This gives a decent amount of spacing between the ship and obstacles.
+                //
+                // FIXME: There is currently an issue where if there is an equal
+                // amount of obstacles on both sides, the ship will just plunge forward.
+                // We need to perform further checks to see exactly where the obstacle is.
+                // Maybe we should even invert the weight.
+                // Right now, the probes pointing forward push the ship the least,
+                // while the probes pointing outward push it the most.
+                // That doesn't really make sense.
                 for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
                     if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
@@ -524,6 +532,36 @@ namespace Pirates_Nueva.Ocean
                     }
                     else {
                         probeFactors[i] = float.MaxValue;
+                    }
+                }
+                //
+                // If the probes hit things but the destination is close and is a straight shot,
+                // allow the ship to navigate closer to obstacles than normal.
+                var destFactor = PointF.Distance(Center, dest) / probeLength;
+                if(anyCollision && destFactor < 1f) {
+                    var destAng = new Vector(Center, dest).Angle;
+                    var localDestAng = destAng - Angle;
+                    //
+                    // Iterate over the probes, starting from the center two and working towards the ends.
+                    for(int i = 0; i < ProbeCount / 2; i++) {
+                        int a = ProbeCount / 2 - i - 1,
+                            b = ProbeCount / 2 + i;
+                        //
+                        // If the current two probes have found anything
+                        // between the ship and the destination,
+                        // that means there is NOT a straight shot.
+                        // Break from the loop.
+                        if(probeFactors[a] <= destFactor || probeFactors[b] <= destFactor) {
+                            break;
+                        }
+                        //
+                        // If the angle towards the destination is between the two current probes,
+                        // that means the destination is a straight shot!
+                        // Set the target angle as the angle towards the destination.
+                        if(localDestAng <= probes[a] && -localDestAng >= probes[b]) {
+                            targetAng = destAng;
+                            break;
+                        }
                     }
                 }
                 //
