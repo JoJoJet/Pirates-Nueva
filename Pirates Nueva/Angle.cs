@@ -134,9 +134,6 @@ namespace Pirates_Nueva
         #region Overriden Methods
         public override string ToString() => Radians != 0 ? $"{Radians/HalfTurn:0.###}π" : "0";
 
-        public static explicit operator Angle(float rads) => FromRadians(rads);
-        public static implicit operator float(Angle ang) => ang.Radians;
-
         public bool Equals(Angle other) => Radians == other.Radians;
         public override bool Equals(object obj) => obj switch
         {
@@ -149,6 +146,9 @@ namespace Pirates_Nueva
         #endregion
 
         #region Operators
+        public static explicit operator Angle(float rads) => FromRadians(rads);
+        public static implicit operator float(Angle ang) => ang.Radians;
+
         public static bool operator ==(Angle a, Angle b)
             => a.Radians == b.Radians;
         public static bool operator !=(Angle a, Angle b)
