@@ -464,19 +464,19 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Fills an array with values for offsets for navigation "probes".
         /// </summary>
-        private static void FillProbes(Span<Angle> probes) {
-            probes[0]  = Angle.FromRadians( Angle.FullTurn * 10 / 64);
-            probes[1]  = Angle.FromRadians( Angle.FullTurn * 8  / 64);
-            probes[2]  = Angle.FromRadians( Angle.FullTurn * 6  / 64);
-            probes[3]  = Angle.FromRadians( Angle.FullTurn * 4  / 64);
-            probes[4]  = Angle.FromRadians( Angle.FullTurn * 2  / 64);
-            probes[5]  = Angle.FromRadians( Angle.FullTurn * 1  / 64);
-            probes[6]  = Angle.FromRadians(-Angle.FullTurn * 1  / 64);
-            probes[7]  = Angle.FromRadians(-Angle.FullTurn * 2  / 64);
-            probes[8]  = Angle.FromRadians(-Angle.FullTurn * 4  / 64);
-            probes[9]  = Angle.FromRadians(-Angle.FullTurn * 6  / 64);
-            probes[10] = Angle.FromRadians(-Angle.FullTurn * 8  / 64);
-            probes[11] = Angle.FromRadians(-Angle.FullTurn * 10 / 64);
+        private static void FillProbes(Span<float> probes) {
+            probes[0]  =  Angle.FullTurn * 10 / 64;
+            probes[1]  =  Angle.FullTurn * 8  / 64;
+            probes[2]  =  Angle.FullTurn * 6  / 64;
+            probes[3]  =  Angle.FullTurn * 4  / 64;
+            probes[4]  =  Angle.FullTurn * 2  / 64;
+            probes[5]  =  Angle.FullTurn * 1  / 64;
+            probes[6]  = -Angle.FullTurn * 1  / 64;
+            probes[7]  = -Angle.FullTurn * 2  / 64;
+            probes[8]  = -Angle.FullTurn * 4  / 64;
+            probes[9]  = -Angle.FullTurn * 6  / 64;
+            probes[10] = -Angle.FullTurn * 8  / 64;
+            probes[11] = -Angle.FullTurn * 10 / 64;
         }
 
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
@@ -498,12 +498,11 @@ namespace Pirates_Nueva.Ocean
 
                 //
                 // Get an array of probes.
-                Span<Angle> probes = stackalloc Angle[ProbeCount];
+                Span<float> probes = stackalloc float[ProbeCount];
                 FillProbes(probes);
                 Span<float> probeFactors = stackalloc float[ProbeCount];
 
                 bool anyCollision = false;
-                var targetAng = Angle;
                 //
                 // If any of the probes intersect with anything,
                 // they should push the ship in the opposite direction.
@@ -512,8 +511,9 @@ namespace Pirates_Nueva.Ocean
                 // FIXME: There is currently an issue where if there is an equal
                 // amount of obstacles on both sides, the ship will just plunge forward.
                 // We need to perform further checks to see exactly where the obstacle is.
+                var probePush = Angle.Right;
                 for(int i = 0; i < ProbeCount; i++) {
-                    var ang = Angle + probes[i];
+                    var ang = Angle.FromRadians(Angle.Radians + probes[i]);
                     if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
                         anyCollision = true;
                         //
@@ -523,22 +523,23 @@ namespace Pirates_Nueva.Ocean
                         // have half the strength as one up close and personal.
                         probeFactors[i] = MathF.Sqrt(sqrDist) / probeLength;
                         var factor = MoreMath.Lerp(1f, 0.5f, probeFactors[i]);
-                        Angle push = i >= ProbeCount / 2
-                                     ? probes[ProbeCount - 1 - (i - ProbeCount / 2)]
-                                     : probes[ProbeCount / 2 - 1 - i];
-                        targetAng -= push * factor;
+                        var push = i >= ProbeCount / 2
+                                   ? probes[ProbeCount - 1 - (i - ProbeCount / 2)]
+                                   : probes[ProbeCount / 2 - 1 - i];
+                        probePush += Angle.FromRadians(push * factor);
                     }
                     else {
                         probeFactors[i] = float.MaxValue;
                     }
                 }
+                var targetAng = Angle - probePush;
                 //
                 // If the probes hit things but the destination is close and is a straight shot,
                 // allow the ship to navigate closer to obstacles than normal.
                 var destFactor = PointF.Distance(Center, dest) / probeLength;
                 if(anyCollision && destFactor < 1f) {
                     var destAng = new Vector(Center, dest).Angle;
-                    var localDestAng = destAng - Angle;
+                    var localDestAng = destAng.Radians - Angle.Radians;
                     //
                     // Iterate over the probes, starting from the center two and working towards the ends.
                     for(int i = 0; i < ProbeCount / 2; i++) {
@@ -556,7 +557,7 @@ namespace Pirates_Nueva.Ocean
                         // If the angle towards the destination is between the two current probes,
                         // that means the destination is a straight shot!
                         // Set the target angle as the angle towards the destination.
-                        if(localDestAng <= probes[a] && -localDestAng >= probes[b]) {
+                        if(localDestAng <= probes[a] && localDestAng >= probes[b]) {
                             targetAng = destAng;
                             break;
                         }
@@ -654,10 +655,10 @@ namespace Pirates_Nueva.Ocean
 
                 //
                 // Draw the probes extending from the front of this Ship.
-                Span<Angle> probes = stackalloc Angle[ProbeCount];
+                Span<float> probes = stackalloc float[ProbeCount];
                 FillProbes(probes);
                 for(int i = 0; i < ProbeCount; i++) {
-                    var ang = Angle + probes[i];
+                    var ang = Angle.FromRadians(Angle.Radians + probes[i]);
                     var start = Center;
                     var end = Center + ang.Vector * Def.TurnRadius * 3;
                     var color = Sea.IntersectsWithIsland(start, end)
