@@ -565,15 +565,18 @@ namespace Pirates_Nueva.Ocean
                 //
                 // If none of the probes collided with anything (the way is clear),
                 // Then the ship should point in the direction of the destination.
-                if(!anyCollision)
-                    targetAng = new Vector(Center, dest).Angle;
+                // If the ship is already pointing really close to the destination,
+                // don't do anything. This is to reduce jitter.
+                if(!anyCollision) {
+                    var destAng = new Vector(Center, dest).Angle;
+                    if(MathF.Abs(Angle.Radians - destAng.Radians) > 0.05f)
+                        targetAng = destAng;
+                }
 
+                var oldAng = Angle;
                 //
                 // Gradually turn the ship in the direction of the target angle.
-                // If the target angle is REALLY close to the current one,
-                // don't do anything. This is to reduce jitter.
-                if(MathF.Abs(Angle.Radians - targetAng.Radians) > 0.05f)
-                    Angle = Angle.MoveTowards(Angle, targetAng, Def.TurnSpeed * delta);
+                Angle = Angle.MoveTowards(Angle, targetAng, Def.TurnSpeed * delta);
                 //
                 // Gradually move the ship in the direction of the bow.
                 Center += Right * (Def.Speed * delta);
