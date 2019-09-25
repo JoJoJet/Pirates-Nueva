@@ -5,9 +5,9 @@ namespace Pirates_Nueva
     /// <summary>
     /// Stores an angle, allowing access in both Radians and Degrees. Is always positive, and automatically wraps.
     /// <para />
-    /// Range: [0, 2π) radians, [0, 360°)
+    /// Range: [0, 2π) radians, [0°, 360°)
     /// </summary>
-    public readonly struct Angle
+    public readonly struct Angle : IEquatable<Angle>
     {
         /// <summary> A half rotation around a circle, in radians. </summary>
         public const float HalfTurn = MathF.PI;
@@ -129,11 +129,28 @@ namespace Pirates_Nueva
         }
         #endregion
 
-        #region Overriden Methods and Operators
-        public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.###}π" : "0";
+        #region Overriden Methods
+        public override string ToString() => Radians != 0 ? $"{Radians/HalfTurn:0.###}π" : "0";
 
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
+
+        public bool Equals(Angle other) => Radians == other.Radians;
+        public override bool Equals(object obj) => obj switch
+        {
+            Angle a       => Radians == a.Radians,
+            SignedAngle a => Radians == ((Angle)a).Radians,
+            float f       => Radians == f,
+            _             => false
+        };
+        public override int GetHashCode() => Radians.GetHashCode();
+        #endregion
+
+        #region Operators
+        public static bool operator ==(Angle a, Angle b)
+            => a.Radians == b.Radians;
+        public static bool operator !=(Angle a, Angle b)
+            => a.Radians != b.Radians;
 
         public static Angle operator +(Angle a, Angle b) {
             //
@@ -172,7 +189,7 @@ namespace Pirates_Nueva
         public static Angle operator /(Angle a, int b) {
             //
             // We dont't need to perform a modulus here,
-            // because since the denominator is > 0,
+            // because since the denominator is > 1,
             // the quotient will always be smaller than a full turn.
             // We still need to check for negative though, as the denominator can be negative.
             var quo = a.Radians / b;
