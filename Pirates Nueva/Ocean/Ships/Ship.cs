@@ -655,7 +655,12 @@ namespace Pirates_Nueva.Ocean
                 FillProbes(probes);
                 for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
-                    seaDrawer.DrawLine(Center, Center + ang.Vector * Def.TurnRadius * 3, in Color.Lime);
+                    var start = Center;
+                    var end = Center + ang.Vector * Def.TurnRadius * 3;
+                    var color = Sea.IntersectsWithIsland(start, end)
+                                ? Color.Black
+                                : Color.Lime;
+                    seaDrawer.DrawLine(start, end, in color);
                 }
             }
         }
