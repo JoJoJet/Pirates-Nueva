@@ -77,6 +77,12 @@ namespace Pirates_Nueva
                 degs += FullTurnDegs;
             return new Angle(degs);
         }
+
+        /// <summary>
+        /// Creates a new <see cref="Angle"/> instance, from a number in radians. <para />
+        /// Does not perform any input validation, so you have to ensrue that the input is on [0, 2π)
+        /// </summary>
+        internal static Angle Unsafe(float rads) => new Angle(rads);
         #endregion
 
         #region Static Methods
