@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Pirates_Nueva.Path;
 using Pirates_Nueva.Ocean.Agents;
 using Pirates_Nueva.UI;
+using System.Diagnostics;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -578,6 +579,11 @@ namespace Pirates_Nueva.Ocean
                 //
                 // Gradually turn the ship in the direction of the target angle.
                 Angle = Angle.MoveTowards(Angle, targetAng, Def.TurnSpeed * delta);
+                //
+                // Throw an exception if the ship instantly turns by a large margin.
+                // That bug should be gone, but who knows. At least this way, we can
+                // inspect the code if it should happen.
+                Debug.Assert(Angle.Distance(Angle, in oldAng) < Angle.FullTurn);
                 //
                 // Gradually move the ship in the direction of the bow.
                 Center += Right * (Def.Speed * delta);
