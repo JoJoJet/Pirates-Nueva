@@ -155,6 +155,20 @@ namespace Pirates_Nueva
         public static explicit operator Angle(float rads) => FromRadians(rads);
         public static implicit operator float(Angle ang) => ang.Radians;
 
+        public static explicit operator Angle(SignedAngle ang) {
+            //
+            // We don't need a modulus here,
+            // as the signed angle will always be on [-2π, 2π].
+            // The only input validation we have to worry about is
+            // negatives, or an angle equalling 2π.
+            var rads = ang.Radians;
+            if(rads < 0)
+                rads += FullTurn;
+            else if(rads == FullTurn)
+                rads = 0;
+            return new Angle(rads);
+        }
+
         public static bool operator ==(Angle a, Angle b)
             => a.Radians == b.Radians;
         public static bool operator !=(Angle a, Angle b)
@@ -205,6 +219,137 @@ namespace Pirates_Nueva
                 quo += FullTurn;
             return new Angle(quo);
         }
+        #endregion
+    }
+
+    /// <summary>
+    /// An angle for use in math, allowing access in both Radians and Degrees.
+    /// Automatically wraps. Equality operators are not supported.
+    /// <para />
+    /// Range: (-2π, 2π) radians, (-360°, 360°).
+    /// </summary>
+    public readonly struct SignedAngle
+    {
+        const float HalfTurn = Angle.HalfTurn;
+        const float FullTurn = Angle.FullTurn;
+
+        const float DegsPerRad = Angle.DegsPerRad;
+        const float RadsPerDeg = Angle.RadsPerDeg;
+
+        #region Static Properties
+        /// <summary> 0 </summary>
+        public static SignedAngle Right => new SignedAngle(0);
+        /// <summary> 1/2 π </summary>
+        public static SignedAngle Up => new SignedAngle(HalfTurn * 1 / 2);
+        /// <summary> π </summary>
+        public static SignedAngle Left => new SignedAngle(HalfTurn);
+        /// <summary> -π </summary>
+        public static SignedAngle LeftN => new SignedAngle(-HalfTurn);
+        /// <summary> -1/2 π </summary>
+        public static SignedAngle Down => new SignedAngle(-HalfTurn * 1 / 2);
+        #endregion
+
+        /// <summary> The value of this angle, in radians. Range: (-2π, 2π). </summary>
+        public float Radians { get; }
+        /// <summary> The value of this angle, in degrees. Range: (-360, 360). </summary>
+        public float Degrees => Radians * DegsPerRad;
+
+        /// <summary>
+        /// The <see cref="Pirates_Nueva.Vector"/> that represents this angle.
+        /// </summary>
+        public Vector Vector => new Vector(MathF.Cos(Radians), MathF.Sin(Radians));
+
+        #region Constructors
+        /// <summary>
+        /// Returns a new angle. Does not perform any input validation,
+        /// so you gotta make sure all inputs are valid.
+        /// </summary>
+        private SignedAngle(float radians)
+            => Radians = radians;
+
+        /// <summary>
+        /// Creates a new <see cref="SignedAngle"/> instance, from a number in radians.
+        /// </summary>
+        public static SignedAngle FromRadians(float rads)
+            => new SignedAngle(rads % FullTurn);
+        /// <summary>
+        /// Creates a new <see cref="SignedAngle"/> instance, from a number in degrees.
+        /// </summary>
+        public static SignedAngle FromDegrees(float degs)
+            => new SignedAngle((degs * RadsPerDeg) % FullTurn);
+
+        /// <summary>
+        /// Creates a new <see cref="SignedAngle"/> instance, from a number in radians. <para />
+        /// Does not perform any input validation, so you must be sure that the input is on (-2π, 2π).
+        /// </summary>
+        internal static SignedAngle Unsafe(float rads) => new SignedAngle(rads);
+        #endregion
+
+        #region Overriden Methods and Operators
+        public override string ToString() => Radians != 0 ? $"{Radians/HalfTurn:0.###}π" : "0";
+
+        public override bool Equals(object obj) => throw new NotImplementedException();
+        public override int GetHashCode() => throw new NotImplementedException();
+
+        public static implicit operator float(SignedAngle ang)
+            => ang.Radians;
+        public static explicit operator SignedAngle(float f)
+            => FromRadians(f);
+
+        public static implicit operator SignedAngle(Angle ang)
+            => new SignedAngle(ang.Radians);
+
+        public static bool operator ==(SignedAngle a, SignedAngle b)
+            => throw new NotImplementedException();
+        public static bool operator !=(SignedAngle a, SignedAngle b)
+            => throw new NotImplementedException();
+
+        public static bool operator >(SignedAngle a, SignedAngle b)
+            => a.Radians > b.Radians;
+        public static bool operator <(SignedAngle a, SignedAngle b)
+            => a.Radians < b.Radians;
+        public static bool operator >=(SignedAngle a, SignedAngle b)
+            => a.Radians >= b.Radians;
+        public static bool operator <=(SignedAngle a, SignedAngle b)
+            => a.Radians <= b.Radians;
+
+        public static SignedAngle operator +(SignedAngle a, SignedAngle b) {
+            //
+            // Since the sum will always be less in magnitude than two full turns,
+            // we don't need ot use modulus.
+            // We can use addition or subtraction instead.
+            var sum = a.Radians + b.Radians;
+            if(sum <= -FullTurn)
+                sum += FullTurn;
+            else if(sum >= FullTurn)
+                sum -= FullTurn;
+            return new SignedAngle(sum);
+        }
+        public static SignedAngle operator -(SignedAngle a, SignedAngle b) {
+            //
+            // Since the difference will always be less in magnitude than two full turns,
+            // we don't need to use modulus.
+            // WE can use addition or subtraction instead.
+            var dif = a.Radians - b.Radians;
+            if(dif <= -FullTurn)
+                dif += FullTurn;
+            else if(dif >= FullTurn)
+                dif -= FullTurn;
+            return new SignedAngle(dif);
+        }
+        public static SignedAngle operator -(SignedAngle a)
+            => new SignedAngle(-a.Radians);
+
+        public static SignedAngle operator *(SignedAngle a, float b)
+            => FromRadians(a.Radians * b);
+        public static SignedAngle operator /(SignedAngle a, float b)
+            => FromRadians(a.Radians * b);
+        public static SignedAngle operator /(SignedAngle a, int b)
+            //
+            // We can elide a modulus here.
+            // Since the denominator is always > 1, the quotient
+            // is always smaller in magnitude than a full turn.
+            => new SignedAngle(a.Radians / b);
         #endregion
     }
 }
