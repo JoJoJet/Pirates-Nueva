@@ -50,7 +50,7 @@ namespace Pirates_Nueva
         private Angle(float radians)
             => Radians = radians;
 
-        /// <summary> Create a new <see cref="Angle"/> struct, from a number in radians. </summary>
+        /// <summary> Creates a new <see cref="Angle"/> struct, from a number in radians. </summary>
         public static Angle FromRadians(float rads) {
             //
             // Perform a modulus to ensure that the value
@@ -62,7 +62,7 @@ namespace Pirates_Nueva
                 rads += FullTurn;
             return new Angle(rads);
         }
-        /// <summary> Create a new <see cref="Angle"/> struct, from a number in degrees. </summary>
+        /// <summary> Creates a new <see cref="Angle"/> struct, from a number in degrees. </summary>
         public static Angle FromDegrees(float degs) {
             //
             // Perform a modulus to ensrue that the value
@@ -105,7 +105,24 @@ namespace Pirates_Nueva
             //
             // Add /difference/ to the first angle.
             return FromRadians(a.Radians + difference);
+        }
 
+        /// <summary>
+        /// Returns the unsigned distance between the two specified angles.
+        /// </summary>
+        public static float Distance(in Angle a, in Angle b) {
+            //
+            // Get the difference between the two angles.
+            float difference = b.Radians - a.Radians;
+            //
+            // If it's greater in magnitude than a half turn, normalize it.
+            if(difference > HalfTurn)
+                difference = -FullTurn + difference;
+            else if(difference < -HalfTurn)
+                difference = FullTurn + difference;
+            //
+            // Return the absolute value of the diference.
+            return MathF.Abs(difference);
         }
 
         public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.###}π" : "0";
