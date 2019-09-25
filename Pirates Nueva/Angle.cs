@@ -95,12 +95,13 @@ namespace Pirates_Nueva
             //
             // If the difference is smaller than the step,
             // we can snap to the 2nd and return early.
-            if(abs(difference) <= step)
+            var abs = MathF.Abs(difference);
+            if(abs <= step)
                 return b;
             //
             // Make sure that /difference/ is no larger than /step/.
-            if(abs(difference) > step)
-                difference = step * sign(difference);
+            if(abs > step)
+                difference = step * MathF.Sign(difference);
             //
             // Add /difference/ to the first angle.
             return FromRadians(a.Radians + difference);
