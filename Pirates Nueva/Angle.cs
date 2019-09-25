@@ -24,14 +24,16 @@ namespace Pirates_Nueva
         /// <summary> When a number is multiplied by this, converts from degrees to radians. </summary>
         public const float RadsPerDeg = HalfTurn / HalfTurnDegs;
 
-        /// <summary> 0π </summary>
-        public static Angle Right { get; } = FromRadians(0);
-        /// <summary> 1/2π </summary>
-        public static Angle Up { get; } = FromRadians(HalfTurn * 1 / 2);
+        #region Static Properties
+        /// <summary> 0 </summary>
+        public static Angle Right => new Angle(0);
+        /// <summary> 1/2 π </summary>
+        public static Angle Up => new Angle(HalfTurn * 1 / 2);
         /// <summary> π </summary>
-        public static Angle Left { get; } = FromRadians(HalfTurn);
-        /// <summary> 3/4π </summary>
-        public static Angle Down { get; } = FromRadians(FullTurn * 3 / 4);
+        public static Angle Left => new Angle(HalfTurn);
+        /// <summary> 3/4 π </summary>
+        public static Angle Down => new Angle(FullTurn * 3 / 4);
+        #endregion
 
         /// <summary> The value of this <see cref="Angle"/>, in radians. Range: [0, 2π) </summary>
         public float Radians { get; }
