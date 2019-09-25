@@ -43,6 +43,7 @@ namespace Pirates_Nueva
         /// </summary>
         public Vector Vector => new Vector(MathF.Cos(Radians), MathF.Sin(Radians));
 
+        #region Constructors
         /// <summary>
         /// Returns a new angle. Does not perform any input validation,
         /// so you gotta be sure that all inputs are valid.
@@ -74,7 +75,9 @@ namespace Pirates_Nueva
                 degs += FullTurnDegs;
             return new Angle(degs);
         }
+        #endregion
 
+        #region Static Methods
         /// <summary>
         /// Return an angle, moving from /a/ towards /b/, with a maximum change of /step/.
         /// </summary>
@@ -124,7 +127,9 @@ namespace Pirates_Nueva
             // Return the absolute value of the diference.
             return MathF.Abs(difference);
         }
+        #endregion
 
+        #region Overriden Methods and Operators
         public override string ToString() => Radians != 0 ? $"{Radians/MathF.PI:0.###}π" : "0";
 
         public static explicit operator Angle(float rads) => FromRadians(rads);
@@ -175,5 +180,6 @@ namespace Pirates_Nueva
                 quo += FullTurn;
             return new Angle(quo);
         }
+        #endregion
     }
 }
