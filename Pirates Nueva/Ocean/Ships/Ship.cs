@@ -460,10 +460,10 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
+        private const int ProbeCount = 12;
         /// <summary>
         /// Fills an array with values for offsets for navigation "probes".
         /// </summary>
-        /// <param name="probes"></param>
         private static void FillProbes(Span<Angle> probes) {
             probes[0]  = Angle.FromRadians( Angle.FullTurn * 10 / 64);
             probes[1]  = Angle.FromRadians( Angle.FullTurn * 8  / 64);
@@ -498,7 +498,6 @@ namespace Pirates_Nueva.Ocean
 
                 //
                 // Get an array of probes.
-                const int ProbeCount = 12;
                 Span<Angle> probes = stackalloc Angle[ProbeCount];
                 FillProbes(probes);
                 Span<float> probeFactors = stackalloc float[ProbeCount];
@@ -652,9 +651,9 @@ namespace Pirates_Nueva.Ocean
 
                 //
                 // Draw the probes extending from the front of this Ship.
-                Span<Angle> probes = stackalloc Angle[12];
+                Span<Angle> probes = stackalloc Angle[ProbeCount];
                 FillProbes(probes);
-                for(int i = 0; i < 12; i++) {
+                for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
                     seaDrawer.DrawLine(Center, Center + ang.Vector * Def.TurnRadius * 3, in Color.Lime);
                 }
