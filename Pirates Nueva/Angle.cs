@@ -85,11 +85,13 @@ namespace Pirates_Nueva
                 return b;
             //
             // Get the difference between the two angles.
-            float difference = b - a;
+            float difference = b.Radians - a.Radians;
             //
-            // If the difference is greater than a half turn, normalize it.
-            if(abs(difference) > HalfTurn)
-                difference = HalfTurn - difference;
+            // If the difference is greater in magnitude than a half turn, normalize it.
+            if(difference > HalfTurn)
+                difference = -FullTurn + difference;
+            else if(difference < -HalfTurn)
+                difference = FullTurn + difference;
             //
             // If the difference is smaller than the step,
             // we can snap to the 2nd and return early.
@@ -101,7 +103,7 @@ namespace Pirates_Nueva
                 difference = step * sign(difference);
             //
             // Add /difference/ to the first angle.
-            return FromRadians(a + difference); // Add /difference/ to the first angle.
+            return FromRadians(a.Radians + difference);
 
             static float abs(float f) => Math.Abs(f);    static float sign(float f) => Math.Sign(f);
         }
