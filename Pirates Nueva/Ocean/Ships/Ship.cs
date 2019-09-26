@@ -504,7 +504,6 @@ namespace Pirates_Nueva.Ocean
                 FillProbes(probes);
                 Span<float> probeFactors = stackalloc float[ProbeCount];
 
-                bool anyCollision = false;
                 //
                 // If any of the probes intersect with anything,
                 // they should push the ship in the opposite direction.
@@ -513,6 +512,7 @@ namespace Pirates_Nueva.Ocean
                 // FIXME: There is currently an issue where if there is an equal
                 // amount of obstacles on both sides, the ship will just plunge forward.
                 // We need to perform further checks to see exactly where the obstacle is.
+                bool anyCollision = false;
                 var probePush = sang.Right;
                 for(int i = 0; i < ProbeCount; i++) {
                     var ang = Angle + probes[i];
@@ -524,7 +524,7 @@ namespace Pirates_Nueva.Ocean
                         // An intersection at the very end of the probe should
                         // have half the strength as one up close and personal.
                         probeFactors[i] = MathF.Sqrt(sqrDist) / probeLength;
-                        var factor = MoreMath.Lerp(1f, 0.5f, probeFactors[i]);
+                        var factor = MoreMath.Lerp(1.5f, 0.5f, probeFactors[i]);
                         var push = i >= ProbeCount / 2
                                    ? probes[ProbeCount - 1 - (i - ProbeCount / 2)]
                                    : probes[ProbeCount / 2 - 1 - i];
