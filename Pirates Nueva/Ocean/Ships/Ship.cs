@@ -464,7 +464,7 @@ namespace Pirates_Nueva.Ocean
         #region IUpdatable Implementation
         private const int ProbeCount = 12;
         /// <summary>
-        /// Fills an array with values for offsets for navigation "probes".
+        /// Fills an array with angle offsets for navigation "probes".
         /// </summary>
         private static void FillProbes(Span<sang> probes) {
             probes[0]  = sang.Unsafe( Angle.FullTurn * 10 / 64);
@@ -480,6 +480,21 @@ namespace Pirates_Nueva.Ocean
             probes[10] = sang.Unsafe(-Angle.FullTurn * 8  / 64);
             probes[11] = sang.Unsafe(-Angle.FullTurn * 10 / 64);
         }
+        /// <summary>
+        /// Fills an array with local origin points for directly-forward-facing navigation probes.
+        /// Specific to this ship. The length of the array is <see cref="Height"/> * 2.
+        /// </summary>
+        private void FillForwardProbes(Span<PointF?> probes) {
+            for(int y = 0; y < Height; y++) {
+                for(int x = Width-1; x >= 0; x--) {
+                    if(this[x, y] != null) {
+                        probes[y * 2    ] = new PointF(x + 0.5f, y + 1 / 3f);
+                        probes[y * 2 + 1] = new PointF(x + 0.5f, y + 2 / 3f);
+                        break;
+                    }
+                }
+            }
+        } 
 
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         protected virtual void Update(in UpdateParams @params) {
@@ -508,8 +523,9 @@ namespace Pirates_Nueva.Ocean
                 // This gives a decent amount of spacing between the ship and obstacles.
                 //
                 // FIXME: There is currently an issue where if there is an equal
-                // amount of obstacles on both sides, the ship will just plunge forward.
-                // We need to perform further checks to see exactly where the obstacle is.
+                // amount of obstacles on both sides, the ship will just stall.
+                // We need to include a special case that forces the ship to pick a side
+                // when there is a wide, even-shaped obstacle ahead.
                 bool anyCollision = false;
                 var probePush = sang.Right;
                 for(int i = 0; i < ProbeCount; i++) {
@@ -583,9 +599,41 @@ namespace Pirates_Nueva.Ocean
                 // That bug should be gone, but who knows. At least this way, we can
                 // inspect the code if it should happen.
                 Debug.Assert(Angle.Distance(Angle, in oldAng) < Angle.FullTurn);
+
                 //
-                // Gradually move the ship in the direction of the bow.
-                Center += Right * (Def.Speed * delta);
+                // Check if the path forward is obstructed by any islands.
+                bool isObstructed = false;
+                if(anyCollision) {
+                    //
+                    // Get an array of probes pointing directly forward.
+                    Span<PointF?> forwardProbes = stackalloc PointF?[Height * 2];
+                    FillForwardProbes(forwardProbes);
+                    for(int i = 0; i < forwardProbes.Length; i++) {
+                        if(forwardProbes[i] is null)
+                            continue;
+                        //
+                        // Test collision for the probe.
+                        // If it hit anything, that means the path forward is obstructed.
+                        var origin = Transformer.PointFrom(forwardProbes[i]!.Value);
+                        if(Sea.IntersectsWithIsland(origin, origin + Right)) {
+                            isObstructed = true;
+                            break;
+                        }
+                    }
+                }
+
+                //
+                // If the path forward is clear, 
+                // gradually move the ship in the direction of the bow.
+                if(!isObstructed) {
+                    Center += Right * (Def.Speed * delta);
+                }
+                //
+                // If the path forward is obstructed,
+                // reset the angle to its value at the start of this frame.
+                else {
+                    Angle = oldAng;
+                }
             }
 
             //
@@ -658,17 +706,32 @@ namespace Pirates_Nueva.Ocean
                 seaDrawer.DrawLine(Center, dest, in Color.White);
 
                 //
+                // Draw the probes extending from the root of this Ship.
+                {
+                    Span<sang> probes = stackalloc sang[ProbeCount];
+                    FillProbes(probes);
+                    for(int i = 0; i < ProbeCount; i++) {
+                        var ang = Angle + probes[i];
+                        var start = Center;
+                        var end = Center + ang.Vector * Def.TurnRadius * 3;
+                        var color = Sea.IntersectsWithIsland(start, end)
+                                    ? Color.Black
+                                    : Color.Lime;
+                        seaDrawer.DrawLine(start, end, in color);
+                    }
+                }
+
+                //
                 // Draw the probes extending from the front of this Ship.
-                Span<sang> probes = stackalloc sang[ProbeCount];
-                FillProbes(probes);
-                for(int i = 0; i < ProbeCount; i++) {
-                    var ang = Angle + probes[i];
-                    var start = Center;
-                    var end = Center + ang.Vector * Def.TurnRadius * 3;
-                    var color = Sea.IntersectsWithIsland(start, end)
-                                ? Color.Black
-                                : Color.Lime;
-                    seaDrawer.DrawLine(start, end, in color);
+                {
+                    Span<PointF?> probes = stackalloc PointF?[Height * 2];
+                    FillForwardProbes(probes);
+                    for(int i = 0; i < probes.Length; i++) {
+                        if(probes[i] is null)
+                            continue;
+                        var origin = Transformer.PointFrom(probes[i]!.Value);
+                        seaDrawer.DrawLine(origin, origin + Right, in Color.DarkLime);
+                    }
                 }
             }
         }
