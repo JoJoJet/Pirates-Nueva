@@ -152,10 +152,10 @@ namespace Pirates_Nueva
         #endregion
 
         #region Operators
-        public static explicit operator Angle(float rads) => FromRadians(rads);
-        public static implicit operator float(Angle ang) => ang.Radians;
+        public static explicit operator Angle(in float rads) => FromRadians(rads);
+        public static implicit operator float(in Angle ang) => ang.Radians;
 
-        public static explicit operator Angle(SignedAngle ang) {
+        public static explicit operator Angle(in SignedAngle ang) {
             //
             // We don't need a modulus here,
             // as the signed angle will always be on [-2π, 2π].
@@ -169,12 +169,12 @@ namespace Pirates_Nueva
             return new Angle(rads);
         }
 
-        public static bool operator ==(Angle a, Angle b)
+        public static bool operator ==(in Angle a, in Angle b)
             => a.Radians == b.Radians;
-        public static bool operator !=(Angle a, Angle b)
+        public static bool operator !=(in Angle a, in Angle b)
             => a.Radians != b.Radians;
 
-        public static Angle operator +(Angle a, Angle b) {
+        public static Angle operator +(in Angle a, in Angle b) {
             //
             // The sum will always be less in magnitude than
             // two full turns, so we can perform subtraction
@@ -185,7 +185,7 @@ namespace Pirates_Nueva
                 sum -= FullTurn;
             return new Angle(sum);
         }
-        public static Angle operator -(Angle a, Angle b) {
+        public static Angle operator -(in Angle a, in Angle b) {
             //
             // The difference will always be less in magnitude
             // than a full turn, so we don't need to perform a modulus here.
@@ -194,7 +194,7 @@ namespace Pirates_Nueva
                 dif += FullTurn;
             return new Angle(dif);
         }
-        public static Angle operator -(Angle ang) {
+        public static Angle operator -(in Angle ang) {
             //
             // As long as the input angle is not 0 radians,
             // the result of unary negation will always be
@@ -206,9 +206,9 @@ namespace Pirates_Nueva
                 return new Angle(FullTurn - ang.Radians);
         }
 
-        public static Angle operator *(Angle a, float b) => FromRadians(a.Radians * b);
-        public static Angle operator /(Angle a, float b) => FromRadians(a.Radians / b);
-        public static Angle operator /(Angle a, int b) {
+        public static Angle operator *(in Angle a, in float b) => FromRadians(a.Radians * b);
+        public static Angle operator /(in Angle a, in float b) => FromRadians(a.Radians / b);
+        public static Angle operator /(in Angle a, in int b) {
             //
             // We dont't need to perform a modulus here,
             // because since the denominator is > 1,
@@ -291,12 +291,12 @@ namespace Pirates_Nueva
         public override bool Equals(object obj) => throw new NotImplementedException();
         public override int GetHashCode() => throw new NotImplementedException();
 
-        public static implicit operator float(SignedAngle ang)
+        public static implicit operator float(in SignedAngle ang)
             => ang.Radians;
-        public static explicit operator SignedAngle(float f)
+        public static explicit operator SignedAngle(in float f)
             => FromRadians(f);
 
-        public static implicit operator SignedAngle(Angle ang)
+        public static implicit operator SignedAngle(in Angle ang)
             => new SignedAngle(ang.Radians);
 
         private const string EqualityError = "Equality comparison is not supported on " +
@@ -308,16 +308,16 @@ namespace Pirates_Nueva
         public static bool operator !=(SignedAngle a, SignedAngle b)
             => throw new NotImplementedException();
 
-        public static bool operator >(SignedAngle a, SignedAngle b)
+        public static bool operator >(in SignedAngle a, in SignedAngle b)
             => a.Radians > b.Radians;
-        public static bool operator <(SignedAngle a, SignedAngle b)
+        public static bool operator <(in SignedAngle a, in SignedAngle b)
             => a.Radians < b.Radians;
-        public static bool operator >=(SignedAngle a, SignedAngle b)
+        public static bool operator >=(in SignedAngle a, in SignedAngle b)
             => a.Radians >= b.Radians;
-        public static bool operator <=(SignedAngle a, SignedAngle b)
+        public static bool operator <=(in SignedAngle a, in SignedAngle b)
             => a.Radians <= b.Radians;
 
-        public static SignedAngle operator +(SignedAngle a, SignedAngle b) {
+        public static SignedAngle operator +(in SignedAngle a, in SignedAngle b) {
             //
             // Since the sum will always be less in magnitude than two full turns,
             // we don't need ot use modulus.
@@ -329,7 +329,7 @@ namespace Pirates_Nueva
                 sum -= FullTurn;
             return new SignedAngle(sum);
         }
-        public static SignedAngle operator -(SignedAngle a, SignedAngle b) {
+        public static SignedAngle operator -(in SignedAngle a, in SignedAngle b) {
             //
             // Since the difference will always be less in magnitude than two full turns,
             // we don't need to use modulus.
@@ -341,14 +341,14 @@ namespace Pirates_Nueva
                 dif -= FullTurn;
             return new SignedAngle(dif);
         }
-        public static SignedAngle operator -(SignedAngle a)
+        public static SignedAngle operator -(in SignedAngle a)
             => new SignedAngle(-a.Radians);
 
-        public static SignedAngle operator *(SignedAngle a, float b)
+        public static SignedAngle operator *(in SignedAngle a, in float b)
             => FromRadians(a.Radians * b);
-        public static SignedAngle operator /(SignedAngle a, float b)
+        public static SignedAngle operator /(in SignedAngle a, in float b)
             => FromRadians(a.Radians * b);
-        public static SignedAngle operator /(SignedAngle a, int b)
+        public static SignedAngle operator /(in SignedAngle a, in int b)
             //
             // We can elide a modulus here.
             // Since the denominator is always > 1, the quotient
