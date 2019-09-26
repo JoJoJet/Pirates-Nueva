@@ -484,15 +484,13 @@ namespace Pirates_Nueva.Ocean
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         protected virtual void Update(in UpdateParams @params) {
             var (delta, master) = @params;
-            if(Destination is PointF dest) {
-                //
-                // If we're already at the destination,
-                // skip navigation.
-                if(Collides(in dest)) {
-                    Destination = null;
-                    goto skipNavigation;
-                }
-
+            //
+            // If we have reached the destination,
+            // unassign it.
+            if(Destination != null && Collides(Destination.Value)) {
+                Destination = null;
+            }
+            else if(Destination is PointF dest) {
                 //
                 // Find the length of each probe that looks for obstacles in front of the ship.
                 // This should be related to the ship's turning radius.
@@ -589,7 +587,6 @@ namespace Pirates_Nueva.Ocean
                 // Gradually move the ship in the direction of the bow.
                 Center += Right * (Def.Speed * delta);
             }
-        skipNavigation:
 
             //
             // Update every part in the ship.
