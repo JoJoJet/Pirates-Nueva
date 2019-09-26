@@ -299,8 +299,12 @@ namespace Pirates_Nueva
         public static implicit operator SignedAngle(Angle ang)
             => new SignedAngle(ang.Radians);
 
+        private const string EqualityError = "Equality comparison is not supported on " +
+                                              nameof(SignedAngle) + " struct.";
+        [Obsolete(EqualityError, true)]
         public static bool operator ==(SignedAngle a, SignedAngle b)
             => throw new NotImplementedException();
+        [Obsolete(EqualityError, true)]
         public static bool operator !=(SignedAngle a, SignedAngle b)
             => throw new NotImplementedException();
 
