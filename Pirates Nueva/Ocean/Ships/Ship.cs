@@ -462,23 +462,21 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
-        private const int ProbeCount = 12;
+        private const int ProbeCount = 10;
         /// <summary>
         /// Fills an array with angle offsets for navigation "probes".
         /// </summary>
         private static void FillProbes(Span<sang> probes) {
-            probes[0]  = sang.Unsafe( Angle.FullTurn * 10 / 64);
-            probes[1]  = sang.Unsafe( Angle.FullTurn * 8  / 64);
-            probes[2]  = sang.Unsafe( Angle.FullTurn * 6  / 64);
-            probes[3]  = sang.Unsafe( Angle.FullTurn * 4  / 64);
-            probes[4]  = sang.Unsafe( Angle.FullTurn * 2  / 64);
-            probes[5]  = sang.Unsafe( Angle.FullTurn * 1  / 64);
-            probes[6]  = sang.Unsafe(-Angle.FullTurn * 1  / 64);
-            probes[7]  = sang.Unsafe(-Angle.FullTurn * 2  / 64);
-            probes[8]  = sang.Unsafe(-Angle.FullTurn * 4  / 64);
-            probes[9]  = sang.Unsafe(-Angle.FullTurn * 6  / 64);
-            probes[10] = sang.Unsafe(-Angle.FullTurn * 8  / 64);
-            probes[11] = sang.Unsafe(-Angle.FullTurn * 10 / 64);
+            probes[0] = sang.Unsafe( Angle.FullTurn * 9  / 64);
+            probes[1] = sang.Unsafe( Angle.FullTurn * 7  / 64);
+            probes[2] = sang.Unsafe( Angle.FullTurn * 5  / 64);
+            probes[3] = sang.Unsafe( Angle.FullTurn * 3  / 64);
+            probes[4] = sang.Unsafe( Angle.FullTurn * 1  / 64);
+            probes[5] = sang.Unsafe(-Angle.FullTurn * 1  / 64);
+            probes[6] = sang.Unsafe(-Angle.FullTurn * 3  / 64);
+            probes[7] = sang.Unsafe(-Angle.FullTurn * 5  / 64);
+            probes[8] = sang.Unsafe(-Angle.FullTurn * 7  / 64);
+            probes[9] = sang.Unsafe(-Angle.FullTurn * 9  / 64);
         }
         /// <summary>
         /// Fills an array with local origin points for directly-forward-facing navigation probes.
