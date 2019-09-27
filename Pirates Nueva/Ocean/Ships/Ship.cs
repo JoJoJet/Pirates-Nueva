@@ -596,7 +596,7 @@ namespace Pirates_Nueva.Ocean
                 // Throw an exception if the ship instantly turns by a large margin.
                 // That bug should be gone, but who knows. At least this way, we can
                 // inspect the code if it should happen.
-                Debug.Assert(Angle.Distance(Angle, in oldAng) < Angle.FullTurn);
+                Debug.Assert(Angle.Distance(Angle, in oldAng) < Def.TurnSpeed * 3 * delta);
 
                 //
                 // Check if the path forward is obstructed by any islands.
