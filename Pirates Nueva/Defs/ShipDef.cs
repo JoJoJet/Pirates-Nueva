@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using ship = Pirates_Nueva.Ocean.Ship;
 
 namespace Pirates_Nueva
 {
@@ -26,24 +27,30 @@ namespace Pirates_Nueva
             }
         }
 
+        /// <summary>
+        /// The length of a <see cref="ship"/> using this <see cref="ShipDef"/>, from stern to bow.
+        /// </summary>
+        public int Length { get; }
+        /// <summary>
+        /// The width of a <see cref="ship"/> using this <see cref="ShipDef"/>, from port to starboard.
+        /// </summary>
         public int Width { get; }
-        public int Height { get; }
 
         /// <summary>
-        /// The index of the root block on a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
+        /// The index of the root block on a <see cref="ship"/> using this <see cref="ShipDef"/>.
         /// </summary>
         public PointI RootIndex { get; }
 
         /// <summary>
-        /// The speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in units per second.
+        /// The speed of a <see cref="ship"/> using this <see cref="ShipDef"/>, in units per second.
         /// </summary>
         public float Speed { get; }
         /// <summary>
-        /// The turning radius of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
+        /// The turning radius of a <see cref="ship"/> using this <see cref="ShipDef"/>.
         /// </summary>
         public float TurnRadius { get; }
         /// <summary>
-        /// The maximum turning speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in radians per second.
+        /// The maximum turning speed of a <see cref="ship"/> using this <see cref="ShipDef"/>, in radians per second.
         /// </summary>
         public Angle TurnSpeed { get; }
 
@@ -76,11 +83,11 @@ namespace Pirates_Nueva
         protected ShipDef(ref XmlReader reader, bool closeReader = true) : base(reader) {
             reader = reader.ReadSubtree();
 
-            reader.ReadToDescendant("Width");
-            Width = reader.ReadElementContentAsInt();
+            reader.ReadToDescendant("Length");
+            Length = reader.ReadElementContentAsInt();
 
-            reader.ReadToNextSibling("Height");
-            Height = reader.ReadElementContentAsInt();
+            reader.ReadToNextSibling("Width");
+            Width = reader.ReadElementContentAsInt();
 
             reader.ReadToNextSibling("RootIndex");
             RootIndex = reader.ReadPointI();

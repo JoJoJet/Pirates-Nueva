@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipDefs>
 	<ShipDef ID="dinghy">
-		<Width>7</Width>
-		<Height>5</Height>
+		<!-- The length, from stern to bow. -->
+		<Length>7</Length>
+		<!-- The width, from port to starboard. -->
+		<Width>5</Width>
 		<RootIndex>3, 2</RootIndex>
 		<!-- In units per second. -->
 		<Speed>4.5</Speed>

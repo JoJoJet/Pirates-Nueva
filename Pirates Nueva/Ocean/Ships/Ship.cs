@@ -35,10 +35,10 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The <see cref="Ocean.Faction"/> to which this Ship is aligned. </summary>
         public Faction Faction { get; }
 
-        /// <summary> The horizontal length of this <see cref="Ship"/>. </summary>
+        /// <summary> The length of this <see cref="Ship"/>, from stern to bow. </summary>
+        public int Length => Def.Length;
+        /// <summary> The length of this <see cref="Ship"/>, from port to starboard. </summary>
         public int Width => Def.Width;
-        /// <summary> The vertical length of this <see cref="Ship"/>. </summary>
-        public int Height => Def.Height;
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
@@ -46,9 +46,9 @@ namespace Pirates_Nueva.Ocean
         public Angle Angle { get; protected set; }
 
         /// <summary>
-        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Sea"/>-space.
+        /// The direction from this <see cref="Ship"/>'s center to its bow, <see cref="Sea"/>-space.
         /// </summary>
-        public Vector Right => Angle.Vector;
+        public Vector Forward => Angle.Vector;
 
         public PointF? Destination { get; private set; }
 
@@ -75,7 +75,7 @@ namespace Pirates_Nueva.Ocean
             Center = (PointF)RootIndex + (0.5f, 0.5f);
             //
             // Construct the default shape of this ship def.
-            this.blocks = new Block[Width, Height];
+            this.blocks = new Block[Length, Width];
             foreach(var block in def.DefaultShape) {
                 PlaceBlock(BlockDef.Get(block.ID), block.X, block.Y);
             }
@@ -97,9 +97,9 @@ namespace Pirates_Nueva.Ocean
         /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
         protected override BoundingBox GetBounds() {
             // Find the left-, right-, bottom-, and top-most extents of blocks in this ship.
-            var (left, bottom, right, top) = (Width, Height, 0, 0);
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            var (left, bottom, right, top) = (Length, Width, 0, 0);
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(HasBlock(x, y)) {
                         left = Math.Min(left, x);
                         right = Math.Max(right, x+1);
@@ -136,7 +136,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Whether or not the specified indices are within the bounds of this ship.
         /// </summary>
-        public bool AreIndicesValid(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
+        public bool AreIndicesValid(int x, int y) => x >= 0 && x < Length && y >= 0 && y < Width;
 
         #region Block Accessor Methods
         /// <summary>
@@ -412,8 +412,8 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public bool Collides(in PointF seaPoint) {
             var local = (PointI)Transformer.PointTo(in seaPoint);
-            return local.X >= 0 && local.X < Width
-                && local.Y >= 0 && local.Y < Height
+            return local.X >= 0 && local.X < Length
+                && local.Y >= 0 && local.Y < Width
                 && unsafeGetBlock(local.X, local.Y) != null;
         }
 
@@ -424,15 +424,15 @@ namespace Pirates_Nueva.Ocean
         /// <summary> Throw an exception if either index is out of range. </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         private void ValidateIndices(string methodName, int x, int y) {
-            if(x < 0 || x >= Width)
+            if(x < 0 || x >= Length)
                 throw new ArgumentOutOfRangeException(
                     nameof(x),
-                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Width}). Its value is ""{x}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Length}). Its value is ""{x}""!"
                     );
-            if(y < 0 || y >= Height)
+            if(y < 0 || y >= Width)
                 throw new ArgumentOutOfRangeException(
                     nameof(y),
-                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Height}). Its value is ""{y}""!"
+                    $@"{nameof(Ship)}.{methodName}(): Argument must be on the interval [0, {Width}). Its value is ""{y}""!"
                     );
         }
         #endregion
@@ -451,8 +451,8 @@ namespace Pirates_Nueva.Ocean
         IEnumerable<Block> IGraph<Block>.Nodes {
             get {
                 // Return every block in this ship.
-                for(int x = 0; x < Width; x++) {
-                    for(int y = 0; y < Height; y++) {
+                for(int x = 0; x < Length; x++) {
+                    for(int y = 0; y < Width; y++) {
                         if(GetBlockOrNull(x, y) is Block b)
                             yield return b;
                     }
@@ -480,11 +480,11 @@ namespace Pirates_Nueva.Ocean
         }
         /// <summary>
         /// Fills an array with local origin points for directly-forward-facing navigation probes.
-        /// Specific to this ship. The length of the array is <see cref="Height"/> * 2.
+        /// Specific to this ship. The length of the array is <see cref="Width"/> * 2.
         /// </summary>
         private void FillForwardProbes(Span<PointF?> probes) {
-            for(int y = 0; y < Height; y++) {
-                for(int x = Width-1; x >= 0; x--) {
+            for(int y = 0; y < Width; y++) {
+                for(int x = Length-1; x >= 0; x--) {
                     if(this[x, y] != null) {
                         probes[y * 2    ] = new PointF(x + 0.5f, y + 1 / 3f);
                         probes[y * 2 + 1] = new PointF(x + 0.5f, y + 2 / 3f);
@@ -604,7 +604,7 @@ namespace Pirates_Nueva.Ocean
                 if(anyCollision) {
                     //
                     // Get an array of probes pointing directly forward.
-                    Span<PointF?> forwardProbes = stackalloc PointF?[Height * 2];
+                    Span<PointF?> forwardProbes = stackalloc PointF?[Width * 2];
                     FillForwardProbes(forwardProbes);
                     for(int i = 0; i < forwardProbes.Length; i++) {
                         if(forwardProbes[i] is null)
@@ -613,7 +613,7 @@ namespace Pirates_Nueva.Ocean
                         // Test collision for the probe.
                         // If it hit anything, that means the path forward is obstructed.
                         var origin = Transformer.PointFrom(forwardProbes[i]!.Value);
-                        if(Sea.IntersectsWithIsland(origin, origin + Right)) {
+                        if(Sea.IntersectsWithIsland(origin, origin + Forward)) {
                             isObstructed = true;
                             break;
                         }
@@ -624,7 +624,7 @@ namespace Pirates_Nueva.Ocean
                 // If the path forward is clear, 
                 // gradually move the ship in the direction of the bow.
                 if(!isObstructed) {
-                    Center += Right * (Def.Speed * delta);
+                    Center += Forward * (Def.Speed * delta);
                 }
                 //
                 // If the path forward is obstructed,
@@ -636,14 +636,14 @@ namespace Pirates_Nueva.Ocean
 
             //
             // Update every part in the ship.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(GetBlockOrNull(x, y) is IShipPart b)
                         b.Update(master);
                 }
             }
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(GetFurnitureOrNull(x, y) is IShipPart f)
                         f.Update(master);
                 }
@@ -665,24 +665,24 @@ namespace Pirates_Nueva.Ocean
             var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
             //
             // Draw each block.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(GetBlockOrNull(x, y) is IDrawable<Ship> b)
                         b.Draw(drawer);
                 }
             }
             //
             // Draw each Furniture.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(GetFurnitureOrNull(x, y) is IDrawable<Ship> f)
                         f.Draw(drawer);
                 }
             }
             //
             // Draw each stock.
-            for(int x = 0; x < Width; x++) {
-                for(int y = 0; y < Height; y++) {
+            for(int x = 0; x < Length; x++) {
+                for(int y = 0; y < Width; y++) {
                     if(GetStockOrNull(x, y) is Stock s)
                         (s as IDrawable<Ship>).Draw(drawer);
                 }
@@ -722,13 +722,13 @@ namespace Pirates_Nueva.Ocean
                 //
                 // Draw the probes extending from the front of this Ship.
                 {
-                    Span<PointF?> probes = stackalloc PointF?[Height * 2];
+                    Span<PointF?> probes = stackalloc PointF?[Width * 2];
                     FillForwardProbes(probes);
                     for(int i = 0; i < probes.Length; i++) {
                         if(probes[i] is null)
                             continue;
                         var origin = Transformer.PointFrom(probes[i]!.Value);
-                        seaDrawer.DrawLine(origin, origin + Right, in Color.DarkLime);
+                        seaDrawer.DrawLine(origin, origin + Forward, in Color.DarkLime);
                     }
                 }
             }

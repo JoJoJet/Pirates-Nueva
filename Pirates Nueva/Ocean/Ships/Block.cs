@@ -20,7 +20,7 @@ namespace Pirates_Nueva.Ocean
         public sealed override int Y { get; }
 
         /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
-        public override Dir Direction => Dir.Right;
+        public override Dir Direction => Dir.Forward;
 
         /// <summary>
         /// The <see cref="Ocean.Furniture"/> placed on this block.
@@ -96,13 +96,13 @@ namespace Pirates_Nueva.Ocean
         #region Path.INode Implementation
         IEnumerable<Path.Edge<Block>> Path.INode<Block>.Edges {
             get {
-                if(check(X - 1, Y, out var b))               // If there's a block to the left,
+                if(check(X - 1, Y, out var b))               // If there's a block astern,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(check(X, Y+1, out b))                     // If there's a block upwards,
+                if(check(X, Y+1, out b))                     // If there's a block aport,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(check(X+1, Y, out b))                     // If there's a block to the right,
+                if(check(X+1, Y, out b))                     // If there's a block forwards,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
-                if(check(X, Y-1, out b))                     // If there's a block downwards,
+                if(check(X, Y-1, out b))                     // If there's a block astarboard,
                     yield return new Path.Edge<Block>(1, b); //     return an edge connecting to it.
 
                 bool check(int x, int y, out Block block)
