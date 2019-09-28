@@ -6,7 +6,7 @@ using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Sea : IGraph<Chunk>, ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
+    public sealed class Sea : ISpaceLocus<Sea>, IUpdatable, IDrawable<Screen>, IFocusableParent
     {
         private readonly List<Island> islands = new List<Island>();
         private readonly Chunk[,] chunks;
@@ -90,6 +90,13 @@ namespace Pirates_Nueva.Ocean
         public Chunk this[int xIndex, int yIndex] => this.chunks[xIndex, yIndex];
 
         /// <summary>
+        /// Gets the index of the <see cref="Chunk"/> that contains the specified point.
+        /// Note: the index of the chunk will not necessarily be in bounds.
+        /// </summary>
+        public static PointI RoundToChunks(in PointF point)
+            => new PointI((int)(point.X / Chunk.Width), (int)(point.Y / Chunk.Height));
+
+        /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
         public void AddEntity(Entity entity) {
@@ -107,17 +114,70 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
-        #region IGraph<> Implementation
-        IEnumerable<Chunk> IGraph<Chunk>.Nodes {
-            get {
-                for(int x = 0; x < ChunksWidth; x++) {
-                    for(int y = 0; y < ChunksHeight; y++) {
-                        yield return this.chunks[x, y];
+        /// <summary>
+        /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
+        /// </summary>
+        public bool IntersectsWithIsland(PointF start, PointF end) {
+            var startChunk = RoundToChunks(in start);
+            var endChunk   = RoundToChunks(in end);
+
+            bool intersects = false;
+            void step(int x, int y) {
+                if(x < 0 || x >= ChunksWidth || y < 0 || y >= ChunksHeight)
+                    return;
+                foreach(var i in this[x, y].Islands) {
+                    if(i.Intersects(start, end)) {
+                        intersects = true;
+                        break;
                     }
                 }
             }
+
+            if(startChunk == endChunk)
+                step(startChunk.X, startChunk.Y);
+            else
+                Bresenham.Line(startChunk, endChunk, step);
+
+            return intersects;
         }
-        #endregion
+
+        /// <summary>
+        /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
+        /// If it does, outputs the squared distance from <paramref name="start"/> to the closest.
+        /// </summary>
+        /// <param name="sqrDistance">
+        /// The squared distance from <paramref name="start"/> to the closest intersection.
+        /// To get the euclidean distance, take the square root of this.</param>
+        public bool IntersectsWithIsland(PointF start, PointF end, out float sqrDistance) {
+            var startChunk = RoundToChunks(in start);
+            var endChunk   = RoundToChunks(in end);
+
+            bool intersects = false;
+            var sqrDist = float.MaxValue;
+            void step(int x, int y) {
+                if(x < 0 || x >= ChunksWidth || y < 0 || y >= ChunksHeight)
+                    return;
+                foreach(var i in this[x, y].Islands) {
+                    if(i.Intersects(start, end, out var dist)) {
+                        intersects = true;
+                        //
+                        // If the distance from the start to the intersection
+                        // is less than the last smallest distance,
+                        // set it as the new smallest distance.
+                        if(dist < sqrDist)
+                            sqrDist = dist;
+                    }
+                }
+            }
+
+            if(startChunk == endChunk)
+                step(startChunk.X, startChunk.Y);
+            else
+                Bresenham.Line(startChunk, endChunk, step);
+
+            sqrDistance = sqrDist;
+            return intersects;
+        }
 
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Master.Screen;
@@ -193,7 +253,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
     }
 
-    public sealed class Chunk : INode<Chunk>
+    public sealed class Chunk
     {
         /// <summary>
         /// The width or height of a <see cref="Chunk"/>.
@@ -218,90 +278,6 @@ namespace Pirates_Nueva.Ocean
         }
 
         public void AddIsland(Island island) => this.islands.Add(island);
-
-        #region INode<> Implementation
-        IEnumerable<Edge<Chunk>> INode<Chunk>.Edges {
-            get {
-                if(check(0, 1, out var c))
-                    yield return new Edge<Chunk>(1, c);
-                if(check(1, 0, out c))
-                    yield return new Edge<Chunk>(1, c);
-                if(check(0, -1, out c))
-                    yield return new Edge<Chunk>(1, c);
-                if(check(-1, 0, out c))
-                    yield return new Edge<Chunk>(1, c);
-
-                const float Root2 = 1.41421356f;
-                if(check(1, 1, out c))
-                    yield return new Edge<Chunk>(Root2, c);
-                if(check(1, -1, out c))
-                    yield return new Edge<Chunk>(Root2, c);
-                if(check(-1, -1, out c))
-                    yield return new Edge<Chunk>(Root2, c);
-                if(check(-1, 1, out c))
-                    yield return new Edge<Chunk>(Root2, c);
-
-                bool check(int xDir, int yDir, out Chunk chunk) {
-                    int checkX = XIndex + xDir;
-                    int checkY = YIndex + yDir;
-                    //
-                    // If the chunk that we're checking is off the grid, 
-                    // return false right away.
-                    if(checkX < 0  || checkX >= Sea.ChunksWidth || checkY < 0 || checkY >= Sea.ChunksHeight) {
-                        chunk = null!;
-                        return false;
-                    }
-                    //
-                    // Find the initial points for three rays
-                    // to cast into the chunk that we are checking.
-                    const float ThirdW = (float)Width / 3,
-                                HalfW  = (float)Width / 2,
-                                ThirdH = (float)Height / 3,
-                                HalfH  = (float)Height / 2;
-                    var offset = (XIndex * Width, YIndex * Height);
-                    (float x, float y) a = offset, b = offset, c = offset;
-                    if(yDir != 0) {
-                        a.x += ThirdW;
-                        b.x += HalfW;
-                        c.x += ThirdW * 2;
-                    }
-                    else {
-                        a.x = b.x = c.x += HalfW;
-                    }
-                    if(xDir != 0) {
-                        a.y += ThirdH;
-                        b.y += HalfH;
-                        c.y += ThirdH * 2;
-                    }
-                    else {
-                        a.y = b.y = c.y += HalfH;
-                    }
-                    PointF ray = (xDir * Width, yDir * Height);
-                    //
-                    // Cast the ray against the current chunk and the one we're checking.
-                    if(this.islands.Any(testIsland) || Sea[checkX, checkY].islands.Any(testIsland)) {
-                        chunk = null!;
-                        return false;
-                    }
-                    //
-                    // If the chunk that we're checking is diagonal,
-                    // also cast the ray against adjacent chunks.
-                    if(xDir != 0 && yDir != 0 && (Sea[XIndex, checkY].islands.Any(testIsland) || Sea[checkX, YIndex].islands.Any(testIsland))) {
-                        chunk = null!;
-                        return false;
-                    }
-                    //
-                    // If we got this far without returning,
-                    // that means the chunk that we're checking
-                    // both exists and has unimpeded passage from the current chunk.
-                    chunk = Sea[checkX, checkY];
-                    return true;
-
-                    bool testIsland(Island i) => i.Intersects(a, a + ray) || i.Intersects(b, b + ray) || i.Intersects(c, c + ray);
-                }
-            }
-        }
-        #endregion
     }
 
     public readonly struct SeaTransformer : ITransformer<Sea>

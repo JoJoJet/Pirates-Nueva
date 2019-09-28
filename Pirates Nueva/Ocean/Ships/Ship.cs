@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pirates_Nueva.Path;
-using Pirates_Nueva.Ocean.Agents;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
+using Pirates_Nueva.Path;
+using Pirates_Nueva.Ocean.Agents;
 using Pirates_Nueva.UI;
-using System.Linq;
+using System.Diagnostics;
+using sang = Pirates_Nueva.SignedAngle;
 
 namespace Pirates_Nueva.Ocean
 {
@@ -15,7 +16,7 @@ namespace Pirates_Nueva.Ocean
     public class Ship : Entity,
         IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
-        IUpdatable, IDrawable<Sea>, UI.IScreenSpaceTarget
+        IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
@@ -23,9 +24,6 @@ namespace Pirates_Nueva.Ocean
         private readonly List<Agent> agents = new List<Agent>();
         
         private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
-
-        private List<Chunk>? junctions;
-        private Queue<PointF>? path;
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -51,6 +49,8 @@ namespace Pirates_Nueva.Ocean
         /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Sea"/>-space.
         /// </summary>
         public Vector Right => Angle.Vector;
+
+        public PointF? Destination { get; private set; }
 
         /// <summary>
         /// The object that handles transformation for this <see cref="Ship"/>.
@@ -403,49 +403,7 @@ namespace Pirates_Nueva.Ocean
 
         #region Navigation
         public void SetDestination(PointF destination) {
-            var sourceChunk = Sea[(int)(Center.X / Chunk.Width), (int)(Center.Y / Chunk.Height)];
-            var destChunk = Sea[(int)(destination.X / Chunk.Width), (int)(destination.Y / Chunk.Height)];
-            //
-            // If the destination is within this chunk.
-            if(sourceChunk == destChunk) {
-                this.path = new Queue<PointF>();
-                this.path.Enqueue(destination);
-                this.junctions = new List<Chunk>();
-            }
-            //
-            // If the destination point is in another chunk, not occupied by any Islands.
-            else if(!destChunk.Islands.Any(i => i.Collides(destination))) {
-                //
-                // Pathfind over the Chunks from the current chunk to the destination.
-                var path = Dijkstra.FindPath(Sea, sourceChunk, destChunk);
-                //
-                // If a path was found.
-                if(path.Count > 0) {
-                    //
-                    // Iterate over the path,
-                    // removing any chunks in between straight lines.
-                    this.junctions = new List<Chunk>(path.Count / 2);
-                    var prev = sourceChunk;
-                    while(path.Count > 1) { // Require the path to have MORE THAN 1 element, as the destination is the last element.
-                        var current = path.Pop();
-                        var next = path.Peek();
-                        if(current.Index - prev.Index != next.Index - current.Index)
-                            junctions.Add(current);
-                        prev = current;
-                    }
-                    //
-                    // Find a set of straight lines
-                    // using the junctions that were found above.
-                    this.path = new Queue<PointF>();
-                    foreach(var j in this.junctions) {
-                        this.path.Enqueue(j.Index * Chunk.Width + (Chunk.Width / 2, Chunk.Height / 2));
-                    }
-                    this.path.Enqueue(destination);
-                }
-                else {
-                    this.path = null;
-                }
-            }
+            Destination = destination;
         }
         #endregion
 
@@ -504,32 +462,178 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IUpdatable Implementation
+        private const int ProbeCount = 10;
+        /// <summary>
+        /// Fills an array with angle offsets for navigation "probes".
+        /// </summary>
+        private static void FillProbes(Span<sang> probes) {
+            probes[0] = sang.Unsafe( Angle.FullTurn * 9  / 64);
+            probes[1] = sang.Unsafe( Angle.FullTurn * 7  / 64);
+            probes[2] = sang.Unsafe( Angle.FullTurn * 5  / 64);
+            probes[3] = sang.Unsafe( Angle.FullTurn * 3  / 64);
+            probes[4] = sang.Unsafe( Angle.FullTurn * 1  / 64);
+            probes[5] = sang.Unsafe(-Angle.FullTurn * 1  / 64);
+            probes[6] = sang.Unsafe(-Angle.FullTurn * 3  / 64);
+            probes[7] = sang.Unsafe(-Angle.FullTurn * 5  / 64);
+            probes[8] = sang.Unsafe(-Angle.FullTurn * 7  / 64);
+            probes[9] = sang.Unsafe(-Angle.FullTurn * 9  / 64);
+        }
+        /// <summary>
+        /// Fills an array with local origin points for directly-forward-facing navigation probes.
+        /// Specific to this ship. The length of the array is <see cref="Height"/> * 2.
+        /// </summary>
+        private void FillForwardProbes(Span<PointF?> probes) {
+            for(int y = 0; y < Height; y++) {
+                for(int x = Width-1; x >= 0; x--) {
+                    if(this[x, y] != null) {
+                        probes[y * 2    ] = new PointF(x + 0.5f, y + 1 / 3f);
+                        probes[y * 2 + 1] = new PointF(x + 0.5f, y + 2 / 3f);
+                        break;
+                    }
+                }
+            }
+        } 
+
         void IUpdatable.Update(in UpdateParams @params) => Update(in @params);
         protected virtual void Update(in UpdateParams @params) {
             var (delta, master) = @params;
-            if(this.path is Queue<PointF> path) {
+            //
+            // If we have reached the destination,
+            // unassign it.
+            if(Destination != null && Collides(Destination.Value)) {
+                Destination = null;
+            }
+            else if(Destination is PointF dest) {
                 //
-                // If we've reached the next segment of the path,
-                // move onto the following one.
-                if(Collides(path.Peek()))
-                    _ = path.Dequeue();
+                // Find the length of each probe that looks for obstacles in front of the ship.
+                // This should be related to the ship's turning radius.
+                float probeLength = Def.TurnRadius * 3;
+
                 //
-                // If the path is empty,
-                // unassign it.
-                if(path.Count == 0) {
-                    this.path = null;
+                // Get an array of probes.
+                Span<sang> probes = stackalloc sang[ProbeCount];
+                FillProbes(probes);
+                Span<float> probeFactors = stackalloc float[ProbeCount];
+
+                //
+                // If any of the probes intersect with anything,
+                // they should push the ship in the opposite direction.
+                // This gives a decent amount of spacing between the ship and obstacles.
+                //
+                // FIXME: There is currently an issue where if there is an equal
+                // amount of obstacles on both sides, the ship will just stall.
+                // We need to include a special case that forces the ship to pick a side
+                // when there is a wide, even-shaped obstacle ahead.
+                bool anyCollision = false;
+                var probePush = sang.Right;
+                for(int i = 0; i < ProbeCount; i++) {
+                    var ang = Angle + probes[i];
+                    if(Sea.IntersectsWithIsland(Center, Center + ang.Vector * probeLength, out var sqrDist)) {
+                        anyCollision = true;
+                        //
+                        // The strength with which the probe pushes should vary depending
+                        // on the distance from the intersection to the ship.
+                        // An intersection at the very end of the probe should
+                        // have half the strength as one up close and personal.
+                        probeFactors[i] = MathF.Sqrt(sqrDist) / probeLength;
+                        var factor = MoreMath.Lerp(1.5f, 0.5f, probeFactors[i]);
+                        var push = i >= ProbeCount / 2
+                                   ? probes[ProbeCount - 1 - (i - ProbeCount / 2)]
+                                   : probes[ProbeCount / 2 - 1 - i];
+                        probePush += push * factor;
+                    }
+                    else {
+                        probeFactors[i] = float.MaxValue;
+                    }
+                }
+                var targetAng = (Angle)(Angle - probePush);
+                //
+                // If the probes hit things but the destination is close and is a straight shot,
+                // allow the ship to navigate closer to obstacles than normal.
+                var destFactor = PointF.Distance(Center, dest) / probeLength;
+                if(anyCollision && destFactor < 1f) {
+                    var destAng = new Vector(Center, dest).Angle;
+                    var localDestAng = (sang)destAng - Angle;
+                    //
+                    // Iterate over the probes, starting from the center two and working towards the ends.
+                    for(int i = 0; i < ProbeCount / 2; i++) {
+                        int a = ProbeCount / 2 - i - 1,
+                            b = ProbeCount / 2 + i;
+                        //
+                        // If the current two probes have found anything
+                        // between the ship and the destination,
+                        // that means there is NOT a straight shot.
+                        // Break from the loop.
+                        if(probeFactors[a] <= destFactor || probeFactors[b] <= destFactor) {
+                            break;
+                        }
+                        //
+                        // If the angle towards the destination is between the two current probes,
+                        // that means the destination is a straight shot!
+                        // Set the target angle as the angle towards the destination.
+                        if(localDestAng <= probes[a] && localDestAng >= probes[b]) {
+                            targetAng = destAng;
+                            break;
+                        }
+                    }
                 }
                 //
-                // If there is more ground to cover,
-                // do so.
+                // If none of the probes collided with anything (the way is clear),
+                // Then the ship should point in the direction of the destination.
+                // If the ship is already pointing really close to the destination,
+                // don't do anything. This is to reduce jitter.
+                if(!anyCollision) {
+                    var destAng = new Vector(Center, dest).Angle;
+                    if(Angle.Distance(Angle, in destAng) > 0.05f)
+                        targetAng = destAng;
+                }
+
+                var oldAng = Angle;
+                //
+                // Gradually turn the ship in the direction of the target angle.
+                Angle = Angle.MoveTowards(Angle, targetAng, Def.TurnSpeed * delta);
+                //
+                // Throw an exception if the ship instantly turns by a large margin.
+                // That bug should be gone, but who knows. At least this way, we can
+                // inspect the code if it should happen.
+                Debug.Assert(Angle.Distance(Angle, in oldAng) < Def.TurnSpeed * 3 * delta);
+
+                //
+                // Check if the path forward is obstructed by any islands.
+                bool isObstructed = false;
+                if(anyCollision) {
+                    //
+                    // Get an array of probes pointing directly forward.
+                    Span<PointF?> forwardProbes = stackalloc PointF?[Height * 2];
+                    FillForwardProbes(forwardProbes);
+                    for(int i = 0; i < forwardProbes.Length; i++) {
+                        if(forwardProbes[i] is null)
+                            continue;
+                        //
+                        // Test collision for the probe.
+                        // If it hit anything, that means the path forward is obstructed.
+                        var origin = Transformer.PointFrom(forwardProbes[i]!.Value);
+                        if(Sea.IntersectsWithIsland(origin, origin + Right)) {
+                            isObstructed = true;
+                            break;
+                        }
+                    }
+                }
+
+                //
+                // If the path forward is clear, 
+                // gradually move the ship in the direction of the bow.
+                if(!isObstructed) {
+                    Center += Right * (Def.Speed * delta);
+                }
+                //
+                // If the path forward is obstructed,
+                // reset the angle to its value at the start of this frame.
                 else {
-                    var newAngle = new Vector(Center, path.Peek()).Angle; // Get the angle twoards the segment
-                    var step = Def.TurnSpeed * delta;                     //
-                                                                          //
-                    Angle = Angle.MoveTowards(Angle, newAngle, step);     // Slowly rotate the ship towards that angle.
-                    Center += Right * Def.Speed * delta;                  // Slowly move the ship to the right.
+                    Angle = oldAng;
                 }
             }
+
             //
             // Update every part in the ship.
             for(int x = 0; x < Width; x++) {
@@ -596,29 +700,44 @@ namespace Pirates_Nueva.Ocean
 
             //
             // If we're being focused on, draw our path.
-            if(IsFocused && this.path != null && this.junctions != null) {
-                foreach(var ch in this.junctions) {
-                    PointF tl = (ch.XIndex * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
-                    PointF tr = ((ch.XIndex + 1) * Chunk.Width, (ch.YIndex + 1) * Chunk.Height);
-                    PointF br = ((ch.XIndex + 1) * Chunk.Width, ch.YIndex * Chunk.Height);
-                    PointF bl = (ch.XIndex * Chunk.Width, ch.YIndex * Chunk.Height);
-                    seaDrawer.DrawLine(bl, tl, in Color.Lime);
-                    seaDrawer.DrawLine(tl, tr, in Color.Lime);
-                    seaDrawer.DrawLine(tr, br, in Color.Lime);
-                    seaDrawer.DrawLine(br, bl, in Color.Lime);
+            if(IsFocused && Destination is PointF dest) {
+                seaDrawer.DrawLine(Center, dest, in Color.White);
+
+                //
+                // Draw the probes extending from the root of this Ship.
+                {
+                    Span<sang> probes = stackalloc sang[ProbeCount];
+                    FillProbes(probes);
+                    for(int i = 0; i < ProbeCount; i++) {
+                        var ang = Angle + probes[i];
+                        var start = Center;
+                        var end = Center + ang.Vector * Def.TurnRadius * 3;
+                        var color = Sea.IntersectsWithIsland(start, end)
+                                    ? Color.Black
+                                    : Color.Lime;
+                        seaDrawer.DrawLine(start, end, in color);
+                    }
                 }
-                var prev = Center;
-                foreach(var p in this.path) {
-                    seaDrawer.DrawLine(prev, p, in Color.Lime);
-                    prev = p;
+
+                //
+                // Draw the probes extending from the front of this Ship.
+                {
+                    Span<PointF?> probes = stackalloc PointF?[Height * 2];
+                    FillForwardProbes(probes);
+                    for(int i = 0; i < probes.Length; i++) {
+                        if(probes[i] is null)
+                            continue;
+                        var origin = Transformer.PointFrom(probes[i]!.Value);
+                        seaDrawer.DrawLine(origin, origin + Right, in Color.DarkLime);
+                    }
                 }
             }
         }
         #endregion
 
         #region IScreenSpaceTarget Implementation
-        int UI.IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
-        int UI.IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
+        int IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
+        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
@@ -838,7 +957,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Part of a <see cref="Ocean.Ship"/>.
         /// </summary>
-        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, UI.IScreenSpaceTarget
+        public abstract class Part : IShipPart, IFocusable, IDrawable<Ship>, IScreenSpaceTarget
         {
             /// <summary> The <see cref="Ocean.Ship"/> that contains this <see cref="Part"/>. </summary>
             public abstract Ship Ship { get; }
@@ -893,8 +1012,8 @@ namespace Pirates_Nueva.Ocean
 
             #region IScreenSpaceTarget Implementation
             private PointF ScreenTarget => Ship.Sea.Transformer.PointFrom(Ship.Transformer.PointFrom(X, Y));
-            int UI.IScreenSpaceTarget.X => (int)ScreenTarget.X;
-            int UI.IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
+            int IScreenSpaceTarget.X => (int)ScreenTarget.X;
+            int IScreenSpaceTarget.Y => (int)ScreenTarget.Y;
             #endregion
         }
     }

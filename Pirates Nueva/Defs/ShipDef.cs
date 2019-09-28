@@ -39,7 +39,11 @@ namespace Pirates_Nueva
         /// </summary>
         public float Speed { get; }
         /// <summary>
-        /// The maximum turning speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in units per second.
+        /// The turning radius of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>.
+        /// </summary>
+        public float TurnRadius { get; }
+        /// <summary>
+        /// The maximum turning speed of a <see cref="Ocean.Ship"/> using this <see cref="ShipDef"/>, in radians per second.
         /// </summary>
         public Angle TurnSpeed { get; }
 
@@ -86,15 +90,8 @@ namespace Pirates_Nueva
 
             reader.ReadToNextSibling("TurningRadius");
             {
-                var radius = reader.ReadElementContentAsDouble();
-                var v1 = Vector.Right;
-                var v2 = new Vector((float)Math.Cos(Speed / radius), (float)Math.Sin(Speed / radius));
-
-                var ang = Vector.MeasureAngle(in v1, in v2);
-                if(ang.Radians > Angle.HalfTurn)
-                    ang = Angle.FromRadians(Angle.FullTurn - ang);
-
-                TurnSpeed = ang;
+                TurnRadius = reader.ReadElementContentAsFloat();
+                TurnSpeed = Angle.FromRadians(Speed / TurnRadius);
             }
 
             reader.ReadToNextSibling("DefaultShape");

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipDefs>
 	<ShipDef ID="dinghy">
-		<Width>9</Width>
+		<Width>7</Width>
 		<Height>5</Height>
 		<RootIndex>3, 2</RootIndex>
 		<!-- In units per second. -->
-		<Speed>3</Speed>
+		<Speed>4.5</Speed>
 		<TurningRadius>9</TurningRadius>
 		<DefaultShape>
 			<!--   W W         -->
@@ -13,21 +13,25 @@
 			<!-- W W R W W W W -->
 			<!-- W W W W W W   -->
 			<!--   W W         -->
+			<Block ID="wood" X="0" Y="3" />
+			<Block ID="wood" X="0" Y="2" />
+			<Block ID="wood" X="0" Y="1" />
+			
+			<Block ID="wood" X="1" Y="4" />
 			<Block ID="wood" X="1" Y="3" />
 			<Block ID="wood" X="1" Y="2" />
 			<Block ID="wood" X="1" Y="1" />
+			<Block ID="wood" X="1" Y="0" />
 			
 			<Block ID="wood" X="2" Y="4" />
 			<Block ID="wood" X="2" Y="3" />
-			<Block ID="wood" X="2" Y="2" />
+			<Block ID="root" X="2" Y="2" />
 			<Block ID="wood" X="2" Y="1" />
 			<Block ID="wood" X="2" Y="0" />
 			
-			<Block ID="wood" X="3" Y="4" />
 			<Block ID="wood" X="3" Y="3" />
-			<Block ID="root" X="3" Y="2" />
+			<Block ID="wood" X="3" Y="2" />
 			<Block ID="wood" X="3" Y="1" />
-			<Block ID="wood" X="3" Y="0" />
 			
 			<Block ID="wood" X="4" Y="3" />
 			<Block ID="wood" X="4" Y="2" />
@@ -37,11 +41,7 @@
 			<Block ID="wood" X="5" Y="2" />
 			<Block ID="wood" X="5" Y="1" />
 			
-			<Block ID="wood" X="6" Y="3" />
 			<Block ID="wood" X="6" Y="2" />
-			<Block ID="wood" X="6" Y="1" />
-			
-			<Block ID="wood" X="7" Y="2" />
 		</DefaultShape>
 	</ShipDef>
 </ShipDefs>
