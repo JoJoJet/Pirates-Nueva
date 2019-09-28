@@ -20,7 +20,7 @@ namespace Pirates_Nueva.Ocean
         public sealed override int Y { get; }
 
         /// <summary> The direction that this <see cref="Block"/> is facing. </summary>
-        public override Dir Direction => Dir.Right;
+        public override Dir Direction => Dir.Forward;
 
         /// <summary>
         /// The <see cref="Ocean.Furniture"/> placed on this block.
