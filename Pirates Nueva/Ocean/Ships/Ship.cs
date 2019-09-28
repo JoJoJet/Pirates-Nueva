@@ -46,9 +46,9 @@ namespace Pirates_Nueva.Ocean
         public Angle Angle { get; protected set; }
 
         /// <summary>
-        /// The direction from this <see cref="Ship"/>'s center to its right edge, <see cref="Sea"/>-space.
+        /// The direction from this <see cref="Ship"/>'s center to its bow, <see cref="Sea"/>-space.
         /// </summary>
-        public Vector Right => Angle.Vector;
+        public Vector Forward => Angle.Vector;
 
         public PointF? Destination { get; private set; }
 
@@ -613,7 +613,7 @@ namespace Pirates_Nueva.Ocean
                         // Test collision for the probe.
                         // If it hit anything, that means the path forward is obstructed.
                         var origin = Transformer.PointFrom(forwardProbes[i]!.Value);
-                        if(Sea.IntersectsWithIsland(origin, origin + Right)) {
+                        if(Sea.IntersectsWithIsland(origin, origin + Forward)) {
                             isObstructed = true;
                             break;
                         }
@@ -624,7 +624,7 @@ namespace Pirates_Nueva.Ocean
                 // If the path forward is clear, 
                 // gradually move the ship in the direction of the bow.
                 if(!isObstructed) {
-                    Center += Right * (Def.Speed * delta);
+                    Center += Forward * (Def.Speed * delta);
                 }
                 //
                 // If the path forward is obstructed,
@@ -728,7 +728,7 @@ namespace Pirates_Nueva.Ocean
                         if(probes[i] is null)
                             continue;
                         var origin = Transformer.PointFrom(probes[i]!.Value);
-                        seaDrawer.DrawLine(origin, origin + Right, in Color.DarkLime);
+                        seaDrawer.DrawLine(origin, origin + Forward, in Color.DarkLime);
                     }
                 }
             }
