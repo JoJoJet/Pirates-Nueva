@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipDefs>
 	<ShipDef ID="dinghy">
-		<Width>7</Width>
-		<Height>5</Height>
+		<Length>7</Length>
+		<Width>5</Width>
 		<RootIndex>3, 2</RootIndex>
 		<!-- In units per second. -->
 		<Speed>4.5</Speed>
