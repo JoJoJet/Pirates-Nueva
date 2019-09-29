@@ -89,7 +89,7 @@ namespace Pirates_Nueva.Ocean.Agents
             bool Work(Agent<TC, TSpot> worker, Time delta);
             void DoStop(Agent<TC, TSpot> worker);
 
-            void Draw(ILocalDrawer<TC> drawer);
+            void Draw<TDrawer>(TDrawer drawer) where TDrawer : ILocalDrawer<TC>;
         }
         /// <summary>
         /// An action paired with a requirement.
@@ -213,7 +213,7 @@ namespace Pirates_Nueva.Ocean.Agents
                 (Action as IAction).DoStop(worker);
             }
 
-            void IToil.Draw(ILocalDrawer<TC> drawer) {
+            void IToil.Draw<TDrawer>(TDrawer drawer) {
                 var worker = Job.Worker;
                 //
                 // Draw each action.
@@ -237,7 +237,8 @@ namespace Pirates_Nueva.Ocean.Agents
         {
             Toil Toil { set; }
 
-            void Draw(ILocalDrawer<TC> Drawer, Agent<TC, TSpot>? worker);
+            void Draw<TDrawer>(TDrawer drawer, Agent<TC, TSpot>? worker)
+                where TDrawer : ILocalDrawer<TC>;
         }
         /// <summary> Base class for a <see cref="Requirement"/> or <see cref="Action"/>. </summary>
         public abstract class ToilSegment : ISegment
@@ -255,9 +256,11 @@ namespace Pirates_Nueva.Ocean.Agents
 
             internal ToilSegment() {  } // Ensures that this class can only be derived from within this assembly.
 
-            void ISegment.Draw(ILocalDrawer<TC> drawer, Agent<TC, TSpot>? worker) => Draw(drawer, worker);
+            void ISegment.Draw<TDrawer>(TDrawer drawer, Agent<TC, TSpot>? worker) => Draw(drawer, worker);
             /// <summary> Draws this <see cref="Requirement"/> or <see cref="Action"/> to the screen. </summary>
-            protected virtual void Draw(ILocalDrawer<TC> drawer, Agent<TC, TSpot>? worker) {  }
+            protected virtual void Draw<TDrawer>(TDrawer drawer, Agent<TC, TSpot>? worker)
+                where TDrawer : ILocalDrawer<TC>
+                {  }
         }
         
         private interface IReq // Restricts access of some members to this class.
