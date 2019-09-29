@@ -62,25 +62,25 @@ namespace Pirates_Nueva
         public bool Equals(PointI other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 9 * Y.GetHashCode();
 
-        public static explicit operator PointI(PointF p) => new PointI((int)p.X, (int)p.Y);
+        public static explicit operator PointI(in PointF p) => new PointI((int)p.X, (int)p.Y);
 
-        public static implicit operator Microsoft.Xna.Framework.Point(PointI p) => new Point(p.X, p.Y);
-        public static implicit operator PointI(Microsoft.Xna.Framework.Point p) => new PointI(p.X, p.Y);
+        public static implicit operator Microsoft.Xna.Framework.Point(in PointI p) => new Point(p.X, p.Y);
+        public static implicit operator PointI(in Microsoft.Xna.Framework.Point p) => new PointI(p.X, p.Y);
         
-        public static implicit operator PointI((int, int) tup) => new PointI(tup.Item1, tup.Item2);
+        public static implicit operator PointI(in (int, int) tup) => new PointI(tup.Item1, tup.Item2);
 
-        public static PointI operator +(PointI a, PointI b) => new PointI(a.X + b.X, a.Y + b.Y);
-        public static PointI operator -(PointI a, PointI b) => new PointI(a.X - b.X, a.Y - b.Y);
-        public static PointI operator -(PointI p) => new PointI(-p.X, -p.Y);
+        public static PointI operator +(in PointI a, in PointI b) => new PointI(a.X + b.X, a.Y + b.Y);
+        public static PointI operator -(in PointI a, in PointI b) => new PointI(a.X - b.X, a.Y - b.Y);
+        public static PointI operator -(in PointI p) => new PointI(-p.X, -p.Y);
 
         /// <summary> The dot product of two <see cref="PointI"/>s. </summary>
-        public static int operator *(PointI a, PointI b) => a.X * b.X + a.Y * b.Y;
+        public static int operator *(in PointI a, in PointI b) => a.X * b.X + a.Y * b.Y;
 
-        public static PointI operator *(PointI p, int scalar) => new PointI(p.X * scalar, p.Y * scalar);
-        public static PointI operator /(PointI p, int scalar) => new PointI(p.X / scalar, p.Y / scalar);
+        public static PointI operator *(in PointI p, in int scalar) => new PointI(p.X * scalar, p.Y * scalar);
+        public static PointI operator /(in PointI p, in int scalar) => new PointI(p.X / scalar, p.Y / scalar);
 
-        public static bool operator ==(PointI a, PointI b) => a.X == b.X && a.Y == b.Y;
-        public static bool operator !=(PointI a, PointI b) => a.X != b.X || a.Y != b.Y;
+        public static bool operator ==(in PointI a, in PointI b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(in PointI a, in PointI b) => a.X != b.X || a.Y != b.Y;
     }
 
     /// <summary>
@@ -165,28 +165,28 @@ namespace Pirates_Nueva
         public bool Equals(PointF other) => other.X == X && other.Y == Y;
         public override int GetHashCode() => X.GetHashCode() + 6 * Y.GetHashCode();
 
-        public static implicit operator PointF(PointI p) => new PointF(p.X, p.Y);
+        public static implicit operator PointF(in PointI p) => new PointF(p.X, p.Y);
 
-        public static implicit operator Vector2(PointF p) => new Vector2(p.X, p.Y);
-        public static implicit operator PointF(Vector2 v) => new PointF(v.X, v.Y);
+        public static implicit operator Vector2(in PointF p) => new Vector2(p.X, p.Y);
+        public static implicit operator PointF(in Vector2 v) => new PointF(v.X, v.Y);
 
-        public static implicit operator PointF((float, float) tup) => new PointF(tup.Item1, tup.Item2);
+        public static implicit operator PointF(in (float, float) tup) => new PointF(tup.Item1, tup.Item2);
 
-        public static PointF operator +(PointF a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
-        public static PointF operator -(PointF a, PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
-        public static PointF operator -(PointF p) => new PointF(-p.X, -p.Y);
+        public static PointF operator +(in PointF a, in PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator -(in PointF a, in PointF b) => new PointF(a.X - b.X, a.Y - b.Y);
+        public static PointF operator -(in PointF p) => new PointF(-p.X, -p.Y);
 
-        public static PointF operator +(PointF a, PointI b) => new PointF(a.X + b.X, a.Y + b.Y);
-        public static PointF operator +(PointI a, PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator +(in PointF a, in PointI b) => new PointF(a.X + b.X, a.Y + b.Y);
+        public static PointF operator +(in PointI a, in PointF b) => new PointF(a.X + b.X, a.Y + b.Y);
 
         /// <summary> The dot product of two <see cref="PointF"/>s. </summary>
-        public static float operator *(PointF a, PointF b) => a.X * b.X + a.Y * b.Y;
+        public static float operator *(in PointF a, in PointF b) => a.X * b.X + a.Y * b.Y;
 
-        public static PointF operator *(PointF p, float scalar) => new PointF(p.X * scalar, p.Y * scalar);
-        public static PointF operator /(PointF p, float scalar) => new PointF(p.X / scalar, p.Y / scalar);
+        public static PointF operator *(in PointF p, in float scalar) => new PointF(p.X * scalar, p.Y * scalar);
+        public static PointF operator /(in PointF p, in float scalar) => new PointF(p.X / scalar, p.Y / scalar);
 
-        public static bool operator ==(PointF a, PointF b) => a.X == b.X && a.Y == b.Y;
-        public static bool operator !=(PointF a, PointF b) => a.X != b.X || a.Y != b.Y;
+        public static bool operator ==(in PointF a, in PointF b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(in PointF a, in PointF b) => a.X != b.X || a.Y != b.Y;
     }
 
     public static class PointExt
