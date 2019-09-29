@@ -204,7 +204,9 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IDrawable Implementation
         void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Agent{TC, TSpot}"/> onscreen. </summary>
-        protected virtual void Draw(ILocalDrawer<TC> drawer) {
+        protected virtual void Draw<TDrawer>(TDrawer drawer)
+            where TDrawer : ILocalDrawer<TC>
+        {
             var tex = Resources.LoadSprite("agent");
 
             drawer.DrawCenter(tex, X, Y, width: 1, height: 1);

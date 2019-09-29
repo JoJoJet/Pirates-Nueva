@@ -140,7 +140,9 @@ namespace Pirates_Nueva.Ocean.Agents
         #region IDrawable Implementation
         void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
-        protected virtual void Draw(ILocalDrawer<TC> drawer) {
+        protected virtual void Draw<TDrawer>(TDrawer drawer)
+            where TDrawer : ILocalDrawer<TC>
+        {
             if(IsDestroyed) return;
 
             var tex = Resources.LoadSprite(Def.SpriteID);

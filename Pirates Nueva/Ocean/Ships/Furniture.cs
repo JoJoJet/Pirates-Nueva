@@ -25,8 +25,8 @@
             Direction = direction;
         }
         
-        /// <summary> Draw this <see cref="Furniture"/> to the screen. </summary>
-        protected override void Draw(ILocalDrawer<Ship> drawer) {
+        /// <summary> Draws this <see cref="Furniture"/> to the screen. </summary>
+        protected override void Draw<TDrawer>(TDrawer drawer) {
             var tex = Resources.LoadSprite(Def.SpriteID);
 
             drawer.Draw(tex, X, Y, Def.SpriteSize.X, Def.SpriteSize.Y, Angle, Def.SpriteOrigin);

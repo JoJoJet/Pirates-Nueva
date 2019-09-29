@@ -661,7 +661,9 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        protected virtual void Draw(ILocalDrawer<Sea> seaDrawer) {
+        protected virtual void Draw<TDrawer>(TDrawer seaDrawer)
+            where TDrawer : ILocalDrawer<Sea>
+        {
             var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
             //
             // Draw each block.
@@ -982,7 +984,8 @@ namespace Pirates_Nueva.Ocean
 
             void IDrawable<Ship>.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
-            protected abstract void Draw(ILocalDrawer<Ship> drawer);
+            protected abstract void Draw<TDrawer>(TDrawer drawer)
+                where TDrawer : ILocalDrawer<Ship>;
 
             #region IFocusable Implementation
             bool IFocusable.IsFocused { set => IsFocused = value; }
