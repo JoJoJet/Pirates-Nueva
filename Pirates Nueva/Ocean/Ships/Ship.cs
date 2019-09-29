@@ -661,10 +661,10 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        protected virtual void Draw<TDrawer>(TDrawer seaDrawer)
-            where TDrawer : ILocalDrawer<Sea>
+        protected virtual void Draw<TSeaDrawer>(TSeaDrawer seaDrawer)
+            where TSeaDrawer : ILocalDrawer<Sea>
         {
-            var drawer = new SpaceDrawer<Ship, ShipTransformer, Sea>(seaDrawer, Transformer);
+            var drawer = new SpaceDrawer<Ship, ShipTransformer, TSeaDrawer, Sea>(seaDrawer, Transformer);
             //
             // Draw each block.
             for(int x = 0; x < Length; x++) {
