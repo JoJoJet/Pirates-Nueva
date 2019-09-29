@@ -29,7 +29,7 @@ namespace Pirates_Nueva.Ocean
             Shape = shape;
         }
 
-        void IDrawable<Island>.Draw(ILocalDrawer<Island> drawer) {
+        void IDrawable<Island>.Draw<TDrawer>(TDrawer drawer) {
             drawer.DrawCenter(Def.GetSprite(Shape), X, Y, 1, 1);
         }
     }

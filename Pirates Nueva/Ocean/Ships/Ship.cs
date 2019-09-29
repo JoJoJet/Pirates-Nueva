@@ -657,7 +657,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) => Draw(drawer);
+        void IDrawable<Sea>.Draw<TDrawer>(TDrawer drawer) => Draw(drawer);
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
@@ -982,7 +982,7 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IDrawable<Ship>.Draw(ILocalDrawer<Ship> drawer) => Draw(drawer);
+            void IDrawable<Ship>.Draw<TDrawer>(TDrawer drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
             protected abstract void Draw<TDrawer>(TDrawer drawer)
                 where TDrawer : ILocalDrawer<Ship>;

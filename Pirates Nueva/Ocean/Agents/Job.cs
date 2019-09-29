@@ -76,8 +76,8 @@ namespace Pirates_Nueva.Ocean.Agents
             => (this.top as IToil).Work(worker, delta);
 
         #region IDrawable Implementation
-        void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer)
-            => (top as IToil).Draw(drawer);
+        void IDrawable<TC>.Draw<TDrawer>(TDrawer drawer)
+            => (this.top as IToil).Draw(drawer);
         #endregion
 
         /// <summary> Makes the Toil.Ship property only settable from within the Job class. </summary>

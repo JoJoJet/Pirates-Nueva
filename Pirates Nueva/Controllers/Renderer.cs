@@ -155,7 +155,8 @@ namespace Pirates_Nueva
         /// Draws this object around its parent.
         /// </summary>
         /// <param name="drawer">The object on which to draw.</param>
-        void Draw(ILocalDrawer<T> drawer);
+        void Draw<TDrawer>(TDrawer drawer)
+            where TDrawer : ILocalDrawer<T>;
     }
 
 

@@ -138,7 +138,7 @@ namespace Pirates_Nueva.Ocean.Agents
         }
 
         #region IDrawable Implementation
-        void IDrawable<TC>.Draw(ILocalDrawer<TC> drawer) => Draw(drawer);
+        void IDrawable<TC>.Draw<TDrawer>(TDrawer drawer) => Draw(drawer);
         /// <summary> Draws this <see cref="Stock{TC, TSpot}"/> onscreen. </summary>
         protected virtual void Draw<TDrawer>(TDrawer drawer)
             where TDrawer : ILocalDrawer<TC>

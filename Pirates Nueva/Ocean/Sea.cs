@@ -207,8 +207,8 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable<> Implementation
-        void IDrawable<Screen>.Draw(ILocalDrawer<Screen> topDrawer) {
-            ILocalDrawer<Sea> drawer = new SpaceDrawer<Sea, SeaTransformer, Screen>(topDrawer, Transformer);
+        void IDrawable<Screen>.Draw<TDrawer>(TDrawer screenDrawer) {
+            ILocalDrawer<Sea> drawer = new SpaceDrawer<Sea, SeaTransformer, Screen>(screenDrawer, Transformer);
             //
             // Draw the grid of chunks
             for(int x = 0; x <= this.chunks.GetLength(0); x++) {
