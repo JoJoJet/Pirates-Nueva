@@ -657,11 +657,11 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable<Sea>.Draw<TDrawer>(TDrawer drawer) => Draw(drawer);
+        void IDrawable<Sea>.Draw<TDrawer>(in TDrawer drawer) => Draw(drawer);
         /// <summary>
         /// Draw this <see cref="Ship"/> onscreen.
         /// </summary>
-        protected virtual void Draw<TSeaDrawer>(TSeaDrawer seaDrawer)
+        protected virtual void Draw<TSeaDrawer>(in TSeaDrawer seaDrawer)
             where TSeaDrawer : ILocalDrawer<Sea>
         {
             var drawer = new SpaceDrawer<Ship, ShipTransformer, TSeaDrawer, Sea>(seaDrawer, Transformer);
@@ -982,9 +982,9 @@ namespace Pirates_Nueva.Ocean
             /// <summary> The update loop of this <see cref="Part"/>; is called every frame. </summary>
             protected virtual void Update(Master master) {  }
 
-            void IDrawable<Ship>.Draw<TDrawer>(TDrawer drawer) => Draw(drawer);
+            void IDrawable<Ship>.Draw<TDrawer>(in TDrawer drawer) => Draw(drawer);
             /// <summary> Draw this <see cref="Part"/> to the screen. </summary>
-            protected abstract void Draw<TDrawer>(TDrawer drawer)
+            protected abstract void Draw<TDrawer>(in TDrawer drawer)
                 where TDrawer : ILocalDrawer<Ship>;
 
             #region IFocusable Implementation

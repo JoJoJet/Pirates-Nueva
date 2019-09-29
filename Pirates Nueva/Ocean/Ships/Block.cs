@@ -68,7 +68,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary> Draw this <see cref="Block"/> to the screen. </summary>
-        protected override void Draw<TDrawer>(TDrawer drawer) {
+        protected override void Draw<TDrawer>(in TDrawer drawer) {
             var tex = Resources.LoadSprite(Def.SpriteID);
 
             drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));

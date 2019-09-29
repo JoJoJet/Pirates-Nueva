@@ -819,7 +819,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable<Sea>.Draw<TSeaDrawer>(TSeaDrawer drawer) {
+        void IDrawable<Sea>.Draw<TSeaDrawer>(in TSeaDrawer drawer) {
             //
             // Draw the blocks.
             if(this.blocks is null)

@@ -18,7 +18,7 @@ namespace Pirates_Nueva.Ocean
         private TParentDrawer ParentDrawer { get; }
         private Space<TLocus, TTransformer> Transformer { get; }
 
-        public SpaceDrawer(TParentDrawer parentDrawer, Space<TLocus, TTransformer> space)
+        public SpaceDrawer(in TParentDrawer parentDrawer, Space<TLocus, TTransformer> space)
             => (ParentDrawer, Transformer) = (parentDrawer, space);
 
         public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {

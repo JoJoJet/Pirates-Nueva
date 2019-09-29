@@ -207,7 +207,7 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable<> Implementation
-        void IDrawable<Screen>.Draw<TScreenDrawer>(TScreenDrawer screenDrawer) {
+        void IDrawable<Screen>.Draw<TScreenDrawer>(in TScreenDrawer screenDrawer) {
             var drawer = new SpaceDrawer<Sea, SeaTransformer, TScreenDrawer, Screen>(screenDrawer, Transformer);
             var idrawer = drawer as ILocalDrawer<Sea>;
             //
