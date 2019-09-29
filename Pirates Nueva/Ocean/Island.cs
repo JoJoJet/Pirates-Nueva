@@ -819,12 +819,12 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region IDrawable Implementation
-        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
+        void IDrawable<Sea>.Draw<TSeaDrawer>(in TSeaDrawer drawer) {
             //
             // Draw the blocks.
             if(this.blocks is null)
                 return;
-            var localDrawer = new SpaceDrawer<Island, IslandTransformer, Sea>(drawer, Transformer);
+            var localDrawer = new SpaceDrawer<Island, IslandTransformer, TSeaDrawer, Sea>(drawer, Transformer);
             foreach(var block in this.blocks) {
                 (block as IDrawable<Island>)?.Draw(localDrawer);
             }

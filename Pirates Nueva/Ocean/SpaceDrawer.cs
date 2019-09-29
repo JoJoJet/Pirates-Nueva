@@ -10,14 +10,15 @@ namespace Pirates_Nueva.Ocean
     /// <typeparam name="TLocus">The locus for this drawer's coordinate system.</typeparam>
     /// <typeparam name="TTransformer">The type that will perform transformation for this Drawer.</typeparam>
     /// <typeparam name="TParent">The type representing the parent coordinate system.</typeparam>
-    public sealed class SpaceDrawer<TLocus, TTransformer, TParent> : ILocalDrawer<TLocus>
+    public sealed class SpaceDrawer<TLocus, TTransformer, TParentDrawer, TParent> : ILocalDrawer<TLocus>
         where TLocus : ISpaceLocus<TLocus>
         where TTransformer : struct, ITransformer<TLocus>
+        where TParentDrawer : ILocalDrawer<TParent>
     {
-        private ILocalDrawer<TParent> ParentDrawer { get; }
+        private TParentDrawer ParentDrawer { get; }
         private Space<TLocus, TTransformer> Transformer { get; }
 
-        public SpaceDrawer(ILocalDrawer<TParent> parentDrawer, Space<TLocus, TTransformer> space)
+        public SpaceDrawer(in TParentDrawer parentDrawer, Space<TLocus, TTransformer> space)
             => (ParentDrawer, Transformer) = (parentDrawer, space);
 
         public void DrawCornerAt<T>(UI.Sprite sprite, float left, float top, float width, float height, in UI.Color tint) {
@@ -75,7 +76,7 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
+        public void DrawLineAt<T>(in PointF start, in PointF end, in UI.Color color) {
             if(typeof(T) == typeof(TLocus))
                 ParentDrawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
             else

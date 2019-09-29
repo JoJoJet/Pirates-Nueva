@@ -32,7 +32,7 @@ namespace Pirates_Nueva.UI
             public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
                                   in Angle angle, in PointF origin, in Color tint)
                 => ScreenDrawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
-            public void DrawLineAt<T>(PointF start, PointF end, in Color color)
+            public void DrawLineAt<T>(in PointF start, in  PointF end, in Color color)
                 => ScreenDrawer.DrawLineAt<T>(start, end, in color);
             public void DrawString(Font font, string text, float left, float top, in Color color)
                 => ScreenDrawer.DrawString(font, text, left, top, in color);

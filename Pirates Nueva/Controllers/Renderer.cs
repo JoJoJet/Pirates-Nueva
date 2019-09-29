@@ -36,7 +36,7 @@ namespace Pirates_Nueva
         /// </summary>
         /// <param name="start">The line's starting point.</param>
         /// <param name="end">The line's ending point.</param>
-        void DrawLine(PointF start, PointF end, in UI.Color color);
+        void DrawLine(in PointF start, in PointF end, in UI.Color color);
 
         /// <summary>
         /// Submits a <see cref="string"/> to be drawn this frame.
@@ -58,7 +58,7 @@ namespace Pirates_Nueva
                           in Angle angle, in PointF origin, in UI.Color tint)
             => DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
 
-        void IDrawer.DrawLine(PointF start, PointF end, in UI.Color color)
+        void IDrawer.DrawLine(in PointF start, in PointF end, in UI.Color color)
             => DrawLineAt<T>(start, end, in color);
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Pirates_Nueva
         /// <typeparam name="U">The space around which the sprite will be drawn.</typeparam>
         /// <param name="start">The local position of the line's starting point.</param>
         /// <param name="end">The local position of the line's ending point.</param>
-        void DrawLineAt<U>(PointF start, PointF end, in UI.Color color);
+        void DrawLineAt<U>(in PointF start, in PointF end, in UI.Color color);
     }
     public static class DrawerExt
     {
@@ -155,7 +155,8 @@ namespace Pirates_Nueva
         /// Draws this object around its parent.
         /// </summary>
         /// <param name="drawer">The object on which to draw.</param>
-        void Draw(ILocalDrawer<T> drawer);
+        void Draw<TDrawer>(in TDrawer drawer)
+            where TDrawer : ILocalDrawer<T>;
     }
 
 
@@ -196,7 +197,7 @@ namespace Pirates_Nueva
                 ThrowInvalidType<T>(nameof(DrawAt));
         }
 
-        public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
+        public void DrawLineAt<T>(in PointF start, in PointF end, in UI.Color color) {
             if(typeof(T) == typeof(Screen)) {
                 var edge = end - start;
                 var angle = Angle.FromRadians(MathF.Atan2(edge.Y, edge.X));

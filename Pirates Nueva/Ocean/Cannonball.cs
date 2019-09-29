@@ -31,7 +31,7 @@ namespace Pirates_Nueva.Ocean
                 Sea.RemoveEntity(this);
         }
 
-        void IDrawable<Sea>.Draw(ILocalDrawer<Sea> drawer) {
+        void IDrawable<Sea>.Draw<TDrawer>(in TDrawer drawer) {
             var sprite = Resources.LoadSprite("cannonball");
             drawer.DrawCenter(sprite, CenterX, CenterY, 1, 1);
         }

@@ -77,7 +77,7 @@ namespace Pirates_Nueva.Ocean.Agents
             }
         }
 
-        protected override void Draw(ILocalDrawer<Ship> drawer, Agent<Ship, Block>? worker) {
+        protected override void Draw<TDrawer>(in TDrawer drawer, Agent<Ship, Block>? worker) {
             var def = BlockDef.Get(PlaceID);
             var tex = Resources.LoadSprite(def.SpriteID);
             
