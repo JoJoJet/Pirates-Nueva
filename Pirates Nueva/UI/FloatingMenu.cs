@@ -96,7 +96,7 @@ namespace Pirates_Nueva.UI
                 else
                     Drawer.DrawAt<T>(sprite, x, y, width, height, in angle, in origin, in tint);
             }
-            public void DrawLineAt<T>(PointF start, PointF end, in Color color) {
+            public void DrawLineAt<T>(in PointF start, in PointF end, in Color color) {
                 if(typeof(T) == typeof(GUI.Menu))
                     Drawer.DrawLine(start + Menu.ResolvedOffset, end + Menu.ResolvedOffset, in color);
                 else

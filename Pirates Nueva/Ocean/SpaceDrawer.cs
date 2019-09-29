@@ -76,7 +76,7 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
-        public void DrawLineAt<T>(PointF start, PointF end, in UI.Color color) {
+        public void DrawLineAt<T>(in PointF start, in PointF end, in UI.Color color) {
             if(typeof(T) == typeof(TLocus))
                 ParentDrawer.DrawLine(Transformer.PointFrom(in start), Transformer.PointFrom(in end), in color);
             else
