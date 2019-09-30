@@ -606,13 +606,7 @@ namespace Pirates_Nueva.Ocean
             ref var vertices = ref @params.verts;
             ref var edges = ref @params.edges;
             smoothOutline(vertices, edges);               // Smooth the outline.
-            //
-            // Scale up the island by a random amount.
-            // If it was scaled a lot, subdivide and smooth it.
-            if(scaleOutline(vertices, edges) > 1.5f) {
-                subdivideOutline(ref vertices, ref edges);
-                smoothOutline(vertices, edges);
-            }
+            scaleOutline(ref vertices, ref edges);        // Scale up the islands by a random amount.
             jitterOutline(vertices);                      // Roughen up the outline.
             superOutline(vertices);                       // Scale the island up by four.
             alignOutline(vertices);                       // Align the outline to the bottom left of this island.
@@ -677,16 +671,17 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            float scaleOutline(Span<PointF> vertices, Span<(int a, int b)> edges) {
-                float scale = (float)r.NextDouble() + r.Next(1, 3); // Choose a random scale between 1 and 3.
-                //
-                // Multipy each vertex by the scale.
-                for(int i = 0; i < vertices.Length; i++) {
-                    vertices[i] *= scale;
+            void scaleOutline(ref Span<PointF> vertices, ref Span<(int a, int b)> edges) {
+                float scale = (float)r.NextDouble() + r.Next(1, 3); // Choose a random float between 1 and 3.
+
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex,
+                    vertices[i] *= scale;                  //     multiply it by the scale.
                 }
-                //
-                // Return the scale factor.
-                return scale;
+
+                if(scale > 1.5f) {                             // If the island was scaled up a lot,
+                    subdivideOutline(ref vertices, ref edges); //     subdivide it,
+                    smoothOutline(vertices, edges);            //     and then smooth it.
+                }
             }
 
             static void subdivideOutline(ref Span<PointF> vertices, ref Span<(int a, int b)> edges) {
