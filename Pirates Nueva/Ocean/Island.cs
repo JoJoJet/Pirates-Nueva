@@ -579,23 +579,30 @@ namespace Pirates_Nueva.Ocean
                 // https://en.wikipedia.org/wiki/Laplacian_smoothing.
                 //
                 for(int i = 0; i < vertices.Count; i++) {       // For every vertex in this island's outline:
-                    var neighbors = from n in edges             // Get each neighbor of the vertex.
-                                    where n.a == i || n.b == i  //
-                                    select vertices[            //
-                                        n.a == i ? n.b : n.a    //
-                                        ];                      //
-                                                                //
-                    var xi = PointF.Zero;                       // The smoothed position of the vertex.
-                    int count = 0;                              // How many neighbors it has.
-                    foreach(var n in neighbors) {               // For every neighbor:
-                        xi += n;                                //     Add its position to the smoothed position,
-                        count++;                                //     and increment the neighbor count.
-                    }                                           //
-                    xi /= count;                                // Divide the smoothed position by the number of neighbors.
-                                                                //
-                    verts[i] = PointF.Lerp(                     // Set the new position of the vertex
-                        vertices[i], xi, 0.5f                   //     as the midpoint between the smoothed
-                        );                                      //     position & its original position.
+                    //
+                    // Get each neighbor of the vertex:
+                    // Each vertex that is connected to the current one by an Edge.
+                    Span<PointF> ns = stackalloc PointF[4];
+                    int count = 0;
+                    foreach(var e in edges) {
+                        if(e.a == i || e.b == i) {
+                            if(count >= ns.Length)
+                                ns = stackalloc PointF[ns.Length * 2];
+                            ns[count] = vertices[e.a == i ? e.b : e.a];
+                            count++;
+                        }
+                    }
+                    //
+                    // Find the smoothed position of the vertex by averaging its neighbors' positions.
+                    var xi = PointF.Zero;
+                    foreach(var n in ns) {
+                        xi += n; 
+                    }
+                    xi /= count;
+                    //
+                    // The new pos of the vertex is the midpoitn of
+                    // the smoothed and original positions.
+                    verts[i] = PointF.Lerp(vertices[i], xi, 0.5f);
                 }
 
                 for(int i = 0; i < verts.Length; i++) {
