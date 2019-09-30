@@ -436,30 +436,55 @@ namespace Pirates_Nueva.Ocean
             }
         }
 
+        /// <summary>
+        /// Variables for the marching squares algorithm, held by reference.
+        /// </summary>
+        private ref struct OutlineParams
+        {
+            public Span<PointF> verts;
+            public int vCount;
+            public Span<(int a, int b)> edges;
+            public int eCount;
+        }
+
         static (Vertex[], Edge[]) FindOutline(bool[,] shape, Random r) {
             int width = shape.GetLength(0), height = shape.GetLength(1);
 
-            var vertices = new List<PointF>();
-            var edges = new List<(int a, int b)>();
-
-            findOutline();   // Generate an outline surrounding the island.
-            smoothOutline(); // Smooth the outline.
-            scaleOutline();  // Scale up the islands by a random amount.
-            jitterOutline(); // Roughen up the outline.
-            superOutline();  // Scale the island up by four.
-            alignOutline();  // Align the outline to the bottom left of this island.
-            return compile();
-            
-            /*
-             * Local Methods.
-             */
-            void findOutline() {
-                //
-                // Run the Marching Squares algorithm on the pixels.
-                // https://en.wikipedia.org/wiki/Marching_squares.
-                //
+            //
+            // Create some reference fields to hold
+            // values for a zero-alloc list pattern.
+            var @params = new OutlineParams() {
+                verts = stackalloc PointF[32],
+                vCount = 0,
+                edges = stackalloc (int, int)[32],
+                eCount = 0
+            };
+            //
+            // Run the Marching Squares algorithm on the pixels
+            // to generate an initial outline surrounding the Island.
+            // https://en.wikipedia.org/wiki/Marching_squares.
+            {
                 for(int x = -1; x < width; x++) {
                     for(int y = -1; y < height; y++) {
+                        //
+                        // If the array of edges is full,
+                        // increase its size.
+                        if(@params.eCount + 2 >= @params.edges.Length) {
+                            Span<(int a, int b)> _edges = stackalloc (int, int)[@params.edges.Length * 2];
+                            for(int i = 0; i < @params.edges.Length; i++)
+                                _edges[i] = @params.edges[i];
+                            @params.edges = _edges;
+                        }
+                        //
+                        // If the array of vertices is full,
+                        // increase its size.
+                        if(@params.vCount + 4 > @params.verts.Length) {
+                            Span<PointF> verts = stackalloc PointF[@params.verts.Length * 2];
+                            for(int i = 0; i < @params.verts.Length; i++)
+                                verts[i] = @params.verts[i];
+                            @params.verts = verts;
+                        }
+
                         var lookup = b(x, y + 1) << 3 | b(x + 1, y + 1) << 2 | b(x + 1, y) << 1 | b(x, y);
 
                         const float Whole = 1f;        // The width of a single cell.
@@ -474,74 +499,74 @@ namespace Pirates_Nueva.Ocean
                             // 0 0 //
                             // 1 0 //
                             case 1:
-                                addEdge((0, Half), (Half, 0), Ro2, Ro2);
+                                addEdge((0, Half), (Half, 0), Ro2, Ro2, ref @params);
                                 break;
                             // 0 0 //
                             // 0 1 //
                             case 2:
-                                addEdge((Half, 0), (Whole, Half), -Ro2, Ro2);
+                                addEdge((Half, 0), (Whole, Half), -Ro2, Ro2, ref @params);
                                 break;
                             // 0 0 //
                             // 1 1 //
                             case 3:
-                                addEdge((0, Half), (Whole, Half), 0, 1);
+                                addEdge((0, Half), (Whole, Half), 0, 1, ref @params);
                                 break;
                             // 0 1 //
                             // 0 0 //
                             case 4:
-                                addEdge((Half, Whole), (Whole, Half), -Ro2, -Ro2);
+                                addEdge((Half, Whole), (Whole, Half), -Ro2, -Ro2, ref @params);
                                 break;
                             // 0 1 //
                             // 1 0 //
                             case 5:
-                                addEdge((0, Half), (Half, Whole), -Ro2, Ro2);
-                                addEdge((Half, 0), (Whole, Half), Ro2, -Ro2);
+                                addEdge((0, Half), (Half, Whole), -Ro2, Ro2, ref @params);
+                                addEdge((Half, 0), (Whole, Half), Ro2, -Ro2, ref @params);
                                 break;
                             // 0 1 //
                             // 0 1 //
                             case 6:
-                                addEdge((Half, 0), (Half, Whole), -1, 0);
+                                addEdge((Half, 0), (Half, Whole), -1, 0, ref @params);
                                 break;
                             // 0 1 //
                             // 1 1 //
                             case 7:
-                                addEdge((0, Half), (Half, Whole), -Ro2, Ro2);
+                                addEdge((0, Half), (Half, Whole), -Ro2, Ro2, ref @params);
                                 break;
                             // 1 0 //
                             // 0 0 //
                             case 8:
-                                addEdge((0, Half), (Half, Whole), Ro2, -Ro2);
+                                addEdge((0, Half), (Half, Whole), Ro2, -Ro2, ref @params);
                                 break;
                             // 1 0 //
                             // 1 0 //
                             case 9:
-                                addEdge((Half, 0), (Half, Whole), 1, 0);
+                                addEdge((Half, 0), (Half, Whole), 1, 0, ref @params);
                                 break;
                             // 1 0 //
                             // 0 1 //
                             case 10:
-                                addEdge((0, Half), (Half, 0), -Ro2, -Ro2);
-                                addEdge((Half, Whole), (Whole, Half), Ro2, Ro2);
+                                addEdge((0, Half), (Half, 0), -Ro2, -Ro2, ref @params);
+                                addEdge((Half, Whole), (Whole, Half), Ro2, Ro2, ref @params);
                                 break;
                             // 1 0 //
                             // 1 1 //
                             case 11:
-                                addEdge((Half, Whole), (Whole, Half), Ro2, Ro2);
+                                addEdge((Half, Whole), (Whole, Half), Ro2, Ro2, ref @params);
                                 break;
                             // 1 1 //
                             // 0 0 //
                             case 12:
-                                addEdge((0, Half), (Whole, Half), 0, -1);
+                                addEdge((0, Half), (Whole, Half), 0, -1, ref @params);
                                 break;
                             // 1 1 //
                             // 1 0 //
                             case 13:
-                                addEdge((Half, 0), (Whole, Half), Ro2, -Ro2);
+                                addEdge((Half, 0), (Whole, Half), Ro2, -Ro2, ref @params);
                                 break;
                             // 1 1 //
                             // 0 1 //
                             case 14:
-                                addEdge((0, Half), (Half, 0), -Ro2, -Ro2);
+                                addEdge((0, Half), (Half, 0), -Ro2, -Ro2, ref @params);
                                 break;
                             // 1 1 //
                             // 1 1 //
@@ -550,18 +575,20 @@ namespace Pirates_Nueva.Ocean
                                 break;
                         }
 
-                        void addEdge(PointF alpha, PointF beta, float normalX, float normalY) {
-                            var indices = (makeIndex((x, y) + alpha), makeIndex((x, y) + beta));
-                            edges.Add(indices);
 
-                            int makeIndex(PointF v) {
-                                var i = vertices.IndexOf(v);   // Get the index of the specified vertex.
-                                if(i >= 0) {                   // If the index exists,
-                                    return i;                  //     return it.
-                                }                              //
-                                else {                         // If the index does NOT exist,
-                                    vertices.Add(v);           //     add the specified vertex,
-                                    return vertices.Count - 1; //     and return its index.
+                        void addEdge(PointF alpha, PointF beta, float normalX, float normalY, ref OutlineParams @params) {
+                            var indices = (makeIndex((x, y) + alpha, ref @params), makeIndex((x, y) + beta, ref @params));
+                            @params.edges[@params.eCount] = indices;
+                            @params.eCount++;
+
+                            static int makeIndex(PointF v, ref OutlineParams @params) {
+                                var i = @params.verts.IndexOf(v);      // Get the index of the specified vertex.
+                                if(i >= 0) {                           // If the index exists,
+                                    return i;                          //     return it.
+                                }                                      //
+                                else {                                 // If the index does NOT exist,
+                                    @params.verts[@params.vCount] = v; //     add the specified vertex,
+                                    return @params.vCount++;           // and return its index.
                                 }
                             }
                         }
@@ -569,33 +596,57 @@ namespace Pirates_Nueva.Ocean
                         int b(int g, int h) => g >= 0 && g < width && h >= 0 && h < height && shape[g, h] ? 1 : 0;
                     }
                 }
+
+                //
+                // Slice down the arrays of vertices and edges.
+                @params.verts = @params.verts.Slice(0, @params.vCount);
+                @params.edges = @params.edges.Slice(0, @params.eCount);
             }
 
-            void smoothOutline() {
-                Span<PointF> verts = stackalloc PointF[vertices.Count];
+            ref var vertices = ref @params.verts;
+            ref var edges = ref @params.edges;
+            smoothOutline(vertices, edges);               // Smooth the outline.
+            scaleOutline(ref vertices, ref edges);        // Scale up the islands by a random amount.
+            jitterOutline(vertices);                      // Roughen up the outline.
+            superOutline(vertices);                       // Scale the island up by four.
+            alignOutline(vertices);                       // Align the outline to the bottom left of this island.
+            return compile(vertices, edges);
+            
+            /*
+             * Local Methods.
+             */
+            static void smoothOutline(Span<PointF> vertices, Span<(int a, int b)> edges) {
+                Span<PointF> verts = stackalloc PointF[vertices.Length];
 
                 //
                 // Apply Laplacian smoothing to the outline.
                 // https://en.wikipedia.org/wiki/Laplacian_smoothing.
                 //
-                for(int i = 0; i < vertices.Count; i++) {       // For every vertex in this island's outline:
-                    var neighbors = from n in edges             // Get each neighbor of the vertex.
-                                    where n.a == i || n.b == i  //
-                                    select vertices[            //
-                                        n.a == i ? n.b : n.a    //
-                                        ];                      //
-                                                                //
-                    var xi = PointF.Zero;                       // The smoothed position of the vertex.
-                    int count = 0;                              // How many neighbors it has.
-                    foreach(var n in neighbors) {               // For every neighbor:
-                        xi += n;                                //     Add its position to the smoothed position,
-                        count++;                                //     and increment the neighbor count.
-                    }                                           //
-                    xi /= count;                                // Divide the smoothed position by the number of neighbors.
-                                                                //
-                    verts[i] = PointF.Lerp(                     // Set the new position of the vertex
-                        vertices[i], xi, 0.5f                   //     as the midpoint between the smoothed
-                        );                                      //     position & its original position.
+                for(int i = 0; i < vertices.Length; i++) {
+                    //
+                    // Get each neighbor of the vertex:
+                    // Each vertex that is connected to the current one by an Edge.
+                    Span<PointF> ns = stackalloc PointF[4];
+                    int count = 0;
+                    foreach(var e in edges) {
+                        if(e.a == i || e.b == i) {
+                            if(count >= ns.Length)
+                                ns = stackalloc PointF[ns.Length * 2];
+                            ns[count] = vertices[e.a == i ? e.b : e.a];
+                            count++;
+                        }
+                    }
+                    //
+                    // Find the smoothed position of the vertex by averaging its neighbors' positions.
+                    var xi = PointF.Zero;
+                    foreach(var n in ns) {
+                        xi += n; 
+                    }
+                    xi /= count;
+                    //
+                    // The new pos of the vertex is the midpoitn of
+                    // the smoothed and original positions.
+                    verts[i] = PointF.Lerp(vertices[i], xi, 0.5f);
                 }
 
                 for(int i = 0; i < verts.Length; i++) {
@@ -603,7 +654,7 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            void alignOutline() {
+            static void alignOutline(Span<PointF> vertices) {
                 float leftmost = float.MaxValue;
                 float bottommost = float.MaxValue;
                 //
@@ -615,50 +666,57 @@ namespace Pirates_Nueva.Ocean
                         bottommost = v.Y;
                 }
 
-                for(int i = 0; i < vertices.Count; i++) {      // For every vertex:
+                for(int i = 0; i < vertices.Length; i++) {     // For every vertex:
                     vertices[i] -= (leftmost-1, bottommost-1); //     slide it to be aligned against the bottom left corner.
                 }
             }
 
-            void scaleOutline() {
+            void scaleOutline(ref Span<PointF> vertices, ref Span<(int a, int b)> edges) {
                 float scale = (float)r.NextDouble() + r.Next(1, 3); // Choose a random float between 1 and 3.
 
-                for(int i = 0; i < vertices.Count; i++) { // For every vertex,
-                    vertices[i] *= scale;                 //     multiply it by the scale.
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex,
+                    vertices[i] *= scale;                  //     multiply it by the scale.
                 }
 
-                if(scale > 1.5f) {      // If the island was scaled up a lot,
-                    subdivideOutline(); //     subdivide it,
-                    smoothOutline();    //     and then smooth it.
+                if(scale > 1.5f) {                             // If the island was scaled up a lot,
+                    subdivideOutline(ref vertices, ref edges); //     subdivide it,
+                    smoothOutline(vertices, edges);            //     and then smooth it.
                 }
             }
 
-            void subdivideOutline() {
-                var _vertices = new List<PointF>(vertices);
-                var _edges = new List<(int a, int b)>(edges.Count * 2);
-                foreach(var e in edges) {                        // For every edge:
-                    var v = (vertices[e.a] + vertices[e.b]) / 2; //
+            static void subdivideOutline(ref Span<PointF> vertices, ref Span<(int a, int b)> edges) {
+                //
+                // Make new arrays of vertices and edges.
+                // We know how big they should be, as the subdivision algorithm is deterministic.
+                var _vertices = new PointF[vertices.Length + edges.Length];
+                for(int i = 0; i < vertices.Length; i++)
+                    _vertices[i] = vertices[i];
+                var _edges = new (int a, int b)[edges.Length * 2];
+                //
+                // For every edge:
+                for(int i = 0; i < edges.Length; i++) {
+                    ref var e = ref edges[i];
+                    var v = (vertices[e.a] + vertices[e.b]) / 2; // Make a new vertex in the middle of the edge.
+                    var vi = vertices.Length + i;                // Figure out the vertex's index.
+                    _vertices[vi] = v;                           //
                                                                  //
-                    _vertices.Add(v);                            // Add that vertex to the list of vertices.
-                    var i = _vertices.Count - 1;                 //
-                                                                 //
-                    _edges.Add((e.a, i));                        // Make an edge between the 1st vertex and the new one.
-                    _edges.Add((i, e.b));                        // Make an edge between the 2nd vertex and the new one.
+                    _edges[i * 2    ] = (e.a, vi);               // Make an edge between the 1st vertex and the new one.
+                    _edges[i * 2 + 1] = (vi, e.b);               // Make an edge between the 2nd vertex and the new one.
                 }
 
                 vertices = _vertices;
                 edges = _edges;
             }
 
-            void jitterOutline() {
+            void jitterOutline(Span<PointF> vertices) {
                 float s = 0;                 // The extents of this island.
                 foreach(var v in vertices) { // For every vertex:
                     s = Math.Max(s, v.X);    //     Update the extents if the x coord of the vertex is larger.
-                    s = Math.Max(s, v.X);    //     Update the extents if the y coord of the vertex is larger.
+                    s = Math.Max(s, v.Y);    //     Update the extents if the y coord of the vertex is larger.
                 }
                 s = (s + 25) / 2;
 
-                for(int i = 0; i < vertices.Count; i++) {  // For every vertex:
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
                     var jitter = new PointF(j(), j());     // A vector; each component is between -1 & +1.
                     if(jitter.SqrMagnitude > 1)            // If the vector is larger than 1,
                         jitter = jitter.Normalized;        //     normalize it.
@@ -669,24 +727,24 @@ namespace Pirates_Nueva.Ocean
                 float j() => (float)r.NextDouble() * (r.Next(0, 10) < 5 ? 1 : -1); // Get a # between -1 and +1.
             }
 
-            void superOutline() {
+            static void superOutline(Span<PointF> vertices) {
                 const float scale = 4f;
-                for(int i = 0; i < vertices.Count; i++) { // For every vertex:
-                    vertices[i] *= scale;                 // Scale it up 4 times.
+                for(int i = 0; i < vertices.Length; i++) { // For every vertex:
+                    vertices[i] *= scale;                  // Scale it up 4 times.
                 }
             }
 
-            (Vertex[], Edge[]) compile() {
+            static (Vertex[], Edge[]) compile(Span<PointF> vertices, Span<(int a, int b)> edges) {
                 //
                 // Project each edge into a specialized struct.
-                var finalEdges = new Edge[edges.Count];
+                var finalEdges = new Edge[edges.Length];
                 for(int i = 0; i < finalEdges.Length; i++) {
                     var (a, b) = edges[i];
                     finalEdges[i] = new Edge(a, b);
                 }
                 //
                 // Project each vertex into a specialized struct.
-                var finalVertices = new Vertex[vertices.Count];
+                var finalVertices = new Vertex[vertices.Length];
                 for(int i = 0; i < finalVertices.Length; i++) { // For each vertex:
                     var (x, y) = vertices[i];                   // Store the vertex's position.
                     finalVertices[i] = new Vertex(x, y);        // Create a Vertex struct with the info.
