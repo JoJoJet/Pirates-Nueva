@@ -459,8 +459,6 @@ namespace Pirates_Nueva.Ocean
                 edges = stackalloc (int, int)[32],
                 eCount = 0
             };
-            ref var vertices = ref @params.verts; 
-            ref var edges = ref @params.edges;
             //
             // Run the Marching Squares algorithm on the pixels
             // to generate an initial outline surrounding the Island.
@@ -604,6 +602,9 @@ namespace Pirates_Nueva.Ocean
                 @params.verts = @params.verts.Slice(0, @params.vCount);
                 @params.edges = @params.edges.Slice(0, @params.eCount);
             }
+
+            ref var vertices = ref @params.verts;
+            ref var edges = ref @params.edges;
             smoothOutline(vertices, edges);               // Smooth the outline.
             scaleOutline(ref vertices, ref edges);        // Scale up the islands by a random amount.
             jitterOutline(vertices);                      // Roughen up the outline.
