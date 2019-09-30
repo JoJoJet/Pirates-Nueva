@@ -654,6 +654,7 @@ namespace Pirates_Nueva.Ocean
                     ref var e = ref edges[i];
                     var v = (vertices[e.a] + vertices[e.b]) / 2; // Make a new vertex in the middle of the edge.
                     var vi = vertices.Count + i;                 // Figure out the vertex's index.
+                    _vertices[vi] = v;                           //
                                                                  //
                     _edges[i * 2    ] = (e.a, vi);               // Make an edge between the 1st vertex and the new one.
                     _edges[i * 2 + 1] = (vi, e.b);               // Make an edge between the 2nd vertex and the new one.
