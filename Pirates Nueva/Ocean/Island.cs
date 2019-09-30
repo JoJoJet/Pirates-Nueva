@@ -641,16 +641,22 @@ namespace Pirates_Nueva.Ocean
             }
 
             void subdivideOutline() {
-                var _vertices = new List<PointF>(vertices);
-                var _edges = new List<(int a, int b)>(edges.Count * 2);
-                foreach(var e in edges) {                        // For every edge:
-                    var v = (vertices[e.a] + vertices[e.b]) / 2; //
+                //
+                // Make new arrays of vertices and edges.
+                // We know how big they should be, as the subdivision algorithm is deterministic.
+                var _vertices = new List<PointF>(vertices.Length + edges.Length);
+                for(int i = 0; i < vertices.Length; i++)
+                    _vertices[i] = vertices[i];
+                var _edges = new List<(int a, int b)>(edges.Length * 2);
+                //
+                // For every edge:
+                for(int i = 0; i < edges.Count; i++) {
+                    ref var e = ref edges[i];
+                    var v = (vertices[e.a] + vertices[e.b]) / 2; // Make a new vertex in the middle of the edge.
+                    var vi = vertices.Count + i;                 // Figure out the vertex's index.
                                                                  //
-                    _vertices.Add(v);                            // Add that vertex to the list of vertices.
-                    var i = _vertices.Count - 1;                 //
-                                                                 //
-                    _edges.Add((e.a, i));                        // Make an edge between the 1st vertex and the new one.
-                    _edges.Add((i, e.b));                        // Make an edge between the 2nd vertex and the new one.
+                    _edges[i * 2    ] = (e.a, vi);               // Make an edge between the 1st vertex and the new one.
+                    _edges[i * 2 + 1] = (vi, e.b);               // Make an edge between the 2nd vertex and the new one.
                 }
 
                 vertices = _vertices;
