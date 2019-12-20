@@ -197,7 +197,7 @@ namespace Pirates_Nueva
             int depth = 0;
             while(type != parent) {
                 ++depth;
-                type = type.BaseType;
+                type = type.BaseType!;
             }
             return depth;
         }
@@ -205,10 +205,11 @@ namespace Pirates_Nueva
         /// Gets the inheritance depth of this <see cref="Type"/>.
         /// </summary>
         public static int GetInheritanceDepth(this Type type) {
+            Type? t = type;
             int depth = 0;
-            while(type != null) {
+            while(t != null) {
                 ++depth;
-                type = type.BaseType;
+                t = t.BaseType;
             }
             return depth;
         }

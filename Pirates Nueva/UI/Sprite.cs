@@ -54,7 +54,7 @@ namespace Pirates_Nueva.UI
 
             // Create a nine-sliced texture from the source and paramaters,
             // OR: fetch the cached one if we have previously created one with these parameters.
-            if(textures.TryGetValue($"{def.ID}_{width}_{height}", out var tex) == false) {
+            if(!textures.TryGetValue($"{def.ID}_{width}_{height}", out var tex)) {
                 tex = CreateTex(def, width, height, master);
             }
             Source = tex;

@@ -35,7 +35,7 @@ namespace Pirates_Nueva
         /// <summary>
         /// Returns whether or not this <see cref="Pair{T}"/> is equal to the specified object.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is Pair<T> other && other.Equals(this);
 
         public static bool operator ==(Pair<T> a, Pair<T> b) => a.Equals(b);

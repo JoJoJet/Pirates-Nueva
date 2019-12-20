@@ -44,7 +44,7 @@ namespace Pirates_Nueva
         /// Get the button associated with the specified key.
         /// </summary>
         public Button GetKey(Keys which) {
-            if(this._keys.TryGetValue(which, out Button b)) {
+            if(this._keys.TryGetValue(which, out var b)) {
                 return b;
             }
             else {

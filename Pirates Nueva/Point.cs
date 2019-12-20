@@ -54,7 +54,7 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X}, {Y})";
 
-        public override bool Equals(object obj) => obj switch {
+        public override bool Equals(object? obj) => obj switch {
             PointI p       => Equals(p),
             (int x, int y) => x == X && y == Y,
             _              => false
@@ -157,7 +157,7 @@ namespace Pirates_Nueva
 
         public override string ToString() => $"({X:.00}, {Y:.00})";
 
-        public override bool Equals(object obj) => obj switch {
+        public override bool Equals(object? obj) => obj switch {
             PointF p           => Equals(p),
             (float x, float y) => x == X && y == Y,
             _                  => false

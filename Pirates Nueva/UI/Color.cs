@@ -63,7 +63,7 @@ namespace Pirates_Nueva.UI
             static byte c(float f) => (byte)((f > 1f ? 1f : (f < 0 ? 0 : f)) * 255);
         }
 
-        public override bool Equals(object obj) => obj switch {
+        public override bool Equals(object? obj) => obj switch {
             Color c     => Equals(c),
             MonoColor m => m.R == R && m.G == G && m.B == B && m.A == A,
             _           => false

@@ -141,7 +141,7 @@ namespace Pirates_Nueva
         public override string ToString() => Radians != 0 ? $"{Radians/HalfTurn:0.###}π" : "0";
 
         public bool Equals(Angle other) => Radians == other.Radians;
-        public override bool Equals(object obj) => obj switch
+        public override bool Equals(object? obj) => obj switch
         {
             Angle a       => Radians == a.Radians,
             SignedAngle a => Radians == ((Angle)a).Radians,
@@ -288,7 +288,7 @@ namespace Pirates_Nueva
         #region Overriden Methods and Operators
         public override string ToString() => Radians != 0 ? $"{Radians/HalfTurn:0.###}π" : "0";
 
-        public override bool Equals(object obj) => throw new NotImplementedException();
+        public override bool Equals(object? obj) => throw new NotImplementedException();
         public override int GetHashCode() => throw new NotImplementedException();
 
         public static implicit operator float(in SignedAngle ang)
