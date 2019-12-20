@@ -64,10 +64,8 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private PointI RootIndex => Def.RootIndex;
 
-        /// <summary>
-        /// Create a ship with specified /width/ and /height/.
-        /// </summary>
-        public Ship(Sea sea, ShipDef def, Faction faction) : base(sea) {
+        public Ship(Sea sea, ShipDef def, Faction faction) : base(sea)
+        {
             Def = def;
             Faction = faction;
             Transformer = new Space<Ship, ShipTransformer>(this);
@@ -81,6 +79,10 @@ namespace Pirates_Nueva.Ocean
             }
 
             AddAgent(RootX, RootY); // Add an agent to the center.
+        }
+        public Ship(Sea sea, ShipDef def, Faction faction, PointF center) : this(sea, def, faction)
+        {
+            Center = center;
         }
 
         /// <summary>

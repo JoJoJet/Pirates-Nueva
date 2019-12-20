@@ -85,6 +85,11 @@ namespace Pirates_Nueva.Ocean
                     }
                 }
             }
+
+            //
+            // Add enemy ships.
+            var enemyFaction = new Faction(isPlayer: false);
+            AddEntity(new Ship(this, ShipDef.Get("dinghy"), enemyFaction, (5, 35)));
         }
 
         public Chunk this[int xIndex, int yIndex] => this.chunks[xIndex, yIndex];
