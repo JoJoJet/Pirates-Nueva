@@ -65,14 +65,17 @@ namespace Pirates_Nueva
 
         const string MouseDebugID = "debug_mouse";
         const string CameraDebugID = "debug_cameraPosition";
-        internal PlayerController(Master master, Sea sea, Faction faction) {
+        internal PlayerController(Master master, Sea sea) {
             Master = master;
-            Faction = faction;
             Sea = sea;
 
             //
+            // Create a Faction for this player.
+            Faction = new Faction(isPlayer: true);
+
+            //
             // Add the player's ship.
-            Sea.AddEntity(new Ship(Sea, ShipDef.Get("dinghy"), faction));
+            Sea.AddEntity(new Ship(Sea, ShipDef.Get("dinghy"), Faction));
 
             master.GUI.AddEdge(MouseDebugID, Edge.Top, Direction.Right, new MutableText<Edge>("mouse position", master.Font));
             master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
