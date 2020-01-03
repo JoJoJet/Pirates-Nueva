@@ -47,8 +47,6 @@ namespace Pirates_Nueva
         [DebuggerBrowsable(DebuggerBrowsableState.Never)] private SpriteBatch? spriteBatch;
         private GraphicsDeviceManager graphics;
 
-        private readonly List<Faction> factions = new List<Faction>();
-
         public UI.Font Font => this.font ?? ThrowNotInitialized<UI.Font>(nameof(Master));
 
         public Input Input { get; }
@@ -110,13 +108,10 @@ namespace Pirates_Nueva
         private void AfterContentLoad() {
             this.renderer = new Renderer(this, SpriteBatch);
 
-            var faction = new Faction(isPlayer: true);
-            factions.Add(faction);
-
             // Initialize the Sea object.
             this.sea = new Sea(this);
 
-            this.player = new PlayerController(this, Sea, faction);
+            this.player = new PlayerController(this, Sea);
         }
 
         /// <summary>
@@ -202,7 +197,7 @@ namespace Pirates_Nueva
             int depth = 0;
             while(type != parent) {
                 ++depth;
-                type = type.BaseType;
+                type = type.BaseType!;
             }
             return depth;
         }
@@ -210,10 +205,11 @@ namespace Pirates_Nueva
         /// Gets the inheritance depth of this <see cref="Type"/>.
         /// </summary>
         public static int GetInheritanceDepth(this Type type) {
+            Type? t = type;
             int depth = 0;
-            while(type != null) {
+            while(t != null) {
                 ++depth;
-                type = type.BaseType;
+                t = t.BaseType;
             }
             return depth;
         }

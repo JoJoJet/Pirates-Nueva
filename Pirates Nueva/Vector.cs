@@ -56,7 +56,7 @@ namespace Pirates_Nueva
         public static Angle MeasureAngle(in Vector a, in Vector b)
             => (Angle)(MathF.Atan2(b.Y, b.X) - MathF.Atan2(a.Y, a.X));
 
-        public override bool Equals(object obj) => obj switch {
+        public override bool Equals(object? obj) => obj switch {
             Vector v           => Equals(v),
             (float x, float y) => x == X && y == Y,
             _                  => false

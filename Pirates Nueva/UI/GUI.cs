@@ -27,6 +27,14 @@ namespace Pirates_Nueva.UI
             public EdgeDrawer(TScreenDrawer screenDrawer)
                 => ScreenDrawer = screenDrawer;
 
+            public void DrawCorner(Sprite sprite, float left, float top, float width, float height, in Color tint)
+                => ScreenDrawer.DrawCorner(sprite, left, top, width, height, in tint);
+            public void Draw(Sprite sprite, float x, float y, float width, float height,
+                             in Angle angle, in PointF origin, in Color tint)
+                => ScreenDrawer.Draw(sprite, x, y, width, height, angle, origin, tint);
+            public void DrawLine<T>(in PointF start, in PointF end, in Color color)
+                => ScreenDrawer.DrawLine(start, end, color);
+
             public void DrawCornerAt<T>(Sprite sprite, float left, float top, float width, float height, in Color tint)
                 => ScreenDrawer.DrawCornerAt<T>(sprite, left, top, width, height, in tint);
             public void DrawAt<T>(Sprite sprite, float x, float y, float width, float height,
