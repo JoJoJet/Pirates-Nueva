@@ -48,12 +48,18 @@ namespace Pirates_Nueva
 
     public class PlayerController : IUpdatable
     {
+        private enum Mode { Focus = 0, PlaceEnemy };
+
         private PointI mouseFirst;
         private PointF cameraFirst;
+
+        private Mode mode;
 
         public Master Master { get; }
 
         public Faction Faction { get; }
+
+        internal Faction EnemyFaction { get; }
 
         private Sea Sea { get; }
 
@@ -65,6 +71,7 @@ namespace Pirates_Nueva
 
         const string MouseDebugID = "debug_mouse";
         const string CameraDebugID = "debug_cameraPosition";
+        const string PlaceEnemyDebugID = "debug_placeEnemy";
         internal PlayerController(Master master, Sea sea) {
             Master = master;
             Sea = sea;
@@ -72,6 +79,7 @@ namespace Pirates_Nueva
             //
             // Create a Faction for this player.
             Faction = new Faction(isPlayer: true);
+            EnemyFaction = new Faction(isPlayer: false);
 
             //
             // Add the player's ship.
@@ -79,51 +87,97 @@ namespace Pirates_Nueva
 
             master.GUI.AddEdge(MouseDebugID, Edge.Top, Direction.Right, new MutableText<Edge>("mouse position", master.Font));
             master.GUI.AddEdge(CameraDebugID, Edge.Top, Direction.Left, new MutableText<Edge>("camera", master.Font));
+
+            master.GUI.AddEdge(PlaceEnemyDebugID, Edge.Bottom, Direction.Right,
+                               new Button<Edge>("Place enemy", master.Font, () => this.mode = Mode.PlaceEnemy)
+                               );
         }
 
-        void IUpdatable.Update(in UpdateParams @params) {
+        void IUpdatable.Update(in UpdateParams @params)
+        {
             var master = @params.Master;
-            if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI // If the user clicked, but it not on GUI,
-                && (!FocusProvider?.IsLocked ?? true)) {                   // and if the current focus isn't locked:
-
-                var (seaX, seaY) = Sea.MousePosition;
-                var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));  // Get any focusable objects under the mouse.
-
-                var oldFocused = Focused;        // Save a copy of the old focused object.
-                var oldFocusable = Focusable;    // Save a copy of the old focusable objects.
-                Focusable = focusable.ToArray(); // Assign the new focusable objects.
-
-                bool qualify(int i) => i < Focusable.Length && i < oldFocusable.Length;
-                for(int i = 0; qualify(i); i++) {           // For each focusable element:
-                    if(i == FocusIndex) {                   // if its index is the same as the old focused element:
-                        if(Focusable[i] == oldFocusable[i]) //     If the old and new sets have been equal up to here,
-                            FocusIndex = i+1;               //         set the index of focus to be the current index + 1.
-                        break;                              //     Also: break from the loop.
-                    }                                       // Otherwise:
-                    if(Focusable[i] != oldFocusable[i]) {   // If the current element is the previous focusable element at this position,
-                        FocusIndex = i;                     //     set the index of focus to be the current index,
-                        break;                              //     and break from the loop.
+            switch(this.mode) {
+                case Mode.PlaceEnemy:
+                    //
+                    // If the user clicks, place an enemy there and exit enemy placing mode.
+                    if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI) {
+                        Sea.AddEntity(new Ship(Sea, ShipDef.Get("dinghy"), EnemyFaction, Sea.MousePosition));
+                        this.mode = Mode.Focus;
                     }
-                }
+                    break;
 
-                if(Focusable.Length > 0)            // If the set of focusable elements is NOT empty,
-                    FocusIndex %= Focusable.Length; //     make sure the index of focus isn't greater than the length of the set.
-                else                                // If the set of focusable elements IS empty,
-                    FocusIndex = 0;                 //     set the index of focus to be zero.
+                case Mode.Focus:
+                    //
+                    // If the user clicked on anything other than GUI, and if the current focus isn't locked,
+                    // change what the user is focusing on.
+                    if(master.Input.MouseLeft.IsDown && !master.GUI.IsMouseOverGUI
+                       && (!FocusProvider?.IsLocked ?? true)) {
+                        //
+                        // Get a list of focusable objects under the mouse.
+                        var (seaX, seaY) = Sea.MousePosition;
+                        var focusable = (Sea as IFocusableParent).GetFocusable((seaX, seaY));
+                        //
+                        // Make a local copy of the last object that was being focused on,
+                        // as well as all of the objects that were under the mouse last time.
+                        var oldFocused = Focused;
+                        var oldFocusable = Focusable;
+                        Focusable = focusable.ToArray();
+                        //
+                        // Iterate over the old and new lists of focusable objects at the same time.
+                        for(int i = 0; i < Focusable.Length && i < oldFocusable.Length; i++) {
+                            //
+                            // If the current index in the lists is the same
+                            // index as the element we were previously focusing on,
+                            // that means all of the focusable objects in the list up to this point
+                            // are the same as the focusable objects from last time.
+                            if(i == FocusIndex) {
+                                // If the objects at this position are the same,
+                                // increase FocusIndex in order to set the focus on the subsequent object.
+                                if(Focusable[i] == oldFocusable[i])
+                                    FocusIndex = i+1;
+                                //
+                                // If the objects at this position are different,
+                                // that means they have changed since last time. Leave FocusIndex as-is.
+                                break;
+                            }
+                            //
+                            // If we are looking at a position in the loops that
+                            // comes before the element on which we were previously focusing on,
+                            // Check if the list of focusable elmenents has changed since the last time this method was run.
+                            // If it has, set FocusIndex to be the current index in the list, and break from the loop.
+                            if(Focusable[i] != oldFocusable[i]) {
+                                FocusIndex = i;
+                                break;
+                            }
+                        }
+                        //
+                        // Make FocusIndex wrap around the list of focusable elements.
+                        if(Focusable.Length > 0)
+                            FocusIndex %= Focusable.Length;
+                        else
+                            FocusIndex = 0;
 
-                if(Focused != oldFocused) {                       // If the focused object has changed,
-                    if(oldFocused != null)                        //
-                        oldFocused.IsFocused = false;             //
-                    FocusProvider?.Close(master);                 //     close the old menu,
-                    if(Focused != null)                           //
-                        Focused.IsFocused = true;                 //
-                    FocusProvider = Focused?.GetProvider(master); //     and create a new one.
-                }
+                        //
+                        // If the focus has changed,
+                        // close the old focus provider,
+                        // and get a focus provider for the new object.
+                        if(Focused != oldFocused) {
+                            if(oldFocused != null)
+                                oldFocused.IsFocused = false;
+                            FocusProvider?.Close(master);
+                            if(Focused != null)
+                                Focused.IsFocused = true;
+                            FocusProvider = Focused?.GetProvider(master);
+                        }
+                    }
+                    //
+                    // Update the current focus provider, if it exists.
+                    FocusProvider?.Update(master);
+                    break;
             }
 
-            FocusProvider?.Update(master); // If there's a focus provider, update it.
-
-
+            //
+            // We always allow the user to move the camera, no matter what mode they're in.
             if(master.Input.MouseWheel.IsDown) {                    // When the user clicks the scrollwheel,
                 mouseFirst = master.Input.MousePosition;            //     store the position of the mouse
                 cameraFirst = (Sea.Camera.Left, Sea.Camera.Bottom); //     and of the camera.
