@@ -110,13 +110,9 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Finds and returns an <see cref="Entity"/> that matches the specified predicate.
-        /// Returns null if no such entity exists.
+        /// Finds and returns an entity that matches the specified predicate.
         /// </summary>
-        /// <typeparam name="T">The type of entity to search for.</typeparam>
-        public T? FindEntity<T>(Predicate<T> finder)
-            where T : Entity
-            => this.entities.Select(e => e as T).Where(t => t != null && finder(t)).FirstOrDefault();
+        public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
 
         /// <summary>
         /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
