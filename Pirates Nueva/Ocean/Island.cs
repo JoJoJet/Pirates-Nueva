@@ -45,6 +45,7 @@ namespace Pirates_Nueva.Ocean
             this.blocks = FindBlocks(this, vertices, edges);
         }
 
+        #region Shape Generation
         static bool[,] GenerateShape(Random r) {
             const int Width = 15, Height = 15;
 
@@ -790,7 +791,9 @@ namespace Pirates_Nueva.Ocean
 
             return blocks;
         }
+        #endregion
 
+        #region Collision
         private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, PointF p) {
             int cn = 0;
             foreach(var E in edges) {
@@ -869,7 +872,7 @@ namespace Pirates_Nueva.Ocean
             sqrDistance = sqrDist;
             return intersects;
         }
-        
+        #endregion
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Sea;
         ISpace ISpaceLocus.Transformer => Transformer;
