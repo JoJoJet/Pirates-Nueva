@@ -144,7 +144,8 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
         /// </summary>
-        public bool TryGetBlock(int x, int y, [NotNullWhen(true)] out Block? block) {
+        public bool TryGetBlock(int x, int y, [NotNullWhen(true)] out Block? block)
+        {
             if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
                 block = b;
                 return true;
@@ -378,7 +379,7 @@ namespace Pirates_Nueva.Ocean
 
         #region Job Accessor Methods
         /// <summary> Creates a job with the specified <see cref="Job{Ship, Block}.Toil"/>. </summary>
-        public Job<Ship, Block> CreateJob(int x, int y, Job<Ship, Block>.Toil task) {
+        public Job<Ship, Block> CreateJob(int x, int y, Toil task) {
             var j = new Job<Ship, Block>(this, x, y, task);
             this.jobs.Add(j);
             return j;
