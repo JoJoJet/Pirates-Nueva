@@ -11,9 +11,9 @@ namespace Pirates_Nueva.Ocean
         private readonly List<Island> islands = new List<Island>();
         private readonly Chunk[,] chunks;
 
-        private readonly List<Entity> entities     = new List<Entity>(),
-                                      addBuffer    = new List<Entity>(),
-                                      removeBuffer = new List<Entity>();
+        private readonly List<IEntity> entities     = new List<IEntity>(),
+                                       addBuffer    = new List<IEntity>(),
+                                       removeBuffer = new List<IEntity>();
 
         public int ChunksWidth => this.chunks.GetLength(0);
         public int ChunksHeight => this.chunks.GetLength(1);
@@ -99,20 +99,20 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
-        public void AddEntity(Entity entity) {
+        public void AddEntity(IEntity entity) {
             this.addBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         }
         /// <summary>
         /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.
         /// </summary>
-        public void RemoveEntity(Entity entity) {
+        public void RemoveEntity(IEntity entity) {
             this.removeBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         }
 
         /// <summary>
         /// Finds and returns an entity that matches the specified predicate.
         /// </summary>
-        public Entity FindEntity(Predicate<Entity> finder) => this.entities.First(e => finder(e));
+        public IEntity FindEntity(Predicate<IEntity> finder) => this.entities.First(e => finder(e));
 
         /// <summary>
         /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
