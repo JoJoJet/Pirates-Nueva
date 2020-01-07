@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Island : ISpaceLocus<Island>, IDrawable<Sea>
+    public sealed class Island : BlockContainer<IslandBlock>, ISpaceLocus<Island>, IDrawable<Sea>
     {
         private readonly IslandBlock?[,] blocks;
 
@@ -39,9 +39,7 @@ namespace Pirates_Nueva.Ocean
             Random r = new Random(rngSeed);
 
             var shape = GenerateShape(r);
-
             var (vertices, edges) = FindOutline(shape, r);
-
             this.blocks = FindBlocks(this, vertices, edges);
         }
 
@@ -892,6 +890,8 @@ namespace Pirates_Nueva.Ocean
             }
         }
         #endregion
+
+        protected override IslandBlock?[,] GetBlockGrid() => this.blocks;
 
         readonly struct Edge
         {

@@ -13,7 +13,7 @@ namespace Pirates_Nueva.Ocean
     using Agent = Agent<Ship, Block>;
     using Stock = Stock<Ship, Block>;
     using Toil = Job<Ship, Block>.Toil;
-    public class Ship :
+    public class Ship : BlockContainer<Block>,
         IEntity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
         IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
@@ -91,17 +91,6 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Gets the block at index (/x/, /y/).
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block? this[int x, int y] {
-            get {
-                ValidateIndices("Indexer", x, y);
-                return unsafeGetBlock(x, y);
-            }
-        }
-
-        /// <summary>
         /// Returns whether or not the input point is colliding with this <see cref="Ship"/>.
         /// </summary>
         public bool IsColliding(PointF point)
@@ -143,36 +132,6 @@ namespace Pirates_Nueva.Ocean
 
         #region Block Accessor Methods
         /// <summary>
-        /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
-        /// </summary>
-        public bool TryGetBlock(int x, int y, [NotNullWhen(true)] out Block? block)
-        {
-            if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
-                block = b;
-                return true;
-            }
-            else {
-                block = null;
-                return false;
-            }
-        }
-        /// <summary>
-        /// Gets the <see cref="Block"/> at indices (/x/, /y/), or <see cref="null"/> if it does not exist.
-        /// </summary>
-        public Block? GetBlockOrNull(int x, int y) {
-            if(AreIndicesValid(x, y))
-                return unsafeGetBlock(x, y);
-            else
-                return null;
-        }
-        /// <summary>
-        /// Returns whether or not there is a <see cref="Block"/> at position (/x/, /y/).
-        /// </summary>
-        public bool HasBlock(int x, int y)
-            => AreIndicesValid(x, y) && unsafeGetBlock(x, y) != null;
-
-
-        /// <summary>
         /// Places a <see cref="Block"/> with specified <see cref="Def"/> at position /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
@@ -212,6 +171,8 @@ namespace Pirates_Nueva.Ocean
                     );
             }
         }
+
+        protected sealed override Block?[,] GetBlockGrid() => this.blocks;
         #endregion
 
         #region Furniture Accessor Methods
@@ -489,7 +450,7 @@ namespace Pirates_Nueva.Ocean
         private void FillForwardProbes(Span<PointF?> probes) {
             for(int y = 0; y < Width; y++) {
                 for(int x = Length-1; x >= 0; x--) {
-                    if(this[x, y] != null) {
+                    if(unsafeGetBlock(x, y) != null) {
                         probes[y * 2    ] = new PointF(x + 0.5f, y + 1 / 3f);
                         probes[y * 2 + 1] = new PointF(x + 0.5f, y + 2 / 3f);
                         break;
