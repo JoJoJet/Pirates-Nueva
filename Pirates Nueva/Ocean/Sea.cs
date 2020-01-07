@@ -99,7 +99,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
-        public void AddEntity<T>(IEntity entity)
+        public void AddEntity(IEntity entity)
             => this.addBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         /// <summary>
         /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.

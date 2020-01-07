@@ -13,8 +13,8 @@ namespace Pirates_Nueva.Ocean
     using Agent = Agent<Ship, Block>;
     using Stock = Stock<Ship, Block>;
     using Toil = Job<Ship, Block>.Toil;
-    public class Ship : Entity,
-        IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
+    public class Ship :
+        IEntity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
         IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
     {
@@ -30,6 +30,8 @@ namespace Pirates_Nueva.Ocean
         /// </summary>
         internal static Func<Block, Furniture?, Furniture?> SetBlockFurniture { private protected get; set; }
 
+        public Sea Sea { get; }
+
         public ShipDef Def { get; }
 
         /// <summary> The <see cref="Ocean.Faction"/> to which this Ship is aligned. </summary>
@@ -39,6 +41,8 @@ namespace Pirates_Nueva.Ocean
         public int Length => Def.Length;
         /// <summary> The length of this <see cref="Ship"/>, from port to starboard. </summary>
         public int Width => Def.Width;
+
+        public PointF Center { get; protected set; }
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
@@ -64,8 +68,9 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private PointI RootIndex => Def.RootIndex;
 
-        public Ship(Sea sea, ShipDef def, Faction faction) : base(sea)
+        public Ship(Sea sea, ShipDef def, Faction faction)
         {
+            Sea = sea;
             Def = def;
             Faction = faction;
             Transformer = new Space<Ship, ShipTransformer>(this);
@@ -95,39 +100,15 @@ namespace Pirates_Nueva.Ocean
                 return unsafeGetBlock(x, y);
             }
         }
-        
-        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
-        protected override BoundingBox GetBounds() {
-            // Find the left-, right-, bottom-, and top-most extents of blocks in this ship.
-            var (left, bottom, right, top) = (Length, Width, 0, 0);
-            for(int x = 0; x < Length; x++) {
-                for(int y = 0; y < Width; y++) {
-                    if(HasBlock(x, y)) {
-                        left = Math.Min(left, x);
-                        right = Math.Max(right, x+1);
-                        bottom = Math.Min(bottom, y);
-                        top = Math.Max(top, y+1);
-                    }
-                }
-            }
 
-            // Transform those extents into sea-space.
-            var lb = Transformer.PointFrom(left, bottom);
-            var lt = Transformer.PointFrom(left, top);
-            var rt = Transformer.PointFrom(right, top);
-            var rb = Transformer.PointFrom(right, bottom);
-
-            // Return a bounding box eveloping all four points above.
-            return new BoundingBox(
-                min(lb.X, lt.X, rt.X, rb.X), min(lb.Y, lt.Y, rt.Y, rb.Y),
-                max(lb.X, lt.X, rt.X, rb.X), max(lb.Y, lt.Y, rt.Y, rb.Y)
-                );
-
-            float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
-            float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4)); // Find the max of 4 values
-        }
-
-        protected override bool IsCollidingPrecise(PointF point) {
+        /// <summary>
+        /// Returns whether or not the input point is colliding with this <see cref="Ship"/>.
+        /// </summary>
+        public bool IsColliding(PointF point)
+        {
+            //
+            // Note: We don't need to approximate collsion using a bounding box,
+            // because this method is already extremely fast.
             //
             // Convert the point to an index on the ship,
             // and return whether or not there is a block there.
@@ -135,6 +116,26 @@ namespace Pirates_Nueva.Ocean
             return HasBlock(shipX, shipY);
         }
 
+        /// <summary>
+        /// Returns a box drawn around this <see cref="Ship"/>, used for approximating collsion.
+        /// </summary>
+        public BoundingBox GetBounds()
+        {
+            //
+            // Get a set of points representing the corners of this ship in sea-space.
+            PointF p1 = Transformer.PointFrom(0,      0),
+                   p2 = Transformer.PointFrom(Length, 0),
+                   p3 = Transformer.PointFrom(Length, Width),
+                   p4 = Transformer.PointFrom(0,      Width);
+
+            return new BoundingBox(
+                min(p1.X, p2.X, p3.X, p4.X), min(p1.Y, p2.Y, p3.Y, p4.Y),
+                max(p1.X, p2.X, p3.X, p4.X), max(p1.Y, p2.Y, p3.Y, p4.Y)
+                );
+
+            static float min(float a, float b, float c, float d) => Math.Min(Math.Min(a, b), Math.Min(d, c));
+            static float max(float a, float b, float c, float d) => Math.Max(Math.Max(a, b), Math.Max(d, c));
+        }
         /// <summary>
         /// Whether or not the specified indices are within the bounds of this ship.
         /// </summary>
@@ -742,7 +743,7 @@ namespace Pirates_Nueva.Ocean
 
         #region IScreenSpaceTarget Implementation
         int IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
-        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
+        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(Center.X, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
