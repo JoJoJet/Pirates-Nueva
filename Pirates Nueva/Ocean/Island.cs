@@ -873,6 +873,7 @@ namespace Pirates_Nueva.Ocean
             return intersects;
         }
         #endregion
+
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Sea;
         ISpace ISpaceLocus.Transformer => Transformer;
