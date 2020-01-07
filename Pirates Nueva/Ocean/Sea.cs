@@ -99,20 +99,13 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Adds the specified <see cref="Entity"/> to this <see cref="Sea"/> next frame.
         /// </summary>
-        public void AddEntity(IEntity entity) {
-            this.addBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
-        }
+        public void AddEntity<T>(IEntity entity)
+            => this.addBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
         /// <summary>
         /// Removes the specified <see cref="Entity"/> from this <see cref="Sea"/> next frame.
         /// </summary>
-        public void RemoveEntity(IEntity entity) {
-            this.removeBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
-        }
-
-        /// <summary>
-        /// Finds and returns an entity that matches the specified predicate.
-        /// </summary>
-        public IEntity FindEntity(Predicate<IEntity> finder) => this.entities.First(e => finder(e));
+        public void RemoveEntity(IEntity entity)
+            => this.removeBuffer.Add(entity ?? throw new ArgumentNullException(nameof(entity)));
 
         /// <summary>
         /// Checks if the described line segment intersects with any <see cref="Island"/>s in this <see cref="Sea"/>.
