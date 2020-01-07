@@ -456,7 +456,7 @@ namespace Pirates_Nueva.Ocean
                 // Return every block in this ship.
                 for(int x = 0; x < Length; x++) {
                     for(int y = 0; y < Width; y++) {
-                        if(GetBlockOrNull(x, y) is Block b)
+                        if(unsafeGetBlock(x, y) is Block b)
                             yield return b;
                     }
                 }
