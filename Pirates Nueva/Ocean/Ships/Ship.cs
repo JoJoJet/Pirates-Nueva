@@ -365,7 +365,7 @@ namespace Pirates_Nueva.Ocean
             ValidateIndices(nameof(AddAgent), x, y);
             
             if(unsafeGetBlock(x, y) is Block b) {   // If there is a block at /x/, /y/,
-                var agent = new Agent(this, b); //     create an agent on it,
+                var agent = new Agent(this, b);     //     create an agent on it,
                 this.agents.Add(agent);             //     add the agent to the list of agents,
                 return agent;                       //     and then return the agent.
             }
