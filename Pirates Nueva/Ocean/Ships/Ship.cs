@@ -372,16 +372,6 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
-        /// <summary>
-        /// Checks if the specified <see cref="Sea"/>-space point collides with this <see cref="Ship"/>.
-        /// </summary>
-        public bool Collides(in PointF seaPoint) {
-            var local = (PointI)Transformer.PointTo(in seaPoint);
-            return local.X >= 0 && local.X < Length
-                && local.Y >= 0 && local.Y < Width
-                && unsafeGetBlock(local.X, local.Y) != null;
-        }
-
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
         private Block? unsafeGetBlock(int x, int y) => this.blocks[x, y];
@@ -465,7 +455,7 @@ namespace Pirates_Nueva.Ocean
             //
             // If we have reached the destination,
             // unassign it.
-            if(Destination != null && Collides(Destination.Value)) {
+            if(Destination != null && IsColliding(Destination.Value)) {
                 Destination = null;
             }
             else if(Destination is PointF dest) {
