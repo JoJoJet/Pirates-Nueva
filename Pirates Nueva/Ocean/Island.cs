@@ -8,7 +8,7 @@ using Pirates_Nueva.Path;
 namespace Pirates_Nueva.Ocean
 {
     public sealed class Island : AgentBlockContainer<Island, IslandBlock>,
-        IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IDrawable<Sea>
+        IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IDrawable<Sea>, IFocusableParent
     {
         private readonly IslandBlock?[,] blocks;
 
@@ -934,6 +934,23 @@ namespace Pirates_Nueva.Ocean
             foreach(var a in this.agents) {
                 (a as IDrawable<Island>).Draw(drawer);
             }
+        }
+        #endregion
+
+        #region IFocusableParent Implementation
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint)
+        {
+            var focusable = new List<IFocusable>();
+
+            var (indX, indY) = Transformer.PointToIndex(seaPoint);
+            if(TryGetAgent(indX, indY, out var agent)) {
+                focusable.Add(agent);
+            }
+            if(TryGetStock(indX, indY, out var stock)) {
+                focusable.Add(stock);
+            }
+
+            return focusable;
         }
         #endregion
 

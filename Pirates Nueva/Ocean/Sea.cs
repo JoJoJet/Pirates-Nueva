@@ -242,6 +242,15 @@ namespace Pirates_Nueva.Ocean
                         focusable.AddRange(fp.GetFocusable(seaPoint)); // add any of its focusable children to the list.
                 }
             }
+
+            //
+            // Get stuff from islands.
+            var (chX, chY) = RoundToChunks(seaPoint);
+            var ch = this[chX, chY];
+            foreach(var i in ch.Islands) {
+                if(i.Collides(seaPoint))
+                    focusable.AddRange((i as IFocusableParent).GetFocusable(seaPoint));
+            }
             return focusable;
         }
         #endregion
