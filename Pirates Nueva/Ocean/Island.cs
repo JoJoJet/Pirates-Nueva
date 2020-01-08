@@ -946,9 +946,7 @@ namespace Pirates_Nueva.Ocean
             /// </summary>
             public readonly int a, b;
 
-            public Edge(int a, int b) {
-                this.a = a; this.b = b;
-            }
+            public Edge(int a, int b) => (this.a, this.b) = (a, b);
         }
 
         readonly struct Vertex
@@ -958,9 +956,7 @@ namespace Pirates_Nueva.Ocean
             /// </summary>
             public readonly float x, y;
 
-            public Vertex(float x, float y) {
-                this.x = x; this.y = y;
-            }
+            public Vertex(float x, float y) => (this.x, this.y) = (x, y);
         }
     }
 
