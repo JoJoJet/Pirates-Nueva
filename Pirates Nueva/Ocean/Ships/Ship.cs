@@ -10,10 +10,9 @@ using sang = Pirates_Nueva.SignedAngle;
 
 namespace Pirates_Nueva.Ocean
 {
-    using Agent = Agent<Ship, Block>;
     using Stock = Stock<Ship, Block>;
     using Toil = Job<Ship, Block>.Toil;
-    public class Ship : BlockContainer<Block>,
+    public class Ship : AgentBlockContainer<Ship, Block>,
         IEntity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
         IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
@@ -21,9 +20,6 @@ namespace Pirates_Nueva.Ocean
         protected const string RootID = "root";
 
         private readonly Block?[,] blocks;
-        private readonly List<Agent> agents = new List<Agent>();
-        
-        private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
@@ -247,122 +243,6 @@ namespace Pirates_Nueva.Ocean
                     );
             }
         }
-        #endregion
-
-        #region Stock Accessor Methods
-        /// <summary>
-        /// Gets the <see cref="Stock"/> at /x/, /y/, if it exists.
-        /// </summary>
-        public bool TryGetStock(int x, int y, [NotNullWhen(true)] out Stock? stock) {
-            if(GetBlockOrNull(x, y)?.Stock is Stock s) {
-                stock = s;
-                return true;
-            }
-            else {
-                stock = null;
-                return false;
-            }
-        }
-        /// <summary>
-        /// Gets the <see cref="Stock"/> at /x/, /y/, or null if it does not exist.
-        /// </summary>
-        public Stock? GetStockOrNull(int x, int y)
-            => GetBlockOrNull(x, y)?.Stock;
-
-        /// <summary>
-        /// Places <see cref="Stock"/> with specified <see cref="ItemDef"/> at indices /x/, /y/.
-        /// </summary>
-        public Stock PlaceStock(ItemDef def, int x, int y) {
-            const string Sig = nameof(Ship) + "." + nameof(PlaceStock) + "()";
-
-            ValidateIndices(nameof(PlaceStock), x, y);
-
-            if(unsafeGetBlock(x, y) is Block b) {
-                if(b.Stock == null)
-                    return b.Stock = new Stock(def, this, b);
-                else
-                    throw new InvalidOperationException(
-                        $"{Sig}: There is already a {nameof(Stock)} at index ({x}, {y})!"
-                        ); ;
-            }
-            else {
-                throw new InvalidOperationException(
-                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
-                    );
-            }
-        }
-        #endregion
-
-        #region Agent Accessor Methods
-        /// <summary>
-        /// Gets the <see cref="Agent"/> at indices /x/, /y/, if it exists.
-        /// </summary>
-        public bool TryGetAgent(int x, int y, [NotNullWhen(true)] out Agent? agent) {
-            foreach(var a in this.agents) {
-                if(a.CurrentSpot.Index == (x, y)) {
-                    agent = a;
-                    return true;
-                }
-            }
-            agent = null;
-            return false;
-        }
-        /// <summary>
-        /// Gets the <see cref="Agent"/> at indices /x/, /y/, or <see cref="null"/> if it doesn't exist.
-        /// </summary>
-        public Agent? GetAgentOrNull(int x, int y) {
-            foreach(var a in this.agents) {
-                if(a.CurrentSpot.Index == (x, y))
-                    return a;
-            }
-            return null;
-        }
-        /// <summary>
-        /// Adds an <see cref="Agent"/> at index /x/, /y/.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Agent AddAgent(int x, int y) {
-            ValidateIndices(nameof(AddAgent), x, y);
-            
-            if(unsafeGetBlock(x, y) is Block b) {   // If there is a block at /x/, /y/,
-                var agent = new Agent(this, b);     //     create an agent on it,
-                this.agents.Add(agent);             //     add the agent to the list of agents,
-                return agent;                       //     and then return the agent.
-            }
-            else {                                   // If there is no block at /x/, /y/,
-                throw new InvalidOperationException( //     throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the agent onto!"
-                    );
-            }
-        }
-        #endregion
-
-        #region Job Accessor Methods
-        /// <summary> Creates a job with the specified <see cref="Job{Ship, Block}.Toil"/>. </summary>
-        public Job<Ship, Block> CreateJob(int x, int y, Toil task) {
-            var j = new Job<Ship, Block>(this, x, y, task);
-            this.jobs.Add(j);
-            return j;
-        }
-
-        /// <summary>
-        /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
-        /// </summary>
-        public Job<Ship, Block>? GetWorkableJob(Agent hiree)
-        {
-            foreach(var j in this.jobs) {                           // For each job in this ship:
-                if(j.Worker == null && j.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
-                    return j;                                       //     return it.
-                }
-            }
-                         // If we got this far without leaving the method,
-                         //     that means there is no workable job on the ship.
-            return null; //     Return null.
-        }
-
-        /// <summary> Removes the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
-        public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
         #endregion
 
         #region Navigation
@@ -858,7 +738,7 @@ namespace Pirates_Nueva.Ocean
                         }
                         if(placeMode == PlaceMode.Gunpowder) {
                             if(Ship.GetBlockOrNull(shipX, shipY) is Block b && b.Stock is null)
-                                Ship.PlaceStock(ItemDef.Get("gunpowder"), shipX, shipY);
+                                Ship.PlaceStock(shipX, shipY, ItemDef.Get("gunpowder"));
                         }
                     }
                     // If the user right clicks, remove a Block or Furniture.

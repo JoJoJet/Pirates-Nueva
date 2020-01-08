@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Pirates_Nueva.Ocean.Agents;
 using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    using Agent = Agent<Island, IslandBlock>;
-    using Job = Job<Island, IslandBlock>;
-    public sealed class Island : BlockContainer<IslandBlock>,
+    public sealed class Island : AgentBlockContainer<Island, IslandBlock>,
         IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IDrawable<Sea>
     {
         private readonly IslandBlock?[,] blocks;
-
-        private readonly List<Agent> agents = new List<Agent>();
-
-        private readonly List<Job> jobs = new List<Job>();
 
         public Sea Sea { get; }
 
@@ -51,6 +44,15 @@ namespace Pirates_Nueva.Ocean
             var shape = GenerateShape(r);
             var (vertices, edges) = FindOutline(shape, r);
             this.blocks = FindBlocks(this, vertices, edges);
+
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlockOrNull(x, y) is IslandBlock b) {
+                        AddAgent(x, y);
+                        x = Width; break;
+                    }
+                }
+            }
         }
 
         #region Shape Generation
@@ -880,69 +882,6 @@ namespace Pirates_Nueva.Ocean
             sqrDistance = sqrDist;
             return intersects;
         }
-        #endregion
-
-        #region Agents
-        public bool TryGetAgent(int x, int y, [NotNullWhen(true)] out Agent? agent)
-        {
-            foreach(var a in this.agents) {
-                if(a.CurrentSpot.Index == (x, y)) {
-                    agent = a;
-                    return true;
-                }
-            }
-            agent = null;
-            return false;
-        }
-
-        public Agent? GetAgentOrNull(int x, int y)
-        {
-            foreach(var a in this.agents) {
-                if(a.CurrentSpot.Index == (x, y))
-                    return a;
-            }
-            return null;
-        }
-
-        public Agent AddAgent(int x, int y)
-        {
-            if(GetBlockOrNull(x, y) is IslandBlock b) {
-                var agent = new Agent(this, b);
-                this.agents.Add(agent);
-                return agent;
-            }
-            else {
-                throw new InvalidOperationException(
-                    $"{nameof(Island)}.{nameof(AddAgent)}(): There is no block on which to place the Agent!"
-                    );
-            }
-        }
-        #endregion
-
-        #region Jobs
-        /// <summary>
-        /// Creates a job at the specified location on this <see cref="Island"/>.
-        /// </summary>
-        public Job CreateJob(int x, int y, Job.Toil task)
-        {
-            var j = new Job(this, x, y, task);
-            this.jobs.Add(j);
-            return j;
-        }
-
-        /// <summary>
-        /// Gets a <see cref="Job"/> that can be worked on by the specified <see cref="Agent"/>.
-        /// </summary>
-        public Job? GetWorkableJob(Agent hiree)
-        {
-            foreach(var j in this.jobs) {
-                if(j.Worker is null && j.Qualify(hiree, out _))
-                    return j;
-            }
-            return null;
-        }
-
-        public void RemoveJob(Job job) => this.jobs.Remove(job);
         #endregion
 
         #region IAgentContainer Implementation
