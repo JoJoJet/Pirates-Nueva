@@ -295,31 +295,30 @@ namespace Pirates_Nueva.Ocean
 
         #region Agent Accessor Methods
         /// <summary>
-        /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
+        /// Gets the <see cref="Agent"/> at indices /x/, /y/, if it exists.
         /// </summary>
         public bool TryGetAgent(int x, int y, [NotNullWhen(true)] out Agent? agent) {
-            foreach(var ag in this.agents) { // For each agent in this ship:
-                if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
-                    agent = ag;              //     set it as the out parameter,
-                    return true;             //     and return true.
+            foreach(var a in this.agents) {
+                if(a.CurrentSpot.Index == (x, y)) {
+                    agent = a;
+                    return true;
                 }
             }
-
-            agent = null;  // If we got this far, set the out parameter as null,
-            return false;  // and return false.
+            agent = null;
+            return false;
         }
         /// <summary>
-        /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
+        /// Gets the <see cref="Agent"/> at indices /x/, /y/, or <see cref="null"/> if it doesn't exist.
         /// </summary>
         public Agent? GetAgentOrNull(int x, int y) {
-            foreach(var agent in this.agents) {
-                if(agent.X == x && agent.Y == y)
-                    return agent;
+            foreach(var a in this.agents) {
+                if(a.CurrentSpot.Index == (x, y))
+                    return a;
             }
             return null;
         }
         /// <summary>
-        /// Add an <see cref="Agent"/> at index /x/, /y/.
+        /// Adds an <see cref="Agent"/> at index /x/, /y/.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
@@ -350,11 +349,11 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
         /// </summary>
-        public Job<Ship, Block>? GetWorkableJob(Agent hiree) {
-            for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
-                var job = jobs[i];
-                if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
-                    return job;                                         //     return it.
+        public Job<Ship, Block>? GetWorkableJob(Agent hiree)
+        {
+            foreach(var j in this.jobs) {                           // For each job in this ship:
+                if(j.Worker == null && j.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
+                    return j;                                       //     return it.
                 }
             }
                          // If we got this far without leaving the method,
