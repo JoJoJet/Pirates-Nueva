@@ -29,7 +29,7 @@
         protected override void Draw<TDrawer>(in TDrawer drawer) {
             var tex = Resources.LoadSprite(Def.SpriteID);
 
-            drawer.Draw(tex, X, Y, Def.SpriteSize.X, Def.SpriteSize.Y, Angle, Def.SpriteOrigin);
+            drawer.Draw(tex, X+0.5f, Y+0.5f, Def.SpriteSize.X, Def.SpriteSize.Y, Angle, Def.SpriteOrigin);
         }
 
         #region IFocusable Implementation

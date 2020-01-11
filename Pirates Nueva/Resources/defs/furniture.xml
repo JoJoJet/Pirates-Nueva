@@ -5,7 +5,7 @@
 		<!-- Counted in number of blocks it takes up -->
 		<SpriteSize>2, 1</SpriteSize>
 		<!-- The point on the sprite (from 0 to 1) from which the texture will be drawn. You can think of it as (1 - offset) -->
-		<SpriteOrigin>0.75, 0.5</SpriteOrigin>
+		<SpriteOrigin>0.25, 0.5</SpriteOrigin>
 		<FuelTypeID>gunpowder</FuelTypeID>
 	</CannonDef>
 </FurnitureDefs>
