@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Pirates_Nueva.Ocean.Agents;
+using Pirates_Nueva.Path;
 
 namespace Pirates_Nueva.Ocean
 {
-    public sealed class Island : ISpaceLocus<Island>, IDrawable<Sea>
+    public sealed class Island : AgentBlockContainer<Island, IslandBlock>,
+        IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IUpdatable, IDrawable<Sea>, IFocusableParent
     {
         private readonly IslandBlock?[,] blocks;
 
@@ -39,12 +42,20 @@ namespace Pirates_Nueva.Ocean
             Random r = new Random(rngSeed);
 
             var shape = GenerateShape(r);
-
             var (vertices, edges) = FindOutline(shape, r);
-
             this.blocks = FindBlocks(this, vertices, edges);
+
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    if(GetBlockOrNull(x, y) is IslandBlock b) {
+                        AddAgent(x, y);
+                        x = Width; break;
+                    }
+                }
+            }
         }
 
+        #region Shape Generation
         static bool[,] GenerateShape(Random r) {
             const int Width = 15, Height = 15;
 
@@ -790,7 +801,9 @@ namespace Pirates_Nueva.Ocean
 
             return blocks;
         }
+        #endregion
 
+        #region Collision
         private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, PointF p) {
             int cn = 0;
             foreach(var E in edges) {
@@ -869,25 +882,89 @@ namespace Pirates_Nueva.Ocean
             sqrDistance = sqrDist;
             return intersects;
         }
-        
+        #endregion
+
+        #region IAgentContainer Implementation
+        IslandBlock? IAgentContainer<Island, IslandBlock>.GetSpotOrNull(int x, int y) => GetBlockOrNull(x, y);
+        #endregion
+
+        #region IGraph Implementation
+        IEnumerable<IslandBlock> IGraph<IslandBlock>.Nodes {
+            get {
+                for(int x = 0; x < Width; x++) {
+                    for(int y = 0; y < Height; y++) {
+                        if(this.blocks[x, y] is IslandBlock b)
+                            yield return b;
+                    }
+                }
+            }
+        }
+        #endregion
+
         #region ISpaceLocus Implementation
         ISpaceLocus? ISpaceLocus.Parent => Sea;
         ISpace ISpaceLocus.Transformer => Transformer;
         ISpace<Island> ISpaceLocus<Island>.Transformer => Transformer;
         #endregion
 
-        #region IDrawable Implementation
-        void IDrawable<Sea>.Draw<TSeaDrawer>(in TSeaDrawer drawer) {
+        #region IUpdatable Implementation
+        void IUpdatable.Update(in UpdateParams @params)
+        {
             //
-            // Draw the blocks.
-            if(this.blocks is null)
-                return;
-            var localDrawer = new SpaceDrawer<Island, IslandTransformer, TSeaDrawer, Sea>(drawer, Transformer);
-            foreach(var block in this.blocks) {
-                (block as IDrawable<Island>)?.Draw(localDrawer);
+            // Update every Agent on the Island.
+            foreach(var a in this.agents)
+                (a as IUpdatable).Update(@params);
+        }
+        #endregion
+
+        #region IDrawable Implementation
+        void IDrawable<Sea>.Draw<TSeaDrawer>(in TSeaDrawer seaDrawer) {
+            var drawer = new SpaceDrawer<Island, IslandTransformer, TSeaDrawer, Sea>(seaDrawer, Transformer);
+            //
+            // Draw each Block.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    (this.blocks[x, y] as IDrawable<Island>)?.Draw(drawer);
+                }
+            }
+            //
+            // Draw each Stock.
+            for(int x = 0; x < Width; x++) {
+                for(int y = 0; y < Height; y++) {
+                    (this.blocks[x, y]?.Stock as IDrawable<Island>)?.Draw(drawer);
+                }
+            }
+            //
+            // Draw each Job.
+            foreach(var j in this.jobs) {
+                (j as IDrawable<Island>).Draw(drawer);
+            }
+            //
+            // Draw each agent.
+            foreach(var a in this.agents) {
+                (a as IDrawable<Island>).Draw(drawer);
             }
         }
         #endregion
+
+        #region IFocusableParent Implementation
+        List<IFocusable> IFocusableParent.GetFocusable(PointF seaPoint)
+        {
+            var focusable = new List<IFocusable>();
+
+            var (indX, indY) = Transformer.PointToIndex(seaPoint);
+            if(TryGetAgent(indX, indY, out var agent)) {
+                focusable.Add(agent);
+            }
+            if(TryGetStock(indX, indY, out var stock)) {
+                focusable.Add(stock);
+            }
+
+            return focusable;
+        }
+        #endregion
+
+        protected override IslandBlock?[,] GetBlockGrid() => this.blocks;
 
         readonly struct Edge
         {
@@ -896,9 +973,7 @@ namespace Pirates_Nueva.Ocean
             /// </summary>
             public readonly int a, b;
 
-            public Edge(int a, int b) {
-                this.a = a; this.b = b;
-            }
+            public Edge(int a, int b) => (this.a, this.b) = (a, b);
         }
 
         readonly struct Vertex
@@ -908,9 +983,7 @@ namespace Pirates_Nueva.Ocean
             /// </summary>
             public readonly float x, y;
 
-            public Vertex(float x, float y) {
-                this.x = x; this.y = y;
-            }
+            public Vertex(float x, float y) => (this.x, this.y) = (x, y);
         }
     }
 

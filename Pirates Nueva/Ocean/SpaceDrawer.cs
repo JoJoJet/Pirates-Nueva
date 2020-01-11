@@ -54,13 +54,8 @@ namespace Pirates_Nueva.Ocean
                 //
                 // Procedure for transformers with rotation.
                 if(default(TTransformer).HasRotation) {
-                    var texOffset = (1, 1) - origin;
-                    texOffset = (texOffset.X * width, texOffset.Y * height);
-                    texOffset += PointF.Rotate((-0.5f, 0.5f), in angle);
-
-                    var (parentX, parentY) = Transformer.PointFrom(x + texOffset.X, y + texOffset.Y);
-
-                    ParentDrawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(in angle), (0, 0), in tint);
+                    var (parentX, parentY) = Transformer.PointFrom(x, y);
+                    ParentDrawer.Draw(sprite, parentX, parentY, screenW, screenH, -Transformer.AngleFrom(angle), origin);
                 }
                 //
                 // Procedure for transformers without rotation.

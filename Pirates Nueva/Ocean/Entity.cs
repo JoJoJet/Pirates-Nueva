@@ -1,9 +1,29 @@
 ﻿namespace Pirates_Nueva.Ocean
 {
     /// <summary>
-    /// An entity existing within a <see cref="Sea"/>.
+    /// An entity existing within a <see cref="Ocean.Sea"/>.
     /// </summary>
-    public abstract class Entity
+    public interface IEntity
+    {
+        Sea Sea { get; }
+
+        float CenterX => Center.X;
+        float CenterY => Center.Y;
+        /// <summary>
+        /// The center of this instance within its <see cref="Ocean.Sea"/>.
+        /// </summary>
+        PointF Center { get; }
+
+        /// <summary>
+        /// Returns whether or not the specified <see cref="Ocean.Sea"/>-space point is colliding with this instance.
+        /// </summary>
+        bool IsColliding(PointF point);
+    }
+
+    /// <summary>
+    /// An abstract implementation of <see cref="IEntity"/>.
+    /// </summary>
+    public abstract class Entity : IEntity
     {
         /// <summary> The <see cref="Ocean.Sea"/> containing this <see cref="Entity"/>. </summary>
         public Sea Sea { get; }

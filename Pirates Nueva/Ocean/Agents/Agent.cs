@@ -209,7 +209,7 @@ namespace Pirates_Nueva.Ocean.Agents
         {
             var tex = Resources.LoadSprite("agent");
 
-            drawer.DrawCenter(tex, X, Y, width: 1, height: 1);
+            drawer.DrawCenter(tex, X+0.5f, Y+0.5f, width: 1, height: 1);
 
             (Holding as IDrawable<TC>)?.Draw(drawer);
         }

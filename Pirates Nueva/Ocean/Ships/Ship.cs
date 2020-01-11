@@ -10,25 +10,23 @@ using sang = Pirates_Nueva.SignedAngle;
 
 namespace Pirates_Nueva.Ocean
 {
-    using Agent = Agent<Ship, Block>;
     using Stock = Stock<Ship, Block>;
     using Toil = Job<Ship, Block>.Toil;
-    public class Ship : Entity,
-        IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
+    public class Ship : AgentBlockContainer<Ship, Block>,
+        IEntity, IAgentContainer<Ship, Block>, ISpaceLocus<Ship>,
         IFocusableParent, IFocusable, 
         IUpdatable, IDrawable<Sea>, IScreenSpaceTarget
     {
         protected const string RootID = "root";
 
         private readonly Block?[,] blocks;
-        private readonly List<Agent> agents = new List<Agent>();
-        
-        private readonly List<Job<Ship, Block>> jobs = new List<Job<Ship, Block>>();
 
         /// <summary>
         /// A delegate that allows this class to set the <see cref="Block.Furniture"/> property, even though that is a private property.
         /// </summary>
         internal static Func<Block, Furniture?, Furniture?> SetBlockFurniture { private protected get; set; }
+
+        public Sea Sea { get; }
 
         public ShipDef Def { get; }
 
@@ -39,6 +37,8 @@ namespace Pirates_Nueva.Ocean
         public int Length => Def.Length;
         /// <summary> The length of this <see cref="Ship"/>, from port to starboard. </summary>
         public int Width => Def.Width;
+
+        public PointF Center { get; protected set; }
 
         /// <summary>
         /// This <see cref="Ship"/>'s rotation. 0 is pointing directly rightwards, rotation is counter-clockwise.
@@ -64,8 +64,9 @@ namespace Pirates_Nueva.Ocean
         /// <summary> The local indices of this <see cref="Ship"/>'s root <see cref="Block"/>. </summary>
         private PointI RootIndex => Def.RootIndex;
 
-        public Ship(Sea sea, ShipDef def, Faction faction) : base(sea)
+        public Ship(Sea sea, ShipDef def, Faction faction)
         {
+            Sea = sea;
             Def = def;
             Faction = faction;
             Transformer = new Space<Ship, ShipTransformer>(this);
@@ -86,48 +87,13 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
-        /// Gets the block at index (/x/, /y/).
+        /// Returns whether or not the input point is colliding with this <see cref="Ship"/>.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        public Block? this[int x, int y] {
-            get {
-                ValidateIndices("Indexer", x, y);
-                return unsafeGetBlock(x, y);
-            }
-        }
-        
-        /// <summary> A box drawn around this <see cref="Ship"/>, used for approximating collision. </summary>
-        protected override BoundingBox GetBounds() {
-            // Find the left-, right-, bottom-, and top-most extents of blocks in this ship.
-            var (left, bottom, right, top) = (Length, Width, 0, 0);
-            for(int x = 0; x < Length; x++) {
-                for(int y = 0; y < Width; y++) {
-                    if(HasBlock(x, y)) {
-                        left = Math.Min(left, x);
-                        right = Math.Max(right, x+1);
-                        bottom = Math.Min(bottom, y);
-                        top = Math.Max(top, y+1);
-                    }
-                }
-            }
-
-            // Transform those extents into sea-space.
-            var lb = Transformer.PointFrom(left, bottom);
-            var lt = Transformer.PointFrom(left, top);
-            var rt = Transformer.PointFrom(right, top);
-            var rb = Transformer.PointFrom(right, bottom);
-
-            // Return a bounding box eveloping all four points above.
-            return new BoundingBox(
-                min(lb.X, lt.X, rt.X, rb.X), min(lb.Y, lt.Y, rt.Y, rb.Y),
-                max(lb.X, lt.X, rt.X, rb.X), max(lb.Y, lt.Y, rt.Y, rb.Y)
-                );
-
-            float min(float f1, float f2, float f3, float f4) => Math.Min(Math.Min(f1, f2), Math.Min(f3, f4)); // Find the min of 4 values
-            float max(float f1, float f2, float f3, float f4) => Math.Max(Math.Max(f1, f2), Math.Max(f3, f4)); // Find the max of 4 values
-        }
-
-        protected override bool IsCollidingPrecise(PointF point) {
+        public bool IsColliding(PointF point)
+        {
+            //
+            // Note: We don't need to approximate collsion using a bounding box,
+            // because this method is already extremely fast.
             //
             // Convert the point to an index on the ship,
             // and return whether or not there is a block there.
@@ -136,40 +102,31 @@ namespace Pirates_Nueva.Ocean
         }
 
         /// <summary>
+        /// Returns a box drawn around this <see cref="Ship"/>, used for approximating collsion.
+        /// </summary>
+        public BoundingBox GetBounds()
+        {
+            //
+            // Get a set of points representing the corners of this ship in sea-space.
+            PointF p1 = Transformer.PointFrom(0,      0),
+                   p2 = Transformer.PointFrom(Length, 0),
+                   p3 = Transformer.PointFrom(Length, Width),
+                   p4 = Transformer.PointFrom(0,      Width);
+
+            return new BoundingBox(
+                min(p1.X, p2.X, p3.X, p4.X), min(p1.Y, p2.Y, p3.Y, p4.Y),
+                max(p1.X, p2.X, p3.X, p4.X), max(p1.Y, p2.Y, p3.Y, p4.Y)
+                );
+
+            static float min(float a, float b, float c, float d) => Math.Min(Math.Min(a, b), Math.Min(d, c));
+            static float max(float a, float b, float c, float d) => Math.Max(Math.Max(a, b), Math.Max(d, c));
+        }
+        /// <summary>
         /// Whether or not the specified indices are within the bounds of this ship.
         /// </summary>
         public bool AreIndicesValid(int x, int y) => x >= 0 && x < Length && y >= 0 && y < Width;
 
         #region Block Accessor Methods
-        /// <summary>
-        /// Gets the <see cref="Block"/> at indices (/x/, /y/), if it exists.
-        /// </summary>
-        public bool TryGetBlock(int x, int y, [NotNullWhen(true)] out Block? block) {
-            if(AreIndicesValid(x, y) && unsafeGetBlock(x, y) is Block b) {
-                block = b;
-                return true;
-            }
-            else {
-                block = null;
-                return false;
-            }
-        }
-        /// <summary>
-        /// Gets the <see cref="Block"/> at indices (/x/, /y/), or <see cref="null"/> if it does not exist.
-        /// </summary>
-        public Block? GetBlockOrNull(int x, int y) {
-            if(AreIndicesValid(x, y))
-                return unsafeGetBlock(x, y);
-            else
-                return null;
-        }
-        /// <summary>
-        /// Returns whether or not there is a <see cref="Block"/> at position (/x/, /y/).
-        /// </summary>
-        public bool HasBlock(int x, int y)
-            => AreIndicesValid(x, y) && unsafeGetBlock(x, y) != null;
-
-
         /// <summary>
         /// Places a <see cref="Block"/> with specified <see cref="Def"/> at position /x/, /y/.
         /// </summary>
@@ -210,6 +167,8 @@ namespace Pirates_Nueva.Ocean
                     );
             }
         }
+
+        protected sealed override Block?[,] GetBlockGrid() => this.blocks;
         #endregion
 
         #region Furniture Accessor Methods
@@ -286,138 +245,11 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
-        #region Stock Accessor Methods
-        /// <summary>
-        /// Gets the <see cref="Stock"/> at /x/, /y/, if it exists.
-        /// </summary>
-        public bool TryGetStock(int x, int y, [NotNullWhen(true)] out Stock? stock) {
-            if(GetBlockOrNull(x, y)?.Stock is Stock s) {
-                stock = s;
-                return true;
-            }
-            else {
-                stock = null;
-                return false;
-            }
-        }
-        /// <summary>
-        /// Gets the <see cref="Stock"/> at /x/, /y/, or null if it does not exist.
-        /// </summary>
-        public Stock? GetStockOrNull(int x, int y)
-            => GetBlockOrNull(x, y)?.Stock;
-
-        /// <summary>
-        /// Places <see cref="Stock"/> with specified <see cref="ItemDef"/> at indices /x/, /y/.
-        /// </summary>
-        public Stock PlaceStock(ItemDef def, int x, int y) {
-            const string Sig = nameof(Ship) + "." + nameof(PlaceStock) + "()";
-
-            ValidateIndices(nameof(PlaceStock), x, y);
-
-            if(unsafeGetBlock(x, y) is Block b) {
-                if(b.Stock == null)
-                    return b.Stock = new Stock(def, this, b);
-                else
-                    throw new InvalidOperationException(
-                        $"{Sig}: There is already a {nameof(Stock)} at index ({x}, {y})!"
-                        ); ;
-            }
-            else {
-                throw new InvalidOperationException(
-                    $"{Sig}: There is no {nameof(Block)} at index ({x}, {y})!"
-                    );
-            }
-        }
-        #endregion
-
-        #region Agent Accessor Methods
-        /// <summary>
-        /// Gets the <see cref="Agent"/> at index /x/, /y/, if it exists.
-        /// </summary>
-        public bool TryGetAgent(int x, int y, [NotNullWhen(true)] out Agent? agent) {
-            foreach(var ag in this.agents) { // For each agent in this ship:
-                if(ag.X == x && ag.Y == y) { // If its index is (/x/, /y/),
-                    agent = ag;              //     set it as the out parameter,
-                    return true;             //     and return true.
-                }
-            }
-
-            agent = null;  // If we got this far, set the out parameter as null,
-            return false;  // and return false.
-        }
-        /// <summary>
-        /// Gets the <see cref="Agent"/> at index /x/, /y/, or <see cref="null"/> if it doesn't exist.
-        /// </summary>
-        public Agent? GetAgentOrNull(int x, int y) {
-            foreach(var agent in this.agents) {
-                if(agent.X == x && agent.Y == y)
-                    return agent;
-            }
-            return null;
-        }
-        /// <summary>
-        /// Add an <see cref="Agent"/> at index /x/, /y/.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if either index exceeds the bounds of this <see cref="Ship"/>.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if there is no <see cref="Block"/> at /x/, /y/.</exception>
-        public Agent AddAgent(int x, int y) {
-            ValidateIndices(nameof(AddAgent), x, y);
-            
-            if(unsafeGetBlock(x, y) is Block b) {   // If there is a block at /x/, /y/,
-                var agent = new Agent(this, b); //     create an agent on it,
-                this.agents.Add(agent);             //     add the agent to the list of agents,
-                return agent;                       //     and then return the agent.
-            }
-            else {                                   // If there is no block at /x/, /y/,
-                throw new InvalidOperationException( //     throw an InvalidOperationException.
-                    $"{nameof(Ship)}.{nameof(AddAgent)}(): There is no block to place the agent onto!"
-                    );
-            }
-        }
-        #endregion
-
-        #region Job Accessor Methods
-        /// <summary> Creates a job with the specified <see cref="Job{Ship, Block}.Toil"/>. </summary>
-        public Job<Ship, Block> CreateJob(int x, int y, Job<Ship, Block>.Toil task) {
-            var j = new Job<Ship, Block>(this, x, y, task);
-            this.jobs.Add(j);
-            return j;
-        }
-
-        /// <summary>
-        /// Gets a <see cref="Job"/> that can currently be worked on by the specified <see cref="Agent"/>.
-        /// </summary>
-        public Job<Ship, Block>? GetWorkableJob(Agent hiree) {
-            for(int i = 0; i < jobs.Count; i++) { // For each job in this ship:
-                var job = jobs[i];
-                if(job.Worker == null && job.Qualify(hiree, out _)) {   // If the job is unclaimed and the agent can work it,
-                    return job;                                         //     return it.
-                }
-            }
-                         // If we got this far without leaving the method,
-                         //     that means there is no workable job on the ship.
-            return null; //     Return null.
-        }
-
-        /// <summary> Removes the specified <see cref="Job"/> from this <see cref="Ship"/>. </summary>
-        public void RemoveJob(Job<Ship, Block> job) => this.jobs.Remove(job);
-        #endregion
-
         #region Navigation
         public void SetDestination(PointF destination) {
             Destination = destination;
         }
         #endregion
-
-        /// <summary>
-        /// Checks if the specified <see cref="Sea"/>-space point collides with this <see cref="Ship"/>.
-        /// </summary>
-        public bool Collides(in PointF seaPoint) {
-            var local = (PointI)Transformer.PointTo(in seaPoint);
-            return local.X >= 0 && local.X < Length
-                && local.Y >= 0 && local.Y < Width
-                && unsafeGetBlock(local.X, local.Y) != null;
-        }
 
         #region Private Methods
         /// <summary> Get the <see cref="Block"/> at position (/x/, /y/), without checking the indices. </summary>
@@ -455,7 +287,7 @@ namespace Pirates_Nueva.Ocean
                 // Return every block in this ship.
                 for(int x = 0; x < Length; x++) {
                     for(int y = 0; y < Width; y++) {
-                        if(GetBlockOrNull(x, y) is Block b)
+                        if(unsafeGetBlock(x, y) is Block b)
                             yield return b;
                     }
                 }
@@ -487,7 +319,7 @@ namespace Pirates_Nueva.Ocean
         private void FillForwardProbes(Span<PointF?> probes) {
             for(int y = 0; y < Width; y++) {
                 for(int x = Length-1; x >= 0; x--) {
-                    if(this[x, y] != null) {
+                    if(unsafeGetBlock(x, y) != null) {
                         probes[y * 2    ] = new PointF(x + 0.5f, y + 1 / 3f);
                         probes[y * 2 + 1] = new PointF(x + 0.5f, y + 2 / 3f);
                         break;
@@ -502,7 +334,7 @@ namespace Pirates_Nueva.Ocean
             //
             // If we have reached the destination,
             // unassign it.
-            if(Destination != null && Collides(Destination.Value)) {
+            if(Destination != null && IsColliding(Destination.Value)) {
                 Destination = null;
             }
             else if(Destination is PointF dest) {
@@ -741,7 +573,7 @@ namespace Pirates_Nueva.Ocean
 
         #region IScreenSpaceTarget Implementation
         int IScreenSpaceTarget.X => (int)Sea.Transformer.PointFrom(Center).X;
-        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(CenterX, GetBounds().Top).Y;
+        int IScreenSpaceTarget.Y => (int)Sea.Transformer.PointFrom(Center.X, GetBounds().Top).Y;
         #endregion
 
         #region IFocusableParent Implementation
@@ -906,7 +738,7 @@ namespace Pirates_Nueva.Ocean
                         }
                         if(placeMode == PlaceMode.Gunpowder) {
                             if(Ship.GetBlockOrNull(shipX, shipY) is Block b && b.Stock is null)
-                                Ship.PlaceStock(ItemDef.Get("gunpowder"), shipX, shipY);
+                                Ship.PlaceStock(shipX, shipY, ItemDef.Get("gunpowder"));
                         }
                     }
                     // If the user right clicks, remove a Block or Furniture.
