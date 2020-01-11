@@ -192,7 +192,8 @@ namespace Pirates_Nueva
             if(typeof(T) == typeof(Screen))
                 SpriteBatch.Draw(sprite.Source, new Rectangle((int)x, (int)y, (int)width, (int)height),
                                  new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height),
-                                 tint, angle, origin, SpriteEffects.None, 0);
+                                 tint, angle, new Vector2(origin.X * sprite.Width, (1 - origin.Y) * sprite.Height),
+                                 SpriteEffects.None, 0);
             else
                 ThrowInvalidType<T>(nameof(DrawAt));
         }
