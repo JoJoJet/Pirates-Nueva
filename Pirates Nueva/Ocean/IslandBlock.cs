@@ -49,7 +49,7 @@ namespace Pirates_Nueva.Ocean
         }
 
         void IDrawable<Island>.Draw<TDrawer>(in TDrawer drawer) {
-            drawer.DrawCenter(Def.GetSprite(Shape), X+0.5f, Y+0.5f, 1, 1);
+            drawer.DrawCorner(Def.GetSprite(Shape), X, Y+1, 1, 1);
         }
     }
 }
