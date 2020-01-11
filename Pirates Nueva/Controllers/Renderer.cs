@@ -192,6 +192,12 @@ namespace Pirates_Nueva
             if(typeof(T) == typeof(Screen))
                 SpriteBatch.Draw(sprite.Source, new Rectangle((int)x, (int)y, (int)width, (int)height),
                                  new Rectangle(sprite.Left, sprite.Top, sprite.Width, sprite.Height),
+                                 //
+                                 // FIXME: Here, we are inverting the Y-Axis of the origin.
+                                 // This is inconsistent with the previous behavior,
+                                 // where the Sea class inverts the Y-Axis, rather than the screen.
+                                 // There isn't really a great fix for this right now though,
+                                 // so I'm just making a note of this.
                                  tint, angle, new Vector2(origin.X * sprite.Width, (1 - origin.Y) * sprite.Height),
                                  SpriteEffects.None, 0);
             else
