@@ -192,9 +192,15 @@ namespace Pirates_Nueva.Ocean
                 this.removeBuffer.Clear();
             }
 
-            foreach(var ent in this.entities) { // For every entity:
-                if(ent is IUpdatable u)         // If it is updatable,
-                    u.Update(in @params);       //     call its Update() method.
+            //
+            // Update each Island.
+            foreach(var i in this.islands)
+                (i as IUpdatable).Update(@params);
+            //
+            // Update each updatable Entity.
+            foreach(var ent in this.entities) {
+                if(ent is IUpdatable u)
+                    u.Update(@params);
             }
         }
         #endregion

@@ -8,7 +8,7 @@ using Pirates_Nueva.Path;
 namespace Pirates_Nueva.Ocean
 {
     public sealed class Island : AgentBlockContainer<Island, IslandBlock>,
-        IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IDrawable<Sea>, IFocusableParent
+        IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IUpdatable, IDrawable<Sea>, IFocusableParent
     {
         private readonly IslandBlock?[,] blocks;
 
@@ -905,6 +905,16 @@ namespace Pirates_Nueva.Ocean
         ISpaceLocus? ISpaceLocus.Parent => Sea;
         ISpace ISpaceLocus.Transformer => Transformer;
         ISpace<Island> ISpaceLocus<Island>.Transformer => Transformer;
+        #endregion
+
+        #region IUpdatable Implementation
+        void IUpdatable.Update(in UpdateParams @params)
+        {
+            //
+            // Update every Agent on the Island.
+            foreach(var a in this.agents)
+                (a as IUpdatable).Update(@params);
+        }
         #endregion
 
         #region IDrawable Implementation
