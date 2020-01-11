@@ -71,7 +71,7 @@ namespace Pirates_Nueva.Ocean
         protected override void Draw<TDrawer>(in TDrawer drawer) {
             var tex = Resources.LoadSprite(Def.SpriteID);
 
-            drawer.Draw(tex, X, Y, 1, 1, Angle, (0.5f, 0.5f));
+            drawer.Draw(tex, X+0.5f, Y+0.5f, 1, 1, Angle, (0.5f, 0.5f));
         }
 
         #region IFocusable Implementation
