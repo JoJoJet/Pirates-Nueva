@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <BuildingDefs>
-	<Building ID="house" />
+	<Building ID="dock"    />
+	<Building ID="fishery" />
+	<Building ID="house"   />
 </BuildingDefs>
