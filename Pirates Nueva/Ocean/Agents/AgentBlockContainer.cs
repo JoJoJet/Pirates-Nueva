@@ -52,7 +52,7 @@ namespace Pirates_Nueva.Ocean.Agents
         public bool HasBlock(int x, int y)
         {
             var blocks = GetBlockGrid();
-            return x >= 0 && y >= 0 && x < blocks.GetLength(0) && y < blocks.GetLength(1) && blocks[x, y] is TBlock b;
+            return x >= 0 && y >= 0 && x < blocks.GetLength(0) && y < blocks.GetLength(1) && blocks[x, y] != null;
         }
 
         /// <summary>
