@@ -31,9 +31,12 @@ namespace Pirates_Nueva.Ocean
             bool findDomain(out Domain domain)
             {
                 //
-                // Compile a list of possible domains,
-                // with one starting at each and every coordinate on the Island.
-                var possibleDomains = new List<Domain>();
+                // The domain with the largest area.
+                Domain? largest = null;
+                int area = 0;
+                //
+                // Check each possible domain that could fit on the Island,
+                // and save the one with the highest area.
                 for(int x = 0; x < Island.Width - DomainUnit; x++) {
                     for(int y = 0; y < Island.Height - DomainUnit; y++) {
                         //
@@ -49,11 +52,15 @@ namespace Pirates_Nueva.Ocean
                         for(x2 = Island.Width-1; x2 >= x + DomainUnit; x2--) {
                             for(y2 = Island.Height-1; y2 >= y + DomainUnit; y2--) {
                                 //
-                                // If the domain fits, add it to the list of domains and break from the Y loop.
+                                // If the domain fits, try to save it.
                                 // Any future iterations of this loop will just make the domain smaller,
                                 // so there's no point in checking.
                                 if(fits(dom)) {
-                                    possibleDomains.Add(dom);
+                                    var a = dom.Area;
+                                    if(a > area) {
+                                        largest = dom;
+                                        area = a;
+                                    }
                                     break;
                                 }
                             }
@@ -61,17 +68,9 @@ namespace Pirates_Nueva.Ocean
                     }
                 }
                 //
-                // Find the domain with the largest area.
-                if(possibleDomains.Count > 0) {
-                    domain = possibleDomains[0];
-                    int area = domain.Area;
-                    for(int i = 1; i < possibleDomains.Count; i++) {
-                        int a = possibleDomains[i].Area;
-                        if(a > area) {
-                            domain = possibleDomains[i];
-                            area = a;
-                        }
-                    }
+                // If there was at least one domain found, return it.
+                if(largest != null) {
+                    domain = largest.Value;
                     return true;
                 }
                 //
