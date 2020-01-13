@@ -88,11 +88,9 @@ namespace Pirates_Nueva.Ocean
             bool fits(in Domain domain)
             {
                 //
-                // If part of the domain extends past the island,
-                // we know for sure that it doesn't fit.
-                if(domain.bottomLeft.x < 0 || domain.bottomLeft.y < 0
-                   || domain.topRight.x >= Island.Width || domain.topRight.y >= Island.Height)
-                    return false;
+                // We're just gonna assume that the domain fits within the block grid.
+                // If this method is used incorrectly, an exception will be thrown.
+
                 //
                 // Return false if the domain overlaps any other domains.
                 for(int i = 0; i < domains.Count; i++) {
@@ -103,7 +101,7 @@ namespace Pirates_Nueva.Ocean
                 // Return false if any part of the domain goes off of the island.
                 for(int x = domain.bottomLeft.x; x <= domain.topRight.x; x++) {
                     for(int y = domain.bottomLeft.y; y <= domain.topRight.y; y++) {
-                        if(!Island.HasBlock(x, y))
+                        if(!Island.UncheckedHasBlock(x, y))
                             return false;
                     }
                 }

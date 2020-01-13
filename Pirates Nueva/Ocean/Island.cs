@@ -973,7 +973,13 @@ namespace Pirates_Nueva.Ocean
         }
         #endregion
 
-        protected override IslandBlock?[,] GetBlockGrid() => this.blocks;
+        protected sealed override IslandBlock?[,] GetBlockGrid() => this.blocks;
+        
+        /// <summary>
+        /// Returns whether or not there is a block at the specified indices.
+        /// Will throw an exception if the indices are invalid.
+        /// </summary>
+        internal bool UncheckedHasBlock(int x, int y) => this.blocks[x, y] != null;
 
         readonly struct Edge
         {
