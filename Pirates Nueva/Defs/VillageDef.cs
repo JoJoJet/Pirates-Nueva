@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -10,8 +11,10 @@ namespace Pirates_Nueva
 
         protected override string TypeName => "VillageDef";
         protected sealed override ResourceInfo Resources => new ResourceInfo("villages", "VillageDefs");
-
         protected override VillageDef Construct(XmlReader reader) => new VillageDef(ref reader);
+
+        public IReadOnlyList<Requirement> Requirements => this.requirements;
+
         /// <summary>
         /// Reads the ID attribute of the <see cref="XmlReader"/>.
         /// </summary>
@@ -23,6 +26,8 @@ namespace Pirates_Nueva
         {
             reader = reader.ReadSubtree();
 
+            //
+            // Read the requirements from file.
             var reqs = new List<Requirement>();
             if(reader.ReadToDescendant(nameof(Requirement))) {
                 do {
@@ -30,7 +35,15 @@ namespace Pirates_Nueva
                 }
                 while(reader.ReadToNextSibling(nameof(Requirement)));
             }
-            this.requirements = reqs.ToArray();
+            //
+            // Sort the requirements.
+            var sorted = from r in reqs
+                         //
+                         // Order the requirements by the minimum number of required things,
+                         // with lower numbers coming first, but 0 coming last.
+                         orderby r.Min > 0 ? r.Min : int.MaxValue ascending
+                         select r;
+            this.requirements = sorted.ToArray();
 
             if(closeReader)
                 reader.Dispose();
@@ -39,7 +52,8 @@ namespace Pirates_Nueva
         public sealed class Requirement
         {
             public BuildingDef Building { get; }
-            public (int min, int max) Count { get; }
+            public int Min { get; }
+            public int Max { get; }
 
             internal Requirement(XmlReader reader)
             {
@@ -48,7 +62,8 @@ namespace Pirates_Nueva
                 Building = BuildingDef.Get(reader.GetAttributeStrict("ID"));
                 
                 var count = Regex.Match(reader.GetAttributeStrict("Count"), @"(?<min>\d+)\w*?-\w*?(?<max>\d+)");
-                Count = (parse("min"), parse("max"));
+                Min = parse("min");
+                Max = parse("max");
 
                 int parse(string name) => int.Parse(count.Groups[name].Value);
             }
