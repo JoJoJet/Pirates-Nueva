@@ -59,8 +59,6 @@ namespace Pirates_Nueva
 
             internal Requirement(XmlReader reader)
             {
-                using var r = reader.ReadSubtree();
-                
                 Building = BuildingDef.Get(reader.GetAttributeStrict("ID"));
                 
                 var count = Regex.Match(reader.GetAttributeStrict("Count"), @"(?<min>\d+)\s*?-\w*?(?<max>\d+)");

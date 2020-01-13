@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VillageDefs>
-	<Village ID="fishing">
+	<VillageDef ID="fishing">
 		<Requirement ID="dock" Count="1-2"    />
 		<Requirement ID="fishery" Count="1-2" />
 		<Requirement ID="house" Count="2-3"   />
-	</Village>
+	</VillageDef>
 </VillageDefs>

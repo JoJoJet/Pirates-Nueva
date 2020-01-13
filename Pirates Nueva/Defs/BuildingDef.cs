@@ -12,7 +12,7 @@ namespace Pirates_Nueva
     {
         #region Def Implementation
         protected override string TypeName => "BuildingDef";
-        protected sealed override ResourceInfo Resources => new ResourceInfo("buildings", "BuildingDef");
+        protected sealed override ResourceInfo Resources => new ResourceInfo("buildings", "BuildingDefs");
         protected override BuildingDef Construct(XmlReader reader) => new BuildingDef(ref reader);
         #endregion
 
@@ -21,7 +21,9 @@ namespace Pirates_Nueva
 
         protected BuildingDef(ref XmlReader reader, bool closeReader = true) : base(reader)
         {
+            var elementName = reader.Name;
             reader = reader.ReadSubtree();
+            reader.ReadToDescendant(elementName);
 
             var size = Regex.Match(reader.GetAttributeStrict("Size"), @"(?<width>\d+),?\s*(?<height>\d+)");
 
