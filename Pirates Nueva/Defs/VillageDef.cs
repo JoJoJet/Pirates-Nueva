@@ -9,9 +9,11 @@ namespace Pirates_Nueva
     {
         private readonly Requirement[] requirements;
 
+        #region Def Implementation
         protected override string TypeName => "VillageDef";
         protected sealed override ResourceInfo Resources => new ResourceInfo("villages", "VillageDefs");
         protected override VillageDef Construct(XmlReader reader) => new VillageDef(ref reader);
+        #endregion
 
         public IReadOnlyList<Requirement> Requirements => this.requirements;
 
@@ -61,7 +63,7 @@ namespace Pirates_Nueva
                 
                 Building = BuildingDef.Get(reader.GetAttributeStrict("ID"));
                 
-                var count = Regex.Match(reader.GetAttributeStrict("Count"), @"(?<min>\d+)\w*?-\w*?(?<max>\d+)");
+                var count = Regex.Match(reader.GetAttributeStrict("Count"), @"(?<min>\d+)\s*?-\w*?(?<max>\d+)");
                 Min = parse("min");
                 Max = parse("max");
 
