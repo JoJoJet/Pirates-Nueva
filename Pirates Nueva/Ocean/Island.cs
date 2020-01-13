@@ -29,6 +29,8 @@ namespace Pirates_Nueva.Ocean
 
         public Space<Island, IslandTransformer> Transformer { get; }
 
+        public Village Village { get; }
+
         public Island(Sea sea, int left, int bottom, int rngSeed) {
             //
             // Copy over basic information
@@ -44,6 +46,10 @@ namespace Pirates_Nueva.Ocean
             var shape = GenerateShape(r);
             var (vertices, edges) = FindOutline(shape, r);
             this.blocks = FindBlocks(this, vertices, edges);
+
+            //
+            // Create a Village.
+            Village = new Village(this, VillageDef.Get("fishing"));
 
             for(int x = 0; x < Width; x++) {
                 for(int y = 0; y < Height; y++) {
@@ -927,6 +933,9 @@ namespace Pirates_Nueva.Ocean
                     (this.blocks[x, y] as IDrawable<Island>)?.Draw(drawer);
                 }
             }
+            //
+            // Draw each Village.
+            (Village as IDrawable<Island>)?.Draw(drawer);
             //
             // Draw each Stock.
             for(int x = 0; x < Width; x++) {
