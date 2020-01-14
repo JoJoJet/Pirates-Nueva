@@ -36,8 +36,8 @@ namespace Pirates_Nueva.Ocean
                 int maxArea = 0;
                 //
                 // The topmost and rightmost valid indices within this island.
-                int rightmost = Island.Width-1,
-                    topmost = Island.Height-1;
+                int rightmost = Island.Width,
+                    topmost = Island.Height;
                 //
                 // Check each possible domain that could fit on the Island,
                 // and save the one with the highest area.
@@ -126,9 +126,9 @@ namespace Pirates_Nueva.Ocean
                 }
                 //
                 // Return false if any part of the domain goes off of the island.
-                for(int x = domain.bottomLeft.x; x <= domain.topRight.x; x++) {
-                    for(int y = domain.bottomLeft.y; y <= domain.topRight.y; y++) {
                         if(Island.blocks[x, y] is null)
+                for(int x = domain.bottomLeft.x; x < domain.topRight.x; x++) {
+                    for(int y = domain.bottomLeft.y; y < domain.topRight.y; y++) {
                             return false;
                     }
                 }
@@ -159,7 +159,7 @@ namespace Pirates_Nueva.Ocean
             public readonly int Area => (topRight.x - bottomLeft.x) * (topRight.y - bottomLeft.y);
 
             public readonly bool Contains(PointI point) => point.X >= bottomLeft.x && point.Y >= bottomLeft.y
-                                                        && point.X <= topRight.x   && point.Y <= topRight.y;
+                                                        && point.X <  topRight.x   && point.Y <  topRight.y;
             public readonly bool Collides(in Domain other)
                 => other.topRight.x >= bottomLeft.x && other.topRight.y >= bottomLeft.y
                 && other.bottomLeft.x <= topRight.x && other.bottomLeft.y <= topRight.y;
