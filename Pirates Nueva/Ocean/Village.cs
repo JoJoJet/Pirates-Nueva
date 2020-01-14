@@ -144,10 +144,10 @@ namespace Pirates_Nueva.Ocean
                   bottom = this.domain.bottomLeft.y,
                   right = this.domain.topRight.x,
                   top = this.domain.topRight.y;
-            drawer.DrawLine((left, bottom), (right+1, bottom), UI.Color.Black);
-            drawer.DrawLine((right+1, bottom), (right+1, top+1), UI.Color.Black);
-            drawer.DrawLine((right+1, top+1), (left, top+1), UI.Color.Black);
-            drawer.DrawLine((left, top+1), (left, bottom), UI.Color.Black);
+            drawer.DrawLine((left,  bottom), (right, bottom), UI.Color.Black);
+            drawer.DrawLine((right, bottom), (right, top),    UI.Color.Black);
+            drawer.DrawLine((right, top),    (left,  top),    UI.Color.Black);
+            drawer.DrawLine((left,  top),    (left,  bottom), UI.Color.Black);
         }
 
         private struct Domain
