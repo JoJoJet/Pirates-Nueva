@@ -132,27 +132,25 @@ namespace Pirates_Nueva.Ocean
                     if(domains[i].Collides(domain))
                         return false;
                 }
+                int left = domain.bottomLeft.x, right = domain.topRight.x-1,
+                    bottom = domain.bottomLeft.y, top = domain.topRight.y-1;
                 //
                 // Return false if any part of the domain goes off of the island.
-                // We are checking the outer edge of the domain first, as it's more likely to be invalid.
-                //
-                // TODO: Is it possible for the outer edge to be valid, while the inner edge is invalid?
-                // At this point, we already know that it doesn't collide with any other domains.
-                for(int x = domain.bottomLeft.x; x < domain.topRight.x; x++) {
-                    if(island.blocks[x, domain.bottomLeft.y] is null
-                    || island.blocks[x, domain.topRight.y-1] is null)
+                // We only need to check the outer rim of the domain,
+                // as it's impossible for an island to have holes.
+                // The first part of the rim that we check are the four corners, as those are the most
+                // likely to be invalid.
+                // TODO: If we add lakes or mountains in the future, we have to check for that.
+                if(island.blocks[left,  bottom] is null || island.blocks[right, bottom] is null
+                || island.blocks[right, top]    is null || island.blocks[left,  top]    is null)
+                    return false;
+                for(int x = left+1; x < right; x++) {
+                    if(island.blocks[x, bottom] is null || island.blocks[x, top] is null)
                         return false;
                 }
-                for(int y = domain.bottomLeft.y; y < domain.topRight.y; y++) {
-                    if(island.blocks[domain.bottomLeft.x, y] is null
-                    || island.blocks[domain.topRight.x-1, y] is null)
+                for(int y = bottom+1; y < top; y++) {
+                    if(island.blocks[left, y] is null || island.blocks[right, y] is null)
                         return false;
-                }
-                for(int x = domain.bottomLeft.x+1; x < domain.topRight.x-1; x++) {
-                    for(int y = domain.bottomLeft.y+1; y < domain.topRight.y-1; y++) {
-                        if(island.blocks[x, y] is null)
-                            return false;
-                    }
                 }
                 //
                 // If we got this far without returning, that means the domain fits.
