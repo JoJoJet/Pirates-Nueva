@@ -52,15 +52,21 @@ namespace Pirates_Nueva.Ocean
                         for(x2 = Island.Width-1; x2 >= x + DomainUnit; x2--) {
                             for(y2 = Island.Height-1; y2 >= y + DomainUnit; y2--) {
                                 //
-                                // If the domain fits, try to save it.
+                                // If the domain is NOT larger than the current largest, break from the Y loop.
+                                // We don't need to bother checking if it fits since we wouldn't use it anyway.
+                                // Also, we can skip the rest of this loop, as future iterations will just be smaller.
+                                var a = dom.Area;
+                                if(a <= area)
+                                    break;
+                                //
+                                // If the domain fits, save it.
+                                // We already know that its the largest area,
+                                // as we would have broken above if it was smaller than the largest.
                                 // Any future iterations of this loop will just make the domain smaller,
                                 // so there's no point in checking.
                                 if(fits(dom)) {
-                                    var a = dom.Area;
-                                    if(a > area) {
-                                        largest = dom;
-                                        area = a;
-                                    }
+                                    largest = dom;
+                                    area = a;
                                     break;
                                 }
                             }
