@@ -10,7 +10,11 @@ namespace Pirates_Nueva.Ocean
     public sealed class Island : AgentBlockContainer<Island, IslandBlock>,
         IAgentContainer<Island, IslandBlock>, ISpaceLocus<Island>, IUpdatable, IDrawable<Sea>, IFocusableParent
     {
-        private readonly IslandBlock?[,] blocks;
+        /// <summary>
+        /// The underlying matrix containing the <see cref="IslandBlock"/>s for this <see cref="Island"/>.
+        /// This should only be accessed in a performance-sensitive part of code.
+        /// </summary>
+        internal readonly IslandBlock?[,] blocks;
 
         public Sea Sea { get; }
 
@@ -974,12 +978,6 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         protected sealed override IslandBlock?[,] GetBlockGrid() => this.blocks;
-        
-        /// <summary>
-        /// Returns whether or not there is a block at the specified indices.
-        /// Will throw an exception if the indices are invalid.
-        /// </summary>
-        internal bool UncheckedHasBlock(int x, int y) => this.blocks[x, y] != null;
 
         readonly struct Edge
         {

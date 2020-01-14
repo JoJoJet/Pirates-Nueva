@@ -42,6 +42,10 @@ namespace Pirates_Nueva.Ocean
                         //
                         // Create a minimum-sized domain at the current point.
                         var dom = new Domain() { bottomLeft = (x, y), topRight = (x + DomainUnit, y + DomainUnit) };
+                        //
+                        // If the smallest possible domain won't fit at this point,
+                        // that means any larger domains won't fit either.
+                        // Skip this iteration of the loop.
                         if(!fits(dom))
                             continue;
                         //
@@ -50,12 +54,23 @@ namespace Pirates_Nueva.Ocean
                         ref int x2 = ref dom.topRight.x,
                                 y2 = ref dom.topRight.y;
                         for(x2 = Island.Width-1; x2 >= x + DomainUnit; x2--) {
-                            for(y2 = Island.Height-1; y2 >= y + DomainUnit; y2--) {
+                            //
+                            // Set the initial value of y2 for its loop.
+                            y2 = Island.Height-1;
+                            //
+                            // If the domain is NOT larger than the current largest,
+                            // break from both the X and Y loops.
+                            // Any future iterations of either loop would just make the domain smaller,
+                            // so we don't have to bother checking them.
+                            var a = dom.Area;
+                            if(a <= area)
+                                break;
+                            for(; y2 >= y + DomainUnit; y2--) {
                                 //
                                 // If the domain is NOT larger than the current largest, break from the Y loop.
                                 // We don't need to bother checking if it fits since we wouldn't use it anyway.
                                 // Also, we can skip the rest of this loop, as future iterations will just be smaller.
-                                var a = dom.Area;
+                                a = dom.Area;
                                 if(a <= area)
                                     break;
                                 //
@@ -106,7 +121,7 @@ namespace Pirates_Nueva.Ocean
                 // Return false if any part of the domain goes off of the island.
                 for(int x = domain.bottomLeft.x; x <= domain.topRight.x; x++) {
                     for(int y = domain.bottomLeft.y; y <= domain.topRight.y; y++) {
-                        if(!Island.UncheckedHasBlock(x, y))
+                        if(Island.blocks[x, y] is null)
                             return false;
                     }
                 }
