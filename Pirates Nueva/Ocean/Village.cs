@@ -10,7 +10,7 @@ namespace Pirates_Nueva.Ocean
         /// <summary>
         /// The minimum width of a segment of a village.
         /// </summary>
-        public const int DomainUnit = 5;
+        public const int DomainUnit = 10;
 
         public Island Island { get; }
 
@@ -35,7 +35,7 @@ namespace Pirates_Nueva.Ocean
                 Domain? largest = null;
                 int maxArea = 0;
                 //
-                // The topmost and rightmost valid indices within this island.
+                // The topmost and rightmost edges of the Island.
                 int rightmost = Island.Width,
                     topmost = Island.Height;
                 //
