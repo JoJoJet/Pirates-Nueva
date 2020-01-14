@@ -33,7 +33,7 @@ namespace Pirates_Nueva.Ocean
                 //
                 // The domain with the largest area.
                 Domain? largest = null;
-                int area = 0;
+                int maxArea = 0;
                 //
                 // The topmost and rightmost valid indices within this island.
                 int rightmost = Island.Width-1,
@@ -54,7 +54,7 @@ namespace Pirates_Nueva.Ocean
                         // Increasing the base Y-index will only decrease the maximum area,
                         // so we don't have to bother checking future iterations.
                         int a = dom.Area;
-                        if(a <= area)
+                        if(a <= maxArea)
                             break;
                         //
                         // If the smallest possible domain won't fit at this point,
@@ -76,27 +76,26 @@ namespace Pirates_Nueva.Ocean
                             // Any future iterations of either loop would just make the domain smaller,
                             // so we don't have to bother checking them.
                             a = dom.Area;
-                            if(a <= area)
+                            if(a <= maxArea)
                                 break;
-                            for(; y2 >= y + DomainUnit; y2--) {
+                            //
+                            // Iterate over the top edge of the domain, starting at the topmost
+                            // edge of the island, and moving downward to the bottom edge of the domain.
+                            // If the current area drops below the max area break early.
+                            // Any future iterations will decrease the area, so we don't have to check them.
+                            for(; y2 >= y + DomainUnit && a > maxArea; y2--) {
                                 //
-                                // If the domain is NOT larger than the current largest, break from the Y loop.
-                                // We don't need to bother checking if it fits since we wouldn't use it anyway.
-                                // Also, we can skip the rest of this loop, as future iterations will just be smaller.
-                                a = dom.Area;
-                                if(a <= area)
-                                    break;
-                                //
-                                // If the domain fits, save it.
-                                // We already know that its the largest area,
-                                // as we would have broken above if it was smaller than the largest.
-                                // Any future iterations of this loop will just make the domain smaller,
-                                // so there's no point in checking.
+                                // If the domain fits, save it, as we already know that its larger
+                                // than the previous larget domain.
+                                // We can also break from the Y loop as any future iterations will decrease the area.
                                 if(fits(dom)) {
                                     largest = dom;
-                                    area = a;
+                                    maxArea = a;
                                     break;
                                 }
+                                //
+                                // Update the area of the current domain.
+                                a = dom.Area;
                             }
                         }
                     }
