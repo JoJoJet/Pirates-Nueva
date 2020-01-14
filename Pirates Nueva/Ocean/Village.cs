@@ -46,7 +46,7 @@ namespace Pirates_Nueva.Ocean
                         //
                         // The maximum value for the top edge of the island.
                         // The idea is that at most, the height should be twice the width.
-                        int maxY2 = Math.Min(topmost, 2 * (rightmost - x));
+                        int maxY2 = Math.Min(topmost, y + 2 * (rightmost - x));
                         //
                         // Create a domain at the current point, with local aliases to its top-right corner.
                         var dom = new Domain((x, y), (rightmost, maxY2));
@@ -73,14 +73,15 @@ namespace Pirates_Nueva.Ocean
                         // Any future iterations will decrease the area, so we don't need to check them.
                         while(x2 >= x + DomainUnit && a > maxArea) {
                             //
-                            // Update the maximum value for the top edge as the right edge changes.
-                            maxY2 = Math.Min(topmost, 2 * (x2 - x));
+                            // Find the minimum and maximum value for the top edge as the right edge changes.
+                            maxY2 = Math.Min(topmost, y + 2 * (x2 - x));
+                            int minY2 = y + Math.Max(DomainUnit, (x2 - x) / 2);
                             //
                             // Iterate over the top edge of the domain, starting at the topmost
                             // edge of the island, and moving downward to the bottom edge of the domain.
                             // If the current area drops below the max area, break early.
                             // Any future iterations will decrease the area, so we don't have to check them.
-                            for(; y2 >= y + DomainUnit && a > maxArea; y2--) {
+                            for(; y2 >= minY2 && a > maxArea; y2--) {
                                 //
                                 // If the domain fits, save it, as we already know that its larger
                                 // than the previous larget domain.
