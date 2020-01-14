@@ -44,8 +44,12 @@ namespace Pirates_Nueva.Ocean
                 for(int x = 0; x < Island.Width - DomainUnit; x++) {
                     for(int y = 0; y < Island.Height - DomainUnit; y++) {
                         //
+                        // The maximum value for the top edge of the island.
+                        // The idea is that at most, the height should be twice the width.
+                        int maxY2 = Math.Min(topmost, 2 * (rightmost - x));
+                        //
                         // Create a domain at the current point, with local aliases to its top-right corner.
-                        var dom = new Domain((x, y), (rightmost, topmost));
+                        var dom = new Domain((x, y), (rightmost, maxY2));
                         ref int x2 = ref dom.topRight.x,
                                 y2 = ref dom.topRight.y;
                         //
@@ -69,6 +73,9 @@ namespace Pirates_Nueva.Ocean
                         // Any future iterations will decrease the area, so we don't need to check them.
                         while(x2 >= x + DomainUnit && a > maxArea) {
                             //
+                            // Update the maximum value for the top edge as the right edge changes.
+                            maxY2 = Math.Min(topmost, 2 * (x2 - x));
+                            //
                             // Iterate over the top edge of the domain, starting at the topmost
                             // edge of the island, and moving downward to the bottom edge of the domain.
                             // If the current area drops below the max area, break early.
@@ -90,7 +97,7 @@ namespace Pirates_Nueva.Ocean
                             //
                             // Reset the top edge of the /domain/ to the top edge of the /island/,
                             // and decrement the right edge of the domain. Also, recalculate the current area.
-                            y2 = topmost; x2--;
+                            y2 = maxY2; x2--;
                             a = dom.Area;
                         }
                     }
