@@ -134,9 +134,23 @@ namespace Pirates_Nueva.Ocean
                 }
                 //
                 // Return false if any part of the domain goes off of the island.
+                // We are checking the outer edge of the domain first, as it's more likely to be invalid.
+                //
+                // TODO: Is it possible for the outer edge to be valid, while the inner edge is invalid?
+                // At this point, we already know that it doesn't collide with any other domains.
                 for(int x = domain.bottomLeft.x; x < domain.topRight.x; x++) {
-                    for(int y = domain.bottomLeft.y; y < domain.topRight.y; y++) {
-                        if(Island.blocks[x, y] is null)
+                    if(island.blocks[x, domain.bottomLeft.y] is null
+                    || island.blocks[x, domain.topRight.y-1] is null)
+                        return false;
+                }
+                for(int y = domain.bottomLeft.y; y < domain.topRight.y; y++) {
+                    if(island.blocks[domain.bottomLeft.x, y] is null
+                    || island.blocks[domain.topRight.x-1, y] is null)
+                        return false;
+                }
+                for(int x = domain.bottomLeft.x+1; x < domain.topRight.x-1; x++) {
+                    for(int y = domain.bottomLeft.y+1; y < domain.topRight.y-1; y++) {
+                        if(island.blocks[x, y] is null)
                             return false;
                     }
                 }
