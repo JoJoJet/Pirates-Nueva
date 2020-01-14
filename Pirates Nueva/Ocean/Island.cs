@@ -814,15 +814,15 @@ namespace Pirates_Nueva.Ocean
         #endregion
 
         #region Collision
-        private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, PointF p) {
+        private static bool IsCollidingPrecise(Vertex[] vertices, Edge[] edges, (int x, int y) p) {
             int cn = 0;
             foreach(var E in edges) {
                 var a = vertices[E.a];
                 var b = vertices[E.b];
-                if(a.y <= p.Y && b.y > p.Y
-                || a.y > p.Y && b.y <= p.Y) {
-                    float vt = (float)(p.Y - a.y) / (b.y - a.y);
-                    if(p.X < a.x + vt * (b.x - a.x))
+                if(a.y <= p.y && b.y > p.y
+                || a.y > p.y && b.y <= p.y) {
+                    float vt = (float)(p.y - a.y) / (b.y - a.y);
+                    if(p.x < a.x + vt * (b.x - a.x))
                         ++cn;
                 }
             }
