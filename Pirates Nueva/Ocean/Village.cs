@@ -126,9 +126,9 @@ namespace Pirates_Nueva.Ocean
                 }
                 //
                 // Return false if any part of the domain goes off of the island.
-                        if(Island.blocks[x, y] is null)
                 for(int x = domain.bottomLeft.x; x < domain.topRight.x; x++) {
                     for(int y = domain.bottomLeft.y; y < domain.topRight.y; y++) {
+                        if(Island.blocks[x, y] is null)
                             return false;
                     }
                 }
