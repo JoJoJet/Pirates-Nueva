@@ -35,34 +35,47 @@ namespace Pirates_Nueva.Ocean
                 Domain? largest = null;
                 int area = 0;
                 //
+                // The topmost and rightmost valid indices within this island.
+                int rightmost = Island.Width-1,
+                    topmost = Island.Height-1;
+                //
                 // Check each possible domain that could fit on the Island,
                 // and save the one with the highest area.
                 for(int x = 0; x < Island.Width - DomainUnit; x++) {
                     for(int y = 0; y < Island.Height - DomainUnit; y++) {
                         //
-                        // Create a minimum-sized domain at the current point.
-                        var dom = new Domain() { bottomLeft = (x, y), topRight = (x + DomainUnit, y + DomainUnit) };
+                        // Create a domain at the current point, with local aliases to its top-right corner.
+                        var dom = new Domain() { bottomLeft = (x, y), topRight = (rightmost, topmost) };
+                        ref int x2 = ref dom.topRight.x,
+                                y2 = ref dom.topRight.y;
+                        //
+                        // If the largest possible domain from this point is smaller than
+                        // the current largest domain so far, break from the Y loop.
+                        // Increasing the base Y-index will only decrease the maximum area,
+                        // so we don't have to bother checking future iterations.
+                        int a = dom.Area;
+                        if(a <= area)
+                            break;
                         //
                         // If the smallest possible domain won't fit at this point,
                         // that means any larger domains won't fit either.
                         // Skip this iteration of the loop.
+                        (x2, y2) = (x + DomainUnit, y + DomainUnit);
                         if(!fits(dom))
                             continue;
                         //
                         // Expand this domain into every possible larger shape,
                         // adding each one that fits into the list of possible domains.
-                        ref int x2 = ref dom.topRight.x,
-                                y2 = ref dom.topRight.y;
-                        for(x2 = Island.Width-1; x2 >= x + DomainUnit; x2--) {
+                        for(x2 = rightmost; x2 >= x + DomainUnit; x2--) {
                             //
                             // Set the initial value of y2 for its loop.
-                            y2 = Island.Height-1;
+                            y2 = topmost;
                             //
                             // If the domain is NOT larger than the current largest,
                             // break from both the X and Y loops.
                             // Any future iterations of either loop would just make the domain smaller,
                             // so we don't have to bother checking them.
-                            var a = dom.Area;
+                            a = dom.Area;
                             if(a <= area)
                                 break;
                             for(; y2 >= y + DomainUnit; y2--) {
