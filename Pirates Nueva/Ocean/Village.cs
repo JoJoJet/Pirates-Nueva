@@ -45,7 +45,7 @@ namespace Pirates_Nueva.Ocean
                     for(int y = 0; y < Island.Height - DomainUnit; y++) {
                         //
                         // Create a domain at the current point, with local aliases to its top-right corner.
-                        var dom = new Domain() { bottomLeft = (x, y), topRight = (rightmost, topmost) };
+                        var dom = new Domain((x, y), (rightmost, topmost));
                         ref int x2 = ref dom.topRight.x,
                                 y2 = ref dom.topRight.y;
                         //
@@ -60,28 +60,18 @@ namespace Pirates_Nueva.Ocean
                         // If the smallest possible domain won't fit at this point,
                         // that means any larger domains won't fit either.
                         // Skip this iteration of the loop.
-                        (x2, y2) = (x + DomainUnit, y + DomainUnit);
-                        if(!fits(dom))
+                        if(!fits(new Domain((x, y), (x + DomainUnit, y + DomainUnit))))
                             continue;
                         //
-                        // Expand this domain into every possible larger shape,
-                        // adding each one that fits into the list of possible domains.
-                        for(x2 = rightmost; x2 >= x + DomainUnit; x2--) {
-                            //
-                            // Set the initial value of y2 for its loop.
-                            y2 = topmost;
-                            //
-                            // If the domain is NOT larger than the current largest,
-                            // break from both the X and Y loops.
-                            // Any future iterations of either loop would just make the domain smaller,
-                            // so we don't have to bother checking them.
-                            a = dom.Area;
-                            if(a <= maxArea)
-                                break;
+                        // Iterate over the right edge of the domain, starting at the rightmost
+                        // edge of the island and moving leftward to the left edge of the domain.
+                        // If the current area drops below the max area, break early.
+                        // Any future iterations will decrease the area, so we don't need to check them.
+                        while(x2 >= x + DomainUnit && a > maxArea) {
                             //
                             // Iterate over the top edge of the domain, starting at the topmost
                             // edge of the island, and moving downward to the bottom edge of the domain.
-                            // If the current area drops below the max area break early.
+                            // If the current area drops below the max area, break early.
                             // Any future iterations will decrease the area, so we don't have to check them.
                             for(; y2 >= y + DomainUnit && a > maxArea; y2--) {
                                 //
@@ -97,6 +87,11 @@ namespace Pirates_Nueva.Ocean
                                 // Update the area of the current domain.
                                 a = dom.Area;
                             }
+                            //
+                            // Reset the top edge of the /domain/ to the top edge of the /island/,
+                            // and decrement the right edge of the domain. Also, recalculate the current area.
+                            y2 = topmost; x2--;
+                            a = dom.Area;
                         }
                     }
                 }
@@ -158,6 +153,8 @@ namespace Pirates_Nueva.Ocean
         private struct Domain
         {
             public (int x, int y) bottomLeft, topRight;
+
+            public Domain((int x, int y) bl, (int x, int y) tr) => (bottomLeft, topRight) = (bl, tr);
 
             public readonly int Area => (topRight.x - bottomLeft.x) * (topRight.y - bottomLeft.y);
 
