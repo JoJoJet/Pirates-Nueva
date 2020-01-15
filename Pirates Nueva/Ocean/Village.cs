@@ -16,7 +16,7 @@ namespace Pirates_Nueva.Ocean
 
         public VillageDef Def { get; }
 
-        private readonly Domain domain;
+        private readonly List<Domain> domains;
 
         public Village(Island island, VillageDef def)
         {
@@ -26,7 +26,10 @@ namespace Pirates_Nueva.Ocean
             //
             // Find a domain for the Village that fits on the Island.
             var domains = new List<Domain>();
-            findDomain(out this.domain);
+            while(findDomain(out var d)) {
+                domains.Add(d);
+            }
+            this.domains = domains;
 
             bool findDomain(out Domain domain)
             {
@@ -160,14 +163,16 @@ namespace Pirates_Nueva.Ocean
 
         void IDrawable<Island>.Draw<TDrawer>(in TDrawer drawer)
         {
-            float left = this.domain.bottomLeft.x,
-                  bottom = this.domain.bottomLeft.y,
-                  right = this.domain.topRight.x,
-                  top = this.domain.topRight.y;
-            drawer.DrawLine((left,  bottom), (right, bottom), UI.Color.Black);
-            drawer.DrawLine((right, bottom), (right, top),    UI.Color.Black);
-            drawer.DrawLine((right, top),    (left,  top),    UI.Color.Black);
-            drawer.DrawLine((left,  top),    (left,  bottom), UI.Color.Black);
+            foreach(var domain in this.domains) {
+                float left   = domain.bottomLeft.x,
+                      bottom = domain.bottomLeft.y,
+                      right  = domain.topRight.x,
+                      top    = domain.topRight.y;
+                drawer.DrawLine((left, bottom),  (right, bottom), UI.Color.Black);
+                drawer.DrawLine((right, bottom), (right, top),    UI.Color.Black);
+                drawer.DrawLine((right, top),    (left, top),     UI.Color.Black);
+                drawer.DrawLine((left, top),     (left, bottom),  UI.Color.Black);
+            }
         }
 
         private struct Domain
