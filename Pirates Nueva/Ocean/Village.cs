@@ -57,50 +57,64 @@ namespace Pirates_Nueva.Ocean
             // and that has the smallest distance to the main domain of this Village.
             // TODO: Right now, this only works for docks facing east.
             //       Generalize this to work in any direction.
-            (PointI corner, int length, int distance) bestDock = ((-1, -1), int.MaxValue, int.MaxValue);
+            (PointI corner, Angle angle, int length, int distance) bestDock = ((-1, -1), default, int.MaxValue, int.MaxValue);
             var dom = this.domains[0];
             for(int y = dom.bottomLeft.y + 1; y < dom.topRight.y; y++) {
 
                 int x = dom.topRight.x;
-                //
-                // Find the distance from the current point on the right edge of the island
-                // to the shore of the island.
-                int distance = 1;
-                while(Island.HasBlock(x + distance, y-1) && island.HasBlock(x + distance, y))
-                    distance++;
-                //
-                // Find the length of the dock starting from the shore.
-                int length = 0;
-                while(true) {
-                    //
-                    // If any part under the dock has land, increase the length and repeat the loop.
-                    if(Island.HasBlock(x + distance + length, y+1) || Island.HasBlock(x + distance + length, y)
-                    || Island.HasBlock(x + distance + length, y-1) || Island.HasBlock(x + distance + length, y-2))
-                        goto skip;
-                    //
-                    // If there is any land perpendicular to this point in the dock, increase the length and repeat.
-                    for(int r = 0; r < Math.Max(Island.Width, Island.Height); r++) {
-                        if(Island.HasBlock(x + distance + length, y + r)
-                        || Island.HasBlock(x + distance + length, y - 1 - r))
-                            goto skip;
-                    }
-                    //
-                    // If we got this far, then that means its clear ocean from here on out.
-                    // Increase the length of the dock by a constant and break from the loop.
-                    length += 5;
-                    break;
-
-                skip:
-                    length++;
-                }
+                var (distance, length) = findDock(x, 1);
                 //
                 // If the dock we just found is more ideal than the previous ideal dock,
                 // replace the old one.
                 if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
-                    bestDock = ((x + distance, y), length, distance);
+                    bestDock = ((x + distance - 1, y), Angle.Right, length, distance);
+
+                x = dom.bottomLeft.x - 1;
+                (distance, length) = findDock(x, -1);
+                if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
+                    bestDock = ((x - distance + 1, y - 1), Angle.Left, length, distance);
+
+                (int distance, int length) findDock(int x, int dir)
+                {
+                    //
+                    // Find the distance from the current point on the right edge of the island
+                    // to the shore of the island.
+                    int distance = 1;
+                    while(Island.HasBlock(x + distance * dir, y-1) && island.HasBlock(x + distance * 1, y))
+                        distance++;
+                    //
+                    // Find the length of the dock starting from the shore.
+                    int length = 0;
+                    while(true) {
+                        //
+                        // If any part under the dock has land, increase the length and repeat the loop.
+                        if(Island.HasBlock(x + (distance + length) * dir, y+1)
+                        || Island.HasBlock(x + (distance + length) * dir, y)
+                        || Island.HasBlock(x + (distance + length) * dir, y-1)
+                        || Island.HasBlock(x + (distance + length) * dir, y-2))
+                            goto skip;
+                        //
+                        // If there is any land perpendicular to this point in the dock, increase the length and repeat.
+                        for(int r = 0; r < Math.Max(Island.Width, Island.Height); r++) {
+                            if(Island.HasBlock(x + (distance + length) * dir, y + r)
+                            || Island.HasBlock(x + (distance + length) * dir, y - 1 - r))
+                                goto skip;
+                        }
+                        //
+                        // If we got this far, then that means its clear ocean from here on out.
+                        // Increase the length of the dock by a constant and break from the loop.
+                        length += 5;
+                        break;
+
+                    skip:
+                        length++;
+                    }
+
+                    return (distance, length);
+                }
             }
 
-            Dock = new Dock(bestDock.corner, Angle.Right, bestDock.length);
+            Dock = new Dock(bestDock.corner, bestDock.angle, bestDock.length);
 
             bool findDomain(out Domain domain)
             {
@@ -245,11 +259,20 @@ namespace Pirates_Nueva.Ocean
                 drawer.DrawLine((left, top),     (left, bottom),  UI.Color.Black);
             }
 
-            {
+            if(Dock.Angle == Angle.Right) {
                 int left = Dock.Corner.X,
                     bottom = Dock.Corner.Y - 1,
                     right = Dock.Corner.X + Dock.Length + 1,
                     top = Dock.Corner.Y + 1;
+
+                drawer.DrawLine((left, top),    (right, top),    UI.Color.PaleYellow);
+                drawer.DrawLine((left, bottom), (right, bottom), UI.Color.PaleYellow);
+            }
+            else if(Dock.Angle == Angle.Left) {
+                int left = Dock.Corner.X - Dock.Length,
+                    bottom = Dock.Corner.Y,
+                    right = Dock.Corner.X + 1,
+                    top = Dock.Corner.Y + 2;
 
                 drawer.DrawLine((left, top),    (right, top),    UI.Color.PaleYellow);
                 drawer.DrawLine((left, bottom), (right, bottom), UI.Color.PaleYellow);
