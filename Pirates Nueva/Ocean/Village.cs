@@ -5,6 +5,21 @@ using System.Text;
 
 namespace Pirates_Nueva.Ocean
 {
+    public sealed class Dock
+    {
+        /// <summary>
+        /// The indices of this <see cref="Dock"/>'s corner.
+        /// When <see cref="Angle"/> = <see cref="Angle.Right"/>, this is the top left corner.
+        /// </summary>
+        public PointI Corner { get; }
+
+        public Angle Angle { get; }
+
+        public int Length { get; }
+
+        public Dock(PointI corner, Angle angle, int length)
+            => (Corner, Angle, Length) = (corner, angle, length);
+    }
     public sealed class Village : IDrawable<Island>
     {
         /// <summary>
