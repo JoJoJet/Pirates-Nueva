@@ -55,20 +55,20 @@ namespace Pirates_Nueva.Ocean
             //
             // Find the dock that has both the shortest length to open sea,
             // and that has the smallest distance to the main domain of this Village.
-            // TODO: Right now, this only works for docks facing east.
+            // TODO: Right now, this only works for docks facing east or west.
             //       Generalize this to work in any direction.
             (PointI corner, Angle angle, int length, int distance) bestDock = ((-1, -1), default, int.MaxValue, int.MaxValue);
             var dom = this.domains[0];
             for(int y = dom.bottomLeft.y + 1; y < dom.topRight.y; y++) {
-
+                //
+                // Find a Dock facing eastward.
+                // If it's more ideal than the previous ideal dock, replace the old one.
                 int x = dom.topRight.x;
                 var (distance, length) = findDock(x, 1);
-                //
-                // If the dock we just found is more ideal than the previous ideal dock,
-                // replace the old one.
                 if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
                     bestDock = ((x + distance - 1, y), Angle.Right, length, distance);
-
+                //
+                // Find a dock facing westward.
                 x = dom.bottomLeft.x - 1;
                 (distance, length) = findDock(x, -1);
                 if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
@@ -77,7 +77,7 @@ namespace Pirates_Nueva.Ocean
                 (int distance, int length) findDock(int x, int dir)
                 {
                     //
-                    // Find the distance from the current point on the right edge of the island
+                    // Find the distance from the current point on the edge of the island
                     // to the shore of the island.
                     int distance = 1;
                     while(Island.HasBlock(x + distance * dir, y-1) && island.HasBlock(x + distance * 1, y))
