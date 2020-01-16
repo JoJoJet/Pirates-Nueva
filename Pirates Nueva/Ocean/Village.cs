@@ -55,8 +55,6 @@ namespace Pirates_Nueva.Ocean
             //
             // Find the dock that has both the shortest length to open sea,
             // and that has the smallest distance to the main domain of this Village.
-            // TODO: Right now, this only works for docks facing east or west.
-            //       Generalize this to work in any direction.
             (PointI corner, Angle angle, int length, int distance) bestDock = ((-1, -1), default, int.MaxValue, int.MaxValue);
             var dom = this.domains[0];
             for(int y = dom.bottomLeft.y + 1; y < dom.topRight.y; y++) {
@@ -77,7 +75,7 @@ namespace Pirates_Nueva.Ocean
                 (int distance, int length) findDock(int x, int dir)
                 {
                     //
-                    // Find the distance from the current point on the edge of the island
+                    // Find the distance from the current point on the edge of the Domain
                     // to the shore of the island.
                     int distance = 1;
                     while(Island.HasBlock(x + distance * dir, y-1) && island.HasBlock(x + distance * 1, y))
@@ -112,6 +110,44 @@ namespace Pirates_Nueva.Ocean
 
                     return (distance, length);
                 }
+            }
+            for(int x = dom.bottomLeft.x + 1; x < dom.topRight.x; x++) {
+                int y = dom.bottomLeft.y - 1;
+                //
+                // Find the distance from the current point on the edge of the Domain
+                // to the shore of the Island.
+                int distance = 1;
+                while(Island.HasBlock(x-1, y - distance) && Island.HasBlock(x, y - distance))
+                    distance++;
+                //
+                // Find the length of the dock starting from the shore.
+                int length = 0;
+                while(true) {
+                    //
+                    // If any part under the dock has land, increase the length and repeat the loop.
+                    if(Island.HasBlock(x+1, y - distance - length) || Island.HasBlock(x, y - distance - length)
+                    || Island.HasBlock(x-1, y - distance - length) || Island.HasBlock(x-2, y - distance - length))
+                        goto skip;
+                    //
+                    // If there is any land perpendicular to this point in the dock, increase the length and repeat.
+                    for(int r = 0; r < Math.Max(Island.Width, Island.Height); r++) {
+                        if(Island.HasBlock(x + r,     y - distance - length)
+                        || Island.HasBlock(x - 1 - r, y - distance - length))
+                            goto skip;
+                    }
+                    //
+                    // If we got this far, then that means its clear ocean from here on out.
+                    // Increase the length of the dock by a constant and break from the loop.
+                    length += 5;
+                    break;
+
+                skip:
+                    length++;
+                }
+                //
+                // If the dock is more ideal than the previous ideal dock, replace the old one.
+                if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
+                    bestDock = ((x, y - distance + 1), Angle.Down, length, distance);
             }
 
             Dock = new Dock(bestDock.corner, bestDock.angle, bestDock.length);
@@ -276,6 +312,15 @@ namespace Pirates_Nueva.Ocean
 
                 drawer.DrawLine((left, top),    (right, top),    UI.Color.PaleYellow);
                 drawer.DrawLine((left, bottom), (right, bottom), UI.Color.PaleYellow);
+            }
+            else if(Dock.Angle == Angle.Down) {
+                int left = Dock.Corner.X - 1,
+                    bottom = Dock.Corner.Y - Dock.Length,
+                    right = Dock.Corner.X + 1,
+                    top = Dock.Corner.Y + 1;
+
+                drawer.DrawLine((left,  top), (left,  bottom), UI.Color.PaleYellow);
+                drawer.DrawLine((right, top), (right, bottom), UI.Color.PaleYellow);
             }
         }
 
