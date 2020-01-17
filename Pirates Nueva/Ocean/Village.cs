@@ -346,6 +346,9 @@ namespace Pirates_Nueva.Ocean
 
         private struct Domain
         {
+            /// <summary>
+            /// <see cref="bottomLeft"/> is inclusive, <see cref="topRight"/> is not.
+            /// </summary>
             public (int x, int y) bottomLeft, topRight;
 
             public Domain((int x, int y) bl, (int x, int y) tr) => (bottomLeft, topRight) = (bl, tr);
