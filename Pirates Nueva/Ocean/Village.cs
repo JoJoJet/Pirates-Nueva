@@ -311,41 +311,37 @@ namespace Pirates_Nueva.Ocean
                 drawer.DrawLine((left, top),     (left, bottom),  UI.Color.Black);
             }
 
-            if(Dock.Angle == Angle.Right) {
-                int left = Dock.Corner.X,
-                    bottom = Dock.Corner.Y - 1,
-                    right = Dock.Corner.X + Dock.Length + 1,
+            {
+                int left, bottom, right, top;
+                if(Dock.Angle == Angle.Right) {
+                    left = Dock.Corner.X;
+                    bottom = Dock.Corner.Y - 1;
+                    right = Dock.Corner.X + Dock.Length + 1;
                     top = Dock.Corner.Y + 1;
-
-                drawer.DrawLine((left, top),    (right, top),    UI.Color.PaleYellow);
-                drawer.DrawLine((left, bottom), (right, bottom), UI.Color.PaleYellow);
-            }
-            else if(Dock.Angle == Angle.Left) {
-                int left = Dock.Corner.X - Dock.Length,
-                    bottom = Dock.Corner.Y,
-                    right = Dock.Corner.X + 1,
+                }
+                else if(Dock.Angle == Angle.Left) {
+                    left = Dock.Corner.X - Dock.Length;
+                    bottom = Dock.Corner.Y;
+                    right = Dock.Corner.X + 1;
                     top = Dock.Corner.Y + 2;
-
-                drawer.DrawLine((left, top),    (right, top),    UI.Color.PaleYellow);
-                drawer.DrawLine((left, bottom), (right, bottom), UI.Color.PaleYellow);
-            }
-            else if(Dock.Angle == Angle.Down) {
-                int left = Dock.Corner.X - 1,
-                    bottom = Dock.Corner.Y - Dock.Length,
-                    right = Dock.Corner.X + 1,
+                }
+                else if(Dock.Angle == Angle.Down) {
+                    left = Dock.Corner.X - 1;
+                    bottom = Dock.Corner.Y - Dock.Length;
+                    right = Dock.Corner.X + 1;
                     top = Dock.Corner.Y + 1;
-
-                drawer.DrawLine((left,  top), (left,  bottom), UI.Color.PaleYellow);
-                drawer.DrawLine((right, top), (right, bottom), UI.Color.PaleYellow);
-            }
-            else if(Dock.Angle == Angle.Up) {
-                int left = Dock.Corner.X,
-                    bottom = Dock.Corner.Y,
-                    right = Dock.Corner.X + 2,
+                }
+                else /* Dock.Angle == Angle.Up */ {
+                    left = Dock.Corner.X;
+                    bottom = Dock.Corner.Y;
+                    right = Dock.Corner.X + 2;
                     top = Dock.Corner.Y + Dock.Length + 1;
+                }
 
-                drawer.DrawLine((left,  bottom), (left,  top), UI.Color.PaleYellow);
-                drawer.DrawLine((right, bottom), (right, top), UI.Color.PaleYellow);
+                drawer.DrawLine((left,  bottom), (right, bottom), UI.Color.PaleYellow);
+                drawer.DrawLine((right, bottom), (right, top),    UI.Color.PaleYellow);
+                drawer.DrawLine((right, top),    (left,  top),    UI.Color.PaleYellow);
+                drawer.DrawLine((left,  top),    (left,  bottom), UI.Color.PaleYellow);
             }
         }
 
