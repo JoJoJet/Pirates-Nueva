@@ -100,8 +100,7 @@ namespace Pirates_Nueva.Ocean
                         }
                         //
                         // If we got this far, then that means its clear ocean from here on out.
-                        // Increase the length of the dock by a constant and break from the loop.
-                        length += 5;
+                        // Break from the loop.
                         break;
 
                     skip:
@@ -154,8 +153,7 @@ namespace Pirates_Nueva.Ocean
                         }
                         //
                         // If we got this far, then that means its clear ocean from here on out.
-                        // Increase the length of the dock by a constant and break from the loop.
-                        length += 5;
+                        // Break from the loop.
                         break;
 
                     skip:
@@ -166,7 +164,8 @@ namespace Pirates_Nueva.Ocean
                 }
             }
 
-            Dock = new Dock(bestDock.corner, bestDock.angle, bestDock.length);
+            const int MinDockLength = 7;
+            Dock = new Dock(bestDock.corner, bestDock.angle, bestDock.length + MinDockLength);
 
             bool findDomain(out Domain domain)
             {
