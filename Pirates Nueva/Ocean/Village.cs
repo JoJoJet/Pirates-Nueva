@@ -78,7 +78,7 @@ namespace Pirates_Nueva.Ocean
                     // Find the distance from the current point on the edge of the Domain
                     // to the shore of the island.
                     int distance = 1;
-                    while(Island.HasBlock(x + distance * dir, y-1) && island.HasBlock(x + distance * 1, y))
+                    while(Island.HasBlock(x + distance * dir, y-1) && Island.HasBlock(x + distance * 1, y))
                         distance++;
                     //
                     // Find the length of the dock starting from the shore.
@@ -112,42 +112,58 @@ namespace Pirates_Nueva.Ocean
                 }
             }
             for(int x = dom.bottomLeft.x + 1; x < dom.topRight.x; x++) {
+                //
+                // Find a Dock facing southward.
+                // If it's more ideal than the previous ideal dock, replace the old one.
                 int y = dom.bottomLeft.y - 1;
-                //
-                // Find the distance from the current point on the edge of the Domain
-                // to the shore of the Island.
-                int distance = 1;
-                while(Island.HasBlock(x-1, y - distance) && Island.HasBlock(x, y - distance))
-                    distance++;
-                //
-                // Find the length of the dock starting from the shore.
-                int length = 0;
-                while(true) {
-                    //
-                    // If any part under the dock has land, increase the length and repeat the loop.
-                    if(Island.HasBlock(x+1, y - distance - length) || Island.HasBlock(x, y - distance - length)
-                    || Island.HasBlock(x-1, y - distance - length) || Island.HasBlock(x-2, y - distance - length))
-                        goto skip;
-                    //
-                    // If there is any land perpendicular to this point in the dock, increase the length and repeat.
-                    for(int r = 0; r < Math.Max(Island.Width, Island.Height); r++) {
-                        if(Island.HasBlock(x + r,     y - distance - length)
-                        || Island.HasBlock(x - 1 - r, y - distance - length))
-                            goto skip;
-                    }
-                    //
-                    // If we got this far, then that means its clear ocean from here on out.
-                    // Increase the length of the dock by a constant and break from the loop.
-                    length += 5;
-                    break;
-
-                skip:
-                    length++;
-                }
-                //
-                // If the dock is more ideal than the previous ideal dock, replace the old one.
+                var (distance, length) = findDock(y, -1);
                 if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
                     bestDock = ((x, y - distance + 1), Angle.Down, length, distance);
+                //
+                // Find a dock facing northward.
+                y = dom.topRight.y;
+                (distance, length) = findDock(y, 1);
+                if(length < bestDock.length || length == bestDock.length && distance < bestDock.distance)
+                    bestDock = ((x-1, y + distance - 1), Angle.Up, length, distance);
+
+                (int distance, int findLength) findDock(int y, int dir)
+                {
+                    //
+                    // Find the distance from the current point on the edge of the Domain
+                    // to the shore of the Island.
+                    int distance = 1;
+                    while(Island.HasBlock(x-1, y + distance * dir) && Island.HasBlock(x, y + distance * dir))
+                        distance++;
+                    //
+                    // Find the length of the dock starting from the shore.
+                    int length = 0;
+                    while(true) {
+                        //
+                        // If any part under the dock has land, increase the length and repeat the loop.
+                        if(Island.HasBlock(x+1, y + (distance + length) * dir)
+                        || Island.HasBlock(x,   y + (distance + length) * dir)
+                        || Island.HasBlock(x-1, y + (distance + length) * dir)
+                        || Island.HasBlock(x-2, y + (distance + length) * dir))
+                            goto skip;
+                        //
+                        // If there is any land perpendicular to this point in the dock, increase the length and repeat.
+                        for(int r = 0; r < Math.Max(Island.Width, Island.Height); r++) {
+                            if(Island.HasBlock(x + r,     y + (distance + length) * dir)
+                            || Island.HasBlock(x - 1 - r, y + (distance + length) * dir))
+                                goto skip;
+                        }
+                        //
+                        // If we got this far, then that means its clear ocean from here on out.
+                        // Increase the length of the dock by a constant and break from the loop.
+                        length += 5;
+                        break;
+
+                    skip:
+                        length++;
+                    }
+
+                    return (distance, length);
+                }
             }
 
             Dock = new Dock(bestDock.corner, bestDock.angle, bestDock.length);
@@ -321,6 +337,15 @@ namespace Pirates_Nueva.Ocean
 
                 drawer.DrawLine((left,  top), (left,  bottom), UI.Color.PaleYellow);
                 drawer.DrawLine((right, top), (right, bottom), UI.Color.PaleYellow);
+            }
+            else if(Dock.Angle == Angle.Up) {
+                int left = Dock.Corner.X,
+                    bottom = Dock.Corner.Y,
+                    right = Dock.Corner.X + 2,
+                    top = Dock.Corner.Y + Dock.Length + 1;
+
+                drawer.DrawLine((left,  bottom), (left,  top), UI.Color.PaleYellow);
+                drawer.DrawLine((right, bottom), (right, top), UI.Color.PaleYellow);
             }
         }
 
