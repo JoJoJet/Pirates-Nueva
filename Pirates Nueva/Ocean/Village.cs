@@ -203,7 +203,7 @@ namespace Pirates_Nueva.Ocean
                         // If the smallest possible domain won't fit at this point,
                         // that means any larger domains won't fit either.
                         // Skip this iteration of the loop.
-                        if(!fits(new Domain((x, y), (x + DomainUnit, y + DomainUnit))))
+                        if(!fits(domains, new Domain((x, y), (x + DomainUnit, y + DomainUnit))))
                             continue;
                         //
                         // Iterate over the right edge of the domain, starting at the rightmost
@@ -225,7 +225,7 @@ namespace Pirates_Nueva.Ocean
                                 // If the domain fits, save it, as we already know that its larger
                                 // than the previous larget domain.
                                 // We can also break from the Y loop as any future iterations will decrease the area.
-                                if(fits(dom)) {
+                                if(fits(domains, dom)) {
                                     largest = dom;
                                     maxArea = a;
                                     break;
@@ -259,7 +259,7 @@ namespace Pirates_Nueva.Ocean
             //
             // Returns whether or not the specified Domain would fit on the island.
             // Ensures that the domain does not overlap with others.
-            bool fits(in Domain domain)
+            bool fits(List<Domain> domains, in Domain domain)
             {
                 //
                 // We're just gonna assume that the domain fits within the block grid.
