@@ -7,7 +7,7 @@ namespace Pirates_Nueva
 {
     public class VillageDef : Def<VillageDef>
     {
-        private readonly Requirement[] requirements;
+        private readonly BuildingRequirement[] buildings;
 
         #region Def Implementation
         protected override string TypeName => "VillageDef";
@@ -15,7 +15,7 @@ namespace Pirates_Nueva
         protected override VillageDef Construct(XmlReader reader) => new VillageDef(ref reader);
         #endregion
 
-        public IReadOnlyList<Requirement> Requirements => this.requirements;
+        public IReadOnlyList<BuildingRequirement> Buildings => this.buildings;
 
         /// <summary>
         /// Reads the ID attribute of the <see cref="XmlReader"/>.
@@ -30,12 +30,12 @@ namespace Pirates_Nueva
 
             //
             // Read the requirements from file.
-            var reqs = new List<Requirement>();
-            if(reader.ReadToDescendant(nameof(Requirement))) {
+            var reqs = new List<BuildingRequirement>();
+            if(reader.ReadToDescendant("Building")) {
                 do {
-                    reqs.Add(new Requirement(reader));
+                    reqs.Add(new BuildingRequirement(reader));
                 }
-                while(reader.ReadToNextSibling(nameof(Requirement)));
+                while(reader.ReadToNextSibling("Building"));
             }
             //
             // Sort the requirements.
@@ -45,19 +45,19 @@ namespace Pirates_Nueva
                          // with lower numbers coming first, but 0 coming last.
                          orderby r.Min > 0 ? r.Min : int.MaxValue ascending
                          select r;
-            this.requirements = sorted.ToArray();
+            this.buildings = sorted.ToArray();
 
             if(closeReader)
                 reader.Dispose();
         }
 
-        public sealed class Requirement
+        public sealed class BuildingRequirement
         {
             public BuildingDef Building { get; }
             public int Min { get; }
             public int Max { get; }
 
-            internal Requirement(XmlReader reader)
+            internal BuildingRequirement(XmlReader reader)
             {
                 Building = BuildingDef.Get(reader.GetAttributeStrict("ID"));
                 

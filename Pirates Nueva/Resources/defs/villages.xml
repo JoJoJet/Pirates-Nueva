@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <VillageDefs>
 	<VillageDef ID="fishing">
-		<Requirement ID="house" Count="2-3"   />
+		<Building ID="house" Count="2-3"   />
 	</VillageDef>
 </VillageDefs>
